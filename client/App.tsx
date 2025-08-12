@@ -1,4 +1,12 @@
 import "./global.css";
+import { supabaseConfigured } from "./lib/supabase";
+
+// Initialize development data only when Supabase is configured
+if (supabaseConfigured) {
+  import("./lib/dev-setup").then(({ devSetup }) => {
+    devSetup.createInitialData();
+  });
+}
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
