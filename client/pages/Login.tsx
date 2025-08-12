@@ -282,13 +282,11 @@ export function Login() {
           <div className="text-center mt-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                <strong>Primeira vez?</strong> Clique em "Criar contas de teste" e depois confirme os emails no painel do Supabase.
+                <strong>🚀 Primeira vez?</strong> Use a <strong>"Configuração Rápida"</strong> - te guiamos em 3 passos simples!
                 <br />
-                <strong>Contas de teste:</strong> <code>admin@test.com</code>, <code>test@example.com</code>, <code>dev@localhost.com</code>
+                <strong>Ou use contas prontas:</strong> <code>admin@test.com</code> / <code>123456</code>
                 <br />
-                <strong>Senha:</strong> <code>123456</code> (para todas as contas)
-                <br />
-                <strong>Importante:</strong> Confirme os emails no painel do Supabase antes de fazer login
+                <strong>Problema com login?</strong> A Configuração Rápida resolve tudo automaticamente
                 <br />
                 Após fazer login, use OAB <strong>123456</strong> para vincular.
               </p>
