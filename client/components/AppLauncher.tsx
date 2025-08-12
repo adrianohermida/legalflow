@@ -49,7 +49,7 @@ const advogadoApps = [
     description: 'Base de clientes e relacionamento',
     href: '/clientes',
     icon: Users,
-    color: 'bg-purple-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'jornadas',
@@ -57,7 +57,7 @@ const advogadoApps = [
     description: 'Jornadas do cliente e automação',
     href: '/jornadas',
     icon: Target,
-    color: 'bg-orange-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'inbox',
@@ -65,7 +65,7 @@ const advogadoApps = [
     description: 'Triagem de publicações e movimentações',
     href: '/inbox',
     icon: Inbox,
-    color: 'bg-red-500',
+    color: 'bg-danger',
   },
   {
     id: 'agenda',
@@ -73,7 +73,7 @@ const advogadoApps = [
     description: 'Compromissos, prazos e eventos',
     href: '/agenda',
     icon: Calendar,
-    color: 'bg-green-500',
+    color: 'bg-success',
   },
   {
     id: 'documentos',
@@ -81,7 +81,7 @@ const advogadoApps = [
     description: 'Biblioteca e gestão de documentos',
     href: '/documentos',
     icon: FolderOpen,
-    color: 'bg-yellow-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'financeiro',
@@ -89,7 +89,7 @@ const advogadoApps = [
     description: 'Gestão financeira e faturamento',
     href: '/financeiro',
     icon: DollarSign,
-    color: 'bg-emerald-500',
+    color: 'bg-success',
   },
   {
     id: 'planos-pagamento',
@@ -97,7 +97,7 @@ const advogadoApps = [
     description: 'Gestão de planos de pagamento',
     href: '/planos-pagamento',
     icon: DollarSign,
-    color: 'bg-green-600',
+    color: 'bg-success',
   },
   {
     id: 'relatorios',
@@ -105,7 +105,7 @@ const advogadoApps = [
     description: 'Análises e relatórios gerenciais',
     href: '/relatorios',
     icon: BarChart3,
-    color: 'bg-indigo-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'helpdesk',
@@ -113,7 +113,7 @@ const advogadoApps = [
     description: 'Suporte e atendimento ao cliente',
     href: '/helpdesk',
     icon: HeadphonesIcon,
-    color: 'bg-pink-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'servicos',
@@ -121,7 +121,7 @@ const advogadoApps = [
     description: 'Catálogo e gestão de serviços',
     href: '/servicos',
     icon: ShoppingBag,
-    color: 'bg-cyan-500',
+    color: 'bg-brand-700',
   },
 ];
 
