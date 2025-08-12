@@ -58,7 +58,7 @@ export function Login() {
     setSuccess('');
 
     try {
-      await signup('adriano@hermidamaia.adv.br', '123456');
+      await signup('test@example.com', '123456');
       setSuccess('Usuário de teste criado! Confirme o email no painel do Supabase para fazer login.');
       handleDemoLogin(); // Fill in the credentials
     } catch (err: any) {
