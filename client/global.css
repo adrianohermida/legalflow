@@ -53,9 +53,9 @@
   .dark {
     --background: var(--brand-900);
     --foreground: var(--brand-100);
-    --card: 15 23 30; /* Slightly lighter than brand-900 */
+    --card: var(--brand-800);
     --card-foreground: var(--brand-100);
-    --popover: 15 23 30;
+    --popover: var(--brand-800);
     --popover-foreground: var(--brand-100);
     --primary: var(--brand-700);
     --primary-foreground: 255 255 255;
@@ -78,7 +78,7 @@
   
   body {
     @apply bg-background text-foreground font-sans;
-    /* F1.0 - Line-height confort��vel */
+    /* F1.0 - Line-height confortável */
     line-height: 1.7;
     font-feature-settings: "rlig" 1, "calt" 1;
     text-rendering: optimizeLegibility;
