@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/Layout";
 import { Login } from "./pages/Login";
 import Setup from "./pages/Setup";
+import { QuickSetup } from "./pages/QuickSetup";
 import { supabaseConfigured } from "./lib/supabase";
 
 // Initialize development data only when Supabase is configured
