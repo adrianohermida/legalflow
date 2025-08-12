@@ -135,12 +135,21 @@ export function Login() {
 
                   {error.includes('Email não confirmado') && (
                     <Alert>
-                      <AlertDescription className="text-sm">
-                        <strong>Para resolver (desenvolvimento):</strong>
-                        <br />• Acesse o <a href="https://supabase.com/dashboard" target="_blank" className="text-blue-600 hover:underline">painel do Supabase</a>
-                        <br />• Vá em Authentication → Users
-                        <br />• Encontre seu usuário e clique em "Confirm email"
-                        <br />• Ou desative "Enable email confirmations" em Auth Settings
+                      <AlertDescription className="text-sm space-y-3">
+                        <div>
+                          <strong>Para resolver (desenvolvimento):</strong>
+                          <br />• Acesse o painel do Supabase → Authentication → Users
+                          <br />• Encontre seu usuário e clique em "Confirm email"
+                          <br />• Ou desative "Enable email confirmations" em Auth Settings
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open('https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users', '_blank')}
+                          className="w-full"
+                        >
+                          Abrir Painel do Supabase
+                        </Button>
                       </AlertDescription>
                     </Alert>
                   )}
