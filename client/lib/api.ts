@@ -1,5 +1,8 @@
 import { supabase, lf, legalflow, supabaseConfigured, type PublicDatabase, type LegalFlowDatabase } from './supabase';
 
+// Export lf for testing utilities
+export { lf };
+
 // Check if Supabase is properly configured
 function checkSupabaseConfig() {
   if (!supabaseConfigured) {
