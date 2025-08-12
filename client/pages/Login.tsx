@@ -59,9 +59,9 @@ export function Login() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Entrar na sua conta</CardTitle>
+            <CardTitle>{isSignupMode ? 'Criar conta' : 'Entrar na sua conta'}</CardTitle>
             <CardDescription>
-              Acesse o sistema com suas credenciais
+              {isSignupMode ? 'Crie uma nova conta no sistema' : 'Acesse o sistema com suas credenciais'}
             </CardDescription>
           </CardHeader>
           <CardContent>
