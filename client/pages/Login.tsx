@@ -7,6 +7,7 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Scale, Mail, Lock } from 'lucide-react';
+import { QuickSetup } from './QuickSetup';
 
 export function Login() {
   const [email, setEmail] = useState('');
