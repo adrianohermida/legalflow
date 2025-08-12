@@ -92,25 +92,39 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                 <Alert>
                   <AlertDescription>
                     <strong>Vamos criar um usuário de teste:</strong>
-                    <br />• Email: <code>admin@test.com</code>
+                    <br />• Email: <code>admin.test@gmail.com</code>
                     <br />• Senha: <code>123456</code>
                   </AlertDescription>
                 </Alert>
-                
+
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 
-                <Button
-                  onClick={handleCreateAndConfirm}
-                  disabled={isLoading}
-                  className="w-full"
-                  size="lg"
-                >
-                  {isLoading ? 'Criando usuário...' : 'Criar e Abrir Painel'}
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleCreateAndConfirm}
+                    disabled={isLoading}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isLoading ? 'Criando usuário...' : 'Criar e Abrir Painel'}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setCurrentStep(2);
+                      openSupabaseDashboard();
+                    }}
+                    className="w-full"
+                    size="sm"
+                  >
+                    Pular para Painel (Criar Manualmente)
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -151,7 +165,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                   <CheckCircle className="h-4 w-4 mr-2 inline" />
                   <AlertDescription>
                     <strong>Perfeito! Agora você pode fazer login:</strong>
-                    <br />�� Email: <code>admin@test.com</code>
+                    <br />• Email: <code>admin@test.com</code>
                     <br />• Senha: <code>123456</code>
                     <br />• OAB para vincular: <code>123456</code>
                   </AlertDescription>
