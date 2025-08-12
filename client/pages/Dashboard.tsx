@@ -67,28 +67,28 @@ const quickActions = [
     description: 'Cadastrar novo processo',
     href: '/processos/novo',
     icon: FileText,
-    color: 'bg-blue-500'
+    color: 'bg-brand-700'
   },
   {
     title: 'Novo Cliente',
     description: 'Adicionar cliente',
     href: '/clientes/novo',
     icon: Users,
-    color: 'bg-green-500'
+    color: 'bg-success'
   },
   {
     title: 'Nova Jornada',
     description: 'Criar jornada do cliente',
     href: '/jornadas/nova',
     icon: Target,
-    color: 'bg-purple-500'
+    color: 'bg-brand-700'
   },
   {
     title: 'Agenda',
     description: 'Ver compromissos',
     href: '/agenda',
     icon: Calendar,
-    color: 'bg-orange-500'
+    color: 'bg-warning'
   },
 ];
 
