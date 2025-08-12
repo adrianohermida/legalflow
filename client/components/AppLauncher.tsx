@@ -132,7 +132,7 @@ const clienteApps = [
     description: 'Converse com seu advogado',
     href: '/portal/chat',
     icon: MessageSquare,
-    color: 'bg-blue-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'jornada',
@@ -140,7 +140,7 @@ const clienteApps = [
     description: 'Acompanhe o progresso do seu caso',
     href: '/portal/jornada',
     icon: Target,
-    color: 'bg-orange-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'processos',
@@ -148,7 +148,7 @@ const clienteApps = [
     description: 'Visualize seus processos ativos',
     href: '/portal/processos',
     icon: FileText,
-    color: 'bg-brand-600',
+    color: 'bg-brand-700',
   },
   {
     id: 'compromissos',
@@ -156,7 +156,7 @@ const clienteApps = [
     description: 'Seus agendamentos e prazos',
     href: '/portal/compromissos',
     icon: CalendarCheck,
-    color: 'bg-green-500',
+    color: 'bg-success',
   },
   {
     id: 'financeiro',
@@ -164,7 +164,7 @@ const clienteApps = [
     description: 'Faturas e histórico de pagamentos',
     href: '/portal/financeiro',
     icon: Receipt,
-    color: 'bg-emerald-500',
+    color: 'bg-success',
   },
   {
     id: 'helpdesk',
@@ -172,7 +172,7 @@ const clienteApps = [
     description: 'Central de ajuda e suporte',
     href: '/portal/helpdesk',
     icon: HeadphonesIcon,
-    color: 'bg-pink-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'servicos',
@@ -180,7 +180,7 @@ const clienteApps = [
     description: 'Contratar novos serviços jurídicos',
     href: '/portal/servicos',
     icon: ShoppingBag,
-    color: 'bg-cyan-500',
+    color: 'bg-brand-700',
   },
 ];
 
