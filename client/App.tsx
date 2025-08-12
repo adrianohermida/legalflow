@@ -49,6 +49,7 @@ import { PortalCompromissos } from "./pages/portal/PortalCompromissos";
 import { PortalFinanceiro } from "./pages/portal/PortalFinanceiro";
 import { PortalHelpdesk } from "./pages/portal/PortalHelpdesk";
 import { PortalServicos } from "./pages/portal/PortalServicos";
+import { PortalCliente } from "./pages/PortalCliente";
 
 import { SupabaseSetup } from "./components/SupabaseSetup";
 import { DemoOABSelectionModal } from "./components/DemoOABSelectionModal";
