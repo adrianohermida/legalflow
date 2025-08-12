@@ -52,13 +52,13 @@
 
   .dark {
     --background: var(--brand-900);
-    --foreground: var(--brand-50);
-    --card: var(--brand-800);
-    --card-foreground: var(--brand-50);
-    --popover: var(--brand-800);
-    --popover-foreground: var(--brand-50);
-    --primary: var(--brand-500);
-    --primary-foreground: var(--brand-900);
+    --foreground: var(--brand-100);
+    --card: 15 23 30; /* Slightly lighter than brand-900 */
+    --card-foreground: var(--brand-100);
+    --popover: 15 23 30;
+    --popover-foreground: var(--brand-100);
+    --primary: var(--brand-700);
+    --primary-foreground: 255 255 255;
     --secondary: var(--brand-800);
     --secondary-foreground: var(--brand-100);
     --muted: var(--brand-800);
