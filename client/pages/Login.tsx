@@ -23,12 +23,19 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     try {
-      await login(email, password);
+      if (isSignupMode) {
+        await signup(email, password);
+        setSuccess('Conta criada com sucesso! Verifique seu email para confirmar.');
+        setIsSignupMode(false);
+      } else {
+        await login(email, password);
+      }
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message || 'Falha no login. Verifique suas credenciais.');
+      console.error('Auth error:', err);
+      setError(err.message || (isSignupMode ? 'Falha no cadastro.' : 'Falha no login. Verifique suas credenciais.'));
     }
   };
 
