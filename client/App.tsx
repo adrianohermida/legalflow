@@ -282,7 +282,7 @@ function RegularAppRoutes() {
       />
       <Route
         path="/quick-setup"
-        element={supabaseConfigured ? <QuickSetup /> : <Navigate to="/setup" replace />}
+        element={supabaseConfigured ? <QuickSetup onComplete={() => {}} /> : <Navigate to="/setup" replace />}
       />
       
       {/* Same routes as demo but with regular auth */}
