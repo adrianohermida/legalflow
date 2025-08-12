@@ -289,8 +289,8 @@ export function PortalCliente() {
                 Portal do Cliente - {journeyInstance.cliente_nome}
               </p>
             </div>
-            <Badge 
-              className={journeyInstance.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+            <Badge
+              className={journeyInstance.status === 'active' ? 'bg-success-100 text-success-700' : 'bg-neutral-100 text-neutral-700'}
             >
               {journeyInstance.status === 'active' ? 'Em Andamento' : 'Pausado'}
             </Badge>
@@ -344,8 +344,8 @@ export function PortalCliente() {
 
         {/* Current Action Alert */}
         {currentStage && (
-          <Alert className={isOverdue ? "border-red-200 bg-red-50" : "border-blue-200 bg-blue-50"}>
-            <AlertCircle className={`h-4 w-4 ${isOverdue ? 'text-red-600' : 'text-blue-600'}`} />
+          <Alert className={isOverdue ? "border-danger-200 bg-danger-50" : "border-brand-200 bg-brand-50"}>
+            <AlertCircle className={`h-4 w-4 ${isOverdue ? 'text-danger-600' : 'text-brand-700'}`} />
             <AlertTitle>
               {isOverdue ? 'Ação em Atraso!' : 'Próxima Ação'}
             </AlertTitle>
@@ -378,12 +378,12 @@ export function PortalCliente() {
                   
                   return (
                     <AccordionItem key={stage.id} value={stage.id}>
-                      <AccordionTrigger className={`hover:no-underline ${isActive ? 'bg-blue-50 px-4 rounded-lg' : ''}`}>
+                      <AccordionTrigger className={`hover:no-underline ${isActive ? 'bg-brand-50 px-4 rounded-lg' : ''}`}>
                         <div className="flex items-center gap-4 flex-1">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            stage.status === 'completed' ? 'bg-green-100 text-green-600' :
-                            stage.status === 'in_progress' ? 'bg-blue-100 text-blue-600' :
-                            'bg-gray-100 text-gray-400'
+                            stage.status === 'completed' ? 'bg-success-100 text-success-600' :
+                            stage.status === 'in_progress' ? 'bg-brand-100 text-brand-700' :
+                            'bg-neutral-100 text-neutral-400'
                           }`}>
                             {stage.status === 'completed' ? (
                               <CheckCircle className="h-5 w-5" />
