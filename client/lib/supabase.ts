@@ -15,7 +15,7 @@ const isConfigured = supabaseUrl &&
   supabaseUrl.includes('.supabase.co') &&
   supabaseAnonKey.length > 50;
 
-// Create client with proper fallback or throw meaningful error
+// Create main client for PUBLIC schema (AdvogaAI tables) - PRESERVE EXISTING
 export const supabase = isConfigured 
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
@@ -32,13 +32,36 @@ export const supabase = isConfigured
       }
     });
 
+// Create client for LEGALFLOW schema (new LegalFlow tables)
+export const legalflow = isConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      db: { schema: 'legalflow' },
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
+  : createClient('https://dummy.supabase.co', 'dummy-key', {
+      db: { schema: 'legalflow' },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false
+      }
+    });
+
+// Alternative approach: Use schema() method on main client
+export const lf = supabase.schema('legalflow');
+
 // Export configuration status
 export const supabaseConfigured = isConfigured;
 
-// Database types based on your schema
-export interface Database {
+// Database types - PUBLIC SCHEMA (AdvogaAI) - PRESERVE EXISTING
+export interface PublicDatabase {
   public: {
     Tables: {
+      // AdvogaAI tables - PRESERVE ALL
       advogados: {
         Row: {
           oab: number;
@@ -105,189 +128,6 @@ export interface Database {
           decisoes?: string | null;
         };
       };
-      journey_templates: {
-        Row: {
-          id: string;
-          name: string;
-          niche: string | null;
-          steps_count: number;
-          eta_days: number;
-          tags: string[] | null;
-          created_at: string;
-        };
-        Insert: {
-          name: string;
-          niche?: string | null;
-          steps_count?: number;
-          eta_days?: number;
-          tags?: string[] | null;
-        };
-        Update: {
-          name?: string;
-          niche?: string | null;
-          steps_count?: number;
-          eta_days?: number;
-          tags?: string[] | null;
-        };
-      };
-      journey_template_stages: {
-        Row: {
-          id: string;
-          template_id: string | null;
-          position: number;
-          title: string;
-          description: string | null;
-          type_id: number | null;
-          mandatory: boolean;
-          sla_hours: number | null;
-          config: any;
-          created_at: string;
-        };
-        Insert: {
-          template_id?: string | null;
-          position: number;
-          title: string;
-          description?: string | null;
-          type_id?: number | null;
-          mandatory?: boolean;
-          sla_hours?: number | null;
-          config?: any;
-        };
-        Update: {
-          position?: number;
-          title?: string;
-          description?: string | null;
-          type_id?: number | null;
-          mandatory?: boolean;
-          sla_hours?: number | null;
-          config?: any;
-        };
-      };
-      journey_instances: {
-        Row: {
-          id: string;
-          template_id: string | null;
-          cliente_cpfcnpj: string | null;
-          processo_numero_cnj: string | null;
-          owner_oab: number | null;
-          start_date: string;
-          status: string;
-          progress_pct: number;
-          next_action: any;
-          created_at: string;
-        };
-        Insert: {
-          template_id?: string | null;
-          cliente_cpfcnpj?: string | null;
-          processo_numero_cnj?: string | null;
-          owner_oab?: number | null;
-          start_date?: string;
-          status?: string;
-          progress_pct?: number;
-          next_action?: any;
-        };
-        Update: {
-          status?: string;
-          progress_pct?: number;
-          next_action?: any;
-        };
-      };
-      stage_instances: {
-        Row: {
-          id: string;
-          instance_id: string | null;
-          template_stage_id: string | null;
-          status: string;
-          mandatory: boolean;
-          sla_at: string | null;
-          meta: any;
-          completed_at: string | null;
-        };
-        Insert: {
-          instance_id?: string | null;
-          template_stage_id?: string | null;
-          status?: string;
-          mandatory?: boolean;
-          sla_at?: string | null;
-          meta?: any;
-          completed_at?: string | null;
-        };
-        Update: {
-          status?: string;
-          sla_at?: string | null;
-          meta?: any;
-          completed_at?: string | null;
-        };
-      };
-      planos_pagamento: {
-        Row: {
-          id: string;
-          cliente_cpfcnpj: string | null;
-          processo_numero_cnj: string | null;
-          amount_total: number;
-          installments: number;
-          paid_amount: number;
-          status: string;
-          created_at: string;
-        };
-        Insert: {
-          cliente_cpfcnpj?: string | null;
-          processo_numero_cnj?: string | null;
-          amount_total: number;
-          installments: number;
-          paid_amount?: number;
-          status?: string;
-        };
-        Update: {
-          amount_total?: number;
-          installments?: number;
-          paid_amount?: number;
-          status?: string;
-        };
-      };
-      parcelas_pagamento: {
-        Row: {
-          id: string;
-          plano_id: string | null;
-          n_parcela: number;
-          due_date: string;
-          amount: number;
-          status: string;
-          paid_at: string | null;
-        };
-        Insert: {
-          plano_id?: string | null;
-          n_parcela: number;
-          due_date: string;
-          amount: number;
-          status?: string;
-          paid_at?: string | null;
-        };
-        Update: {
-          amount?: number;
-          status?: string;
-          paid_at?: string | null;
-        };
-      };
-      publicacoes: {
-        Row: {
-          id: number;
-          created_at: string;
-          numero_cnj: string | null;
-          data: any;
-          data_publicacao: string | null;
-        };
-        Insert: {
-          numero_cnj?: string | null;
-          data?: any;
-          data_publicacao?: string | null;
-        };
-        Update: {
-          numero_cnj?: string | null;
-          data?: any;
-          data_publicacao?: string | null;
-        };
-      };
       movimentacoes: {
         Row: {
           id: number;
@@ -307,19 +147,91 @@ export interface Database {
           data_movimentacao?: string | null;
         };
       };
-      stage_types: {
+      advogados_processos: {
         Row: {
-          id: number;
-          code: string;
-          label: string;
+          oab: number;
+          numero_cnj: string;
+          created_at: string;
         };
         Insert: {
-          code: string;
-          label: string;
+          oab: number;
+          numero_cnj: string;
         };
         Update: {
-          code?: string;
-          label?: string;
+          oab?: number;
+          numero_cnj?: string;
+        };
+      };
+      clientes_processos: {
+        Row: {
+          cpfcnpj: string;
+          numero_cnj: string;
+          created_at: string;
+        };
+        Insert: {
+          cpfcnpj: string;
+          numero_cnj: string;
+        };
+        Update: {
+          cpfcnpj?: string;
+          numero_cnj?: string;
+        };
+      };
+      peticoes: {
+        Row: {
+          id: string;
+          numero_cnj: string | null;
+          tipo: string | null;
+          conteudo: string | null;
+          created_at: string;
+        };
+        Insert: {
+          numero_cnj?: string | null;
+          tipo?: string | null;
+          conteudo?: string | null;
+        };
+        Update: {
+          numero_cnj?: string | null;
+          tipo?: string | null;
+          conteudo?: string | null;
+        };
+      };
+      leads: {
+        Row: {
+          id: string;
+          nome: string | null;
+          email: string | null;
+          telefone: string | null;
+          created_at: string;
+        };
+        Insert: {
+          nome?: string | null;
+          email?: string | null;
+          telefone?: string | null;
+        };
+        Update: {
+          nome?: string | null;
+          email?: string | null;
+          telefone?: string | null;
+        };
+      };
+      publicacoes: {
+        Row: {
+          id: number;
+          created_at: string;
+          numero_cnj: string | null;
+          data: any;
+          data_publicacao: string | null;
+        };
+        Insert: {
+          numero_cnj?: string | null;
+          data?: any;
+          data_publicacao?: string | null;
+        };
+        Update: {
+          numero_cnj?: string | null;
+          data?: any;
+          data_publicacao?: string | null;
         };
       };
       user_advogado: {
@@ -348,3 +260,365 @@ export interface Database {
     };
   };
 }
+
+// Database types - LEGALFLOW SCHEMA (new tables)
+export interface LegalFlowDatabase {
+  legalflow: {
+    Tables: {
+      stage_types: {
+        Row: {
+          id: number;
+          code: string;
+          label: string;
+          created_at: string;
+        };
+        Insert: {
+          code: string;
+          label: string;
+        };
+        Update: {
+          code?: string;
+          label?: string;
+        };
+      };
+      journey_templates: {
+        Row: {
+          id: string;
+          name: string;
+          niche: string | null;
+          steps_count: number;
+          eta_days: number;
+          tags: string[] | null;
+          created_at: string;
+        };
+        Insert: {
+          name: string;
+          niche?: string | null;
+          steps_count?: number;
+          eta_days?: number;
+          tags?: string[] | null;
+        };
+        Update: {
+          name?: string;
+          niche?: string | null;
+          steps_count?: number;
+          eta_days?: number;
+          tags?: string[] | null;
+        };
+      };
+      journey_template_stages: {
+        Row: {
+          id: string;
+          template_id: string;
+          position: number;
+          title: string;
+          description: string | null;
+          type_id: number;
+          mandatory: boolean;
+          sla_hours: number | null;
+          config: any;
+          created_at: string;
+        };
+        Insert: {
+          template_id: string;
+          position: number;
+          title: string;
+          description?: string | null;
+          type_id: number;
+          mandatory?: boolean;
+          sla_hours?: number | null;
+          config?: any;
+        };
+        Update: {
+          position?: number;
+          title?: string;
+          description?: string | null;
+          type_id?: number;
+          mandatory?: boolean;
+          sla_hours?: number | null;
+          config?: any;
+        };
+      };
+      stage_rules: {
+        Row: {
+          id: string;
+          stage_id: string;
+          rule_type: string;
+          conditions: any;
+          actions: any;
+          created_at: string;
+        };
+        Insert: {
+          stage_id: string;
+          rule_type: string;
+          conditions: any;
+          actions: any;
+        };
+        Update: {
+          rule_type?: string;
+          conditions?: any;
+          actions?: any;
+        };
+      };
+      journey_instances: {
+        Row: {
+          id: string;
+          template_id: string;
+          cliente_cpfcnpj: string;
+          processo_numero_cnj: string | null;
+          owner_oab: number;
+          start_date: string;
+          status: string;
+          progress_pct: number;
+          next_action: any;
+          created_at: string;
+        };
+        Insert: {
+          template_id: string;
+          cliente_cpfcnpj: string;
+          processo_numero_cnj?: string | null;
+          owner_oab: number;
+          start_date?: string;
+          status?: string;
+          progress_pct?: number;
+          next_action?: any;
+        };
+        Update: {
+          status?: string;
+          progress_pct?: number;
+          next_action?: any;
+        };
+      };
+      stage_instances: {
+        Row: {
+          id: string;
+          instance_id: string;
+          template_stage_id: string;
+          status: string;
+          mandatory: boolean;
+          sla_at: string | null;
+          meta: any;
+          completed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          instance_id: string;
+          template_stage_id: string;
+          status?: string;
+          mandatory?: boolean;
+          sla_at?: string | null;
+          meta?: any;
+          completed_at?: string | null;
+        };
+        Update: {
+          status?: string;
+          sla_at?: string | null;
+          meta?: any;
+          completed_at?: string | null;
+        };
+      };
+      form_definitions: {
+        Row: {
+          id: string;
+          stage_id: string;
+          name: string;
+          fields: any;
+          validation_rules: any;
+          created_at: string;
+        };
+        Insert: {
+          stage_id: string;
+          name: string;
+          fields: any;
+          validation_rules?: any;
+        };
+        Update: {
+          name?: string;
+          fields?: any;
+          validation_rules?: any;
+        };
+      };
+      form_responses: {
+        Row: {
+          id: string;
+          form_id: string;
+          instance_id: string;
+          responses: any;
+          created_at: string;
+        };
+        Insert: {
+          form_id: string;
+          instance_id: string;
+          responses: any;
+        };
+        Update: {
+          responses?: any;
+        };
+      };
+      document_requirements: {
+        Row: {
+          id: string;
+          stage_id: string;
+          name: string;
+          required: boolean;
+          file_types: string[];
+          max_size_mb: number;
+          created_at: string;
+        };
+        Insert: {
+          stage_id: string;
+          name: string;
+          required?: boolean;
+          file_types?: string[];
+          max_size_mb?: number;
+        };
+        Update: {
+          name?: string;
+          required?: boolean;
+          file_types?: string[];
+          max_size_mb?: number;
+        };
+      };
+      document_uploads: {
+        Row: {
+          id: string;
+          requirement_id: string;
+          instance_id: string;
+          file_name: string;
+          file_path: string;
+          file_size: number;
+          uploaded_at: string;
+        };
+        Insert: {
+          requirement_id: string;
+          instance_id: string;
+          file_name: string;
+          file_path: string;
+          file_size: number;
+        };
+        Update: {
+          file_name?: string;
+          file_path?: string;
+          file_size?: number;
+        };
+      };
+      eventos_agenda: {
+        Row: {
+          id: string;
+          instance_id: string | null;
+          processo_numero_cnj: string | null;
+          advogado_oab: number;
+          title: string;
+          description: string | null;
+          start_time: string;
+          end_time: string | null;
+          event_type: string;
+          reminder_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          instance_id?: string | null;
+          processo_numero_cnj?: string | null;
+          advogado_oab: number;
+          title: string;
+          description?: string | null;
+          start_time: string;
+          end_time?: string | null;
+          event_type?: string;
+          reminder_at?: string | null;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          start_time?: string;
+          end_time?: string | null;
+          event_type?: string;
+          reminder_at?: string | null;
+        };
+      };
+      planos_pagamento: {
+        Row: {
+          id: string;
+          cliente_cpfcnpj: string;
+          processo_numero_cnj: string | null;
+          amount_total: number;
+          installments: number;
+          paid_amount: number;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          cliente_cpfcnpj: string;
+          processo_numero_cnj?: string | null;
+          amount_total: number;
+          installments: number;
+          paid_amount?: number;
+          status?: string;
+        };
+        Update: {
+          amount_total?: number;
+          installments?: number;
+          paid_amount?: number;
+          status?: string;
+        };
+      };
+      parcelas_pagamento: {
+        Row: {
+          id: string;
+          plano_id: string;
+          n_parcela: number;
+          due_date: string;
+          amount: number;
+          status: string;
+          paid_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          plano_id: string;
+          n_parcela: number;
+          due_date: string;
+          amount: number;
+          status?: string;
+          paid_at?: string | null;
+        };
+        Update: {
+          amount?: number;
+          status?: string;
+          paid_at?: string | null;
+        };
+      };
+      stage_payment_links: {
+        Row: {
+          id: string;
+          stage_id: string;
+          plano_id: string;
+          amount: number;
+          required_for_completion: boolean;
+          created_at: string;
+        };
+        Insert: {
+          stage_id: string;
+          plano_id: string;
+          amount: number;
+          required_for_completion?: boolean;
+        };
+        Update: {
+          amount?: number;
+          required_for_completion?: boolean;
+        };
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+  };
+}
+
+// Combined database type for compatibility
+export interface Database extends PublicDatabase, LegalFlowDatabase {}
