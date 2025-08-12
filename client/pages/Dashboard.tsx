@@ -1,321 +1,364 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../components/ui/select';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { Plus, Search, Filter, FileText, Clock, AlertCircle, Calendar, Loader2 } from 'lucide-react';
-import { FinancialWidget } from '../components/FinancialWidget';
-import { processosApi } from '../lib/api';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
+  LayoutDashboard,
+  FileText,
+  Users,
+  Target,
+  Calendar,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Bell,
+  ArrowRight,
+  Plus,
+  Eye,
+} from 'lucide-react';
 
-interface ProcessoView {
-  numero_cnj: string;
-  cliente?: string;
-  tribunal: string;
-  fase: string;
-  responsavel?: string;
-  proximaAcao?: string;
-  prazo?: string;
-  status: 'ativo' | 'suspenso' | 'finalizado';
-  risco: 'baixo' | 'medio' | 'alto';
-}
+// Mock data for dashboard
+const mockStats = {
+  totalProcessos: 142,
+  processosAtivos: 128,
+  prazosEstaSemanana: 23,
+  altoRisco: 8,
+  novosClientes: 12,
+  jornadasAtivas: 34,
+  tarefasPendentes: 56,
+  receitaMes: 89750,
+};
+
+const mockRecentActivity = [
+  {
+    id: '1',
+    type: 'processo',
+    title: 'Novo processo cadastrado',
+    description: '1000123-45.2024.8.26.0001 - João Silva',
+    time: '2h atrás',
+    icon: FileText,
+    color: 'text-blue-500'
+  },
+  {
+    id: '2',
+    type: 'prazo',
+    title: 'Prazo próximo do vencimento',
+    description: 'Contestação - Processo 2000456-78.2024',
+    time: '4h atrás',
+    icon: AlertTriangle,
+    color: 'text-orange-500'
+  },
+  {
+    id: '3',
+    type: 'cliente',
+    title: 'Novo cliente cadastrado',
+    description: 'Empresa ABC Ltda - CNPJ 12.345.678/0001-90',
+    time: '6h atrás',
+    icon: Users,
+    color: 'text-green-500'
+  },
+];
+
+const quickActions = [
+  {
+    title: 'Novo Processo',
+    description: 'Cadastrar novo processo',
+    href: '/processos/novo',
+    icon: FileText,
+    color: 'bg-blue-500'
+  },
+  {
+    title: 'Novo Cliente',
+    description: 'Adicionar cliente',
+    href: '/clientes/novo',
+    icon: Users,
+    color: 'bg-green-500'
+  },
+  {
+    title: 'Nova Jornada',
+    description: 'Criar jornada do cliente',
+    href: '/jornadas/nova',
+    icon: Target,
+    color: 'bg-purple-500'
+  },
+  {
+    title: 'Agenda',
+    description: 'Ver compromissos',
+    href: '/agenda',
+    icon: Calendar,
+    color: 'bg-orange-500'
+  },
+];
 
 export function Dashboard() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('todos');
-  const [riscoFilter, setRiscoFilter] = useState<string>('todos');
-
-  // Fetch processos from Supabase
-  const { data: processosData = [], isLoading, error } = useSupabaseQuery(
-    ['processos'],
-    processosApi.getAll
-  );
-
-  // Transform Supabase data to our view format
-  const processos: ProcessoView[] = processosData.map(processo => {
-    const cliente = processo.clientes_processos?.[0]?.clientes?.nome || 'Cliente não definido';
-    const responsavel = processo.advogados_processos?.[0]?.advogados?.nome || 'Não definido';
-
-    // Extract status and fase from data JSON field or set defaults
-    const statusFromData = processo.data?.status || 'ativo';
-    const faseFromData = processo.data?.fase || 'Em andamento';
-    const riscoFromData = processo.data?.risco || 'medio';
-
-    return {
-      numero_cnj: processo.numero_cnj,
-      cliente,
-      tribunal: processo.tribunal_sigla || 'N/A',
-      fase: faseFromData,
-      responsavel,
-      status: statusFromData as 'ativo' | 'suspenso' | 'finalizado',
-      risco: riscoFromData as 'baixo' | 'medio' | 'alto',
-      proximaAcao: processo.data?.proxima_acao,
-      prazo: processo.data?.prazo
-    };
-  });
-
-  const filteredProcessos = processos.filter(processo => {
-    const matchesSearch = processo.numero_cnj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         processo.cliente?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'todos' || processo.status === statusFilter;
-    const matchesRisco = riscoFilter === 'todos' || processo.risco === riscoFilter;
-
-    return matchesSearch && matchesStatus && matchesRisco;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ativo': return 'bg-green-100 text-green-800';
-      case 'suspenso': return 'bg-yellow-100 text-yellow-800';
-      case 'finalizado': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getRiscoColor = (risco: string) => {
-    switch (risco) {
-      case 'alto': return 'bg-red-100 text-red-800';
-      case 'medio': return 'bg-yellow-100 text-yellow-800';
-      case 'baixo': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const isPrazoVencendo = (prazo?: string) => {
-    if (!prazo) return false;
-    const prazoDate = new Date(prazo);
-    const hoje = new Date();
-    const diasRestantes = Math.ceil((prazoDate.getTime() - hoje.getTime()) / (1000 * 3600 * 24));
-    return diasRestantes <= 3 && diasRestantes >= 0;
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <Alert variant="destructive">
-          <AlertDescription>
-            Erro ao carregar processos: {error.message}
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Processos</h1>
-          <p className="text-gray-600 mt-1">Gerencie e acompanhe todos os processos</p>
+          <h1 className="text-2xl font-heading font-semibold text-neutral-900">
+            Dashboard
+          </h1>
+          <p className="text-neutral-600 mt-1">
+            Visão geral do escritório - Hermida Maia Advocacia
+          </p>
         </div>
-        <Button asChild>
-          <Link to="/processos/novo">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Processo
-          </Link>
-        </Button>
+        <div className="flex items-center space-x-3">
+          <Badge variant="outline" className="text-brand-700 border-brand-200">
+            <TrendingUp className="w-3 h-3 mr-1" />
+            +12% este mês
+          </Badge>
+          <Button className="btn-brand">
+            <Plus className="w-4 h-4 mr-2" />
+            Ação Rápida
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Processos</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{processos.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ativos</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {processos.filter(p => p.status === 'ativo').length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Prazos Vencendo</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {processos.filter(p => isPrazoVencendo(p.prazo)).length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alto Risco</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {processos.filter(p => p.risco === 'alto').length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content with Financial Widget */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3">
-          {/* Filters */}
-          <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Buscar por CNJ ou cliente..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="hover:shadow-soft transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-neutral-600">Total de Processos</p>
+                <p className="text-2xl font-semibold text-neutral-900">
+                  {mockStats.totalProcessos}
+                </p>
+              </div>
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <FileText className="w-5 h-5 text-blue-600" />
               </div>
             </div>
-            
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos Status</SelectItem>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="suspenso">Suspenso</SelectItem>
-                  <SelectItem value="finalizado">Finalizado</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center mt-2 text-xs">
+              <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
+              <span className="text-green-600">+8 este mês</span>
+            </div>
+          </CardContent>
+        </Card>
 
-              <Select value={riscoFilter} onValueChange={setRiscoFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Risco" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos Riscos</SelectItem>
-                  <SelectItem value="alto">Alto</SelectItem>
-                  <SelectItem value="medio">Médio</SelectItem>
-                  <SelectItem value="baixo">Baixo</SelectItem>
-                </SelectContent>
-              </Select>
+        <Card className="hover:shadow-soft transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-neutral-600">Processos Ativos</p>
+                <p className="text-2xl font-semibold text-neutral-900">
+                  {mockStats.processosAtivos}
+                </p>
+              </div>
+              <div className="bg-green-100 p-2 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nº CNJ</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Tribunal</TableHead>
-                <TableHead>Fase</TableHead>
-                <TableHead>Responsável</TableHead>
-                <TableHead>Próxima Ação</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Risco</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProcessos.map((processo) => (
-                <TableRow key={processo.numero_cnj} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">
-                    <Link 
-                      to={`/processos/${processo.numero_cnj}`}
-                      className="text-primary hover:underline"
-                    >
-                      {processo.numero_cnj}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{processo.cliente}</TableCell>
-                  <TableCell>{processo.tribunal}</TableCell>
-                  <TableCell>{processo.fase}</TableCell>
-                  <TableCell>{processo.responsavel}</TableCell>
-                  <TableCell>
-                    {processo.proximaAcao && (
-                      <div className="flex items-center gap-2">
-                        <span>{processo.proximaAcao}</span>
-                        {processo.prazo && (
-                          <div className={`flex items-center gap-1 text-xs ${
-                            isPrazoVencendo(processo.prazo) ? 'text-red-600' : 'text-gray-500'
-                          }`}>
-                            <Calendar className="h-3 w-3" />
-                            {new Date(processo.prazo).toLocaleDateString('pt-BR')}
-                          </div>
-                        )}
+            <div className="flex items-center mt-2 text-xs">
+              <CheckCircle className="w-3 h-3 text-green-500 mr-1" />
+              <span className="text-green-600">90% taxa de atividade</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-soft transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-neutral-600">Prazos Esta Semana</p>
+                <p className="text-2xl font-semibold text-neutral-900">
+                  {mockStats.prazosEstaSemanana}
+                </p>
+              </div>
+              <div className="bg-orange-100 p-2 rounded-lg">
+                <Calendar className="w-5 h-5 text-orange-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-2 text-xs">
+              <Clock className="w-3 h-3 text-orange-500 mr-1" />
+              <span className="text-orange-600">3 urgentes</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-soft transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-neutral-600">Alto Risco</p>
+                <p className="text-2xl font-semibold text-neutral-900">
+                  {mockStats.altoRisco}
+                </p>
+              </div>
+              <div className="bg-red-100 p-2 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-2 text-xs">
+              <AlertTriangle className="w-3 h-3 text-red-500 mr-1" />
+              <span className="text-red-600">Requer atenção</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <LayoutDashboard className="w-5 h-5" />
+              Ações Rápidas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link
+                    key={action.title}
+                    to={action.href}
+                    className="group p-4 rounded-lg border border-border hover:border-brand-200 hover:shadow-soft transition-all duration-200 bg-white hover:bg-brand-50/30"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`${action.color} p-2 rounded-lg text-white group-hover:scale-105 transition-transform`}>
+                        <Icon className="w-5 h-5" />
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(processo.status)}>
-                      {processo.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getRiscoColor(processo.risco)}>
-                      {processo.risco}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/processos/${processo.numero_cnj}`}>
-                        Ver detalhes
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          {filteredProcessos.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              Nenhum processo encontrado com os filtros aplicados.
+                      <div>
+                        <h3 className="font-medium text-neutral-900 group-hover:text-brand-700">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-neutral-600">
+                          {action.description}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
-          )}
-        </CardContent>
-          </Card>
-        </div>
-        <div className="lg:col-span-1">
-          <FinancialWidget />
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5" />
+              Atividades Recentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {mockRecentActivity.map((activity) => {
+              const Icon = activity.icon;
+              return (
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <Icon className={`w-4 h-4 ${activity.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-neutral-900">
+                      {activity.title}
+                    </p>
+                    <p className="text-sm text-neutral-600 truncate">
+                      {activity.description}
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-1">
+                      {activity.time}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="pt-2 border-t border-border">
+              <Button variant="ghost" className="w-full text-sm" asChild>
+                <Link to="/inbox">
+                  Ver todas atividades
+                  <ArrowRight className="w-3 h-3 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Module Shortcuts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="hover:shadow-soft transition-all duration-200 hover:border-brand-200">
+          <CardContent className="p-4">
+            <Link to="/processos" className="block group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-neutral-900 group-hover:text-brand-700">
+                    Processos
+                  </h3>
+                  <p className="text-2xl font-semibold text-brand-700 mt-1">
+                    {mockStats.processosAtivos}
+                  </p>
+                  <p className="text-sm text-neutral-600">ativos</p>
+                </div>
+                <FileText className="w-8 h-8 text-brand-600 group-hover:scale-105 transition-transform" />
+              </div>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-soft transition-all duration-200 hover:border-brand-200">
+          <CardContent className="p-4">
+            <Link to="/clientes" className="block group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-neutral-900 group-hover:text-brand-700">
+                    Clientes
+                  </h3>
+                  <p className="text-2xl font-semibold text-brand-700 mt-1">
+                    {mockStats.novosClientes}
+                  </p>
+                  <p className="text-sm text-neutral-600">novos este mês</p>
+                </div>
+                <Users className="w-8 h-8 text-brand-600 group-hover:scale-105 transition-transform" />
+              </div>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-soft transition-all duration-200 hover:border-brand-200">
+          <CardContent className="p-4">
+            <Link to="/jornadas" className="block group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-neutral-900 group-hover:text-brand-700">
+                    Jornadas
+                  </h3>
+                  <p className="text-2xl font-semibold text-brand-700 mt-1">
+                    {mockStats.jornadasAtivas}
+                  </p>
+                  <p className="text-sm text-neutral-600">em andamento</p>
+                </div>
+                <Target className="w-8 h-8 text-brand-600 group-hover:scale-105 transition-transform" />
+              </div>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-soft transition-all duration-200 hover:border-brand-200">
+          <CardContent className="p-4">
+            <Link to="/agenda" className="block group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-neutral-900 group-hover:text-brand-700">
+                    Agenda
+                  </h3>
+                  <p className="text-2xl font-semibold text-brand-700 mt-1">
+                    {mockStats.tarefasPendentes}
+                  </p>
+                  <p className="text-sm text-neutral-600">tarefas pendentes</p>
+                </div>
+                <Calendar className="w-8 h-8 text-brand-600 group-hover:scale-105 transition-transform" />
+              </div>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
