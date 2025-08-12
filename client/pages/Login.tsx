@@ -59,9 +59,9 @@ export function Login() {
   };
 
   const testAccounts = [
-    { email: 'admin@test.com', label: 'Admin Test' },
-    { email: 'test@example.com', label: 'Standard Test' },
-    { email: 'dev@localhost.com', label: 'Dev Account' }
+    { email: 'admin.test@gmail.com', label: 'Admin Test' },
+    { email: 'user.test@gmail.com', label: 'User Test' },
+    { email: 'dev.test@gmail.com', label: 'Dev Test' }
   ];
 
   const createTestUser = async () => {
