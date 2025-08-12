@@ -141,15 +141,28 @@ export function Login() {
 
               <div className="text-center space-y-2">
                 {!isSignupMode && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleDemoLogin}
-                    className="text-sm text-gray-600"
-                  >
-                    Usar conta demo
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleDemoLogin}
+                      className="text-sm text-gray-600"
+                    >
+                      Usar conta demo
+                    </Button>
+                    <br />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={createTestUser}
+                      disabled={isCreatingTestUser}
+                      className="text-sm"
+                    >
+                      {isCreatingTestUser ? 'Criando...' : 'Criar usuário de teste'}
+                    </Button>
+                  </div>
                 )}
 
                 <div className="text-sm text-gray-600">
