@@ -57,7 +57,7 @@ export function Header({
     : 'Buscar nos seus processos...';
 
   return (
-    <header className="app-header">
+    <header className="app-header" role="banner">
       {/* Left section - App Launcher & Search */}
       <div className="flex items-center flex-1 space-x-4">
         {/* App Launcher */}
