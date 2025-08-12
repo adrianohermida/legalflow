@@ -2,11 +2,42 @@ import { supabase, supabaseConfigured } from './supabase';
 
 // Development utilities for setting up initial data
 export const devSetup = {
+  async createTestUser() {
+    // Only run in development and when Supabase is configured
+    if (import.meta.env.PROD || !supabaseConfigured) return;
+
+    try {
+      // Try to create a test user for demo purposes
+      const testEmail = 'adriano@hermidamaia.adv.br';
+      const testPassword = '123456';
+
+      console.log('Creating test user for development...');
+      const { data, error } = await supabase.auth.signUp({
+        email: testEmail,
+        password: testPassword,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
+      });
+
+      if (error && !error.message.includes('User already registered')) {
+        console.error('Error creating test user:', error.message);
+      } else {
+        console.log('Test user created or already exists');
+      }
+    } catch (error: any) {
+      console.error('Failed to create test user:', error.message);
+    }
+  },
+
   async createInitialData() {
     // Only run in development and when Supabase is configured
     if (import.meta.env.PROD || !supabaseConfigured) return;
 
     try {
+      // First, try to create test user
+      await this.createTestUser();
+
       // Check if we already have data
       const { data: existingClientes } = await supabase
         .from('clientes')
