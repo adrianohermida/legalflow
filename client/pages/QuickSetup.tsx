@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { CheckCircle, ExternalLink, User, Database } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface QuickSetupProps {
   onComplete: () => void;
