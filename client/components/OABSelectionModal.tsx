@@ -29,10 +29,11 @@ export function OABSelectionModal({ open, onOpenChange }: OABSelectionModalProps
 
     setIsLoading(true);
     try {
-      await selectOAB(`${oabNumber}/${uf}`);
+      await selectOAB(parseInt(oabNumber));
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to select OAB:', error);
+      alert(error.message || 'Erro ao selecionar OAB. Tente o número 123456 para teste.');
     } finally {
       setIsLoading(false);
     }
