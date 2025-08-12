@@ -131,6 +131,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Email ou senha incorretos');
       }
 
+      if (error.message?.includes('Email not confirmed')) {
+        throw new Error('Email não confirmado. Para desenvolvimento, faça login diretamente ou verifique o email.');
+      }
+
       throw new Error(error.message || 'Falha no login');
     } finally {
       setIsLoading(false);
