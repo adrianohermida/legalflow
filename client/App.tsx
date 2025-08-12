@@ -17,6 +17,8 @@ import { IniciarJornada } from "./pages/IniciarJornada";
 import { PortalCliente } from "./pages/PortalCliente";
 import { InboxLegal } from "./pages/InboxLegal";
 import { Documentos } from "./pages/Documentos";
+import { PlanosPagamento } from "./pages/PlanosPagamento";
+import { Relatorios } from "./pages/Relatorios";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { OABSelectionModal } from "./components/OABSelectionModal";
 import NotFound from "./pages/NotFound";
@@ -124,7 +126,7 @@ function AppRoutes() {
         <ProtectedRoute>
           <PlaceholderPage
             title="Criar Novo Processo"
-            description="Formulário para criação de novos processos vinculados aos clientes."
+            description="Formulário para criaç��o de novos processos vinculados aos clientes."
           />
         </ProtectedRoute>
       } />
