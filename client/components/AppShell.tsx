@@ -14,7 +14,7 @@ interface AppShellProps {
   logout?: () => void;
 }
 
-export function AppShell({ userType }: AppShellProps) {
+export function AppShell({ userType, user, logout }: AppShellProps) {
   const [isAppLauncherOpen, setIsAppLauncherOpen] = useState(false);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isChatDockOpen, setIsChatDockOpen] = useState(false);
