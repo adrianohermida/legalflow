@@ -103,9 +103,14 @@ function DemoAppRoutes() {
 }
 
 function RegularAppRoutes() {
+  const { user } = useAuth();
+
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <Login />}
+      />
       <Route
         path="/setup"
         element={!supabaseConfigured ? <Setup /> : <Navigate to="/" replace />}
