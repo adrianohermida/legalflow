@@ -1,15 +1,35 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'your-supabase-url';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-supabase-anon-key';
+// Environment variables with validation
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+// Check if environment variables are properly configured
+const isConfigured = supabaseUrl && 
+  supabaseAnonKey && 
+  !supabaseUrl.includes('your-supabase') && 
+  !supabaseAnonKey.includes('your-supabase') &&
+  supabaseUrl.startsWith('https://');
+
+// Create client with proper fallback or throw meaningful error
+export const supabase = isConfigured 
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
+  : createClient('https://dummy.supabase.co', 'dummy-key', {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false
+      }
+    });
+
+// Export configuration status
+export const supabaseConfigured = isConfigured;
 
 // Database types based on your schema
 export interface Database {
@@ -23,6 +43,7 @@ export interface Database {
           nome: string | null;
         };
         Insert: {
+          oab: number;
           uf?: string | null;
           nome?: string | null;
         };
@@ -295,6 +316,20 @@ export interface Database {
         Update: {
           code?: string;
           label?: string;
+        };
+      };
+      user_advogado: {
+        Row: {
+          user_id: string;
+          oab: number;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          oab: number;
+        };
+        Update: {
+          oab?: number;
         };
       };
     };
