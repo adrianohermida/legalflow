@@ -71,8 +71,8 @@ function DemoProtectedRoute({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Layout>{children}</Layout>
-      <OABSelectionModal
+      <DemoLayout>{children}</DemoLayout>
+      <DemoOABSelectionModal
         open={showOABModal}
         onOpenChange={setShowOABModal}
       />
