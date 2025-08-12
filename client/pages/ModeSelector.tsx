@@ -5,11 +5,10 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { Zap, Database, Play, Settings } from 'lucide-react';
 
 interface ModeSelectorProps {
-  onSelectDemo: () => void;
-  onSelectSupabase: () => void;
+  onModeSelect: (mode: 'demo' | 'supabase') => void;
 }
 
-export function ModeSelector({ onSelectDemo, onSelectSupabase }: ModeSelectorProps) {
+export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
@@ -60,8 +59,8 @@ export function ModeSelector({ onSelectDemo, onSelectSupabase }: ModeSelectorPro
                 </AlertDescription>
               </Alert>
 
-              <Button 
-                onClick={onSelectDemo}
+              <Button
+                onClick={() => onModeSelect('demo')}
                 className="w-full bg-green-600 hover:bg-green-700"
                 size="lg"
               >
@@ -111,8 +110,8 @@ export function ModeSelector({ onSelectDemo, onSelectSupabase }: ModeSelectorPro
                 </AlertDescription>
               </Alert>
 
-              <Button 
-                onClick={onSelectSupabase}
+              <Button
+                onClick={() => onModeSelect('supabase')}
                 variant="outline"
                 className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
                 size="lg"
