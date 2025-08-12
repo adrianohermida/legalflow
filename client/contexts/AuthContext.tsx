@@ -57,8 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           await loadUserData(session.user);
         }
-      } catch (error) {
-        console.error('Auth check failed:', error);
+      } catch (error: any) {
+        console.error('Auth check failed:', error.message || error);
       } finally {
         setIsLoading(false);
       }
@@ -109,8 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
 
       setUser(userData);
-    } catch (error) {
-      console.error('Failed to load user data:', error);
+    } catch (error: any) {
+      console.error('Failed to load user data:', error.message || error);
       setUser({
         id: supabaseUser.id,
         email: supabaseUser.email || ''
@@ -200,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout failed:', error.message || error);
     }
     setUser(null);
   };
