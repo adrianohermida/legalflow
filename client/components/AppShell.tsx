@@ -10,6 +10,8 @@ import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 interface AppShellProps {
   userType: 'advogado' | 'cliente';
+  user?: any;
+  logout?: () => void;
 }
 
 export function AppShell({ userType }: AppShellProps) {
