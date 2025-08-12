@@ -198,6 +198,11 @@ function DemoAppRoutes() {
           <Financeiro />
         </DemoProtectedRoute>
       } />
+      <Route path="/planos-pagamento" element={
+        <DemoProtectedRoute userType="advogado">
+          <PlanosPagamento />
+        </DemoProtectedRoute>
+      } />
       <Route path="/relatorios" element={
         <DemoProtectedRoute userType="advogado">
           <Relatorios />
