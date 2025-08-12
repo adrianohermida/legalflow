@@ -149,14 +149,15 @@ export function Login() {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
-            Não tem uma conta?{' '}
-            <button className="text-primary hover:underline">
-              Entre em contato
-            </button>
-          </p>
-        </div>
+        {!isSignupMode && (
+          <div className="text-center mt-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                <strong>Primeira vez?</strong> Clique em "Criar conta" para criar sua primeira conta de usuário.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
