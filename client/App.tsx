@@ -78,6 +78,94 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
+function DemoAppRoutes() {
+  const { user } = useDemoAuth();
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <DemoLogin />}
+      />
+      <Route path="/" element={
+        <DemoProtectedRoute>
+          <Dashboard />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/clientes" element={
+        <DemoProtectedRoute>
+          <Clientes />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas" element={
+        <DemoProtectedRoute>
+          <Jornadas />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas/nova" element={
+        <DemoProtectedRoute>
+          <NovaJornada />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas/iniciar" element={
+        <DemoProtectedRoute>
+          <IniciarJornada />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas/instancia/:instanceId" element={
+        <DemoProtectedRoute>
+          <PlaceholderPage
+            title="Detalhes da Instância"
+            description="Detalhes completos da jornada em andamento com métricas e progresso."
+          />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal-cliente/:instanceId" element={
+        <DemoProtectedRoute>
+          <PortalCliente />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/inbox" element={
+        <DemoProtectedRoute>
+          <InboxLegal />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/processos/:id" element={
+        <DemoProtectedRoute>
+          <PlaceholderPage
+            title="Detalhes do Processo"
+            description="Aqui você verá o overview completo do processo com timeline, documentos e jornadas."
+          />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/processos/novo" element={
+        <DemoProtectedRoute>
+          <PlaceholderPage
+            title="Criar Novo Processo"
+            description="Formulário para criação de novos processos vinculados aos clientes."
+          />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/documentos" element={
+        <DemoProtectedRoute>
+          <Documentos />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/planos-pagamento" element={
+        <DemoProtectedRoute>
+          <PlanosPagamento />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/relatorios" element={
+        <DemoProtectedRoute>
+          <Relatorios />
+        </DemoProtectedRoute>
+      } />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 function AppRoutes() {
   const { user } = useAuth();
 
