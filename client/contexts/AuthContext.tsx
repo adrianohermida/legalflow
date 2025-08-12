@@ -78,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadUserData = async (supabaseUser: SupabaseUser) => {
+    console.log('AuthContext: Loading user data for:', supabaseUser.email);
     try {
       // Try to find linked OAB
       const { data: userAdvogado } = await supabase
