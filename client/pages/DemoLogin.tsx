@@ -49,7 +49,7 @@ export function DemoLogin() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">
-            <div className="bg-green-600 text-white p-3 rounded-lg">
+            <div className="bg-success text-white p-3 rounded-lg">
               <Scale className="h-8 w-8" />
             </div>
           </div>
@@ -108,8 +108,8 @@ export function DemoLogin() {
                 </Alert>
               )}
 
-              <Alert className="bg-green-50 border-green-200">
-                <AlertDescription className="text-green-800">
+              <Alert className="bg-success-50 border-success">
+                <AlertDescription className="text-success-700">
                   <strong>Credenciais de teste:</strong>
                   <br />• Email: <code>admin.test@gmail.com</code>
                   <br />• Senha: <code>123456</code>
@@ -117,7 +117,7 @@ export function DemoLogin() {
                 </AlertDescription>
               </Alert>
 
-              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-success hover:bg-success-600" disabled={isLoading}>
                 {isLoading ? 'Entrando...' : 'Entrar no Demo'}
               </Button>
 
@@ -125,7 +125,7 @@ export function DemoLogin() {
                 type="button"
                 variant="outline"
                 onClick={fillDemoCredentials}
-                className="w-full border-green-300 text-green-700 hover:bg-green-50"
+                className="w-full border-success text-success hover:bg-success-50"
               >
                 Preencher credenciais de teste
               </Button>
@@ -136,7 +136,7 @@ export function DemoLogin() {
                 variant="ghost"
                 size="sm"
                 onClick={switchToSupabase}
-                className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                className="w-full text-brand-700 hover:text-brand-900 hover:bg-brand-50"
               >
                 Trocar para Modo Supabase
               </Button>
