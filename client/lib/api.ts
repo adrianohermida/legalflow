@@ -164,6 +164,7 @@ export const processosApi = {
   },
 
   async linkCliente(numero_cnj: string, cpfcnpj: string) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes_processos')
       .insert({ numero_cnj, cpfcnpj })
@@ -175,6 +176,7 @@ export const processosApi = {
   },
 
   async linkAdvogado(numero_cnj: string, oab: number) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('advogados_processos')
       .insert({ numero_cnj, oab })
