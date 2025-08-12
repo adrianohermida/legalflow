@@ -91,7 +91,7 @@ const getStageIcon = (type: StageType) => {
 const getStageActionButton = (stage: any) => {
   if (stage.status === 'completed') {
     return (
-      <Badge className="bg-green-100 text-green-800">
+      <Badge className="bg-success-100 text-success-700">
         <CheckCircle className="h-3 w-3 mr-1" />
         Concluído
       </Badge>
@@ -139,7 +139,7 @@ const getStageActionButton = (stage: any) => {
       );
     case 'gate':
       return (
-        <Badge className="bg-yellow-100 text-yellow-800">
+        <Badge className="bg-warning-100 text-warning-700">
           <Clock className="h-3 w-3 mr-1" />
           Em Análise
         </Badge>
@@ -160,7 +160,7 @@ const getStageDetails = (stage: any) => {
       return (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">{stage.description}</p>
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-brand-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Conteúdo da Aula</h5>
             <ul className="text-sm space-y-1">
               <li>• Introdução aos direitos trabalhistas</li>
@@ -185,7 +185,7 @@ const getStageDetails = (stage: any) => {
       return (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">{stage.description}</p>
-          <div className="bg-purple-50 p-4 rounded-lg">
+          <div className="bg-brand-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Documentos Necessários</h5>
             <ul className="text-sm space-y-2">
               <li className="flex items-center gap-2">
@@ -215,7 +215,7 @@ const getStageDetails = (stage: any) => {
       return (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">{stage.description}</p>
-          <div className="bg-green-50 p-4 rounded-lg">
+          <div className="bg-success-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Informações a Preencher</h5>
             <ul className="text-sm space-y-1">
               <li>• Histórico profissional detalhado</li>
@@ -237,7 +237,7 @@ const getStageDetails = (stage: any) => {
       return (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">{stage.description}</p>
-          <div className="bg-orange-50 p-4 rounded-lg">
+          <div className="bg-warning-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Agendar Reunião</h5>
             <p className="text-sm mb-3">
               Reunião de 1 hora para discutir a estratégia do seu caso com base na análise dos documentos.
