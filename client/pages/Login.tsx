@@ -47,10 +47,16 @@ export function Login() {
     }
   };
 
-  const handleDemoLogin = () => {
-    setEmail('test@example.com');
+  const handleDemoLogin = (email = 'admin@test.com') => {
+    setEmail(email);
     setPassword('123456');
   };
+
+  const testAccounts = [
+    { email: 'admin@test.com', label: 'Admin Test' },
+    { email: 'test@example.com', label: 'Standard Test' },
+    { email: 'dev@localhost.com', label: 'Dev Account' }
+  ];
 
   const createTestUser = async () => {
     setIsCreatingTestUser(true);
