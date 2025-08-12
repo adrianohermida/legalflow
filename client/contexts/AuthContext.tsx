@@ -31,11 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('AuthContext: useEffect triggered, supabaseConfigured:', supabaseConfigured);
-
     // Don't try to authenticate if Supabase is not configured
     if (!supabaseConfigured) {
-      console.log('AuthContext: Supabase not configured, setting loading false');
       setIsLoading(false);
       return;
     }
