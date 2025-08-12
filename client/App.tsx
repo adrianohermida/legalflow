@@ -17,8 +17,8 @@ if (supabaseConfigured) {
     devSetup.createInitialData();
   });
 
-  // Also create test user for development
-  import("./lib/create-test-user");
+  // Also create test users for development
+  import("./lib/admin-setup");
 }
 import { Dashboard } from "./pages/Dashboard";
 import { Clientes } from "./pages/Clientes";
