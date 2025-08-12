@@ -11,6 +11,17 @@ export const adminSetup = {
     }
 
     try {
+      // First check if we can connect to Supabase
+      const connectionTest = await supabase
+        .from('clientes')
+        .select('cpfcnpj')
+        .limit(1);
+
+      if (connectionTest.error) {
+        console.log('Skipping admin setup - Supabase connection failed:', connectionTest.error.message);
+        return;
+      }
+
       console.log('🔧 Setting up test user for development...');
       
       // Create the test user
