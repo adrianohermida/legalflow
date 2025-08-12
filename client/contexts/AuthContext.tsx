@@ -219,6 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isLoading,
       login,
+      signup,
       logout,
       selectOAB
     }}>
