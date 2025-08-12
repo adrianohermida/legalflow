@@ -23,6 +23,8 @@ export function Layout({ children }: LayoutProps) {
   const navigation = [
     { name: 'Processos', href: '/', icon: FileText },
     { name: 'Clientes', href: '/clientes', icon: Users },
+    { name: 'Jornadas', href: '/jornadas', icon: BookOpen },
+    { name: 'Inbox Legal', href: '/inbox', icon: Bell },
     { name: 'Documentos', href: '/documentos', icon: BookOpen },
   ];
 
