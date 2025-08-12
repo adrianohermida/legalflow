@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Plus, Search, Filter, FileText, Clock, AlertCircle, Calendar } from 'lucide-react';
+import { FinancialWidget } from '../components/FinancialWidget';
 
 interface Processo {
   numero_cnj: string;
