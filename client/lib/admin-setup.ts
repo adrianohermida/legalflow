@@ -5,6 +5,11 @@ import { supabase, supabaseConfigured } from './supabase';
 
 export const adminSetup = {
   async createConfirmedTestUser() {
+    if (!supabaseConfigured) {
+      console.log('Skipping admin setup - Supabase not configured');
+      return;
+    }
+
     try {
       console.log('🔧 Setting up test user for development...');
       
