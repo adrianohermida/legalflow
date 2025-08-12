@@ -229,6 +229,7 @@ export const journeyTemplatesApi = {
   },
 
   async create(template: Tables['journey_templates']['Insert']) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('journey_templates')
       .insert(template)
@@ -240,6 +241,7 @@ export const journeyTemplatesApi = {
   },
 
   async update(id: string, updates: Tables['journey_templates']['Update']) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('journey_templates')
       .update(updates)
@@ -252,6 +254,7 @@ export const journeyTemplatesApi = {
   },
 
   async delete(id: string) {
+    checkSupabaseConfig();
     const { error } = await supabase
       .from('journey_templates')
       .delete()
