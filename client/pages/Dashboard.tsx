@@ -173,7 +173,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {mockProcessos.filter(p => isPrazoVencendo(p.prazo)).length}
+              {processos.filter(p => isPrazoVencendo(p.prazo)).length}
             </div>
           </CardContent>
         </Card>
@@ -185,7 +185,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {mockProcessos.filter(p => p.risco === 'alto').length}
+              {processos.filter(p => p.risco === 'alto').length}
             </div>
           </CardContent>
         </Card>
