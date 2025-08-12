@@ -215,9 +215,9 @@ export function AppLauncher({ isOpen, onClose, userType }: AppLauncherProps) {
             </Button>
           </div>
 
-          {/* Apps Grid */}
+          {/* F1.1 - Apps Grid - Mosaico 3×N */}
           <div className="p-6 overflow-y-auto max-h-[60vh]">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               {apps.map((app) => {
                 const Icon = app.icon;
                 return (
@@ -225,7 +225,7 @@ export function AppLauncher({ isOpen, onClose, userType }: AppLauncherProps) {
                     key={app.id}
                     to={app.href}
                     onClick={onClose}
-                    className="group p-4 rounded-lg border border-border hover:border-brand-200 hover:shadow-soft transition-all duration-200 bg-white hover:bg-brand-50/50"
+                    className="group interactive p-4 rounded-lg border border-border hover:border-brand-100 hover:shadow-soft transition-all duration-200 bg-white hover:bg-brand-100/30"
                   >
                     <div className="flex flex-col items-center text-center space-y-3">
                       {/* Icon */}
