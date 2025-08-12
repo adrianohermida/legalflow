@@ -221,20 +221,27 @@ export const devSetup = {
 
   async checkConnection() {
     try {
-      const { data, error } = await supabase
+      // Use a timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Connection timeout')), 5000)
+      );
+
+      const connectionPromise = supabase
         .from('clientes')
         .select('cpfcnpj')
         .limit(1);
 
+      const { data, error } = await Promise.race([connectionPromise, timeoutPromise]) as any;
+
       if (error) {
-        console.error('Supabase connection error:', error.message || error);
+        console.log('Supabase connection error:', error.message || error);
         return false;
       }
 
       console.log('Supabase connection successful');
       return true;
     } catch (error: any) {
-      console.error('Failed to connect to Supabase:', error.message || error);
+      console.log('Failed to connect to Supabase:', error.message || error);
       return false;
     }
   }
