@@ -159,6 +159,10 @@ const config: Config = {
         sidebar: "280px",
         header: "64px",
       },
+      screens: {
+        'xs': '475px',
+        ...require('tailwindcss/defaultTheme').screens,
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
