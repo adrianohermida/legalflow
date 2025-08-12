@@ -19,12 +19,11 @@ import { useState, useEffect } from "react";
 
 // Initialize development data only when Supabase is configured
 if (supabaseConfigured) {
-  import("./lib/dev-setup").then(({ devSetup }) => {
-    devSetup.createInitialData();
+  // dev-setup.ts handles its own initialization
+  // Just import admin-setup for admin user creation
+  import("./lib/admin-setup").catch(error => {
+    console.log('Admin setup skipped:', error.message || error);
   });
-
-  // Also create test users for development
-  import("./lib/admin-setup");
 }
 import { Dashboard } from "./pages/Dashboard";
 import { Clientes } from "./pages/Clientes";
