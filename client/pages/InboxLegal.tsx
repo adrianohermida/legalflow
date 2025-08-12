@@ -155,7 +155,7 @@ export function InboxLegal() {
   const getStatusBadge = (isProcessed: boolean, hasJourney?: boolean) => {
     if (hasJourney) {
       return (
-        <Badge className="bg-blue-100 text-blue-800">
+        <Badge className="bg-brand-100 text-brand-700">
           <Target className="h-3 w-3 mr-1" />
           Na Jornada
         </Badge>
