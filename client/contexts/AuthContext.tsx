@@ -31,23 +31,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('AuthContext: useEffect triggered, supabaseConfigured:', supabaseConfigured);
+
     // Don't try to authenticate if Supabase is not configured
     if (!supabaseConfigured) {
+      console.log('AuthContext: Supabase not configured, setting loading false');
       setIsLoading(false);
       return;
     }
 
     // Check for existing session
     const checkAuth = async () => {
+      console.log('AuthContext: Starting auth check...');
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('AuthContext: Session check result:', !!session?.user);
 
         if (session?.user) {
+          console.log('AuthContext: Loading user data for:', session.user.email);
           await loadUserData(session.user);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
       } finally {
+        console.log('AuthContext: Setting loading false');
         setIsLoading(false);
       }
     };
