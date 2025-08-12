@@ -161,7 +161,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {mockProcessos.filter(p => p.status === 'ativo').length}
+              {processos.filter(p => p.status === 'ativo').length}
             </div>
           </CardContent>
         </Card>
