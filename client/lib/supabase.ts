@@ -5,11 +5,15 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if environment variables are properly configured
-const isConfigured = supabaseUrl && 
-  supabaseAnonKey && 
-  !supabaseUrl.includes('your-supabase') && 
+const isConfigured = supabaseUrl &&
+  supabaseAnonKey &&
+  !supabaseUrl.includes('your-project') &&
+  !supabaseUrl.includes('your-supabase') &&
+  !supabaseAnonKey.includes('your-anon') &&
   !supabaseAnonKey.includes('your-supabase') &&
-  supabaseUrl.startsWith('https://');
+  supabaseUrl.startsWith('https://') &&
+  supabaseUrl.includes('.supabase.co') &&
+  supabaseAnonKey.length > 50;
 
 // Create client with proper fallback or throw meaningful error
 export const supabase = isConfigured 
