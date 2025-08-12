@@ -121,6 +121,7 @@ export const processosApi = {
   },
 
   async getById(numero_cnj: string) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('processos')
       .select(`
@@ -142,6 +143,7 @@ export const processosApi = {
   },
 
   async create(processo: Tables['processos']['Insert']) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('processos')
       .insert(processo)
@@ -153,6 +155,7 @@ export const processosApi = {
   },
 
   async update(numero_cnj: string, updates: Tables['processos']['Update']) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('processos')
       .update(updates)
