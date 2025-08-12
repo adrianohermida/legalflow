@@ -117,16 +117,33 @@ export function Login() {
                 }
               </Button>
 
-              <div className="text-center">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDemoLogin}
-                  className="text-sm text-gray-600"
-                >
-                  Usar conta demo
-                </Button>
+              <div className="text-center space-y-2">
+                {!isSignupMode && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDemoLogin}
+                    className="text-sm text-gray-600"
+                  >
+                    Usar conta demo
+                  </Button>
+                )}
+
+                <div className="text-sm text-gray-600">
+                  {isSignupMode ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignupMode(!isSignupMode);
+                      setError('');
+                      setSuccess('');
+                    }}
+                    className="text-primary hover:underline"
+                  >
+                    {isSignupMode ? 'Fazer login' : 'Criar conta'}
+                  </button>
+                </div>
               </div>
             </form>
           </CardContent>
