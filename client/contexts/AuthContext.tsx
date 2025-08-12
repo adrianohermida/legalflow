@@ -100,6 +100,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
+    if (!supabaseConfigured) {
+      throw new Error('Supabase não está configurado. Configure as credenciais do banco de dados.');
+    }
+
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -110,6 +114,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
     } catch (error: any) {
       console.error('Login failed:', error);
+
+      // Handle specific error types
+      if (error.message?.includes('Failed to fetch') || error.name?.includes('AuthRetryableFetchError')) {
+        throw new Error('Erro de conexão com o banco de dados. Verifique se as credenciais do Supabase estão configuradas corretamente.');
+      }
+
+      if (error.message?.includes('Invalid login credentials')) {
+        throw new Error('Email ou senha incorretos');
+      }
+
       throw new Error(error.message || 'Falha no login');
     } finally {
       setIsLoading(false);
