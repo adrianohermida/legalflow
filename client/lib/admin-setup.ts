@@ -35,8 +35,8 @@ export const adminSetup = {
       console.log('📧 Remember: You need to manually confirm emails in Supabase Dashboard');
       console.log('🔗 Go to: https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users');
       
-    } catch (error) {
-      console.error('Admin setup failed:', error);
+    } catch (error: any) {
+    console.error('Admin setup failed:', error.message || error);
     }
   },
 
