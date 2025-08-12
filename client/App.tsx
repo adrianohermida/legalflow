@@ -57,7 +57,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function DemoProtectedRoute({ children, userType }: { children: React.ReactNode; userType: 'advogado' | 'cliente' }) {
-  const { user, isLoading } = useDemoAuth();
+  const { user, isLoading, logout } = useDemoAuth();
   const [showOABModal, setShowOABModal] = useState(false);
 
   useEffect(() => {
@@ -83,7 +83,7 @@ function DemoProtectedRoute({ children, userType }: { children: React.ReactNode;
 
   return (
     <>
-      <AppShell userType={userType}>
+      <AppShell userType={userType} user={user} logout={logout}>
         {children}
       </AppShell>
       {userType === 'advogado' && (
@@ -97,7 +97,7 @@ function DemoProtectedRoute({ children, userType }: { children: React.ReactNode;
 }
 
 function ProtectedRoute({ children, userType }: { children: React.ReactNode; userType: 'advogado' | 'cliente' }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const [showOABModal, setShowOABModal] = useState(false);
 
   useEffect(() => {
@@ -123,7 +123,7 @@ function ProtectedRoute({ children, userType }: { children: React.ReactNode; use
 
   return (
     <>
-      <AppShell userType={userType}>
+      <AppShell userType={userType} user={user} logout={logout}>
         {children}
       </AppShell>
       {userType === 'advogado' && (
