@@ -1,5 +1,4 @@
 import "./global.css";
-import "./lib/dev-setup"; // Initialize development data
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
