@@ -12,9 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Calendar, CalendarIcon } from '../components/ui/calendar';
+import { Calendar } from '../components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
-import { ArrowLeft, User, FileText, Calendar as CalendarIconLucide, Users } from 'lucide-react';
+import { ArrowLeft, User, FileText, Calendar as CalendarIcon, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '../lib/utils';
