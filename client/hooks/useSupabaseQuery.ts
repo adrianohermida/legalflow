@@ -13,18 +13,28 @@ export function useSupabaseQuery<T>(
 ) {
   return useQuery({
     queryKey,
-    queryFn,
+    queryFn: async () => {
+      try {
+        return await queryFn();
+      } catch (error: any) {
+        // Handle and transform error to a proper Error object
+        const errorMessage = error?.message || String(error);
+        console.error('Supabase query error:', errorMessage);
+        throw new Error(errorMessage);
+      }
+    },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     refetchInterval: options?.refetchInterval,
     enabled: options?.enabled,
     retry: (failureCount, error) => {
-      // Don't retry auth errors
-      if (error?.message?.includes('JWT') || error?.message?.includes('permission')) {
+      // Don't retry configuration errors or auth errors
+      if (error?.message?.includes('não está configurado') ||
+          error?.message?.includes('JWT') ||
+          error?.message?.includes('permission')) {
         return false;
       }
       return failureCount < 3;
-    },
-    onError: handleApiError
+    }
   });
 }
 
