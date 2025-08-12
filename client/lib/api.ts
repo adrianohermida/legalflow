@@ -1,5 +1,12 @@
-import { supabase } from './supabase';
+import { supabase, supabaseConfigured } from './supabase';
 import type { Database } from './supabase';
+
+// Check if Supabase is properly configured
+function checkSupabaseConfig() {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase não está configurado. Configure as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.');
+  }
+}
 
 type Tables = Database['public']['Tables'];
 type Cliente = Tables['clientes']['Row'];
