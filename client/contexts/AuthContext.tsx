@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (error.message?.includes('Email not confirmed')) {
-        throw new Error('Email não confirmado. Para desenvolvimento, faça login diretamente ou verifique o email.');
+        throw new Error('Email não confirmado. Para desenvolvimento: \n1. Verifique seu email para confirmar a conta\n2. Ou acesse o painel do Supabase para confirmar manualmente\n3. Ou desative a confirmação de email nas configurações do Supabase');
       }
 
       throw new Error(error.message || 'Falha no login');
