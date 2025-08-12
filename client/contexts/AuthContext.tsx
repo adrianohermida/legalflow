@@ -176,6 +176,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Usuário já cadastrado com este email');
       }
 
+      if (error.message?.includes('email confirmation')) {
+        throw new Error('Conta criada! Verifique seu email para confirmar a conta antes de fazer login.');
+      }
+
       throw new Error(error.message || 'Falha no cadastro');
     } finally {
       setIsLoading(false);
