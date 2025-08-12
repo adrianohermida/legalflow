@@ -25,51 +25,17 @@ import { FinancialWidget } from '../components/FinancialWidget';
 import { processosApi } from '../lib/api';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 
-interface Processo {
+interface ProcessoView {
   numero_cnj: string;
-  cliente: string;
+  cliente?: string;
   tribunal: string;
   fase: string;
-  responsavel: string;
+  responsavel?: string;
   proximaAcao?: string;
   prazo?: string;
   status: 'ativo' | 'suspenso' | 'finalizado';
   risco: 'baixo' | 'medio' | 'alto';
 }
-
-const mockProcessos: Processo[] = [
-  {
-    numero_cnj: '1000123-45.2024.8.26.0001',
-    cliente: 'João Silva',
-    tribunal: 'TJSP',
-    fase: 'Petição inicial',
-    responsavel: 'Dr. Maria Santos',
-    proximaAcao: 'Contestação',
-    prazo: '2024-02-15',
-    status: 'ativo',
-    risco: 'alto'
-  },
-  {
-    numero_cnj: '2000456-78.2024.8.26.0002',
-    cliente: 'Empresa ABC Ltda',
-    tribunal: 'TJSP',
-    fase: 'Instrução',
-    responsavel: 'Dr. João Silva',
-    proximaAcao: 'Audiência',
-    prazo: '2024-02-20',
-    status: 'ativo',
-    risco: 'medio'
-  },
-  {
-    numero_cnj: '3000789-01.2024.8.26.0003',
-    cliente: 'Maria Oliveira',
-    tribunal: 'TJSP',
-    fase: 'Recurso',
-    responsavel: 'Dr. Maria Santos',
-    status: 'suspenso',
-    risco: 'baixo'
-  }
-];
 
 export function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
