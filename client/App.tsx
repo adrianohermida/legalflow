@@ -42,6 +42,42 @@ import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
+function DemoProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useDemoAuth();
+  const [showOABModal, setShowOABModal] = useState(false);
+
+  useEffect(() => {
+    if (user && !user.oab) {
+      setShowOABModal(true);
+    }
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando Demo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <>
+      <Layout>{children}</Layout>
+      <OABSelectionModal
+        open={showOABModal}
+        onOpenChange={setShowOABModal}
+      />
+    </>
+  );
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const [showOABModal, setShowOABModal] = useState(false);
