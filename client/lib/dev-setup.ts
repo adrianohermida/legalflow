@@ -1,10 +1,10 @@
-import { supabase } from './supabase';
+import { supabase, supabaseConfigured } from './supabase';
 
 // Development utilities for setting up initial data
 export const devSetup = {
   async createInitialData() {
-    // Only run in development
-    if (import.meta.env.PROD) return;
+    // Only run in development and when Supabase is configured
+    if (import.meta.env.PROD || !supabaseConfigured) return;
 
     try {
       // Check if we already have data
