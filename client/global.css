@@ -5,39 +5,49 @@
 
 @layer base {
   :root {
-    /* Hermida Maia Brand Colors */
-    --brand-50: 245 250 248;
-    --brand-100: 233 243 239;
-    --brand-200: 211 231 223;
-    --brand-300: 176 212 196;
-    --brand-400: 134 189 164;
-    --brand-500: 98 162 133;
-    --brand-600: 77 129 105;
-    --brand-700: 40 82 69;
-    --brand-800: 33 66 57;
-    --brand-900: 27 58 47;
+    /* F1.0 - Hermida Maia Brand Colors (padronização site ↔ app) */
+    --brand-900: 27 58 47;   /* #1b3a2f - Primary dark */
+    --brand-700: 40 82 69;   /* #285245 - Primary medium */
+    --brand-100: 233 243 239; /* #e9f3ef - Primary light */
 
-    /* Shadcn/UI Variables mapped to brand */
-    --background: 0 0% 100%;
+    /* State colors - apenas subtons do branding */
+    --danger: 239 68 68;     /* #ef4444 */
+    --warn: 245 158 11;      /* #f59e0b */
+    --success: 22 163 74;    /* #16a34a */
+
+    /* Neutral scale baseada no branding */
+    --neutral-50: 249 250 251;
+    --neutral-100: 243 244 246;
+    --neutral-200: 229 231 235;
+    --neutral-300: 209 213 219;
+    --neutral-400: 156 163 175;
+    --neutral-500: 107 114 128;
+    --neutral-600: 75 85 99;
+    --neutral-700: 55 65 81;
+    --neutral-800: 31 41 55;
+    --neutral-900: 17 24 39;
+
+    /* F1.0 - Shadcn/UI Variables - AA+ contrast compliant */
+    --background: 255 255 255;
     --foreground: var(--brand-900);
-    --card: 0 0% 100%;
+    --card: 255 255 255;
     --card-foreground: var(--brand-900);
-    --popover: 0 0% 100%;
+    --popover: 255 255 255;
     --popover-foreground: var(--brand-900);
     --primary: var(--brand-700);
-    --primary-foreground: 0 0% 98%;
+    --primary-foreground: 255 255 255;
     --secondary: var(--brand-100);
     --secondary-foreground: var(--brand-900);
-    --muted: var(--brand-50);
-    --muted-foreground: var(--brand-600);
+    --muted: var(--neutral-50);
+    --muted-foreground: var(--neutral-600);
     --accent: var(--brand-100);
     --accent-foreground: var(--brand-900);
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: var(--brand-200);
-    --input: var(--brand-200);
+    --destructive: var(--danger);
+    --destructive-foreground: 255 255 255;
+    --border: var(--neutral-200);
+    --input: var(--neutral-200);
     --ring: var(--brand-700);
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* 12px bordas arredondadas */
   }
 
   .dark {
