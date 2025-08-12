@@ -18,7 +18,6 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/Layout";
 import { Login } from "./pages/Login";
 import Setup from "./pages/Setup";
-import { supabaseConfigured } from "./lib/supabase";
 import { Dashboard } from "./pages/Dashboard";
 import { Clientes } from "./pages/Clientes";
 import { Jornadas } from "./pages/Jornadas";
