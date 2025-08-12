@@ -128,13 +128,13 @@ export function Documentos() {
     switch (status) {
       case 'aprovado':
       case 'protocolado':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success-100 text-success-700';
       case 'validando':
       case 'revisao':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning-100 text-warning-700';
       case 'faltando':
       case 'rascunho':
-        return 'bg-red-100 text-red-800';
+        return 'bg-danger-100 text-danger-700';
       default:
         return 'bg-gray-100 text-gray-800';
     }
