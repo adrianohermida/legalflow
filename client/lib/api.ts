@@ -32,6 +32,7 @@ export const clientesApi = {
   },
 
   async getById(cpfcnpj: string) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
       .select('*')
@@ -43,6 +44,7 @@ export const clientesApi = {
   },
 
   async create(cliente: Tables['clientes']['Insert']) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
       .insert(cliente)
@@ -54,6 +56,7 @@ export const clientesApi = {
   },
 
   async update(cpfcnpj: string, updates: Tables['clientes']['Update']) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
       .update(updates)
@@ -66,6 +69,7 @@ export const clientesApi = {
   },
 
   async delete(cpfcnpj: string) {
+    checkSupabaseConfig();
     const { error } = await supabase
       .from('clientes')
       .delete()
@@ -75,6 +79,7 @@ export const clientesApi = {
   },
 
   async getWithProcessos(cpfcnpj: string) {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
       .select(`
