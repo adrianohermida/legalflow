@@ -40,8 +40,8 @@ export function Login() {
   };
 
   const handleDemoLogin = () => {
-    setEmail('advogado@exemplo.com');
-    setPassword('demo123');
+    setEmail('adriano@hermidamaia.adv.br');
+    setPassword('123456');
   };
 
   return (
