@@ -50,7 +50,7 @@ const advogadoNavItems = [
     description: 'Jornadas do cliente'
   },
   {
-    title: 'Inbox Jurídica',
+    title: 'Inbox Legal',
     href: '/inbox',
     icon: Inbox,
     description: 'Triagem de publicações'
