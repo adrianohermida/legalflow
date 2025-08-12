@@ -94,7 +94,13 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                   </AlertDescription>
                 </Alert>
                 
-                <Button 
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Button
                   onClick={handleCreateAndConfirm}
                   disabled={isLoading}
                   className="w-full"
