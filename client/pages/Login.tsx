@@ -174,19 +174,29 @@ export function Login() {
                           >
                             Abrir Painel do Supabase
                           </Button>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => {
-                              setEmail('admin@test.com');
-                              setPassword('123456');
-                              setError('');
-                              setSuccess('Credenciais preenchidas! Se ainda não funcionar, confirme o email no painel do Supabase.');
-                            }}
-                            className="w-full"
-                          >
-                            Usar Conta de Teste (admin@test.com)
-                          </Button>
+                          <div className="space-y-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => setShowQuickSetup(true)}
+                              className="w-full"
+                            >
+                              🚀 Configuração Rápida (3 passos)
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setEmail('admin@test.com');
+                                setPassword('123456');
+                                setError('');
+                                setSuccess('Credenciais preenchidas! Se ainda não funcionar, use a Configuração Rápida.');
+                              }}
+                              className="w-full"
+                            >
+                              Usar Conta de Teste (admin@test.com)
+                            </Button>
+                          </div>
                         </div>
                       </AlertDescription>
                     </Alert>
