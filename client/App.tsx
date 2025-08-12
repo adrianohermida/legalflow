@@ -13,6 +13,7 @@ import Setup from "./pages/Setup";
 import { QuickSetup } from "./pages/QuickSetup";
 import { ModeSelector } from "./pages/ModeSelector";
 import { supabaseConfigured } from "./lib/supabase";
+import { useState } from "react";
 
 // Initialize development data only when Supabase is configured
 if (supabaseConfigured) {
