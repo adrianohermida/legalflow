@@ -29,7 +29,7 @@ export function Login() {
     try {
       if (isSignupMode) {
         await signup(email, password);
-        setSuccess('Conta criada com sucesso! Verifique seu email para confirmar.');
+        setSuccess('Conta criada! Para desenvolvimento: confirme o email no painel do Supabase ou desative a confirmação de email.');
         setIsSignupMode(false);
       } else {
         await login(email, password);
