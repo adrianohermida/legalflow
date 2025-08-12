@@ -164,7 +164,7 @@ export function InboxLegal() {
     
     if (isProcessed) {
       return (
-        <Badge className="bg-green-100 text-green-800">
+        <Badge className="bg-success-100 text-success-700">
           <CheckCircle className="h-3 w-3 mr-1" />
           Processado
         </Badge>
@@ -172,7 +172,7 @@ export function InboxLegal() {
     }
     
     return (
-      <Badge className="bg-yellow-100 text-yellow-800">
+      <Badge className="bg-warning-100 text-warning-700">
         <Clock className="h-3 w-3 mr-1" />
         Pendente
       </Badge>
