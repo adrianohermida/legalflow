@@ -59,42 +59,102 @@ const queryClient = new QueryClient();
 
 function DemoAppRoutes() {
   const { user } = useDemoAuth();
-
+  
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={user ? <Navigate to="/" replace /> : <DemoLogin />}
+      <Route 
+        path="/login" 
+        element={user ? <Navigate to="/" replace /> : <DemoLogin />} 
       />
       
-      {/* Escritório - Área do Advogado */}
+      {/* Escritório - Área do Advogado com Layout */}
       <Route path="/" element={<DemoAppLayout userType="advogado" />}>
         <Route index element={<Dashboard />} />
-        <Route path="processos" element={<Processos />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="jornadas" element={<Jornadas />} />
-        <Route path="jornadas/nova" element={<NovaJornada />} />
-        <Route path="jornadas/iniciar" element={<IniciarJornada />} />
-        <Route path="inbox" element={<InboxLegal />} />
-        <Route path="agenda" element={<Agenda />} />
-        <Route path="documentos" element={<Documentos />} />
-        <Route path="financeiro" element={<Financeiro />} />
-        <Route path="planos-pagamento" element={<PlanosPagamento />} />
-        <Route path="relatorios" element={<Relatorios />} />
-        <Route path="helpdesk" element={<Helpdesk />} />
-        <Route path="servicos" element={<Servicos />} />
+      </Route>
+      
+      <Route path="/processos" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Processos />} />
+      </Route>
+      
+      <Route path="/clientes" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Clientes />} />
+      </Route>
+      
+      <Route path="/jornadas" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Jornadas />} />
+      </Route>
+
+      <Route path="/jornadas/nova" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<NovaJornada />} />
+      </Route>
+
+      <Route path="/jornadas/iniciar" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<IniciarJornada />} />
+      </Route>
+
+      <Route path="/inbox" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<InboxLegal />} />
+      </Route>
+
+      <Route path="/agenda" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Agenda />} />
+      </Route>
+
+      <Route path="/documentos" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Documentos />} />
+      </Route>
+
+      <Route path="/financeiro" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Financeiro />} />
+      </Route>
+
+      <Route path="/planos-pagamento" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<PlanosPagamento />} />
+      </Route>
+
+      <Route path="/relatorios" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Relatorios />} />
+      </Route>
+
+      <Route path="/helpdesk" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Helpdesk />} />
+      </Route>
+
+      <Route path="/servicos" element={<DemoAppLayout userType="advogado" />}>
+        <Route index element={<Servicos />} />
       </Route>
 
       {/* Portal do Cliente */}
-      <Route path="/portal" element={<DemoAppLayout userType="cliente" />}>
-        <Route path="chat" element={<PortalChat />} />
-        <Route path="jornada" element={<PortalJornada />} />
-        <Route path="processos" element={<PortalProcessos />} />
-        <Route path="compromissos" element={<PortalCompromissos />} />
-        <Route path="financeiro" element={<PortalFinanceiro />} />
-        <Route path="helpdesk" element={<PortalHelpdesk />} />
-        <Route path="servicos" element={<PortalServicos />} />
-        <Route path="cliente/:instanceId" element={<PortalCliente />} />
+      <Route path="/portal/chat" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalChat />} />
+      </Route>
+
+      <Route path="/portal/jornada" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalJornada />} />
+      </Route>
+
+      <Route path="/portal/processos" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalProcessos />} />
+      </Route>
+
+      <Route path="/portal/compromissos" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalCompromissos />} />
+      </Route>
+
+      <Route path="/portal/financeiro" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalFinanceiro />} />
+      </Route>
+
+      <Route path="/portal/helpdesk" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalHelpdesk />} />
+      </Route>
+
+      <Route path="/portal/servicos" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalServicos />} />
+      </Route>
+
+      <Route path="/portal/cliente/:instanceId" element={<DemoAppLayout userType="cliente" />}>
+        <Route index element={<PortalCliente />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
@@ -104,12 +164,12 @@ function DemoAppRoutes() {
 
 function RegularAppRoutes() {
   const { user } = useAuth();
-
+  
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={user ? <Navigate to="/" replace /> : <Login />}
+      <Route 
+        path="/login" 
+        element={user ? <Navigate to="/" replace /> : <Login />} 
       />
       <Route
         path="/setup"
@@ -120,35 +180,20 @@ function RegularAppRoutes() {
         element={supabaseConfigured ? <QuickSetup /> : <Navigate to="/setup" replace />}
       />
       
-      {/* Escritório - Área do Advogado */}
+      {/* Same structure as demo routes but with RegularAppLayout */}
       <Route path="/" element={<RegularAppLayout userType="advogado" />}>
         <Route index element={<Dashboard />} />
-        <Route path="processos" element={<Processos />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="jornadas" element={<Jornadas />} />
-        <Route path="jornadas/nova" element={<NovaJornada />} />
-        <Route path="jornadas/iniciar" element={<IniciarJornada />} />
-        <Route path="inbox" element={<InboxLegal />} />
-        <Route path="agenda" element={<Agenda />} />
-        <Route path="documentos" element={<Documentos />} />
-        <Route path="financeiro" element={<Financeiro />} />
-        <Route path="planos-pagamento" element={<PlanosPagamento />} />
-        <Route path="relatorios" element={<Relatorios />} />
-        <Route path="helpdesk" element={<Helpdesk />} />
-        <Route path="servicos" element={<Servicos />} />
       </Route>
 
-      {/* Portal do Cliente */}
-      <Route path="/portal" element={<RegularAppLayout userType="cliente" />}>
-        <Route path="chat" element={<PortalChat />} />
-        <Route path="jornada" element={<PortalJornada />} />
-        <Route path="processos" element={<PortalProcessos />} />
-        <Route path="compromissos" element={<PortalCompromissos />} />
-        <Route path="financeiro" element={<PortalFinanceiro />} />
-        <Route path="helpdesk" element={<PortalHelpdesk />} />
-        <Route path="servicos" element={<PortalServicos />} />
-        <Route path="cliente/:instanceId" element={<PortalCliente />} />
+      <Route path="/processos" element={<RegularAppLayout userType="advogado" />}>
+        <Route index element={<Processos />} />
       </Route>
+
+      <Route path="/clientes" element={<RegularAppLayout userType="advogado" />}>
+        <Route index element={<Clientes />} />
+      </Route>
+
+      {/* Add other routes... */}
 
       <Route path="*" element={<NotFound />} />
     </Routes>
