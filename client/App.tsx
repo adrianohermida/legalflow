@@ -58,7 +58,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function DemoAppRoutes() {
-  const { user } = require('./contexts/DemoAuthContext').useDemoAuth();
+  const { user } = useDemoAuth();
 
   return (
     <Routes>
