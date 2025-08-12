@@ -92,6 +92,14 @@ const advogadoApps = [
     color: 'bg-emerald-500',
   },
   {
+    id: 'planos-pagamento',
+    title: 'Planos de Pagamento',
+    description: 'Gestão de planos de pagamento',
+    href: '/planos-pagamento',
+    icon: DollarSign,
+    color: 'bg-green-600',
+  },
+  {
     id: 'relatorios',
     title: 'Relatórios',
     description: 'Análises e relatórios gerenciais',
