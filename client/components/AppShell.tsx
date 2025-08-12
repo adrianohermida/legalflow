@@ -63,6 +63,8 @@ export function AppShell({ userType, user, logout }: AppShellProps) {
           onNotificationToggle={handleNotificationToggle}
           onChatToggle={handleChatToggle}
           onSearchClick={() => setIsCommandPaletteOpen(true)}
+          user={user}
+          logout={logout}
         />
 
         {/* Page Content */}
