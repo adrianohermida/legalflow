@@ -18,6 +18,7 @@ export function AppShell({ userType }: AppShellProps) {
   const [isChatDockOpen, setIsChatDockOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
