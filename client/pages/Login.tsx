@@ -64,13 +64,14 @@ export function Login() {
     setSuccess('');
 
     try {
-      await signup('test@example.com', '123456');
-      setSuccess('Usuário de teste criado! Confirme o email no painel do Supabase para fazer login.');
-      handleDemoLogin(); // Fill in the credentials
+      // Try to create multiple test accounts
+      await signup('admin@test.com', '123456');
+      setSuccess('Usuários de teste criados! Confirme os emails no painel do Supabase para fazer login.');
+      handleDemoLogin('admin@test.com'); // Fill in the credentials
     } catch (err: any) {
       if (err.message?.includes('já cadastrado')) {
-        setSuccess('Usuário de teste já existe! Se não conseguir fazer login, confirme o email no painel do Supabase.');
-        handleDemoLogin();
+        setSuccess('Usuários de teste já existem! Confirme os emails no painel do Supabase se necessário.');
+        handleDemoLogin('admin@test.com');
       } else {
         setError(err.message || 'Erro ao criar usuário de teste');
       }
