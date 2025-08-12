@@ -101,10 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: supabaseUser.id,
         email: supabaseUser.email || '',
         oab: userAdvogado?.oab,
-        advogado: userAdvogado?.advogados ? {
-          oab: userAdvogado.advogados.oab,
-          nome: userAdvogado.advogados.nome || '',
-          uf: userAdvogado.advogados.uf || ''
+        advogado: userAdvogado?.advogados?.[0] ? {
+          oab: userAdvogado.advogados[0].oab,
+          nome: userAdvogado.advogados[0].nome || '',
+          uf: userAdvogado.advogados[0].uf || ''
         } : undefined
       };
 
