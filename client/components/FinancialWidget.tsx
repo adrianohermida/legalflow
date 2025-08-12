@@ -117,13 +117,3 @@ export function FinancialWidget({ metrics = defaultMetrics }: FinancialWidgetPro
 }
 
 // Default props for when no metrics are provided
-FinancialWidget.defaultProps = {
-  metrics: {
-    total_revenue: 245000,
-    monthly_revenue: 38500,
-    overdue_amount: 23500,
-    collection_rate: 91.2,
-    active_plans: 18,
-    overdue_installments: 8
-  }
-};
