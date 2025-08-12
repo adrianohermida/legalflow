@@ -53,7 +53,7 @@ export function Login() {
     }
   };
 
-  const handleDemoLogin = (email = 'admin@test.com') => {
+  const handleDemoLogin = (email = 'admin.test@gmail.com') => {
     setEmail(email);
     setPassword('123456');
   };
