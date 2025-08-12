@@ -52,10 +52,12 @@ export const devSetup = {
         .from('advogados')
         .insert([
           {
+            oab: 123456,
             nome: 'Dr. Adriano Hermida Maia',
             uf: 'SP'
           },
           {
+            oab: 654321,
             nome: 'Dra. Maria Santos',
             uf: 'SP'
           }
