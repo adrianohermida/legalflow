@@ -167,7 +167,7 @@ export function Sidebar({ userType }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" role="navigation" aria-label="Menu principal">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
