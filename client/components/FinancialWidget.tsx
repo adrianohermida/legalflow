@@ -16,10 +16,19 @@ interface FinancialMetrics {
 }
 
 interface FinancialWidgetProps {
-  metrics: FinancialMetrics;
+  metrics?: FinancialMetrics;
 }
 
-export function FinancialWidget({ metrics }: FinancialWidgetProps) {
+const defaultMetrics: FinancialMetrics = {
+  total_revenue: 245000,
+  monthly_revenue: 38500,
+  overdue_amount: 23500,
+  collection_rate: 91.2,
+  active_plans: 18,
+  overdue_installments: 8
+};
+
+export function FinancialWidget({ metrics = defaultMetrics }: FinancialWidgetProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
