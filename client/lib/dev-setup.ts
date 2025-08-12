@@ -7,23 +7,35 @@ export const devSetup = {
     if (import.meta.env.PROD || !supabaseConfigured) return;
 
     try {
-      // Try to create a test user for demo purposes
+      // For development, we'll create a user that bypasses email confirmation
       const testEmail = 'adriano@hermidamaia.adv.br';
       const testPassword = '123456';
 
       console.log('Creating test user for development...');
+
+      // Try to sign up with email confirmation disabled for development
       const { data, error } = await supabase.auth.signUp({
         email: testEmail,
         password: testPassword,
         options: {
-          emailRedirectTo: window.location.origin
+          emailRedirectTo: window.location.origin,
+          data: {
+            // Mark as development user
+            dev_user: true
+          }
         }
       });
 
-      if (error && !error.message.includes('User already registered')) {
-        console.error('Error creating test user:', error.message);
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          console.log('Test user already exists');
+        } else {
+          console.warn('Test user creation failed:', error.message);
+          console.log('You may need to manually confirm the email or disable email confirmation in Supabase settings');
+        }
       } else {
-        console.log('Test user created or already exists');
+        console.log('Test user created - may need email confirmation');
+        console.log('Check your email or manually confirm in Supabase dashboard');
       }
     } catch (error: any) {
       console.error('Failed to create test user:', error.message);
