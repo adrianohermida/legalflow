@@ -155,7 +155,9 @@ export function Login() {
               <p className="text-sm text-blue-800">
                 <strong>Primeira vez?</strong> Clique em "Criar conta" para criar sua primeira conta de usuário.
                 <br />
-                Após criar a conta, faça login e use OAB <strong>123456</strong> para vincular.
+                <strong>Para teste:</strong> Use email <code>adriano@hermidamaia.adv.br</code> e senha <code>123456</code>
+                <br />
+                Após fazer login, use OAB <strong>123456</strong> para vincular.
               </p>
             </div>
           </div>
