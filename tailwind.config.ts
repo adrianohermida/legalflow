@@ -22,8 +22,15 @@ const config: Config = {
       colors: {
         // F1.0 - Hermida Maia Brand Colors (site ↔ app consistency)
         brand: {
+          50: "#f5faf8",
           100: "#e9f3ef", // Light brand
+          200: "#d3e7df",
+          300: "#b0d4c4",
+          400: "#86bda4",
+          500: "#62a285",
+          600: "#4d8169",
           700: "#285245", // Primary brand
+          800: "#214239",
           900: "#1b3a2f", // Dark brand
         },
         // F1.0 - State colors - subtons do branding apenas
