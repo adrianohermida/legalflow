@@ -52,7 +52,7 @@ export const adminSetup = {
       console.log('🔗 Go to: https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users');
       
     } catch (error: any) {
-    console.error('Admin setup failed:', error.message || error);
+      console.log('Admin setup failed:', error.message || error);
     }
   },
 
