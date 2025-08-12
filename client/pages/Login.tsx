@@ -220,7 +220,9 @@ export function Login() {
               <p className="text-sm text-blue-800">
                 <strong>Primeira vez?</strong> Clique em "Criar conta" para criar sua primeira conta de usuário.
                 <br />
-                <strong>Para teste:</strong> Use email <code>adriano@hermidamaia.adv.br</code> e senha <code>123456</code>
+                <strong>Para teste:</strong> Use email <code>test@example.com</code> e senha <code>123456</code>
+                <br />
+                <strong>Problema com email?</strong> Confirme manualmente no painel do Supabase
                 <br />
                 Após fazer login, use OAB <strong>123456</strong> para vincular.
               </p>
