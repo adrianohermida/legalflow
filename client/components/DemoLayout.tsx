@@ -44,11 +44,11 @@ export function DemoLayout({ children }: DemoLayoutProps) {
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="bg-green-600 text-white p-2 rounded-lg">
+                <div className="bg-success text-white p-2 rounded-lg">
                   <Scale className="h-6 w-6" />
                 </div>
                 <span className="text-xl font-bold text-gray-900">LegalFlow</span>
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full ml-2">
+                <span className="bg-success-100 text-success-700 text-xs px-2 py-1 rounded-full ml-2">
                   DEMO
                 </span>
               </Link>
@@ -64,7 +64,7 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                     to={item.href}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.href)
-                        ? 'bg-green-600 text-white'
+                        ? 'bg-success text-white'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
@@ -79,7 +79,7 @@ export function DemoLayout({ children }: DemoLayoutProps) {
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-danger text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   3
                 </span>
               </Button>
@@ -88,7 +88,7 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-green-600 text-white">
+                      <AvatarFallback className="bg-success text-white">
                         {user?.email?.charAt(0).toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
