@@ -65,16 +65,26 @@ export function Login() {
 
     try {
       // Try to create multiple test accounts
-      await signup('admin@test.com', '123456');
-      setSuccess('Usuários de teste criados! Confirme os emails no painel do Supabase para fazer login.');
-      handleDemoLogin('admin@test.com'); // Fill in the credentials
-    } catch (err: any) {
-      if (err.message?.includes('já cadastrado')) {
-        setSuccess('Usuários de teste já existem! Confirme os emails no painel do Supabase se necessário.');
-        handleDemoLogin('admin@test.com');
-      } else {
-        setError(err.message || 'Erro ao criar usuário de teste');
+      for (const account of testAccounts) {
+        try {
+          await signup(account.email, '123456');
+        } catch (err: any) {
+          if (!err.message?.includes('já cadastrado')) {
+            console.warn(`Failed to create ${account.email}:`, err.message);
+          }
+        }
       }
+
+      setSuccess('Contas de teste criadas! Abrindo painel do Supabase para confirmar emails...');
+      handleDemoLogin('admin@test.com'); // Fill in the credentials
+
+      // Auto-open Supabase dashboard after a short delay
+      setTimeout(() => {
+        window.open('https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users', '_blank');
+      }, 1000);
+
+    } catch (err: any) {
+      setError('Erro ao criar contas de teste: ' + (err.message || 'Erro desconhecido'));
     } finally {
       setIsCreatingTestUser(false);
     }
