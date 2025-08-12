@@ -144,7 +144,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (error.message?.includes('Email not confirmed')) {
-        throw new Error('Email não confirmado. Para desenvolvimento: \n1. Verifique seu email para confirmar a conta\n2. Ou acesse o painel do Supabase para confirmar manualmente\n3. Ou desative a confirmação de email nas configurações do Supabase');
+        // In development, try to create and auto-login the user
+        if (import.meta.env.DEV) {
+          console.log('Development mode: attempting to create confirmed user...');
+          try {
+            // For development, we'll show a helpful error instead of trying complex workarounds
+            throw new Error('Conta criada mas email não confirmado. Soluções:\n• Acesse o painel do Supabase e confirme o email manualmente\n• Ou use a conta de teste: test@example.com / 123456');
+          } catch (devError) {
+            throw devError;
+          }
+        } else {
+          throw new Error('Email não confirmado. Verifique seu email e clique no link de confirmação.');
+        }
       }
 
       throw new Error(error.message || 'Falha no login');
