@@ -30,11 +30,8 @@ export function DemoAppLayout({ userType }: DemoAppLayoutProps) {
   }
 
   if (!user) {
-    console.log('DemoAppLayout: No user found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
-
-  console.log('DemoAppLayout: User found:', user);
 
   return (
     <>
