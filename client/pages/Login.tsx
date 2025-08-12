@@ -104,8 +104,17 @@ export function Login() {
                 </Alert>
               )}
 
+              {success && (
+                <Alert>
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Entrando...' : 'Entrar'}
+                {isLoading
+                  ? (isSignupMode ? 'Criando conta...' : 'Entrando...')
+                  : (isSignupMode ? 'Criar conta' : 'Entrar')
+                }
               </Button>
 
               <div className="text-center">
