@@ -55,7 +55,12 @@ export const adminSetup = {
   }
 };
 
-// Auto-run in development
-if (import.meta.env.DEV) {
-  adminSetup.createConfirmedTestUser();
+// Auto-run in development with error handling
+if (import.meta.env.DEV && supabaseConfigured) {
+  // Add delay to let app initialize
+  setTimeout(() => {
+    adminSetup.createConfirmedTestUser().catch(error => {
+      console.log('Admin setup skipped due to connection issues:', error.message || error);
+    });
+  }, 2000);
 }
