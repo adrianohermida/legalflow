@@ -21,6 +21,7 @@ type PlanoPagamento = Tables['planos_pagamento']['Row'];
 
 export const clientesApi = {
   async getAll() {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
       .select('*')
