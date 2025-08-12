@@ -130,10 +130,7 @@ function AppRoutes() {
       } />
       <Route path="/documentos" element={
         <ProtectedRoute>
-          <PlaceholderPage
-            title="Documentos"
-            description="Gestão de documentos e peças processuais."
-          />
+          <Documentos />
         </ProtectedRoute>
       } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
