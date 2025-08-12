@@ -7,6 +7,12 @@ export const devSetup = {
     if (import.meta.env.PROD || !supabaseConfigured) return;
 
     try {
+      // First check if we can connect
+      const canConnect = await this.checkConnection();
+      if (!canConnect) {
+        console.log('Skipping test user creation - no Supabase connection');
+        return;
+      }
       // For development, we'll create a user that bypasses email confirmation
       const testEmail = 'adriano@hermidamaia.adv.br';
       const testPassword = '123456';
@@ -47,6 +53,12 @@ export const devSetup = {
     if (import.meta.env.PROD || !supabaseConfigured) return;
 
     try {
+      // First check if we can connect
+      const canConnect = await this.checkConnection();
+      if (!canConnect) {
+        console.log('Skipping initial data creation - no Supabase connection');
+        return;
+      }
       // First, try to create test user
       await this.createTestUser();
 
@@ -228,11 +240,16 @@ export const devSetup = {
   }
 };
 
-// Auto-run in development
-if (import.meta.env.DEV) {
-  devSetup.checkConnection().then(connected => {
-    if (connected) {
-      devSetup.createInitialData();
-    }
-  });
+// Auto-run in development (with error handling)
+if (import.meta.env.DEV && supabaseConfigured) {
+  // Add a small delay to let the app initialize
+  setTimeout(() => {
+    devSetup.checkConnection().then(connected => {
+      if (connected) {
+        devSetup.createInitialData();
+      }
+    }).catch(error => {
+      console.log('Dev setup skipped due to connection issues:', error.message || error);
+    });
+  }, 1000);
 }
