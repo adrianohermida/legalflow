@@ -1,13 +1,4 @@
 import "./global.css";
-import { supabaseConfigured } from "./lib/supabase";
-
-// Initialize development data only when Supabase is configured
-if (supabaseConfigured) {
-  import("./lib/dev-setup").then(({ devSetup }) => {
-    devSetup.createInitialData();
-  });
-}
-
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -18,6 +9,14 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/Layout";
 import { Login } from "./pages/Login";
 import Setup from "./pages/Setup";
+import { supabaseConfigured } from "./lib/supabase";
+
+// Initialize development data only when Supabase is configured
+if (supabaseConfigured) {
+  import("./lib/dev-setup").then(({ devSetup }) => {
+    devSetup.createInitialData();
+  });
+}
 import { Dashboard } from "./pages/Dashboard";
 import { Clientes } from "./pages/Clientes";
 import { Jornadas } from "./pages/Jornadas";
