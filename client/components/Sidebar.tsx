@@ -68,10 +68,10 @@ const advogadoNavItems = [
     description: 'Biblioteca de documentos'
   },
   {
-    title: 'Financeiro',
-    href: '/financeiro',
+    title: 'Planos de Pagamento',
+    href: '/planos-pagamento',
     icon: DollarSign,
-    description: 'Gestão financeira'
+    description: 'Gestão de planos de pagamento'
   },
   {
     title: 'Relatórios',
