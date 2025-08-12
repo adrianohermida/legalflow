@@ -295,7 +295,98 @@ function RegularAppRoutes() {
           <Clientes />
         </ProtectedRoute>
       } />
-      {/* Add all other routes similarly... */}
+      <Route path="/jornadas" element={
+        <ProtectedRoute userType="advogado">
+          <Jornadas />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/nova" element={
+        <ProtectedRoute userType="advogado">
+          <NovaJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/iniciar" element={
+        <ProtectedRoute userType="advogado">
+          <IniciarJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/inbox" element={
+        <ProtectedRoute userType="advogado">
+          <InboxLegal />
+        </ProtectedRoute>
+      } />
+      <Route path="/agenda" element={
+        <ProtectedRoute userType="advogado">
+          <Agenda />
+        </ProtectedRoute>
+      } />
+      <Route path="/documentos" element={
+        <ProtectedRoute userType="advogado">
+          <Documentos />
+        </ProtectedRoute>
+      } />
+      <Route path="/financeiro" element={
+        <ProtectedRoute userType="advogado">
+          <Financeiro />
+        </ProtectedRoute>
+      } />
+      <Route path="/planos-pagamento" element={
+        <ProtectedRoute userType="advogado">
+          <PlanosPagamento />
+        </ProtectedRoute>
+      } />
+      <Route path="/relatorios" element={
+        <ProtectedRoute userType="advogado">
+          <Relatorios />
+        </ProtectedRoute>
+      } />
+      <Route path="/helpdesk" element={
+        <ProtectedRoute userType="advogado">
+          <Helpdesk />
+        </ProtectedRoute>
+      } />
+      <Route path="/servicos" element={
+        <ProtectedRoute userType="advogado">
+          <Servicos />
+        </ProtectedRoute>
+      } />
+
+      {/* Portal do Cliente */}
+      <Route path="/portal/chat" element={
+        <ProtectedRoute userType="cliente">
+          <PortalChat />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/jornada" element={
+        <ProtectedRoute userType="cliente">
+          <PortalJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/processos" element={
+        <ProtectedRoute userType="cliente">
+          <PortalProcessos />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/compromissos" element={
+        <ProtectedRoute userType="cliente">
+          <PortalCompromissos />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/financeiro" element={
+        <ProtectedRoute userType="cliente">
+          <PortalFinanceiro />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/helpdesk" element={
+        <ProtectedRoute userType="cliente">
+          <PortalHelpdesk />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/servicos" element={
+        <ProtectedRoute userType="cliente">
+          <PortalServicos />
+        </ProtectedRoute>
+      } />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
