@@ -20,6 +20,7 @@ import { InboxLegal } from "./pages/InboxLegal";
 import { Documentos } from "./pages/Documentos";
 import { PlanosPagamento } from "./pages/PlanosPagamento";
 import { Relatorios } from "./pages/Relatorios";
+import { SupabaseSetup } from "./components/SupabaseSetup";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { OABSelectionModal } from "./components/OABSelectionModal";
 import NotFound from "./pages/NotFound";
