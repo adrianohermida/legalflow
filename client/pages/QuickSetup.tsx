@@ -24,17 +24,20 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
     setError('');
 
     try {
-      // Create the test account
-      await signup('admin@test.com', '123456');
+      // Use a more standard email format that Supabase accepts
+      await signup('admin.test@gmail.com', '123456');
     } catch (err: any) {
-      if (!err.message?.includes('já cadastrado') && !err.message?.includes('User already registered')) {
-        setError('Erro ao criar conta: ' + err.message);
-        setIsLoading(false);
-        return;
+      if (err.message?.includes('rate limit')) {
+        setError('Muitas tentativas. Aguarde alguns minutos ou pule para o passo 2.');
+      } else if (err.message?.includes('invalid')) {
+        // Skip account creation and go directly to manual setup
+        setError('Vamos pular a criação automática. Clique em "Pular para Painel" para criar manualmente.');
+      } else if (!err.message?.includes('já cadastrado') && !err.message?.includes('User already registered')) {
+        setError('Aviso: ' + err.message + '. Pode prosseguir para o passo 2.');
       }
     }
 
-    // Continue to next step
+    // Continue to next step regardless of signup result
     setTimeout(() => {
       setCurrentStep(2);
       openSupabaseDashboard();
@@ -148,7 +151,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                   <CheckCircle className="h-4 w-4 mr-2 inline" />
                   <AlertDescription>
                     <strong>Perfeito! Agora você pode fazer login:</strong>
-                    <br />• Email: <code>admin@test.com</code>
+                    <br />�� Email: <code>admin@test.com</code>
                     <br />• Senha: <code>123456</code>
                     <br />• OAB para vincular: <code>123456</code>
                   </AlertDescription>
