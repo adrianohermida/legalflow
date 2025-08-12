@@ -78,19 +78,36 @@
   
   body {
     @apply bg-background text-foreground font-sans;
+    /* F1.0 - Line-height confortável */
+    line-height: 1.7;
     font-feature-settings: "rlig" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* F1.0 - Títulos com fonte heading e line-height apropriado */
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+    line-height: 1.4;
   }
 
-  /* Focus styles for accessibility */
+  /* F1.0 - Focus ring visível para acessibilidade AA+ */
   *:focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-brand-700 ring-offset-2 ring-offset-background;
+  }
+
+  /* F1.0 - Elementos interativos com transições suaves */
+  .interactive {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .interactive:hover {
+    @apply shadow-soft;
+  }
+
+  .interactive:active {
+    @apply scale-[0.98];
   }
 
   /* Custom scrollbar */
