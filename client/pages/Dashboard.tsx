@@ -42,12 +42,41 @@ export function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<string>('todos');
   const [riscoFilter, setRiscoFilter] = useState<string>('todos');
 
-  const filteredProcessos = mockProcessos.filter(processo => {
+  // Fetch processos from Supabase
+  const { data: processosData = [], isLoading, error } = useSupabaseQuery(
+    ['processos'],
+    processosApi.getAll
+  );
+
+  // Transform Supabase data to our view format
+  const processos: ProcessoView[] = processosData.map(processo => {
+    const cliente = processo.clientes_processos?.[0]?.clientes?.nome || 'Cliente não definido';
+    const responsavel = processo.advogados_processos?.[0]?.advogados?.nome || 'Não definido';
+
+    // Extract status and fase from data JSON field or set defaults
+    const statusFromData = processo.data?.status || 'ativo';
+    const faseFromData = processo.data?.fase || 'Em andamento';
+    const riscoFromData = processo.data?.risco || 'medio';
+
+    return {
+      numero_cnj: processo.numero_cnj,
+      cliente,
+      tribunal: processo.tribunal_sigla || 'N/A',
+      fase: faseFromData,
+      responsavel,
+      status: statusFromData as 'ativo' | 'suspenso' | 'finalizado',
+      risco: riscoFromData as 'baixo' | 'medio' | 'alto',
+      proximaAcao: processo.data?.proxima_acao,
+      prazo: processo.data?.prazo
+    };
+  });
+
+  const filteredProcessos = processos.filter(processo => {
     const matchesSearch = processo.numero_cnj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         processo.cliente.toLowerCase().includes(searchTerm.toLowerCase());
+                         processo.cliente?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'todos' || processo.status === statusFilter;
     const matchesRisco = riscoFilter === 'todos' || processo.risco === riscoFilter;
-    
+
     return matchesSearch && matchesStatus && matchesRisco;
   });
 
