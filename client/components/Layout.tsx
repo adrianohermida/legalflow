@@ -26,6 +26,8 @@ export function Layout({ children }: LayoutProps) {
     { name: 'Jornadas', href: '/jornadas', icon: Target },
     { name: 'Inbox Legal', href: '/inbox', icon: Bell },
     { name: 'Documentos', href: '/documentos', icon: BookOpen },
+    { name: 'Pagamentos', href: '/planos-pagamento', icon: DollarSign },
+    { name: 'Relatórios', href: '/relatorios', icon: BarChart3 },
   ];
 
   const isActive = (href: string) => {
