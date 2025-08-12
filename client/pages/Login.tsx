@@ -162,14 +162,14 @@ export function Login() {
                             variant="default"
                             size="sm"
                             onClick={() => {
-                              setEmail('test@example.com');
+                              setEmail('admin@test.com');
                               setPassword('123456');
                               setError('');
                               setSuccess('Credenciais preenchidas! Se ainda não funcionar, confirme o email no painel do Supabase.');
                             }}
                             className="w-full"
                           >
-                            Usar Conta de Teste (test@example.com)
+                            Usar Conta de Teste (admin@test.com)
                           </Button>
                         </div>
                       </AlertDescription>
