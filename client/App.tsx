@@ -393,7 +393,12 @@ function RegularAppRoutes() {
           <PortalServicos />
         </ProtectedRoute>
       } />
-      
+      <Route path="/portal/cliente/:instanceId" element={
+        <ProtectedRoute userType="cliente">
+          <PortalCliente />
+        </ProtectedRoute>
+      } />
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
