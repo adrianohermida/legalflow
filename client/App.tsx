@@ -58,9 +58,14 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function DemoAppRoutes() {
+  const { user } = require('./contexts/DemoAuthContext').useDemoAuth();
+
   return (
     <Routes>
-      <Route path="/login" element={<DemoLogin />} />
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <DemoLogin />}
+      />
       
       {/* Escritório - Área do Advogado */}
       <Route path="/" element={<DemoAppLayout userType="advogado" />}>
