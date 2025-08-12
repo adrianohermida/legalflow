@@ -333,7 +333,7 @@ export function PlanosPagamento() {
                             </div>
                             <div className="w-full bg-neutral-200 rounded-full h-1.5">
                               <div 
-                                className="bg-green-600 h-1.5 rounded-full transition-all"
+                                className="bg-success h-1.5 rounded-full transition-all"
                                 style={{ width: `${Math.min(progressPct, 100)}%` }}
                               />
                             </div>

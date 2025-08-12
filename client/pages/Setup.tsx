@@ -107,7 +107,7 @@ VITE_DEV_MODE=true`;
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">1</div>
+                  <div className="bg-brand-100 text-brand-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">1</div>
                   <div>
                     <p className="font-medium">Acesse o Supabase</p>
                     <p className="text-sm text-gray-600">
@@ -121,7 +121,7 @@ VITE_DEV_MODE=true`;
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">2</div>
+                  <div className="bg-brand-100 text-brand-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">2</div>
                   <div>
                     <p className="font-medium">Selecione seu projeto</p>
                     <p className="text-sm text-gray-600">
@@ -131,7 +131,7 @@ VITE_DEV_MODE=true`;
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">3</div>
+                  <div className="bg-brand-100 text-brand-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">3</div>
                   <div>
                     <p className="font-medium">Vá para Settings → API</p>
                     <p className="text-sm text-gray-600">
