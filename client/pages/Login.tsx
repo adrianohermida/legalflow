@@ -235,16 +235,27 @@ export function Login() {
                         </Button>
                       ))}
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={createTestUser}
-                      disabled={isCreatingTestUser}
-                      className="text-sm mt-2"
-                    >
-                      {isCreatingTestUser ? 'Criando...' : 'Criar contas de teste'}
-                    </Button>
+                    <div className="space-y-2 mt-2">
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={() => setShowQuickSetup(true)}
+                        className="text-sm w-full"
+                      >
+                        🚀 Configuração Rápida
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={createTestUser}
+                        disabled={isCreatingTestUser}
+                        className="text-sm w-full"
+                      >
+                        {isCreatingTestUser ? 'Criando...' : 'Criar contas de teste'}
+                      </Button>
+                    </div>
                   </div>
                 )}
 
