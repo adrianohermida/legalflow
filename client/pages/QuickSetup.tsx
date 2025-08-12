@@ -133,9 +133,10 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                 <Alert>
                   <AlertDescription>
                     <strong>No painel do Supabase que abriu:</strong>
-                    <br />1. Procure por <code>admin@test.com</code> na lista de usuários
-                    <br />2. Clique no botão <strong>"Confirm email"</strong> ao lado do usuário
-                    <br />3. Volte aqui e clique em "Email Confirmado"
+                    <br />1. Se o usuário <code>admin.test@gmail.com</code> existe: clique em <strong>"Confirm email"</strong>
+                    <br />2. Se não existe: clique em <strong>"Add user"</strong> → use email <code>admin.test@gmail.com</code> e senha <code>123456</code>
+                    <br />3. Marque <strong>"Confirm email"</strong> ao criar o usuário
+                    <br />4. Volte aqui e clique em "Email Confirmado"
                   </AlertDescription>
                 </Alert>
 
