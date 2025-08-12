@@ -50,35 +50,35 @@ const stageTypes: StageTypeConfig[] = [
     icon: <BookOpen className="h-4 w-4" />,
     label: 'Aula/Conteúdo',
     description: 'Conteúdo educacional (vídeo, texto, quiz)',
-    color: 'bg-blue-100 text-blue-800 border-blue-200'
+    color: 'bg-brand-100 text-brand-700 border-brand-200'
   },
   {
     type: 'form',
     icon: <FileText className="h-4 w-4" />,
     label: 'Formulário',
     description: 'Formulário para preenchimento',
-    color: 'bg-green-100 text-green-800 border-green-200'
+    color: 'bg-success-100 text-success-700 border-success'
   },
   {
     type: 'upload',
     icon: <Upload className="h-4 w-4" />,
     label: 'Upload',
     description: 'Upload de documentos/arquivos',
-    color: 'bg-purple-100 text-purple-800 border-purple-200'
+    color: 'bg-brand-100 text-brand-700 border-brand-200'
   },
   {
     type: 'meeting',
     icon: <Calendar className="h-4 w-4" />,
     label: 'Reunião',
     description: 'Agendamento de reunião/audiência',
-    color: 'bg-orange-100 text-orange-800 border-orange-200'
+    color: 'bg-warning-100 text-warning-700 border-warning'
   },
   {
     type: 'gate',
     icon: <CheckCircle className="h-4 w-4" />,
     label: 'Portão',
     description: 'Validação/aprovação obrigatória',
-    color: 'bg-red-100 text-red-800 border-red-200'
+    color: 'bg-danger-100 text-danger-700 border-danger'
   },
   {
     type: 'task',
