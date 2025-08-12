@@ -183,6 +183,7 @@ export function Sidebar({ userType }: SidebarProps) {
                   : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
               )}
               title={item.description}
+              aria-current={active ? 'page' : undefined}
             >
               <Icon
                 className={cn(
