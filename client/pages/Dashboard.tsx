@@ -173,6 +173,16 @@ export function Dashboard() {
         </Card>
       </div>
 
+      {/* Financial Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3">
+          {/* Filters will go here */}
+        </div>
+        <div className="lg:col-span-1">
+          <FinancialWidget />
+        </div>
+      </div>
+
       {/* Filters */}
       <Card>
         <CardHeader>
