@@ -70,19 +70,22 @@ export function Login() {
     setSuccess('');
 
     try {
-      // Try to create multiple test accounts
-      for (const account of testAccounts) {
-        try {
-          await signup(account.email, '123456');
-        } catch (err: any) {
-          if (!err.message?.includes('já cadastrado')) {
-            console.warn(`Failed to create ${account.email}:`, err.message);
-          }
+      // Try to create the main test account
+      try {
+        await signup('admin.test@gmail.com', '123456');
+        setSuccess('Conta criada! Abrindo painel do Supabase para confirmar email...');
+      } catch (err: any) {
+        if (err.message?.includes('rate limit')) {
+          setSuccess('Rate limit atingido. Use a Configuração Rápida ou aguarde alguns minutos.');
+          setError('');
+        } else if (err.message?.includes('já cadastrado') || err.message?.includes('User already registered')) {
+          setSuccess('Conta já existe! Abrindo painel para confirmar email...');
+        } else {
+          setSuccess('Abrindo painel do Supabase para criar conta manualmente...');
         }
       }
 
-      setSuccess('Contas de teste criadas! Abrindo painel do Supabase para confirmar emails...');
-      handleDemoLogin('admin@test.com'); // Fill in the credentials
+      handleDemoLogin('admin.test@gmail.com'); // Fill in the credentials
 
       // Auto-open Supabase dashboard after a short delay
       setTimeout(() => {
@@ -90,7 +93,7 @@ export function Login() {
       }, 1000);
 
     } catch (err: any) {
-      setError('Erro ao criar contas de teste: ' + (err.message || 'Erro desconhecido'));
+      setError('Use a Configuração Rápida para um processo guiado: ' + (err.message || 'Erro desconhecido'));
     } finally {
       setIsCreatingTestUser(false);
     }
