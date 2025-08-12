@@ -168,7 +168,54 @@ function AppRoutes() {
 }
 
 const App = () => {
-  // If Supabase is not configured, show setup page
+  const [authMode, setAuthMode] = useState<'demo' | 'supabase' | null>(
+    localStorage.getItem('auth-mode') as 'demo' | 'supabase' | null
+  );
+
+  const selectDemoMode = () => {
+    setAuthMode('demo');
+    localStorage.setItem('auth-mode', 'demo');
+  };
+
+  const selectSupabaseMode = () => {
+    setAuthMode('supabase');
+    localStorage.setItem('auth-mode', 'supabase');
+  };
+
+  // Show mode selector if no mode is chosen
+  if (!authMode) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <ModeSelector
+            onSelectDemo={selectDemoMode}
+            onSelectSupabase={selectSupabaseMode}
+          />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  // Demo mode
+  if (authMode === 'demo') {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <DemoAuthProvider>
+              <DemoAppRoutes />
+            </DemoAuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  // Supabase mode
   if (!supabaseConfigured) {
     return (
       <QueryClientProvider client={queryClient}>
