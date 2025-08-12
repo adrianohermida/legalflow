@@ -101,7 +101,7 @@ export const devSetup = {
         .select();
 
       if (processosError) {
-        console.error('Error creating processos:', processosError);
+        console.error('Error creating processos:', processosError.message || processosError);
         return;
       }
 
@@ -147,7 +147,7 @@ export const devSetup = {
         await supabase
           .from('stage_types')
           .insert([
-            { code: 'lesson', label: 'Aula/Conteúdo' },
+            { code: 'lesson', label: 'Aula/Conte��do' },
             { code: 'form', label: 'Formulário' },
             { code: 'upload', label: 'Upload de Documento' },
             { code: 'meeting', label: 'Reunião/Audiência' },
