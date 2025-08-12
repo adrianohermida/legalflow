@@ -70,8 +70,12 @@ export const adminSetup = {
 if (import.meta.env.DEV && supabaseConfigured) {
   // Add delay to let app initialize
   setTimeout(() => {
-    adminSetup.createConfirmedTestUser().catch(error => {
-      console.log('Admin setup skipped due to connection issues:', error.message || error);
-    });
-  }, 2000);
+    try {
+      adminSetup.createConfirmedTestUser().catch(error => {
+        console.log('Admin setup skipped due to connection issues:', error.message || error);
+      });
+    } catch (error) {
+      console.log('Admin setup could not start:', error);
+    }
+  }, 3000); // Increased delay to let app fully initialize
 }
