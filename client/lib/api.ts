@@ -1,5 +1,4 @@
-import { supabase, supabaseConfigured } from './supabase';
-import type { Database } from './supabase';
+import { supabase, lf, legalflow, supabaseConfigured, type PublicDatabase, type LegalFlowDatabase } from './supabase';
 
 // Check if Supabase is properly configured
 function checkSupabaseConfig() {
@@ -8,15 +7,35 @@ function checkSupabaseConfig() {
   }
 }
 
-type Tables = Database['public']['Tables'];
-type Cliente = Tables['clientes']['Row'];
-type Processo = Tables['processos']['Row'];
-type JourneyTemplate = Tables['journey_templates']['Row'];
-type JourneyInstance = Tables['journey_instances']['Row'];
-type PlanoPagamento = Tables['planos_pagamento']['Row'];
+// Type aliases for easier use
+type PublicTables = PublicDatabase['public']['Tables'];
+type LegalFlowTables = LegalFlowDatabase['legalflow']['Tables'];
+
+// PUBLIC SCHEMA TYPES (AdvogaAI - PRESERVE)
+type Cliente = PublicTables['clientes']['Row'];
+type Processo = PublicTables['processos']['Row'];
+type Advogado = PublicTables['advogados']['Row'];
+type Movimentacao = PublicTables['movimentacoes']['Row'];
+type Publicacao = PublicTables['publicacoes']['Row'];
+type Lead = PublicTables['leads']['Row'];
+type Peticao = PublicTables['peticoes']['Row'];
+
+// LEGALFLOW SCHEMA TYPES (new)
+type JourneyTemplate = LegalFlowTables['journey_templates']['Row'];
+type JourneyTemplateStage = LegalFlowTables['journey_template_stages']['Row'];
+type JourneyInstance = LegalFlowTables['journey_instances']['Row'];
+type StageInstance = LegalFlowTables['stage_instances']['Row'];
+type StageType = LegalFlowTables['stage_types']['Row'];
+type PlanoPagamento = LegalFlowTables['planos_pagamento']['Row'];
+type ParcelaPagamento = LegalFlowTables['parcelas_pagamento']['Row'];
+type EventoAgenda = LegalFlowTables['eventos_agenda']['Row'];
+type FormDefinition = LegalFlowTables['form_definitions']['Row'];
+type FormResponse = LegalFlowTables['form_responses']['Row'];
+type DocumentRequirement = LegalFlowTables['document_requirements']['Row'];
+type DocumentUpload = LegalFlowTables['document_uploads']['Row'];
 
 // ============================================================================
-// CLIENTES
+// PUBLIC SCHEMA - ADVOGAAI TABLES (PRESERVE EXISTING CONNECTIONS)
 // ============================================================================
 
 export const clientesApi = {
@@ -43,7 +62,7 @@ export const clientesApi = {
     return data;
   },
 
-  async create(cliente: Tables['clientes']['Insert']) {
+  async create(cliente: PublicTables['clientes']['Insert']) {
     checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
@@ -55,7 +74,7 @@ export const clientesApi = {
     return data;
   },
 
-  async update(cpfcnpj: string, updates: Tables['clientes']['Update']) {
+  async update(cpfcnpj: string, updates: PublicTables['clientes']['Update']) {
     checkSupabaseConfig();
     const { data, error } = await supabase
       .from('clientes')
@@ -76,29 +95,9 @@ export const clientesApi = {
       .eq('cpfcnpj', cpfcnpj);
     
     if (error) throw error;
-  },
-
-  async getWithProcessos(cpfcnpj: string) {
-    checkSupabaseConfig();
-    const { data, error } = await supabase
-      .from('clientes')
-      .select(`
-        *,
-        clientes_processos (
-          processos (*)
-        )
-      `)
-      .eq('cpfcnpj', cpfcnpj)
-      .single();
-    
-    if (error) throw error;
-    return data;
+    return true;
   }
 };
-
-// ============================================================================
-// PROCESSOS
-// ============================================================================
 
 export const processosApi = {
   async getAll() {
@@ -107,11 +106,11 @@ export const processosApi = {
       .from('processos')
       .select(`
         *,
-        clientes_processos (
-          clientes (nome, cpfcnpj)
+        clientes_processos(
+          clientes(nome, cpfcnpj)
         ),
-        advogados_processos (
-          advogados (nome, oab)
+        advogados_processos(
+          advogados(nome, oab)
         )
       `)
       .order('created_at', { ascending: false });
@@ -126,14 +125,12 @@ export const processosApi = {
       .from('processos')
       .select(`
         *,
-        clientes_processos (
-          clientes (*)
+        clientes_processos(
+          clientes(nome, cpfcnpj, whatsapp)
         ),
-        advogados_processos (
-          advogados (*)
-        ),
-        movimentacoes (*),
-        publicacoes (*)
+        advogados_processos(
+          advogados(nome, oab)
+        )
       `)
       .eq('numero_cnj', numero_cnj)
       .single();
@@ -142,7 +139,7 @@ export const processosApi = {
     return data;
   },
 
-  async create(processo: Tables['processos']['Insert']) {
+  async create(processo: PublicTables['processos']['Insert']) {
     checkSupabaseConfig();
     const { data, error } = await supabase
       .from('processos')
@@ -154,7 +151,7 @@ export const processosApi = {
     return data;
   },
 
-  async update(numero_cnj: string, updates: Tables['processos']['Update']) {
+  async update(numero_cnj: string, updates: PublicTables['processos']['Update']) {
     checkSupabaseConfig();
     const { data, error } = await supabase
       .from('processos')
@@ -165,26 +162,27 @@ export const processosApi = {
     
     if (error) throw error;
     return data;
-  },
+  }
+};
 
-  async linkCliente(numero_cnj: string, cpfcnpj: string) {
+export const advogadosApi = {
+  async getAll() {
     checkSupabaseConfig();
     const { data, error } = await supabase
-      .from('clientes_processos')
-      .insert({ numero_cnj, cpfcnpj })
-      .select()
-      .single();
+      .from('advogados')
+      .select('*')
+      .order('nome');
     
     if (error) throw error;
     return data;
   },
 
-  async linkAdvogado(numero_cnj: string, oab: number) {
+  async getByOab(oab: number) {
     checkSupabaseConfig();
     const { data, error } = await supabase
-      .from('advogados_processos')
-      .insert({ numero_cnj, oab })
-      .select()
+      .from('advogados')
+      .select('*')
+      .eq('oab', oab)
       .single();
     
     if (error) throw error;
@@ -192,22 +190,57 @@ export const processosApi = {
   }
 };
 
+export const movimentacoesApi = {
+  async getByProcesso(numero_cnj: string) {
+    checkSupabaseConfig();
+    const { data, error } = await supabase
+      .from('movimentacoes')
+      .select('*')
+      .eq('numero_cnj', numero_cnj)
+      .order('data_movimentacao', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+};
+
+export const publicacoesApi = {
+  async getByProcesso(numero_cnj: string) {
+    checkSupabaseConfig();
+    const { data, error } = await supabase
+      .from('publicacoes')
+      .select('*')
+      .eq('numero_cnj', numero_cnj)
+      .order('data_publicacao', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+};
+
+export const leadsApi = {
+  async getAll() {
+    checkSupabaseConfig();
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+};
+
 // ============================================================================
-// JOURNEY TEMPLATES
+// LEGALFLOW SCHEMA - NEW TABLES
 // ============================================================================
 
 export const journeyTemplatesApi = {
   async getAll() {
     checkSupabaseConfig();
-    const { data, error } = await supabase
+    const { data, error } = await lf
       .from('journey_templates')
-      .select(`
-        *,
-        journey_template_stages (
-          *,
-          stage_types (*)
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
     
     if (error) throw error;
@@ -216,13 +249,13 @@ export const journeyTemplatesApi = {
 
   async getById(id: string) {
     checkSupabaseConfig();
-    const { data, error } = await supabase
+    const { data, error } = await lf
       .from('journey_templates')
       .select(`
         *,
-        journey_template_stages (
+        journey_template_stages(
           *,
-          stage_types (*)
+          stage_types(*)
         )
       `)
       .eq('id', id)
@@ -232,9 +265,9 @@ export const journeyTemplatesApi = {
     return data;
   },
 
-  async create(template: Tables['journey_templates']['Insert']) {
+  async create(template: LegalFlowTables['journey_templates']['Insert']) {
     checkSupabaseConfig();
-    const { data, error } = await supabase
+    const { data, error } = await lf
       .from('journey_templates')
       .insert(template)
       .select()
@@ -244,9 +277,9 @@ export const journeyTemplatesApi = {
     return data;
   },
 
-  async update(id: string, updates: Tables['journey_templates']['Update']) {
+  async update(id: string, updates: LegalFlowTables['journey_templates']['Update']) {
     checkSupabaseConfig();
-    const { data, error } = await supabase
+    const { data, error } = await lf
       .from('journey_templates')
       .update(updates)
       .eq('id', id)
@@ -255,38 +288,15 @@ export const journeyTemplatesApi = {
     
     if (error) throw error;
     return data;
-  },
-
-  async delete(id: string) {
-    checkSupabaseConfig();
-    const { error } = await supabase
-      .from('journey_templates')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
   }
 };
 
-// ============================================================================
-// JOURNEY INSTANCES
-// ============================================================================
-
 export const journeyInstancesApi = {
   async getAll() {
-    const { data, error } = await supabase
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('journey_instances')
-      .select(`
-        *,
-        journey_templates (name, niche),
-        clientes (nome),
-        processos (numero_cnj),
-        advogados (nome),
-        stage_instances (
-          *,
-          journey_template_stages (title, type_id)
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
     
     if (error) throw error;
@@ -294,18 +304,12 @@ export const journeyInstancesApi = {
   },
 
   async getById(id: string) {
-    const { data, error } = await supabase
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('journey_instances')
       .select(`
         *,
-        journey_templates (
-          *,
-          journey_template_stages (*)
-        ),
-        clientes (*),
-        processos (*),
-        advogados (*),
-        stage_instances (*)
+        stage_instances(*)
       `)
       .eq('id', id)
       .single();
@@ -314,8 +318,9 @@ export const journeyInstancesApi = {
     return data;
   },
 
-  async create(instance: Tables['journey_instances']['Insert']) {
-    const { data, error } = await supabase
+  async create(instance: LegalFlowTables['journey_instances']['Insert']) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('journey_instances')
       .insert(instance)
       .select()
@@ -325,32 +330,52 @@ export const journeyInstancesApi = {
     return data;
   },
 
-  async updateProgress(id: string, progress_pct: number) {
-    const { data, error } = await supabase
+  async getByCliente(cpfcnpj: string) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('journey_instances')
-      .update({ progress_pct })
-      .eq('id', id)
-      .select()
-      .single();
+      .select('*')
+      .eq('cliente_cpfcnpj', cpfcnpj)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getByProcesso(numero_cnj: string) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
+      .from('journey_instances')
+      .select('*')
+      .eq('processo_numero_cnj', numero_cnj)
+      .order('created_at', { ascending: false });
     
     if (error) throw error;
     return data;
   }
 };
 
-// ============================================================================
-// PLANOS DE PAGAMENTO
-// ============================================================================
-
-export const planosApi = {
+export const stageTypesApi = {
   async getAll() {
-    const { data, error } = await supabase
+    checkSupabaseConfig();
+    const { data, error } = await lf
+      .from('stage_types')
+      .select('*')
+      .order('id');
+    
+    if (error) throw error;
+    return data;
+  }
+};
+
+export const planosPagamentoApi = {
+  async getAll() {
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('planos_pagamento')
       .select(`
         *,
-        clientes (nome),
-        processos (numero_cnj),
-        parcelas_pagamento (*)
+        parcelas_pagamento(*)
       `)
       .order('created_at', { ascending: false });
     
@@ -359,13 +384,12 @@ export const planosApi = {
   },
 
   async getById(id: string) {
-    const { data, error } = await supabase
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('planos_pagamento')
       .select(`
         *,
-        clientes (*),
-        processos (*),
-        parcelas_pagamento (*)
+        parcelas_pagamento(*)
       `)
       .eq('id', id)
       .single();
@@ -374,8 +398,9 @@ export const planosApi = {
     return data;
   },
 
-  async create(plano: Tables['planos_pagamento']['Insert']) {
-    const { data, error } = await supabase
+  async create(plano: LegalFlowTables['planos_pagamento']['Insert']) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('planos_pagamento')
       .insert(plano)
       .select()
@@ -385,179 +410,53 @@ export const planosApi = {
     return data;
   },
 
-  async update(id: string, updates: Tables['planos_pagamento']['Update']) {
-    const { data, error } = await supabase
-      .from('planos_pagamento')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
-};
-
-// ============================================================================
-// PUBLICAÇÕES
-// ============================================================================
-
-export const publicacoesApi = {
-  async getAll() {
-    const { data, error } = await supabase
-      .from('publicacoes')
-      .select('*')
-      .order('data_publicacao', { ascending: false });
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async getByProcesso(numero_cnj: string) {
-    const { data, error } = await supabase
-      .from('publicacoes')
-      .select('*')
-      .eq('numero_cnj', numero_cnj)
-      .order('data_publicacao', { ascending: false });
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async markAsProcessed(id: number) {
-    const { data, error } = await supabase
-      .from('publicacoes')
-      .update({ data: { processed: true } })
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
-};
-
-// ============================================================================
-// MOVIMENTAÇÕES
-// ============================================================================
-
-export const movimentacoesApi = {
-  async getAll() {
-    const { data, error } = await supabase
-      .from('movimentacoes')
-      .select('*')
-      .order('data_movimentacao', { ascending: false });
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async getByProcesso(numero_cnj: string) {
-    const { data, error } = await supabase
-      .from('movimentacoes')
-      .select('*')
-      .eq('numero_cnj', numero_cnj)
-      .order('data_movimentacao', { ascending: false });
-    
-    if (error) throw error;
-    return data;
-  }
-};
-
-// ============================================================================
-// ANALYTICS (For Reports)
-// ============================================================================
-
-export const analyticsApi = {
-  async getSLAMetrics() {
-    // Complex query for SLA metrics
-    const { data, error } = await supabase
-      .rpc('get_sla_metrics');
-    
-    if (error) {
-      console.warn('SLA metrics function not available, using fallback');
-      return {
-        total_stages: 0,
-        within_sla: 0,
-        overdue: 0,
-        critical_overdue: 0,
-        avg_completion_time_hours: 0
-      };
-    }
-    return data;
-  },
-
-  async getNichoCompletion() {
-    const { data, error } = await supabase
-      .from('journey_instances')
-      .select(`
-        journey_templates (niche),
-        status
-      `);
-    
-    if (error) throw error;
-    
-    // Process data for niche completion rates
-    const nichos = data?.reduce((acc: any, item: any) => {
-      const niche = item.journey_templates?.niche || 'Outros';
-      if (!acc[niche]) {
-        acc[niche] = { total: 0, completed: 0 };
-      }
-      acc[niche].total += 1;
-      if (item.status === 'completed') {
-        acc[niche].completed += 1;
-      }
-      return acc;
-    }, {});
-
-    return Object.entries(nichos || {}).map(([niche, stats]: [string, any]) => ({
-      nicho: niche,
-      total_journeys: stats.total,
-      completed_journeys: stats.completed,
-      completion_rate: (stats.completed / stats.total) * 100,
-      avg_completion_time_days: 30 // Would need more complex query
-    }));
-  },
-
-  async getPaymentMetrics() {
-    const { data: planos, error } = await supabase
+  async getByCliente(cpfcnpj: string) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
       .from('planos_pagamento')
       .select(`
         *,
-        parcelas_pagamento (*)
-      `);
+        parcelas_pagamento(*)
+      `)
+      .eq('cliente_cpfcnpj', cpfcnpj)
+      .order('created_at', { ascending: false });
     
     if (error) throw error;
-    
-    const totalRevenue = planos?.reduce((sum, plano) => sum + plano.paid_amount, 0) || 0;
-    const overdueAmount = planos?.reduce((sum, plano) => {
-      const overdueParcelas = plano.parcelas_pagamento?.filter((p: any) => 
-        p.status === 'vencida'
-      ) || [];
-      return sum + overdueParcelas.reduce((pSum: number, p: any) => pSum + p.amount, 0);
-    }, 0) || 0;
-
-    return {
-      total_plans: planos?.length || 0,
-      active_plans: planos?.filter(p => p.status === 'em_andamento').length || 0,
-      total_revenue: totalRevenue,
-      overdue_amount: overdueAmount,
-      overdue_installments: 0, // Would need more complex calculation
-      collection_rate: totalRevenue > 0 ? ((totalRevenue / (totalRevenue + overdueAmount)) * 100) : 0
-    };
+    return data;
   }
 };
 
-// ============================================================================
-// STAGE TYPES
-// ============================================================================
-
-export const stageTypesApi = {
+export const eventosAgendaApi = {
   async getAll() {
-    const { data, error } = await supabase
-      .from('stage_types')
+    checkSupabaseConfig();
+    const { data, error } = await lf
+      .from('eventos_agenda')
       .select('*')
-      .order('label');
+      .order('start_time');
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getByAdvogado(oab: number) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
+      .from('eventos_agenda')
+      .select('*')
+      .eq('advogado_oab', oab)
+      .order('start_time');
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async create(evento: LegalFlowTables['eventos_agenda']['Insert']) {
+    checkSupabaseConfig();
+    const { data, error } = await lf
+      .from('eventos_agenda')
+      .insert(evento)
+      .select()
+      .single();
     
     if (error) throw error;
     return data;
@@ -565,29 +464,104 @@ export const stageTypesApi = {
 };
 
 // ============================================================================
-// ERROR HANDLER
+// CROSS-SCHEMA QUERIES (combining PUBLIC and LEGALFLOW)
 // ============================================================================
 
+export const crossSchemaApi = {
+  // Get journey instance with related processo and cliente data
+  async getJourneyWithProcess(instanceId: string) {
+    checkSupabaseConfig();
+    
+    // First get the journey instance
+    const { data: instance, error: instanceError } = await lf
+      .from('journey_instances')
+      .select('*')
+      .eq('id', instanceId)
+      .single();
+    
+    if (instanceError) throw instanceError;
+    
+    // Then get related processo data from public schema
+    if (instance.processo_numero_cnj) {
+      const { data: processo, error: processoError } = await supabase
+        .from('processos')
+        .select('*')
+        .eq('numero_cnj', instance.processo_numero_cnj)
+        .single();
+      
+      if (processoError) throw processoError;
+      instance.processo = processo;
+    }
+    
+    // Get related cliente data from public schema
+    if (instance.cliente_cpfcnpj) {
+      const { data: cliente, error: clienteError } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('cpfcnpj', instance.cliente_cpfcnpj)
+        .single();
+      
+      if (clienteError) throw clienteError;
+      instance.cliente = cliente;
+    }
+    
+    return instance;
+  },
+
+  // Get all payment plans with related client data
+  async getPlanosPagamentoWithClientes() {
+    checkSupabaseConfig();
+    
+    const { data: planos, error: planosError } = await lf
+      .from('planos_pagamento')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (planosError) throw planosError;
+    
+    // Enrich with cliente data
+    const planosEnriched = await Promise.all(
+      planos.map(async (plano) => {
+        const { data: cliente, error: clienteError } = await supabase
+          .from('clientes')
+          .select('*')
+          .eq('cpfcnpj', plano.cliente_cpfcnpj)
+          .single();
+        
+        if (clienteError) throw clienteError;
+        return { ...plano, cliente };
+      })
+    );
+    
+    return planosEnriched;
+  }
+};
+
+// Error handling utility
 export const handleApiError = (error: any) => {
   console.error('API Error:', error.message || error);
-  
-  if (error.message?.includes('JWT')) {
-    // Handle authentication errors
-    window.location.href = '/login';
-    return;
-  }
-  
-  if (error.message?.includes('permission')) {
-    throw new Error('Você não tem permissão para realizar esta ação');
-  }
-  
-  if (error.message?.includes('duplicate')) {
-    throw new Error('Este registro já existe');
-  }
-  
-  if (error.message?.includes('foreign key')) {
-    throw new Error('Não é possível excluir este registro pois ele está sendo usado');
-  }
-  
-  throw new Error(error.message || 'Erro interno do servidor');
+  throw new Error(error.message || 'Erro na operação do banco de dados');
+};
+
+// Export types for external use
+export type {
+  Cliente,
+  Processo,
+  Advogado,
+  Movimentacao,
+  Publicacao,
+  Lead,
+  Peticao,
+  JourneyTemplate,
+  JourneyTemplateStage,
+  JourneyInstance,
+  StageInstance,
+  StageType,
+  PlanoPagamento,
+  ParcelaPagamento,
+  EventoAgenda,
+  FormDefinition,
+  FormResponse,
+  DocumentRequirement,
+  DocumentUpload
 };
