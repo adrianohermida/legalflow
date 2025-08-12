@@ -142,14 +142,29 @@ export function Login() {
                           <br />• Encontre seu usuário e clique em "Confirm email"
                           <br />• Ou desative "Enable email confirmations" em Auth Settings
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open('https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users', '_blank')}
-                          className="w-full"
-                        >
-                          Abrir Painel do Supabase
-                        </Button>
+                        <div className="space-y-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open('https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users', '_blank')}
+                            className="w-full"
+                          >
+                            Abrir Painel do Supabase
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => {
+                              setEmail('test@example.com');
+                              setPassword('123456');
+                              setError('');
+                              setSuccess('Credenciais preenchidas! Se ainda não funcionar, confirme o email no painel do Supabase.');
+                            }}
+                            className="w-full"
+                          >
+                            Usar Conta de Teste (test@example.com)
+                          </Button>
+                        </div>
                       </AlertDescription>
                     </Alert>
                   )}
