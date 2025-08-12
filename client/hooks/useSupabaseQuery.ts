@@ -50,7 +50,16 @@ export function useSupabaseMutation<TData, TVariables>(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn,
+    mutationFn: async (variables: TVariables) => {
+      try {
+        return await mutationFn(variables);
+      } catch (error: any) {
+        // Handle and transform error to a proper Error object
+        const errorMessage = error?.message || String(error);
+        console.error('Supabase mutation error:', errorMessage);
+        throw new Error(errorMessage);
+      }
+    },
     onSuccess: (data, variables) => {
       // Invalidate specified queries
       if (options?.invalidateQueries) {
@@ -58,11 +67,10 @@ export function useSupabaseMutation<TData, TVariables>(
           queryClient.invalidateQueries({ queryKey });
         });
       }
-      
+
       options?.onSuccess?.(data, variables);
     },
     onError: (error: any, variables) => {
-      handleApiError(error);
       options?.onError?.(error, variables);
     }
   });
