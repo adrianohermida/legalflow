@@ -166,7 +166,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                   <CheckCircle className="h-4 w-4 mr-2 inline" />
                   <AlertDescription>
                     <strong>Perfeito! Agora você pode fazer login:</strong>
-                    <br />• Email: <code>admin@test.com</code>
+                    <br />• Email: <code>admin.test@gmail.com</code>
                     <br />• Senha: <code>123456</code>
                     <br />• OAB para vincular: <code>123456</code>
                   </AlertDescription>
