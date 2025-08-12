@@ -194,6 +194,7 @@ export const processosApi = {
 
 export const journeyTemplatesApi = {
   async getAll() {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('journey_templates')
       .select(`
@@ -573,7 +574,7 @@ export const handleApiError = (error: any) => {
   }
   
   if (error.message?.includes('duplicate')) {
-    throw new Error('Este registro já existe');
+    throw new Error('Este registro j�� existe');
   }
   
   if (error.message?.includes('foreign key')) {
