@@ -57,7 +57,16 @@ export function Header({
     : 'Buscar nos seus processos...';
 
   return (
-    <header className="app-header" role="banner">
+    <>
+      {/* Skip to main content link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-700 text-white px-4 py-2 rounded-lg z-50"
+      >
+        Pular para o conteúdo principal
+      </a>
+
+      <header className="app-header" role="banner">
       {/* Left section - App Launcher & Search */}
       <div className="flex items-center flex-1 space-x-4">
         {/* App Launcher */}
@@ -189,6 +198,7 @@ export function Header({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </header>
+      </header>
+    </>
   );
 }
