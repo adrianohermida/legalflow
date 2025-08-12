@@ -30,6 +30,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Don't try to authenticate if Supabase is not configured
+    if (!supabaseConfigured) {
+      setIsLoading(false);
+      return;
+    }
+
     // Check for existing session
     const checkAuth = async () => {
       try {
