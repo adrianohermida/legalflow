@@ -43,7 +43,7 @@ export const devSetup = {
         .select();
 
       if (clientesError) {
-        console.error('Error creating clientes:', clientesError);
+        console.error('Error creating clientes:', clientesError.message || clientesError);
         return;
       }
 
