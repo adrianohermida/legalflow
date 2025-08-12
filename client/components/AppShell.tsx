@@ -64,7 +64,7 @@ export function AppShell({ userType }: AppShellProps) {
         />
 
         {/* Page Content */}
-        <main className="app-content">
+        <main id="main-content" className="app-content" role="main">
           <Outlet />
         </main>
       </div>
