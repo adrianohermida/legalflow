@@ -190,14 +190,14 @@ export function Login() {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                setEmail('admin@test.com');
+                                setEmail('admin.test@gmail.com');
                                 setPassword('123456');
                                 setError('');
                                 setSuccess('Credenciais preenchidas! Se ainda não funcionar, use a Configuração Rápida.');
                               }}
                               className="w-full"
                             >
-                              Usar Conta de Teste (admin@test.com)
+                              Usar Conta de Teste (admin.test@gmail.com)
                             </Button>
                           </div>
                         </div>
