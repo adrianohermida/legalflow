@@ -128,8 +128,8 @@ export function Dashboard() {
                   {mockStats.totalProcessos}
                 </p>
               </div>
-              <div className="bg-blue-100 p-2 rounded-lg">
-                <FileText className="w-5 h-5 text-blue-600" />
+              <div className="bg-brand-100 p-2 rounded-lg">
+                <FileText className="w-5 h-5 text-brand-700" />
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
@@ -148,8 +148,8 @@ export function Dashboard() {
                   {mockStats.processosAtivos}
                 </p>
               </div>
-              <div className="bg-green-100 p-2 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="bg-success-100 p-2 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-success-600" />
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
@@ -168,8 +168,8 @@ export function Dashboard() {
                   {mockStats.prazosEstaSemanana}
                 </p>
               </div>
-              <div className="bg-orange-100 p-2 rounded-lg">
-                <Calendar className="w-5 h-5 text-orange-600" />
+              <div className="bg-warning-100 p-2 rounded-lg">
+                <Calendar className="w-5 h-5 text-warning-600" />
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
@@ -188,8 +188,8 @@ export function Dashboard() {
                   {mockStats.altoRisco}
                 </p>
               </div>
-              <div className="bg-red-100 p-2 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
+              <div className="bg-danger-100 p-2 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-danger-600" />
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
