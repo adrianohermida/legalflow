@@ -36,7 +36,14 @@ export function Login() {
       }
     } catch (err: any) {
       console.error('Auth error:', err);
-      setError(err.message || (isSignupMode ? 'Falha no cadastro.' : 'Falha no login. Verifique suas credenciais.'));
+      let errorMessage = err.message || (isSignupMode ? 'Falha no cadastro.' : 'Falha no login. Verifique suas credenciais.');
+
+      // Special handling for email confirmation error
+      if (err.message?.includes('Email não confirmado') || err.message?.includes('Email not confirmed')) {
+        errorMessage = 'Email não confirmado. Para desenvolvimento, siga os passos abaixo.';
+      }
+
+      setError(errorMessage);
     }
   };
 
