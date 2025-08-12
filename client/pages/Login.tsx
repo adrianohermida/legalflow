@@ -23,6 +23,10 @@ export function Login() {
     return <Navigate to="/" replace />;
   }
 
+  if (showQuickSetup) {
+    return <QuickSetup onComplete={() => setShowQuickSetup(false)} />;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
