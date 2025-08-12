@@ -102,6 +102,7 @@ export const clientesApi = {
 
 export const processosApi = {
   async getAll() {
+    checkSupabaseConfig();
     const { data, error } = await supabase
       .from('processos')
       .select(`
