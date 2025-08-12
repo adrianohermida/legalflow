@@ -211,7 +211,7 @@ export const devSetup = {
     try {
       const { data, error } = await supabase
         .from('clientes')
-        .select('count(*)')
+        .select('cpfcnpj')
         .limit(1);
 
       if (error) {
