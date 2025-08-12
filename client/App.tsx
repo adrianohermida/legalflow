@@ -16,6 +16,7 @@ import { NovaJornada } from "./pages/NovaJornada";
 import { IniciarJornada } from "./pages/IniciarJornada";
 import { PortalCliente } from "./pages/PortalCliente";
 import { InboxLegal } from "./pages/InboxLegal";
+import { Documentos } from "./pages/Documentos";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { OABSelectionModal } from "./components/OABSelectionModal";
 import NotFound from "./pages/NotFound";
