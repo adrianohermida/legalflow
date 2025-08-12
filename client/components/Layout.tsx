@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Scale, FileText, Users, BookOpen, Settings, LogOut, Bell } from 'lucide-react';
+import { Scale, FileText, Users, BookOpen, Settings, LogOut, Bell, Target } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
