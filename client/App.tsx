@@ -7,15 +7,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { DemoAuthProvider, useDemoAuth } from "./contexts/DemoAuthContext";
-import { DemoAppLayout } from "./components/DemoAppLayout";
-import { RegularAppLayout } from "./components/RegularAppLayout";
+import { AppShell } from "./components/AppShell";
 import { Login } from "./pages/Login";
 import { DemoLogin } from "./pages/DemoLogin";
 import Setup from "./pages/Setup";
 import { QuickSetup } from "./pages/QuickSetup";
 import { ModeSelector } from "./pages/ModeSelector";
 import { supabaseConfigured } from "./lib/supabase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Initialize development data only when Supabase is configured
 if (supabaseConfigured) {
@@ -53,109 +52,215 @@ import { PortalServicos } from "./pages/portal/PortalServicos";
 import { PortalCliente } from "./pages/PortalCliente";
 
 import { SupabaseSetup } from "./components/SupabaseSetup";
+import { DemoOABSelectionModal } from "./components/DemoOABSelectionModal";
+import { OABSelectionModal } from "./components/OABSelectionModal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function DemoProtectedRoute({ children, userType }: { children: React.ReactNode; userType: 'advogado' | 'cliente' }) {
+  const { user, isLoading, logout } = useDemoAuth();
+  const [showOABModal, setShowOABModal] = useState(false);
+
+  useEffect(() => {
+    if (user && !user.oab && userType === 'advogado') {
+      setShowOABModal(true);
+    }
+  }, [user, userType]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Carregando Demo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <>
+      <AppShell userType={userType} user={user} logout={logout}>
+        {children}
+      </AppShell>
+      {userType === 'advogado' && (
+        <DemoOABSelectionModal
+          open={showOABModal}
+          onOpenChange={setShowOABModal}
+        />
+      )}
+    </>
+  );
+}
+
+function ProtectedRoute({ children, userType }: { children: React.ReactNode; userType: 'advogado' | 'cliente' }) {
+  const { user, isLoading, logout } = useAuth();
+  const [showOABModal, setShowOABModal] = useState(false);
+
+  useEffect(() => {
+    if (user && !user.oab && userType === 'advogado') {
+      setShowOABModal(true);
+    }
+  }, [user, userType]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <>
+      <AppShell userType={userType} user={user} logout={logout}>
+        {children}
+      </AppShell>
+      {userType === 'advogado' && (
+        <OABSelectionModal
+          open={showOABModal}
+          onOpenChange={setShowOABModal}
+        />
+      )}
+    </>
+  );
+}
+
 function DemoAppRoutes() {
   const { user } = useDemoAuth();
-  
+
   return (
     <Routes>
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/" replace /> : <DemoLogin />} 
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <DemoLogin />}
       />
       
-      {/* Escritório - Área do Advogado com Layout */}
-      <Route path="/" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Dashboard />} />
-      </Route>
-      
-      <Route path="/processos" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Processos />} />
-      </Route>
-      
-      <Route path="/clientes" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Clientes />} />
-      </Route>
-      
-      <Route path="/jornadas" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Jornadas />} />
-      </Route>
-
-      <Route path="/jornadas/nova" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<NovaJornada />} />
-      </Route>
-
-      <Route path="/jornadas/iniciar" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<IniciarJornada />} />
-      </Route>
-
-      <Route path="/inbox" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<InboxLegal />} />
-      </Route>
-
-      <Route path="/agenda" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Agenda />} />
-      </Route>
-
-      <Route path="/documentos" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Documentos />} />
-      </Route>
-
-      <Route path="/financeiro" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Financeiro />} />
-      </Route>
-
-      <Route path="/planos-pagamento" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<PlanosPagamento />} />
-      </Route>
-
-      <Route path="/relatorios" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Relatorios />} />
-      </Route>
-
-      <Route path="/helpdesk" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Helpdesk />} />
-      </Route>
-
-      <Route path="/servicos" element={<DemoAppLayout userType="advogado" />}>
-        <Route index element={<Servicos />} />
-      </Route>
+      {/* Escritório - Área do Advogado */}
+      <Route path="/" element={
+        <DemoProtectedRoute userType="advogado">
+          <Dashboard />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/processos" element={
+        <DemoProtectedRoute userType="advogado">
+          <Processos />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/clientes" element={
+        <DemoProtectedRoute userType="advogado">
+          <Clientes />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas" element={
+        <DemoProtectedRoute userType="advogado">
+          <Jornadas />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas/nova" element={
+        <DemoProtectedRoute userType="advogado">
+          <NovaJornada />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/jornadas/iniciar" element={
+        <DemoProtectedRoute userType="advogado">
+          <IniciarJornada />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/inbox" element={
+        <DemoProtectedRoute userType="advogado">
+          <InboxLegal />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/agenda" element={
+        <DemoProtectedRoute userType="advogado">
+          <Agenda />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/documentos" element={
+        <DemoProtectedRoute userType="advogado">
+          <Documentos />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/financeiro" element={
+        <DemoProtectedRoute userType="advogado">
+          <Financeiro />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/planos-pagamento" element={
+        <DemoProtectedRoute userType="advogado">
+          <PlanosPagamento />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/relatorios" element={
+        <DemoProtectedRoute userType="advogado">
+          <Relatorios />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/helpdesk" element={
+        <DemoProtectedRoute userType="advogado">
+          <Helpdesk />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/servicos" element={
+        <DemoProtectedRoute userType="advogado">
+          <Servicos />
+        </DemoProtectedRoute>
+      } />
 
       {/* Portal do Cliente */}
-      <Route path="/portal/chat" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalChat />} />
-      </Route>
-
-      <Route path="/portal/jornada" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalJornada />} />
-      </Route>
-
-      <Route path="/portal/processos" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalProcessos />} />
-      </Route>
-
-      <Route path="/portal/compromissos" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalCompromissos />} />
-      </Route>
-
-      <Route path="/portal/financeiro" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalFinanceiro />} />
-      </Route>
-
-      <Route path="/portal/helpdesk" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalHelpdesk />} />
-      </Route>
-
-      <Route path="/portal/servicos" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalServicos />} />
-      </Route>
-
-      <Route path="/portal/cliente/:instanceId" element={<DemoAppLayout userType="cliente" />}>
-        <Route index element={<PortalCliente />} />
-      </Route>
+      <Route path="/portal/chat" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalChat />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/jornada" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalJornada />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/processos" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalProcessos />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/compromissos" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalCompromissos />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/financeiro" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalFinanceiro />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/helpdesk" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalHelpdesk />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/servicos" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalServicos />
+        </DemoProtectedRoute>
+      } />
+      <Route path="/portal/cliente/:instanceId" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalCliente />
+        </DemoProtectedRoute>
+      } />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
@@ -164,12 +269,12 @@ function DemoAppRoutes() {
 
 function RegularAppRoutes() {
   const { user } = useAuth();
-  
+
   return (
     <Routes>
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/" replace /> : <Login />} 
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <Login />}
       />
       <Route
         path="/setup"
@@ -180,20 +285,119 @@ function RegularAppRoutes() {
         element={supabaseConfigured ? <QuickSetup /> : <Navigate to="/setup" replace />}
       />
       
-      {/* Same structure as demo routes but with RegularAppLayout */}
-      <Route path="/" element={<RegularAppLayout userType="advogado" />}>
-        <Route index element={<Dashboard />} />
-      </Route>
+      {/* Same routes as demo but with regular auth */}
+      <Route path="/" element={
+        <ProtectedRoute userType="advogado">
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/processos" element={
+        <ProtectedRoute userType="advogado">
+          <Processos />
+        </ProtectedRoute>
+      } />
+      <Route path="/clientes" element={
+        <ProtectedRoute userType="advogado">
+          <Clientes />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas" element={
+        <ProtectedRoute userType="advogado">
+          <Jornadas />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/nova" element={
+        <ProtectedRoute userType="advogado">
+          <NovaJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/iniciar" element={
+        <ProtectedRoute userType="advogado">
+          <IniciarJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/inbox" element={
+        <ProtectedRoute userType="advogado">
+          <InboxLegal />
+        </ProtectedRoute>
+      } />
+      <Route path="/agenda" element={
+        <ProtectedRoute userType="advogado">
+          <Agenda />
+        </ProtectedRoute>
+      } />
+      <Route path="/documentos" element={
+        <ProtectedRoute userType="advogado">
+          <Documentos />
+        </ProtectedRoute>
+      } />
+      <Route path="/financeiro" element={
+        <ProtectedRoute userType="advogado">
+          <Financeiro />
+        </ProtectedRoute>
+      } />
+      <Route path="/planos-pagamento" element={
+        <ProtectedRoute userType="advogado">
+          <PlanosPagamento />
+        </ProtectedRoute>
+      } />
+      <Route path="/relatorios" element={
+        <ProtectedRoute userType="advogado">
+          <Relatorios />
+        </ProtectedRoute>
+      } />
+      <Route path="/helpdesk" element={
+        <ProtectedRoute userType="advogado">
+          <Helpdesk />
+        </ProtectedRoute>
+      } />
+      <Route path="/servicos" element={
+        <ProtectedRoute userType="advogado">
+          <Servicos />
+        </ProtectedRoute>
+      } />
 
-      <Route path="/processos" element={<RegularAppLayout userType="advogado" />}>
-        <Route index element={<Processos />} />
-      </Route>
-
-      <Route path="/clientes" element={<RegularAppLayout userType="advogado" />}>
-        <Route index element={<Clientes />} />
-      </Route>
-
-      {/* Add other routes... */}
+      {/* Portal do Cliente */}
+      <Route path="/portal/chat" element={
+        <ProtectedRoute userType="cliente">
+          <PortalChat />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/jornada" element={
+        <ProtectedRoute userType="cliente">
+          <PortalJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/processos" element={
+        <ProtectedRoute userType="cliente">
+          <PortalProcessos />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/compromissos" element={
+        <ProtectedRoute userType="cliente">
+          <PortalCompromissos />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/financeiro" element={
+        <ProtectedRoute userType="cliente">
+          <PortalFinanceiro />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/helpdesk" element={
+        <ProtectedRoute userType="cliente">
+          <PortalHelpdesk />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/servicos" element={
+        <ProtectedRoute userType="cliente">
+          <PortalServicos />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal/cliente/:instanceId" element={
+        <ProtectedRoute userType="cliente">
+          <PortalCliente />
+        </ProtectedRoute>
+      } />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
