@@ -256,6 +256,11 @@ function DemoAppRoutes() {
           <PortalServicos />
         </DemoProtectedRoute>
       } />
+      <Route path="/portal/cliente/:instanceId" element={
+        <DemoProtectedRoute userType="cliente">
+          <PortalCliente />
+        </DemoProtectedRoute>
+      } />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
