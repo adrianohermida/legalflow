@@ -20,9 +20,9 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Demo Mode */}
-          <Card className="border-2 border-green-200 bg-green-50">
+          <Card className="border-2 border-success-100 bg-success-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-800">
+              <CardTitle className="flex items-center gap-2 text-success-600">
                 <Play className="h-5 w-5" />
                 Modo Demo
               </CardTitle>
@@ -50,8 +50,8 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
                 </div>
               </div>
 
-              <Alert className="bg-green-100 border-green-300">
-                <AlertDescription className="text-green-800">
+              <Alert className="bg-success-100 border-success">
+                <AlertDescription className="text-success-700">
                   <strong>Credenciais:</strong>
                   <br />• Email: <code>admin.test@gmail.com</code>
                   <br />• Senha: <code>123456</code>
@@ -61,7 +61,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
 
               <Button
                 onClick={() => onModeSelect('demo')}
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-success hover:bg-success-600"
                 size="lg"
               >
                 <Play className="h-4 w-4 mr-2" />
@@ -71,9 +71,9 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
           </Card>
 
           {/* Supabase Mode */}
-          <Card className="border-2 border-blue-200 bg-blue-50">
+          <Card className="border-2 border-brand-200 bg-brand-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-800">
+              <CardTitle className="flex items-center gap-2 text-brand-700">
                 <Database className="h-5 w-5" />
                 Modo Supabase
               </CardTitle>
@@ -101,8 +101,8 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
                 </div>
               </div>
 
-              <Alert className="bg-blue-100 border-blue-300">
-                <AlertDescription className="text-blue-800">
+              <Alert className="bg-brand-100 border-brand-300">
+                <AlertDescription className="text-brand-700">
                   <strong>Requer:</strong>
                   <br />• Configuração do Supabase
                   <br />• Confirmação de email
@@ -113,7 +113,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
               <Button
                 onClick={() => onModeSelect('supabase')}
                 variant="outline"
-                className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
+                className="w-full border-brand-300 text-brand-700 hover:bg-brand-100"
                 size="lg"
               >
                 <Database className="h-4 w-4 mr-2" />
