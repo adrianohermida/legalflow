@@ -46,6 +46,8 @@ export function OABSelectionModal({ open, onOpenChange }: OABSelectionModalProps
           <DialogTitle>Selecionar meu registro OAB</DialogTitle>
           <DialogDescription>
             Para continuar, precisamos vincular sua conta ao seu registro na OAB.
+            <br />
+            <strong>Para teste:</strong> Use OAB 123456 ou 654321
           </DialogDescription>
         </DialogHeader>
 
