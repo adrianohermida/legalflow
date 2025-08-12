@@ -126,13 +126,23 @@ function AppRoutes() {
         <ProtectedRoute>
           <PlaceholderPage
             title="Criar Novo Processo"
-            description="Formulário para criaç��o de novos processos vinculados aos clientes."
+            description="Formulário para criação de novos processos vinculados aos clientes."
           />
         </ProtectedRoute>
       } />
       <Route path="/documentos" element={
         <ProtectedRoute>
           <Documentos />
+        </ProtectedRoute>
+      } />
+      <Route path="/planos-pagamento" element={
+        <ProtectedRoute>
+          <PlanosPagamento />
+        </ProtectedRoute>
+      } />
+      <Route path="/relatorios" element={
+        <ProtectedRoute>
+          <Relatorios />
         </ProtectedRoute>
       } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
