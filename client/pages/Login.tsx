@@ -128,9 +128,23 @@ export function Login() {
               </div>
 
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="space-y-2">
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+
+                  {error.includes('Email não confirmado') && (
+                    <Alert>
+                      <AlertDescription className="text-sm">
+                        <strong>Para resolver (desenvolvimento):</strong>
+                        <br />• Acesse o <a href="https://supabase.com/dashboard" target="_blank" className="text-blue-600 hover:underline">painel do Supabase</a>
+                        <br />• Vá em Authentication → Users
+                        <br />• Encontre seu usuário e clique em "Confirm email"
+                        <br />• Ou desative "Enable email confirmations" em Auth Settings
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
               )}
 
               {success && (
