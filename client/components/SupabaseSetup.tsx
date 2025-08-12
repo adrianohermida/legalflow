@@ -39,7 +39,7 @@ export function SupabaseSetup() {
         .limit(1);
 
       if (error) {
-        setError(`Erro de conexão: ${error.message}`);
+        setError(`Erro de conex��o: ${error.message}`);
         setIsConnected(false);
       } else {
         setIsConnected(true);
@@ -66,8 +66,8 @@ export function SupabaseSetup() {
 
   if (isConnected) {
     return (
-      <Alert className="border-green-200 bg-green-50">
-        <CheckCircle className="h-4 w-4 text-green-600" />
+      <Alert className="border-success bg-success-50">
+        <CheckCircle className="h-4 w-4 text-success" />
         <AlertDescription className="text-green-800">
           ✅ Conectado ao Supabase com sucesso! O sistema está pronto para uso.
         </AlertDescription>
@@ -88,8 +88,8 @@ export function SupabaseSetup() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Instructions */}
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">Como obter as credenciais:</h4>
+        <div className="bg-brand-50 p-4 rounded-lg">
+          <h4 className="font-medium text-brand-900 mb-2">Como obter as credenciais:</h4>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
             <li>Acesse <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">supabase.com</a></li>
             <li>Crie um novo projeto ou acesse um existente</li>
