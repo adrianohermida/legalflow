@@ -26,8 +26,8 @@ export async function createConfirmedTestUser() {
     console.log('Note: You may need to manually confirm this email in the Supabase dashboard');
     
     return true;
-  } catch (error) {
-    console.error('Error creating confirmed test user:', error);
+  } catch (error: any) {
+    console.error('Error creating confirmed test user:', error.message || error);
     return false;
   }
 }
