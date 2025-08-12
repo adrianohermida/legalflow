@@ -15,6 +15,7 @@ export function Login() {
   const [isSignupMode, setIsSignupMode] = useState(false);
   const [success, setSuccess] = useState('');
   const [isCreatingTestUser, setIsCreatingTestUser] = useState(false);
+  const [showQuickSetup, setShowQuickSetup] = useState(false);
   const { user, isLoading, login, signup } = useAuth();
 
   if (user) {
