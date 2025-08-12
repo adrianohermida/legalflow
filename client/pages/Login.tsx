@@ -154,6 +154,8 @@ export function Login() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
                 <strong>Primeira vez?</strong> Clique em "Criar conta" para criar sua primeira conta de usuário.
+                <br />
+                Após criar a conta, faça login e use OAB <strong>123456</strong> para vincular.
               </p>
             </div>
           </div>
