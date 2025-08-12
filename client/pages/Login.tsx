@@ -287,7 +287,7 @@ export function Login() {
               <p className="text-sm text-blue-800">
                 <strong>🚀 Primeira vez?</strong> Use a <strong>"Configuração Rápida"</strong> - te guiamos em 3 passos simples!
                 <br />
-                <strong>Ou use contas prontas:</strong> <code>admin@test.com</code> / <code>123456</code>
+                <strong>Ou use conta pronta:</strong> <code>admin.test@gmail.com</code> / <code>123456</code>
                 <br />
                 <strong>Problema com login?</strong> A Configuração Rápida resolve tudo automaticamente
                 <br />
