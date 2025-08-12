@@ -39,7 +39,6 @@ import { SupabaseSetup } from "./components/SupabaseSetup";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { OABSelectionModal } from "./components/OABSelectionModal";
 import NotFound from "./pages/NotFound";
-import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
