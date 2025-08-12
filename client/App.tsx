@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { DemoAuthProvider, useDemoAuth } from "./contexts/DemoAuthContext";
 import { Layout } from "./components/Layout";
+import { DemoLayout } from "./components/DemoLayout";
 import { Login } from "./pages/Login";
 import { DemoLogin } from "./pages/DemoLogin";
 import Setup from "./pages/Setup";
