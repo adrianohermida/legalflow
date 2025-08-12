@@ -1,7 +1,7 @@
 // Admin setup utility to create confirmed test users
 // This runs in development to ensure we have working test accounts
 
-import { supabase } from './supabase';
+import { supabase, supabaseConfigured } from './supabase';
 
 export const adminSetup = {
   async createConfirmedTestUser() {
