@@ -78,6 +78,39 @@ function AppRoutes() {
           <Clientes />
         </ProtectedRoute>
       } />
+      <Route path="/jornadas" element={
+        <ProtectedRoute>
+          <Jornadas />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/nova" element={
+        <ProtectedRoute>
+          <NovaJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/iniciar" element={
+        <ProtectedRoute>
+          <IniciarJornada />
+        </ProtectedRoute>
+      } />
+      <Route path="/jornadas/instancia/:instanceId" element={
+        <ProtectedRoute>
+          <PlaceholderPage
+            title="Detalhes da Instância"
+            description="Detalhes completos da jornada em andamento com métricas e progresso."
+          />
+        </ProtectedRoute>
+      } />
+      <Route path="/portal-cliente/:instanceId" element={
+        <ProtectedRoute>
+          <PortalCliente />
+        </ProtectedRoute>
+      } />
+      <Route path="/inbox" element={
+        <ProtectedRoute>
+          <InboxLegal />
+        </ProtectedRoute>
+      } />
       <Route path="/processos/:id" element={
         <ProtectedRoute>
           <PlaceholderPage
