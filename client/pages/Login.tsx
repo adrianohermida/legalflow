@@ -59,11 +59,11 @@ export function Login() {
 
     try {
       await signup('adriano@hermidamaia.adv.br', '123456');
-      setSuccess('Usuário de teste criado! Agora você pode fazer login com as credenciais demo.');
+      setSuccess('Usuário de teste criado! Confirme o email no painel do Supabase para fazer login.');
       handleDemoLogin(); // Fill in the credentials
     } catch (err: any) {
       if (err.message?.includes('já cadastrado')) {
-        setSuccess('Usuário de teste já existe! Use o botão "Usar conta demo" para fazer login.');
+        setSuccess('Usuário de teste já existe! Se não conseguir fazer login, confirme o email no painel do Supabase.');
         handleDemoLogin();
       } else {
         setError(err.message || 'Erro ao criar usuário de teste');
