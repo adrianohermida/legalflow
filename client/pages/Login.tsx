@@ -45,6 +45,27 @@ export function Login() {
     setPassword('123456');
   };
 
+  const createTestUser = async () => {
+    setIsCreatingTestUser(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await signup('adriano@hermidamaia.adv.br', '123456');
+      setSuccess('Usuário de teste criado! Agora você pode fazer login com as credenciais demo.');
+      handleDemoLogin(); // Fill in the credentials
+    } catch (err: any) {
+      if (err.message?.includes('já cadastrado')) {
+        setSuccess('Usuário de teste já existe! Use o botão "Usar conta demo" para fazer login.');
+        handleDemoLogin();
+      } else {
+        setError(err.message || 'Erro ao criar usuário de teste');
+      }
+    } finally {
+      setIsCreatingTestUser(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
