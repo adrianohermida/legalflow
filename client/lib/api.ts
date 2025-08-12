@@ -569,7 +569,7 @@ export const stageTypesApi = {
 // ============================================================================
 
 export const handleApiError = (error: any) => {
-  console.error('API Error:', error);
+  console.error('API Error:', error.message || error);
   
   if (error.message?.includes('JWT')) {
     // Handle authentication errors
