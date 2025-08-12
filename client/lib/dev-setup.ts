@@ -63,7 +63,7 @@ export const devSetup = {
         .select();
 
       if (advogadosError) {
-        console.error('Error creating advogados:', advogadosError);
+        console.error('Error creating advogados:', advogadosError.message || advogadosError);
         return;
       }
 
