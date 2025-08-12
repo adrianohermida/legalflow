@@ -261,7 +261,7 @@ export function IniciarJornada() {
                           !formData.data_inicio && "text-muted-foreground"
                         )}
                       >
-                        <CalendarIconLucide className="mr-2 h-4 w-4" />
+                        <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.data_inicio ? (
                           format(formData.data_inicio, "PPP", { locale: ptBR })
                         ) : (
