@@ -105,13 +105,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } : undefined
       };
 
+      console.log('AuthContext: User data loaded successfully:', userData);
       setUser(userData);
     } catch (error) {
       console.error('Failed to load user data:', error);
-      setUser({
+      const fallbackUser = {
         id: supabaseUser.id,
         email: supabaseUser.email || ''
-      });
+      };
+      console.log('AuthContext: Setting fallback user:', fallbackUser);
+      setUser(fallbackUser);
     }
   };
 
