@@ -137,6 +137,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signup = async (email: string, password: string) => {
+    if (!supabaseConfigured) {
+      throw new Error('Supabase não está configurado. Configure as credenciais do banco de dados.');
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Signup failed:', error);
+
+      if (error.message?.includes('User already registered')) {
+        throw new Error('Usuário já cadastrado com este email');
+      }
+
+      throw new Error(error.message || 'Falha no cadastro');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
