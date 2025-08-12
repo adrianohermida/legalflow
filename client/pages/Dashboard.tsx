@@ -19,8 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Plus, Search, Filter, FileText, Clock, AlertCircle, Calendar } from 'lucide-react';
+import { Alert, AlertDescription } from '../components/ui/alert';
+import { Plus, Search, Filter, FileText, Clock, AlertCircle, Calendar, Loader2 } from 'lucide-react';
 import { FinancialWidget } from '../components/FinancialWidget';
+import { processosApi } from '../lib/api';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 
 interface Processo {
   numero_cnj: string;
