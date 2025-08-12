@@ -6,9 +6,16 @@
 @layer base {
   :root {
     /* F1.0 - Hermida Maia Brand Colors (padronização site ↔ app) */
-    --brand-900: 27 58 47;   /* #1b3a2f - Primary dark */
-    --brand-700: 40 82 69;   /* #285245 - Primary medium */
+    --brand-50: 245 250 248;
     --brand-100: 233 243 239; /* #e9f3ef - Primary light */
+    --brand-200: 211 231 223;
+    --brand-300: 176 212 196;
+    --brand-400: 134 189 164;
+    --brand-500: 98 162 133;
+    --brand-600: 77 129 105;
+    --brand-700: 40 82 69;   /* #285245 - Primary medium */
+    --brand-800: 33 66 57;
+    --brand-900: 27 58 47;   /* #1b3a2f - Primary dark */
 
     /* State colors - apenas subtons do branding */
     --danger: 239 68 68;     /* #ef4444 */
