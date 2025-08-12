@@ -12,6 +12,8 @@ interface QuickSetupProps {
 export function QuickSetup({ onComplete }: QuickSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { signup } = useAuth();
 
   const openSupabaseDashboard = () => {
     window.open('https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users', '_blank');
@@ -19,8 +21,20 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
 
   const handleCreateAndConfirm = async () => {
     setIsLoading(true);
-    
-    // Give user time to see the instruction
+    setError('');
+
+    try {
+      // Create the test account
+      await signup('admin@test.com', '123456');
+    } catch (err: any) {
+      if (!err.message?.includes('já cadastrado') && !err.message?.includes('User already registered')) {
+        setError('Erro ao criar conta: ' + err.message);
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // Continue to next step
     setTimeout(() => {
       setCurrentStep(2);
       openSupabaseDashboard();
