@@ -48,7 +48,7 @@ export function Login() {
   };
 
   const handleDemoLogin = () => {
-    setEmail('adriano@hermidamaia.adv.br');
+    setEmail('test@example.com');
     setPassword('123456');
   };
 
