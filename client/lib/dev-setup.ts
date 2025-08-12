@@ -202,8 +202,8 @@ export const devSetup = {
       }
 
       console.log('Development data created successfully!');
-    } catch (error) {
-      console.error('Error setting up development data:', error);
+    } catch (error: any) {
+      console.error('Error setting up development data:', error.message || error);
     }
   },
 
@@ -215,14 +215,14 @@ export const devSetup = {
         .limit(1);
 
       if (error) {
-        console.error('Supabase connection error:', error);
+        console.error('Supabase connection error:', error.message || error);
         return false;
       }
 
       console.log('Supabase connection successful');
       return true;
-    } catch (error) {
-      console.error('Failed to connect to Supabase:', error);
+    } catch (error: any) {
+      console.error('Failed to connect to Supabase:', error.message || error);
       return false;
     }
   }
