@@ -12,9 +12,10 @@ interface AppShellProps {
   userType: 'advogado' | 'cliente';
   user?: any;
   logout?: () => void;
+  children?: React.ReactNode;
 }
 
-export function AppShell({ userType, user, logout }: AppShellProps) {
+export function AppShell({ userType, user, logout, children }: AppShellProps) {
   const [isAppLauncherOpen, setIsAppLauncherOpen] = useState(false);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isChatDockOpen, setIsChatDockOpen] = useState(false);
@@ -69,7 +70,7 @@ export function AppShell({ userType, user, logout }: AppShellProps) {
 
         {/* Page Content */}
         <main id="main-content" className="app-content" role="main">
-          <Outlet />
+          {children}
         </main>
       </div>
 
