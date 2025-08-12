@@ -24,8 +24,9 @@ export function Login() {
 
     try {
       await login(email, password);
-    } catch (err) {
-      setError('Falha no login. Verifique suas credenciais.');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Falha no login. Verifique suas credenciais.');
     }
   };
 
