@@ -33,7 +33,7 @@ const advogadoApps = [
     description: 'Visão geral do escritório e métricas',
     href: '/',
     icon: LayoutDashboard,
-    color: 'bg-blue-500',
+    color: 'bg-brand-700',
   },
   {
     id: 'processos',
@@ -41,7 +41,7 @@ const advogadoApps = [
     description: 'Gestão completa de processos jurídicos',
     href: '/processos',
     icon: FileText,
-    color: 'bg-brand-600',
+    color: 'bg-brand-700',
   },
   {
     id: 'clientes',
