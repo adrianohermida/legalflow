@@ -194,25 +194,30 @@ export function Login() {
               <div className="text-center space-y-2">
                 {!isSignupMode && (
                   <div className="space-y-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleDemoLogin}
-                      className="text-sm text-gray-600"
-                    >
-                      Usar conta demo
-                    </Button>
-                    <br />
+                    <div className="text-xs text-gray-500 mb-2">Contas de teste:</div>
+                    <div className="grid grid-cols-1 gap-1">
+                      {testAccounts.map((account) => (
+                        <Button
+                          key={account.email}
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDemoLogin(account.email)}
+                          className="text-xs text-gray-600 h-8"
+                        >
+                          {account.label} ({account.email})
+                        </Button>
+                      ))}
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={createTestUser}
                       disabled={isCreatingTestUser}
-                      className="text-sm"
+                      className="text-sm mt-2"
                     >
-                      {isCreatingTestUser ? 'Criando...' : 'Criar usuário de teste'}
+                      {isCreatingTestUser ? 'Criando...' : 'Criar contas de teste'}
                     </Button>
                   </div>
                 )}
