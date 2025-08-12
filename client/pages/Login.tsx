@@ -12,7 +12,9 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { user, isLoading, login } = useAuth();
+  const [isSignupMode, setIsSignupMode] = useState(false);
+  const [success, setSuccess] = useState('');
+  const { user, isLoading, login, signup } = useAuth();
 
   if (user) {
     return <Navigate to="/" replace />;
