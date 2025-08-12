@@ -30,6 +30,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Failsafe: Ensure loading never gets stuck
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('Auth loading timeout - forcing loading to false');
+        setIsLoading(false);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
   useEffect(() => {
     // Don't try to authenticate if Supabase is not configured
     if (!supabaseConfigured) {
