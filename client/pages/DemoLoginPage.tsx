@@ -131,7 +131,8 @@ export function DemoLoginPage() {
                 <strong>Credenciais Demo:</strong>
                 <br />• Email: admin.test@gmail.com
                 <br />• Senha: 123456
-                <br />�� OAB para teste: 123456
+                <br />
+                �� OAB para teste: 123456
               </AlertDescription>
             </Alert>
           </CardContent>

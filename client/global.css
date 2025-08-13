@@ -6,56 +6,102 @@
 
 /* Utilitários temáticos - Classes que respeitam o tema */
 @layer utilities {
-  .bg-theme-primary { background-color: var(--theme-primary) !important; }
-  .bg-theme-background { background-color: var(--theme-background) !important; }
-  .bg-theme-secondary { background-color: var(--theme-background-secondary) !important; }
-  .text-theme-text { color: var(--theme-text) !important; }
-  .text-theme-secondary { color: var(--theme-text-secondary) !important; }
-  .text-theme-muted { color: var(--theme-text-muted) !important; }
-  .border-theme { border-color: var(--theme-border) !important; }
-  .border-theme-hover:hover { border-color: var(--theme-border-hover) !important; }
+  .bg-theme-primary {
+    background-color: var(--theme-primary) !important;
+  }
+  .bg-theme-background {
+    background-color: var(--theme-background) !important;
+  }
+  .bg-theme-secondary {
+    background-color: var(--theme-background-secondary) !important;
+  }
+  .text-theme-text {
+    color: var(--theme-text) !important;
+  }
+  .text-theme-secondary {
+    color: var(--theme-text-secondary) !important;
+  }
+  .text-theme-muted {
+    color: var(--theme-text-muted) !important;
+  }
+  .border-theme {
+    border-color: var(--theme-border) !important;
+  }
+  .border-theme-hover:hover {
+    border-color: var(--theme-border-hover) !important;
+  }
 
   /* NUCLEAR CSS OVERRIDE - MAXIMUM SPECIFICITY */
-  html body * .bg-brand-50, html body * .bg-brand-100, html body * .bg-brand-200,
-  html body * .bg-brand-300, html body * .bg-brand-400, html body * .bg-brand-500,
-  html body * .bg-brand-600, html body * .bg-brand-700, html body * .bg-brand-800,
+  html body * .bg-brand-50,
+  html body * .bg-brand-100,
+  html body * .bg-brand-200,
+  html body * .bg-brand-300,
+  html body * .bg-brand-400,
+  html body * .bg-brand-500,
+  html body * .bg-brand-600,
+  html body * .bg-brand-700,
+  html body * .bg-brand-800,
   html body * .bg-brand-900 {
     background-color: #ffffff !important;
     background: #ffffff !important;
   }
 
-  html body * .text-brand-50, html body * .text-brand-100, html body * .text-brand-200,
-  html body * .text-brand-300, html body * .text-brand-400, html body * .text-brand-500,
-  html body * .text-brand-600, html body * .text-brand-700, html body * .text-brand-800,
+  html body * .text-brand-50,
+  html body * .text-brand-100,
+  html body * .text-brand-200,
+  html body * .text-brand-300,
+  html body * .text-brand-400,
+  html body * .text-brand-500,
+  html body * .text-brand-600,
+  html body * .text-brand-700,
+  html body * .text-brand-800,
   html body * .text-brand-900 {
     color: #000000 !important;
   }
 
-  html body * .border-brand-50, html body * .border-brand-100, html body * .border-brand-200,
-  html body * .border-brand-300, html body * .border-brand-400, html body * .border-brand-500,
-  html body * .border-brand-600, html body * .border-brand-700, html body * .border-brand-800,
+  html body * .border-brand-50,
+  html body * .border-brand-100,
+  html body * .border-brand-200,
+  html body * .border-brand-300,
+  html body * .border-brand-400,
+  html body * .border-brand-500,
+  html body * .border-brand-600,
+  html body * .border-brand-700,
+  html body * .border-brand-800,
   html body * .border-brand-900 {
     border-color: #e5e7eb !important;
   }
 
-  html body * .hover\\:bg-brand-50:hover, html body * .hover\\:bg-brand-100:hover,
-  html body * .hover\\:bg-brand-700:hover, html body * .hover\\:bg-brand-900:hover {
+  html body * .hover\\:bg-brand-50:hover,
+  html body * .hover\\:bg-brand-100:hover,
+  html body * .hover\\:bg-brand-700:hover,
+  html body * .hover\\:bg-brand-900:hover {
     background-color: #f9fafb !important;
     background: #f9fafb !important;
   }
 
-  html body * .hover\\:text-brand-700:hover, html body * .hover\\:text-brand-900:hover {
+  html body * .hover\\:text-brand-700:hover,
+  html body * .hover\\:text-brand-900:hover {
     color: #1f2937 !important;
   }
 
   /* TARGET SPECIFIC PROBLEMATIC CLASSES */
-  [class*="bg-brand-"] { background: #ffffff !important; }
-  [class*="text-brand-"] { color: #000000 !important; }
-  [class*="border-brand-"] { border-color: #e5e7eb !important; }
+  [class*="bg-brand-"] {
+    background: #ffffff !important;
+  }
+  [class*="text-brand-"] {
+    color: #000000 !important;
+  }
+  [class*="border-brand-"] {
+    border-color: #e5e7eb !important;
+  }
 
   /* Classes de bloqueio absoluto */
-  .no-yellow * { background: #ffffff !important; }
-  .force-theme, .force-neutral {
+  .no-yellow * {
+    background: #ffffff !important;
+  }
+  .force-theme,
+  .force-neutral {
     background: #ffffff !important;
     color: #000000 !important;
   }
@@ -64,33 +110,33 @@
 /* SISTEMA NEUTRO ABSOLUTO - ZERO YELLOW GUARANTEED */
 :root {
   /* FORCED NEUTRAL COLORS - Override tudo */
-  --theme-primary: #000000 !important;        /* Preto absoluto */
-  --theme-primary-hover: #1f2937 !important;  /* Cinza escuro */
-  --theme-primary-light: #f9fafb !important;  /* Cinza muito claro */
-  --theme-background: #ffffff !important;      /* Branco puro */
+  --theme-primary: #000000 !important; /* Preto absoluto */
+  --theme-primary-hover: #1f2937 !important; /* Cinza escuro */
+  --theme-primary-light: #f9fafb !important; /* Cinza muito claro */
+  --theme-background: #ffffff !important; /* Branco puro */
   --theme-background-secondary: #f9fafb !important; /* Cinza muito claro */
-  --theme-text: #000000 !important;           /* Preto absoluto */
+  --theme-text: #000000 !important; /* Preto absoluto */
   --theme-text-secondary: #374151 !important; /* Cinza médio */
-  --theme-text-muted: #6b7280 !important;     /* Cinza claro */
-  --theme-border: #e5e7eb !important;         /* Cinza borda */
-  --theme-border-hover: #d1d5db !important;   /* Cinza borda hover */
-  --theme-success: #059669 !important;        /* Verde puro */
-  --theme-warning: #7c2d12 !important;        /* Marrom sem amarelo */
-  --theme-danger: #dc2626 !important;         /* Vermelho puro */
-  --theme-info: #1e40af !important;           /* Azul puro */
+  --theme-text-muted: #6b7280 !important; /* Cinza claro */
+  --theme-border: #e5e7eb !important; /* Cinza borda */
+  --theme-border-hover: #d1d5db !important; /* Cinza borda hover */
+  --theme-success: #059669 !important; /* Verde puro */
+  --theme-warning: #7c2d12 !important; /* Marrom sem amarelo */
+  --theme-danger: #dc2626 !important; /* Vermelho puro */
+  --theme-info: #1e40af !important; /* Azul puro */
 
   /* FORCED NEUTRAL TOKENS - Override tudo */
-  --brand-900: #000000 !important;     /* Preto absoluto */
-  --brand-700: #000000 !important;     /* Preto absoluto */
-  --brand-100: #f9fafb !important;     /* Cinza muito claro */
-  --brand-50: #ffffff !important;      /* Branco puro */
-  --surface: #ffffff !important;       /* Branco puro */
-  --surface-2: #f9fafb !important;     /* Cinza muito claro */
-  --on-surface: #000000 !important;    /* Preto absoluto */
-  --muted: #6b7280 !important;         /* Cinza claro */
-  --danger: #dc2626 !important;        /* Vermelho puro */
-  --warn: #7c2d12 !important;          /* Marrom sem amarelo */
-  --success: #059669 !important;       /* Verde puro */
+  --brand-900: #000000 !important; /* Preto absoluto */
+  --brand-700: #000000 !important; /* Preto absoluto */
+  --brand-100: #f9fafb !important; /* Cinza muito claro */
+  --brand-50: #ffffff !important; /* Branco puro */
+  --surface: #ffffff !important; /* Branco puro */
+  --surface-2: #f9fafb !important; /* Cinza muito claro */
+  --on-surface: #000000 !important; /* Preto absoluto */
+  --muted: #6b7280 !important; /* Cinza claro */
+  --danger: #dc2626 !important; /* Vermelho puro */
+  --warn: #7c2d12 !important; /* Marrom sem amarelo */
+  --success: #059669 !important; /* Verde puro */
   --focus-ring: 2px solid #000000 !important;
 }
 
@@ -128,12 +174,31 @@ body,
 
 /* BLOQUEIO TOTAL DE CORES NÃO APROVADAS */
 /* Sistema de segurança anti-cores não autorizadas */
-*[style*="yellow"], *[style*="amber"], *[style*="gold"], *[style*="lime"],
-*[style*="#ffff"], *[style*="#ffd7"], *[style*="#ffa5"], *[style*="rgb(255,255"],
-.bg-yellow-100, .bg-yellow-200, .bg-yellow-300, .bg-yellow-400, .bg-yellow-500,
-.bg-amber-100, .bg-amber-200, .bg-amber-300, .bg-amber-400, .bg-amber-500,
-.text-yellow-400, .text-yellow-500, .text-amber-400, .text-amber-500,
-*:not([class*="theme-"]):not([style*="285245"]):not([style*="1b3a2f"])[style*="#ff"] {
+*[style*="yellow"],
+*[style*="amber"],
+*[style*="gold"],
+*[style*="lime"],
+*[style*="#ffff"],
+*[style*="#ffd7"],
+*[style*="#ffa5"],
+*[style*="rgb(255,255"],
+.bg-yellow-100,
+.bg-yellow-200,
+.bg-yellow-300,
+.bg-yellow-400,
+.bg-yellow-500,
+.bg-amber-100,
+.bg-amber-200,
+.bg-amber-300,
+.bg-amber-400,
+.bg-amber-500,
+.text-yellow-400,
+.text-yellow-500,
+.text-amber-400,
+.text-amber-500,
+*:not([class*="theme-"]):not([style*="285245"]):not(
+    [style*="1b3a2f"]
+  )[style*="#ff"] {
   background: var(--theme-background) !important;
   color: var(--theme-text) !important;
 }
@@ -169,7 +234,7 @@ body,
 @layer base {
   :root {
     /* FORCED NEUTRAL RGB VALUES - Override Tailwind */
-    --brand-50: 255 255 255 !important;  /* White */
+    --brand-50: 255 255 255 !important; /* White */
     --brand-100: 249 250 251 !important; /* Gray-50 */
     --brand-200: 211 231 223;
     --brand-300: 176 212 196;

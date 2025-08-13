@@ -1,18 +1,27 @@
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Switch } from './ui/switch';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
-import { useTheme } from '../hooks/useTheme';
-import { APPROVED_BRAND_COLORS, BLOCKED_COLORS } from '../lib/theme-config';
-import { Sun, Moon, Palette, Shield, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { useTheme } from "../hooks/useTheme";
+import { APPROVED_BRAND_COLORS, BLOCKED_COLORS } from "../lib/theme-config";
+import {
+  Sun,
+  Moon,
+  Palette,
+  Shield,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
 
 export function BrandingControl() {
-  const { mode, toggleMode, colors, isColorApproved, getApprovedColor } = useTheme();
-  const [testColor, setTestColor] = useState('#285245');
-  
+  const { mode, toggleMode, colors, isColorApproved, getApprovedColor } =
+    useTheme();
+  const [testColor, setTestColor] = useState("#285245");
+
   return (
     <div className="space-y-6 p-6 max-w-4xl mx-auto">
       {/* Header */}
@@ -24,30 +33,37 @@ export function BrandingControl() {
           Sistema centralizado de cores e temas - Zero amarelo garantido
         </p>
       </div>
-      
+
       {/* Theme Toggle */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {mode === 'light' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {mode === "light" ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
             Modo de Tema
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2">
-            <Label htmlFor="theme-mode">Modo {mode === 'light' ? 'Claro' : 'Escuro'}</Label>
+            <Label htmlFor="theme-mode">
+              Modo {mode === "light" ? "Claro" : "Escuro"}
+            </Label>
             <Switch
               id="theme-mode"
-              checked={mode === 'dark'}
+              checked={mode === "dark"}
               onCheckedChange={toggleMode}
             />
           </div>
           <p className="text-sm text-theme-text-muted mt-2">
-            Alterna entre modo claro e escuro automaticamente aplicado em todo o sistema
+            Alterna entre modo claro e escuro automaticamente aplicado em todo o
+            sistema
           </p>
         </CardContent>
       </Card>
-      
+
       {/* Color Validation Test */}
       <Card>
         <CardHeader>
@@ -94,7 +110,7 @@ export function BrandingControl() {
           </p>
         </CardContent>
       </Card>
-      
+
       {/* Approved Colors Palette */}
       <Card>
         <CardHeader>
@@ -109,43 +125,47 @@ export function BrandingControl() {
             <div>
               <h4 className="font-medium mb-2">Verde Principal</h4>
               <div className="grid grid-cols-5 gap-2">
-                {Object.entries(APPROVED_BRAND_COLORS.primary).map(([key, value]) => (
-                  <div key={key} className="text-center">
-                    <div
-                      className="w-full h-12 rounded border border-gray-200"
-                      style={{ backgroundColor: value }}
-                    />
-                    <div className="text-xs mt-1">
-                      <div className="font-medium">{key}</div>
-                      <div className="text-gray-500">{value}</div>
+                {Object.entries(APPROVED_BRAND_COLORS.primary).map(
+                  ([key, value]) => (
+                    <div key={key} className="text-center">
+                      <div
+                        className="w-full h-12 rounded border border-gray-200"
+                        style={{ backgroundColor: value }}
+                      />
+                      <div className="text-xs mt-1">
+                        <div className="font-medium">{key}</div>
+                        <div className="text-gray-500">{value}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </div>
-            
+
             {/* Status Colors */}
             <div>
               <h4 className="font-medium mb-2">Cores de Status</h4>
               <div className="grid grid-cols-4 gap-2">
-                {Object.entries(APPROVED_BRAND_COLORS.status).map(([key, value]) => (
-                  <div key={key} className="text-center">
-                    <div
-                      className="w-full h-12 rounded border border-gray-200"
-                      style={{ backgroundColor: value }}
-                    />
-                    <div className="text-xs mt-1">
-                      <div className="font-medium capitalize">{key}</div>
-                      <div className="text-gray-500">{value}</div>
+                {Object.entries(APPROVED_BRAND_COLORS.status).map(
+                  ([key, value]) => (
+                    <div key={key} className="text-center">
+                      <div
+                        className="w-full h-12 rounded border border-gray-200"
+                        style={{ backgroundColor: value }}
+                      />
+                      <div className="text-xs mt-1">
+                        <div className="font-medium capitalize">{key}</div>
+                        <div className="text-gray-500">{value}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Blocked Colors */}
       <Card>
         <CardHeader>
@@ -171,11 +191,12 @@ export function BrandingControl() {
             ))}
           </div>
           <p className="text-sm text-red-600 mt-4">
-            ⚠️ Estas cores são automaticamente bloqueadas e substituídas pela cor principal
+            ⚠️ Estas cores são automaticamente bloqueadas e substituídas pela
+            cor principal
           </p>
         </CardContent>
       </Card>
-      
+
       {/* Current Theme Colors */}
       <Card>
         <CardHeader>
