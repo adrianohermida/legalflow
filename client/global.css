@@ -1,4 +1,4 @@
-/* Cache-busting: v6.0 - NO YELLOW BACKGROUNDS - Clean white surfaces */
+/* Cache-busting: v7.0 - CENTRALIZED THEME SYSTEM - Zero Yellow Guaranteed */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
@@ -46,19 +46,38 @@ body,
   background: var(--surface) !important;
 }
 
-/* Sistema preciso de prevenção de amarelo - preserva brand colors */
-/* Remove apenas amarelos específicos que não sejam da marca */
-*[style*="background-color: yellow"],
-*[style*="background: yellow"],
-*[style*="color: yellow"],
-.bg-yellow-400,
-.bg-yellow-500,
-.bg-yellow-600,
-.text-yellow-400,
-.text-yellow-500,
-.text-yellow-600 {
-  background: var(--surface) !important;
-  color: var(--on-surface) !important;
+/* BLOQUEIO TOTAL DE CORES NÃO APROVADAS */
+/* Sistema de segurança anti-cores não autorizadas */
+*[style*="yellow"], *[style*="amber"], *[style*="gold"], *[style*="lime"],
+*[style*="#ffff"], *[style*="#ffd7"], *[style*="#ffa5"], *[style*="rgb(255,255"],
+.bg-yellow-100, .bg-yellow-200, .bg-yellow-300, .bg-yellow-400, .bg-yellow-500,
+.bg-amber-100, .bg-amber-200, .bg-amber-300, .bg-amber-400, .bg-amber-500,
+.text-yellow-400, .text-yellow-500, .text-amber-400, .text-amber-500,
+*:not([class*="theme-"]):not([style*="285245"]):not([style*="1b3a2f"])[style*="#ff"] {
+  background: var(--theme-background) !important;
+  color: var(--theme-text) !important;
+}
+
+/* Tema Claro - Aplicado via classe .theme-light */
+.theme-light {
+  color-scheme: light;
+  background: var(--theme-background);
+  color: var(--theme-text);
+}
+
+/* Tema Escuro - Aplicado via classe .theme-dark */
+.theme-dark {
+  color-scheme: dark;
+  --theme-primary: #86bda4;
+  --theme-primary-hover: #b0d4c4;
+  --theme-primary-light: #1b3a2f;
+  --theme-background: #0f1114;
+  --theme-background-secondary: #0a0a0b;
+  --theme-text: #f3f4f6;
+  --theme-text-secondary: #d1d5db;
+  --theme-text-muted: #9ca3af;
+  --theme-border: #374151;
+  --theme-border-hover: #4d8169;
 }
 
 /* Focus visível */
