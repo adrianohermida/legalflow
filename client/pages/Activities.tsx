@@ -395,30 +395,30 @@ export function Activities() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "open": return "destructive";
+      case "todo": return "destructive";
       case "in_progress": return "default";
       case "done": return "secondary";
-      case "cancelled": return "outline";
+      case "blocked": return "outline";
       default: return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "open": return <AlertCircle className="w-4 h-4" />;
+      case "todo": return <AlertCircle className="w-4 h-4" />;
       case "in_progress": return <PlayCircle className="w-4 h-4" />;
       case "done": return <CheckCircle2 className="w-4 h-4" />;
-      case "cancelled": return <AlertCircle className="w-4 h-4" />;
+      case "blocked": return <AlertCircle className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "urgent": return "destructive";
-      case "high": return "default";
-      case "normal": return "secondary";
-      case "low": return "outline";
+      case "urgente": return "destructive";
+      case "alta": return "default";
+      case "media": return "secondary";
+      case "baixa": return "outline";
       default: return "secondary";
     }
   };
