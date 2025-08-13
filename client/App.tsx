@@ -7,7 +7,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { DemoAuthProvider, useDemoAuth } from "./contexts/DemoAuthContext";
-import { ThemeProvider } from "./components/ThemeProvider";
 import { AppShell } from "./components/AppShell";
 import { DemoLoginPage } from "./pages/DemoLoginPage";
 import { SupabaseLoginPage } from "./pages/SupabaseLoginPage";
@@ -19,6 +18,7 @@ import { ModeSelector } from "./pages/ModeSelector";
 import { supabaseConfigured } from "./lib/supabase";
 import { useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { useNeutralTheme } from "./hooks/useNeutralTheme";
 
 function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
@@ -79,7 +79,7 @@ import { PortalCliente } from "./pages/portal/PortalCliente";
 
 import { SupabaseSetup } from "./components/SupabaseSetup";
 import { UnifiedOABSelectionModal } from "./components/UnifiedOABSelectionModal";
-import { BrandingControl } from "./components/BrandingControl";
+import { AdminBrandingConfig } from "./components/AdminBrandingConfig";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -313,7 +313,7 @@ function DemoAppRoutes() {
         path="/branding"
         element={
           <DemoProtectedRoute userType="advogado">
-            <BrandingControl />
+            <AdminBrandingConfig />
           </DemoProtectedRoute>
         }
       />
@@ -538,7 +538,7 @@ function RegularAppRoutes() {
         path="/branding"
         element={
           <ProtectedRoute userType="advogado">
-            <BrandingControl />
+            <AdminBrandingConfig />
           </ProtectedRoute>
         }
       />
