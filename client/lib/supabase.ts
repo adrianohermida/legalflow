@@ -1004,6 +1004,68 @@ export interface LegalFlowDatabase {
           required_for_completion?: boolean;
         };
       };
+      // ProcessoDetail tables
+      partes_processo: {
+        Row: {
+          id: string;
+          numero_cnj: string;
+          polo: 'ativo' | 'passivo' | 'outros';
+          papel: string;
+          nome: string;
+          tipo_pessoa: 'fisica' | 'juridica';
+          cpfcnpj: string | null;
+          is_cliente: boolean;
+          advogado_oabs: number[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          numero_cnj: string;
+          polo: 'ativo' | 'passivo' | 'outros';
+          papel: string;
+          nome: string;
+          tipo_pessoa: 'fisica' | 'juridica';
+          cpfcnpj?: string | null;
+          is_cliente?: boolean;
+          advogado_oabs?: number[];
+        };
+        Update: {
+          polo?: 'ativo' | 'passivo' | 'outros';
+          papel?: string;
+          nome?: string;
+          tipo_pessoa?: 'fisica' | 'juridica';
+          cpfcnpj?: string | null;
+          is_cliente?: boolean;
+          advogado_oabs?: number[];
+        };
+      };
+      monitoring_settings: {
+        Row: {
+          numero_cnj: string;
+          fonte: 'advise' | 'escavador';
+          premium_on: boolean;
+          escavador_credits: number;
+          rate_limit_remaining: number;
+          callback_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          numero_cnj: string;
+          fonte?: 'advise' | 'escavador';
+          premium_on?: boolean;
+          escavador_credits?: number;
+          rate_limit_remaining?: number;
+          callback_url?: string | null;
+        };
+        Update: {
+          fonte?: 'advise' | 'escavador';
+          premium_on?: boolean;
+          escavador_credits?: number;
+          rate_limit_remaining?: number;
+          callback_url?: string | null;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
