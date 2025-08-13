@@ -1,4 +1,4 @@
-/* Cache-busting: v8.0 - DEFINITIVE YELLOW FIX - Pure Green Brand Colors */
+/* Cache-busting: v9.0 - NEUTRAL SYSTEM ABSOLUTE - BLACK/WHITE ONLY */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
@@ -23,36 +23,37 @@
   }
 }
 
-/* SISTEMA TEMÁTICO CENTRALIZADO - Controle total de cores */
+/* SISTEMA NEUTRO ABSOLUTO - ZERO YELLOW GUARANTEED */
 :root {
-  /* Theme CSS Variables - Dinamicamente aplicadas pelo ThemeProvider */
-  --theme-primary: #285245;
-  --theme-primary-hover: #1b3a2f;
-  --theme-primary-light: #e9f3ef;
-  --theme-background: #ffffff;
-  --theme-background-secondary: #f9fafb;
-  --theme-text: #111827;
-  --theme-text-secondary: #4b5563;
-  --theme-text-muted: #6b7280;
-  --theme-border: #e5e7eb;
-  --theme-border-hover: #d3e7df;
-  --theme-success: #16a34a;
-  --theme-warning: #d97706;
-  --theme-danger: #ef4444;
-  --theme-info: #285245;
+  /* FORCED NEUTRAL COLORS - Override tudo */
+  --theme-primary: #000000 !important;        /* Preto absoluto */
+  --theme-primary-hover: #1f2937 !important;  /* Cinza escuro */
+  --theme-primary-light: #f9fafb !important;  /* Cinza muito claro */
+  --theme-background: #ffffff !important;      /* Branco puro */
+  --theme-background-secondary: #f9fafb !important; /* Cinza muito claro */
+  --theme-text: #000000 !important;           /* Preto absoluto */
+  --theme-text-secondary: #374151 !important; /* Cinza médio */
+  --theme-text-muted: #6b7280 !important;     /* Cinza claro */
+  --theme-border: #e5e7eb !important;         /* Cinza borda */
+  --theme-border-hover: #d1d5db !important;   /* Cinza borda hover */
+  --theme-success: #059669 !important;        /* Verde puro */
+  --theme-warning: #7c2d12 !important;        /* Marrom sem amarelo */
+  --theme-danger: #dc2626 !important;         /* Vermelho puro */
+  --theme-info: #1e40af !important;           /* Azul puro */
 
-  /* Legacy tokens for backward compatibility */
-  --brand-900: var(--theme-primary-hover);
-  --brand-700: var(--theme-primary);
-  --brand-100: var(--theme-primary-light);
-  --surface: var(--theme-background);
-  --surface-2: var(--theme-background-secondary);
-  --on-surface: var(--theme-text);
-  --muted: var(--theme-text-muted);
-  --danger: var(--theme-danger);
-  --warn: var(--theme-warning);
-  --success: var(--theme-success);
-  --focus-ring: 2px solid var(--theme-primary);
+  /* FORCED NEUTRAL TOKENS - Override tudo */
+  --brand-900: #000000 !important;     /* Preto absoluto */
+  --brand-700: #000000 !important;     /* Preto absoluto */
+  --brand-100: #f9fafb !important;     /* Cinza muito claro */
+  --brand-50: #ffffff !important;      /* Branco puro */
+  --surface: #ffffff !important;       /* Branco puro */
+  --surface-2: #f9fafb !important;     /* Cinza muito claro */
+  --on-surface: #000000 !important;    /* Preto absoluto */
+  --muted: #6b7280 !important;         /* Cinza claro */
+  --danger: #dc2626 !important;        /* Vermelho puro */
+  --warn: #7c2d12 !important;          /* Marrom sem amarelo */
+  --success: #059669 !important;       /* Verde puro */
+  --focus-ring: 2px solid #000000 !important;
 }
 
 /* Tema Claro - Aplicado via classe .theme-light */
