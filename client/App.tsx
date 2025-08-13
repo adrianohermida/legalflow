@@ -188,7 +188,7 @@ function DemoAppRoutes() {
         path="/"
         element={
           <DemoProtectedRoute userType="advogado">
-            <Dashboard />
+            <DashboardV2 />
           </DemoProtectedRoute>
         }
       />
