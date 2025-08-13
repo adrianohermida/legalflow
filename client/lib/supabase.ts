@@ -1,35 +1,36 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 // Environment variables with validation
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if environment variables are properly configured
-const isConfigured = supabaseUrl &&
+const isConfigured =
+  supabaseUrl &&
   supabaseAnonKey &&
-  !supabaseUrl.includes('your-project') &&
-  !supabaseUrl.includes('your-supabase') &&
-  !supabaseAnonKey.includes('your-anon') &&
-  !supabaseAnonKey.includes('your-supabase') &&
-  supabaseUrl.startsWith('https://') &&
-  supabaseUrl.includes('.supabase.co') &&
+  !supabaseUrl.includes("your-project") &&
+  !supabaseUrl.includes("your-supabase") &&
+  !supabaseAnonKey.includes("your-anon") &&
+  !supabaseAnonKey.includes("your-supabase") &&
+  supabaseUrl.startsWith("https://") &&
+  supabaseUrl.includes(".supabase.co") &&
   supabaseAnonKey.length > 50;
 
 // Create main client for PUBLIC schema (AdvogaAI tables) - PRESERVE EXISTING
-export const supabase = isConfigured 
+export const supabase = isConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
-      }
+        detectSessionInUrl: true,
+      },
     })
-  : createClient('https://dummy.supabase.co', 'dummy-key', {
+  : createClient("https://dummy.supabase.co", "dummy-key", {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
-        detectSessionInUrl: false
-      }
+        detectSessionInUrl: false,
+      },
     });
 
 // ===============================
@@ -39,25 +40,25 @@ export const supabase = isConfigured
 // F1.0: Apenas instanciado, queries começam na F2
 export const legalflow = isConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
-      db: { schema: 'legalflow' },
+      db: { schema: "legalflow" },
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
-      }
+        detectSessionInUrl: true,
+      },
     })
-  : createClient('https://dummy.supabase.co', 'dummy-key', {
-      db: { schema: 'legalflow' },
+  : createClient("https://dummy.supabase.co", "dummy-key", {
+      db: { schema: "legalflow" },
       auth: {
         autoRefreshToken: false,
         persistSession: false,
-        detectSessionInUrl: false
-      }
+        detectSessionInUrl: false,
+      },
     });
 
 // Alternative approach: Use schema() method on main client
 // F1.0: Pronto para uso nas próximas fases
-export const lf = supabase.schema('legalflow');
+export const lf = supabase.schema("legalflow");
 
 // Export configuration status
 export const supabaseConfigured = isConfigured;
@@ -388,10 +389,10 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           subject: string;
-          status: Database['legalflow']['Enums']['ticket_status'];
-          priority: Database['legalflow']['Enums']['priority'];
+          status: Database["legalflow"]["Enums"]["ticket_status"];
+          priority: Database["legalflow"]["Enums"]["priority"];
           group_key: string | null;
-          channel: Database['legalflow']['Enums']['channel_type'];
+          channel: Database["legalflow"]["Enums"]["channel_type"];
           assigned_oab: number | null;
           cliente_cpfcnpj: string | null;
           numero_cnj: string | null;
@@ -403,10 +404,10 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           subject: string;
-          status?: Database['legalflow']['Enums']['ticket_status'];
-          priority?: Database['legalflow']['Enums']['priority'];
+          status?: Database["legalflow"]["Enums"]["ticket_status"];
+          priority?: Database["legalflow"]["Enums"]["priority"];
           group_key?: string | null;
-          channel?: Database['legalflow']['Enums']['channel_type'];
+          channel?: Database["legalflow"]["Enums"]["channel_type"];
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
           numero_cnj?: string | null;
@@ -416,8 +417,8 @@ export interface LegalFlowDatabase {
         };
         Update: {
           subject?: string;
-          status?: Database['legalflow']['Enums']['ticket_status'];
-          priority?: Database['legalflow']['Enums']['priority'];
+          status?: Database["legalflow"]["Enums"]["ticket_status"];
+          priority?: Database["legalflow"]["Enums"]["priority"];
           group_key?: string | null;
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
@@ -446,8 +447,8 @@ export interface LegalFlowDatabase {
       conversation_properties: {
         Row: {
           thread_link_id: string;
-          status: Database['legalflow']['Enums']['conversation_status'] | null;
-          priority: Database['legalflow']['Enums']['priority'] | null;
+          status: Database["legalflow"]["Enums"]["conversation_status"] | null;
+          priority: Database["legalflow"]["Enums"]["priority"] | null;
           group_key: string | null;
           tags: string[] | null;
           assignee_id: string | null;
@@ -458,8 +459,8 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           thread_link_id: string;
-          status?: Database['legalflow']['Enums']['conversation_status'] | null;
-          priority?: Database['legalflow']['Enums']['priority'] | null;
+          status?: Database["legalflow"]["Enums"]["conversation_status"] | null;
+          priority?: Database["legalflow"]["Enums"]["priority"] | null;
           group_key?: string | null;
           tags?: string[] | null;
           assignee_id?: string | null;
@@ -467,8 +468,8 @@ export interface LegalFlowDatabase {
           custom?: any | null;
         };
         Update: {
-          status?: Database['legalflow']['Enums']['conversation_status'] | null;
-          priority?: Database['legalflow']['Enums']['priority'] | null;
+          status?: Database["legalflow"]["Enums"]["conversation_status"] | null;
+          priority?: Database["legalflow"]["Enums"]["priority"] | null;
           group_key?: string | null;
           tags?: string[] | null;
           assignee_id?: string | null;
@@ -481,8 +482,8 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           title: string;
-          status: Database['legalflow']['Enums']['activity_status'];
-          priority: Database['legalflow']['Enums']['priority'];
+          status: Database["legalflow"]["Enums"]["activity_status"];
+          priority: Database["legalflow"]["Enums"]["priority"];
           due_at: string | null;
           assigned_oab: number | null;
           cliente_cpfcnpj: string | null;
@@ -496,8 +497,8 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           title: string;
-          status?: Database['legalflow']['Enums']['activity_status'];
-          priority?: Database['legalflow']['Enums']['priority'];
+          status?: Database["legalflow"]["Enums"]["activity_status"];
+          priority?: Database["legalflow"]["Enums"]["priority"];
           due_at?: string | null;
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
@@ -509,8 +510,8 @@ export interface LegalFlowDatabase {
         };
         Update: {
           title?: string;
-          status?: Database['legalflow']['Enums']['activity_status'];
-          priority?: Database['legalflow']['Enums']['priority'];
+          status?: Database["legalflow"]["Enums"]["activity_status"];
+          priority?: Database["legalflow"]["Enums"]["priority"];
           due_at?: string | null;
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
@@ -666,7 +667,7 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           stage_instance_id: string | null;
-          event_type: Database['legalflow']['Enums']['event_type'];
+          event_type: Database["legalflow"]["Enums"]["event_type"];
           title: string;
           starts_at: string;
           ends_at: string | null;
@@ -677,7 +678,7 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           stage_instance_id?: string | null;
-          event_type: Database['legalflow']['Enums']['event_type'];
+          event_type: Database["legalflow"]["Enums"]["event_type"];
           title: string;
           starts_at: string;
           ends_at?: string | null;
@@ -686,7 +687,7 @@ export interface LegalFlowDatabase {
           cliente_cpfcnpj?: string | null;
         };
         Update: {
-          event_type?: Database['legalflow']['Enums']['event_type'];
+          event_type?: Database["legalflow"]["Enums"]["event_type"];
           title?: string;
           starts_at?: string;
           ends_at?: string | null;
@@ -799,7 +800,7 @@ export interface LegalFlowDatabase {
           processo_numero_cnj: string | null;
           owner_oab: number;
           start_date: string;
-          status: Database['legalflow']['Enums']['journey_status'];
+          status: Database["legalflow"]["Enums"]["journey_status"];
           progress_pct: number;
           next_action: any;
           created_at: string;
@@ -810,12 +811,12 @@ export interface LegalFlowDatabase {
           processo_numero_cnj?: string | null;
           owner_oab: number;
           start_date?: string;
-          status?: Database['legalflow']['Enums']['journey_status'];
+          status?: Database["legalflow"]["Enums"]["journey_status"];
           progress_pct?: number;
           next_action?: any;
         };
         Update: {
-          status?: Database['legalflow']['Enums']['journey_status'];
+          status?: Database["legalflow"]["Enums"]["journey_status"];
           progress_pct?: number;
           next_action?: any;
         };
@@ -825,7 +826,7 @@ export interface LegalFlowDatabase {
           id: string;
           instance_id: string;
           template_stage_id: string;
-          status: Database['legalflow']['Enums']['stage_status'];
+          status: Database["legalflow"]["Enums"]["stage_status"];
           mandatory: boolean;
           sla_at: string | null;
           meta: any;
@@ -835,14 +836,14 @@ export interface LegalFlowDatabase {
         Insert: {
           instance_id: string;
           template_stage_id: string;
-          status?: Database['legalflow']['Enums']['stage_status'];
+          status?: Database["legalflow"]["Enums"]["stage_status"];
           mandatory?: boolean;
           sla_at?: string | null;
           meta?: any;
           completed_at?: string | null;
         };
         Update: {
-          status?: Database['legalflow']['Enums']['stage_status'];
+          status?: Database["legalflow"]["Enums"]["stage_status"];
           sla_at?: string | null;
           meta?: any;
           completed_at?: string | null;
@@ -941,7 +942,7 @@ export interface LegalFlowDatabase {
           amount_total: number;
           installments: number;
           paid_amount: number;
-          status: Database['legalflow']['Enums']['payment_status'];
+          status: Database["legalflow"]["Enums"]["payment_status"];
           created_at: string;
         };
         Insert: {
@@ -950,13 +951,13 @@ export interface LegalFlowDatabase {
           amount_total: number;
           installments: number;
           paid_amount?: number;
-          status?: Database['legalflow']['Enums']['payment_status'];
+          status?: Database["legalflow"]["Enums"]["payment_status"];
         };
         Update: {
           amount_total?: number;
           installments?: number;
           paid_amount?: number;
-          status?: Database['legalflow']['Enums']['payment_status'];
+          status?: Database["legalflow"]["Enums"]["payment_status"];
         };
       };
       parcelas_pagamento: {
@@ -966,7 +967,7 @@ export interface LegalFlowDatabase {
           n_parcela: number;
           due_date: string;
           amount: number;
-          status: Database['legalflow']['Enums']['payment_status'];
+          status: Database["legalflow"]["Enums"]["payment_status"];
           paid_at: string | null;
           created_at: string;
         };
@@ -975,12 +976,12 @@ export interface LegalFlowDatabase {
           n_parcela: number;
           due_date: string;
           amount: number;
-          status?: Database['legalflow']['Enums']['payment_status'];
+          status?: Database["legalflow"]["Enums"]["payment_status"];
           paid_at?: string | null;
         };
         Update: {
           amount?: number;
-          status?: Database['legalflow']['Enums']['payment_status'];
+          status?: Database["legalflow"]["Enums"]["payment_status"];
           paid_at?: string | null;
         };
       };
@@ -1009,10 +1010,10 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           numero_cnj: string;
-          polo: 'ativo' | 'passivo' | 'outros';
+          polo: "ativo" | "passivo" | "outros";
           papel: string;
           nome: string;
-          tipo_pessoa: 'fisica' | 'juridica';
+          tipo_pessoa: "fisica" | "juridica";
           cpfcnpj: string | null;
           is_cliente: boolean;
           advogado_oabs: number[];
@@ -1021,19 +1022,19 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           numero_cnj: string;
-          polo: 'ativo' | 'passivo' | 'outros';
+          polo: "ativo" | "passivo" | "outros";
           papel: string;
           nome: string;
-          tipo_pessoa: 'fisica' | 'juridica';
+          tipo_pessoa: "fisica" | "juridica";
           cpfcnpj?: string | null;
           is_cliente?: boolean;
           advogado_oabs?: number[];
         };
         Update: {
-          polo?: 'ativo' | 'passivo' | 'outros';
+          polo?: "ativo" | "passivo" | "outros";
           papel?: string;
           nome?: string;
-          tipo_pessoa?: 'fisica' | 'juridica';
+          tipo_pessoa?: "fisica" | "juridica";
           cpfcnpj?: string | null;
           is_cliente?: boolean;
           advogado_oabs?: number[];
@@ -1042,7 +1043,7 @@ export interface LegalFlowDatabase {
       monitoring_settings: {
         Row: {
           numero_cnj: string;
-          fonte: 'advise' | 'escavador';
+          fonte: "advise" | "escavador";
           premium_on: boolean;
           escavador_credits: number;
           rate_limit_remaining: number;
@@ -1052,14 +1053,14 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           numero_cnj: string;
-          fonte?: 'advise' | 'escavador';
+          fonte?: "advise" | "escavador";
           premium_on?: boolean;
           escavador_credits?: number;
           rate_limit_remaining?: number;
           callback_url?: string | null;
         };
         Update: {
-          fonte?: 'advise' | 'escavador';
+          fonte?: "advise" | "escavador";
           premium_on?: boolean;
           escavador_credits?: number;
           rate_limit_remaining?: number;
@@ -1075,15 +1076,31 @@ export interface LegalFlowDatabase {
     };
     Enums: {
       // USER-DEFINED enums from real schema
-      event_type: 'audiencia' | 'reuniao' | 'prazo' | 'entrega' | 'compromisso' | 'outros';
-      journey_status: 'ativo' | 'pausado' | 'concluido' | 'cancelado';
-      payment_status: 'pendente' | 'pago' | 'vencido' | 'cancelado';
-      stage_status: 'pending' | 'in_progress' | 'completed' | 'blocked' | 'skipped';
-      ticket_status: 'aberto' | 'em_andamento' | 'resolvido' | 'fechado';
-      priority: 'baixa' | 'media' | 'alta' | 'urgente';
-      channel_type: 'email' | 'whatsapp' | 'telefone' | 'presencial' | 'sistema';
-      activity_status: 'todo' | 'in_progress' | 'done' | 'blocked';
-      conversation_status: 'open' | 'pending' | 'resolved' | 'closed';
+      event_type:
+        | "audiencia"
+        | "reuniao"
+        | "prazo"
+        | "entrega"
+        | "compromisso"
+        | "outros";
+      journey_status: "ativo" | "pausado" | "concluido" | "cancelado";
+      payment_status: "pendente" | "pago" | "vencido" | "cancelado";
+      stage_status:
+        | "pending"
+        | "in_progress"
+        | "completed"
+        | "blocked"
+        | "skipped";
+      ticket_status: "aberto" | "em_andamento" | "resolvido" | "fechado";
+      priority: "baixa" | "media" | "alta" | "urgente";
+      channel_type:
+        | "email"
+        | "whatsapp"
+        | "telefone"
+        | "presencial"
+        | "sistema";
+      activity_status: "todo" | "in_progress" | "done" | "blocked";
+      conversation_status: "open" | "pending" | "resolved" | "closed";
     };
   };
 }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   MessageSquare,
   Send,
@@ -13,35 +13,35 @@ import {
   Settings,
   User,
   Clock,
-  MoreHorizontal
-} from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { 
+  MoreHorizontal,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogDescription,
-  DialogFooter
-} from './ui/dialog';
-import { 
+  DialogFooter,
+} from "./ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-  DropdownMenuSeparator
-} from './ui/dropdown-menu';
-import { Textarea } from './ui/textarea';
-import { Label } from './ui/label';
-import { supabase } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
-import { formatDate } from '../lib/utils';
+  DropdownMenuSeparator,
+} from "./ui/dropdown-menu";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import { formatDate } from "../lib/utils";
 
 interface ThreadLink {
   id: string;
@@ -54,7 +54,7 @@ interface ThreadLink {
 interface AiMessage {
   id: string;
   thread_link_id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   metadata: any;
   created_at: string;
@@ -67,97 +67,101 @@ interface ProcessoChatDrawerProps {
   onNovaConversa?: () => void;
 }
 
-export default function ProcessoChatDrawer({ 
-  numero_cnj, 
-  isOpen, 
-  onClose, 
-  onNovaConversa 
+export default function ProcessoChatDrawer({
+  numero_cnj,
+  isOpen,
+  onClose,
+  onNovaConversa,
 }: ProcessoChatDrawerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [isNovaConversaOpen, setIsNovaConversaOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
   // Query threads do processo
   const { data: threads = [], refetch: refetchThreads } = useQuery({
-    queryKey: ['thread-links', numero_cnj],
+    queryKey: ["thread-links", numero_cnj],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('thread_links')
-        .select('*')
-        .eq('properties->>numero_cnj', numero_cnj)
-        .order('created_at', { ascending: false });
-      
+        .from("thread_links")
+        .select("*")
+        .eq("properties->>numero_cnj", numero_cnj)
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       return data as ThreadLink[];
     },
-    enabled: isOpen
+    enabled: isOpen,
   });
 
   // Query mensagens do thread ativo
-  const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useQuery({
-    queryKey: ['ai-messages', activeThreadId],
+  const {
+    data: messages = [],
+    isLoading: messagesLoading,
+    refetch: refetchMessages,
+  } = useQuery({
+    queryKey: ["ai-messages", activeThreadId],
     queryFn: async () => {
       if (!activeThreadId) return [];
-      
+
       const { data, error } = await supabase
-        .from('ai_messages')
-        .select('*')
-        .eq('thread_link_id', activeThreadId)
-        .order('created_at', { ascending: true });
-      
+        .from("ai_messages")
+        .select("*")
+        .eq("thread_link_id", activeThreadId)
+        .order("created_at", { ascending: true });
+
       if (error) throw error;
       return data as AiMessage[];
     },
-    enabled: !!activeThreadId
+    enabled: !!activeThreadId,
   });
 
   // Query contexto do processo para IA
   const { data: contextoProcesso } = useQuery({
-    queryKey: ['contexto-processo', numero_cnj],
+    queryKey: ["contexto-processo", numero_cnj],
     queryFn: async () => {
       // Buscar dados básicos do processo
       const { data: processo } = await supabase
-        .from('processos')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
+        .from("processos")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
         .single();
 
       // Buscar últimas movimentações
       const { data: ultimasMovimentacoes } = await supabase
-        .from('movimentacoes')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .order('data_movimentacao', { ascending: false })
+        .from("movimentacoes")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .order("data_movimentacao", { ascending: false })
         .limit(10);
 
       // Buscar últimas publicações
       const { data: ultimasPublicacoes } = await supabase
-        .from('vw_publicacoes_unificadas')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .order('occured_at', { ascending: false })
+        .from("vw_publicacoes_unificadas")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .order("occured_at", { ascending: false })
         .limit(10);
 
       // Buscar tarefas abertas
       const { data: tarefasAbertas } = await supabase
-        .from('activities')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .in('status', ['pending', 'in_progress'])
-        .order('due_at', { ascending: true });
+        .from("activities")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .in("status", ["pending", "in_progress"])
+        .order("due_at", { ascending: true });
 
       // Buscar eventos próximos
       const { data: eventosProximos } = await supabase
-        .from('eventos_agenda')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .gte('scheduled_at', new Date().toISOString())
-        .order('scheduled_at', { ascending: true })
+        .from("eventos_agenda")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .gte("scheduled_at", new Date().toISOString())
+        .order("scheduled_at", { ascending: true })
         .limit(5);
 
       return {
@@ -165,25 +169,25 @@ export default function ProcessoChatDrawer({
         ultimasMovimentacoes: ultimasMovimentacoes || [],
         ultimasPublicacoes: ultimasPublicacoes || [],
         tarefasAbertas: tarefasAbertas || [],
-        eventosProximos: eventosProximos || []
+        eventosProximos: eventosProximos || [],
       };
     },
-    enabled: isOpen
+    enabled: isOpen,
   });
 
   // Mutation para criar nova conversa
   const criarConversaMutation = useMutation({
     mutationFn: async ({ titulo, tipo }: { titulo: string; tipo: string }) => {
       const { data, error } = await supabase
-        .from('thread_links')
+        .from("thread_links")
         .insert({
           numero_cnj,
           context_type: tipo,
           properties: {
             numero_cnj,
             titulo,
-            contexto: contextoProcesso
-          }
+            contexto: contextoProcesso,
+          },
         })
         .select()
         .single();
@@ -197,32 +201,38 @@ export default function ProcessoChatDrawer({
       setIsNovaConversaOpen(false);
       toast({
         title: "Nova conversa criada",
-        description: "Conversa criada com sucesso"
+        description: "Conversa criada com sucesso",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Erro",
         description: error.message || "Erro ao criar conversa",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   // Mutation para enviar mensagem
   const enviarMensagemMutation = useMutation({
-    mutationFn: async ({ content, thread_id }: { content: string; thread_id: string }) => {
+    mutationFn: async ({
+      content,
+      thread_id,
+    }: {
+      content: string;
+      thread_id: string;
+    }) => {
       // Inserir mensagem do usuário
       const { data: userMessage, error: userError } = await supabase
-        .from('ai_messages')
+        .from("ai_messages")
         .insert({
           thread_link_id: thread_id,
-          role: 'user',
+          role: "user",
           content,
           metadata: {
             contexto_processo: contextoProcesso,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         })
         .select()
         .single();
@@ -234,16 +244,16 @@ export default function ProcessoChatDrawer({
       const respostaIA = `Entendi sua mensagem sobre o processo ${numero_cnj}. Com base no contexto atual, posso ajudar com análise das movimentações, criação de tarefas, agendamento de eventos e solicitação de documentos. Como posso auxiliar especificamente?`;
 
       const { data: aiMessage, error: aiError } = await supabase
-        .from('ai_messages')
+        .from("ai_messages")
         .insert({
           thread_link_id: thread_id,
-          role: 'assistant',
+          role: "assistant",
           content: respostaIA,
           metadata: {
-            model: 'advoga-ai-v1',
+            model: "advoga-ai-v1",
             tokens_used: 150,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         })
         .select()
         .single();
@@ -254,7 +264,7 @@ export default function ProcessoChatDrawer({
     },
     onSuccess: () => {
       refetchMessages();
-      setNewMessage('');
+      setNewMessage("");
       setIsSending(false);
     },
     onError: (error: any) => {
@@ -262,42 +272,48 @@ export default function ProcessoChatDrawer({
       toast({
         title: "Erro",
         description: error.message || "Erro ao enviar mensagem",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   // Mutation para criar tarefa via IA
   const criarTarefaViaMutation = useMutation({
-    mutationFn: async ({ titulo, descricao, due_date }: { titulo: string; descricao: string; due_date: string }) => {
-      const { data, error } = await supabase
-        .from('activities')
-        .insert({
-          numero_cnj,
-          title: titulo,
-          description: descricao,
-          due_at: due_date,
-          status: 'pending',
-          metadata: {
-            created_via: 'chat',
-            thread_id: activeThreadId
-          }
-        });
-      
+    mutationFn: async ({
+      titulo,
+      descricao,
+      due_date,
+    }: {
+      titulo: string;
+      descricao: string;
+      due_date: string;
+    }) => {
+      const { data, error } = await supabase.from("activities").insert({
+        numero_cnj,
+        title: titulo,
+        description: descricao,
+        due_at: due_date,
+        status: "pending",
+        metadata: {
+          created_via: "chat",
+          thread_id: activeThreadId,
+        },
+      });
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
       toast({
         title: "Tarefa criada",
-        description: "Nova tarefa criada via chat"
+        description: "Nova tarefa criada via chat",
       });
-    }
+    },
   });
 
   // Auto scroll para última mensagem
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Selecionar primeiro thread automaticamente
@@ -309,45 +325,47 @@ export default function ProcessoChatDrawer({
 
   const handleEnviarMensagem = () => {
     if (!newMessage.trim() || !activeThreadId || isSending) return;
-    
+
     setIsSending(true);
     enviarMensagemMutation.mutate({
       content: newMessage.trim(),
-      thread_id: activeThreadId
+      thread_id: activeThreadId,
     });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleEnviarMensagem();
     }
   };
 
   const getThreadTitle = (thread: ThreadLink) => {
-    return thread.properties?.titulo || `Conversa ${formatDate(thread.created_at)}`;
+    return (
+      thread.properties?.titulo || `Conversa ${formatDate(thread.created_at)}`
+    );
   };
 
   const renderMessage = (message: AiMessage) => {
-    const isUser = message.role === 'user';
-    
+    const isUser = message.role === "user";
+
     return (
       <div
         key={message.id}
-        className={`flex gap-3 mb-4 ${isUser ? 'justify-end' : 'justify-start'}`}
+        className={`flex gap-3 mb-4 ${isUser ? "justify-end" : "justify-start"}`}
       >
         {!isUser && (
           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
             <MessageSquare className="w-4 h-4 text-white" />
           </div>
         )}
-        
-        <div className={`max-w-[70%] ${isUser ? 'order-first' : ''}`}>
+
+        <div className={`max-w-[70%] ${isUser ? "order-first" : ""}`}>
           <div
             className={`rounded-lg px-4 py-3 ${
-              isUser 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-white border border-neutral-200'
+              isUser
+                ? "bg-blue-600 text-white"
+                : "bg-white border border-neutral-200"
             }`}
           >
             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -391,8 +409,8 @@ export default function ProcessoChatDrawer({
                 onClick={() => setActiveThreadId(thread.id)}
                 className={`flex-shrink-0 px-3 py-2 text-sm rounded-lg border transition-colors ${
                   activeThreadId === thread.id
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50'
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-50"
                 }`}
               >
                 {getThreadTitle(thread)}
@@ -479,7 +497,7 @@ export default function ProcessoChatDrawer({
                   <Send className="w-4 h-4" />
                 )}
               </Button>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -489,21 +507,33 @@ export default function ProcessoChatDrawer({
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Ações Rápidas</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => {
-                    setNewMessage('Crie uma nova tarefa para revisar as últimas movimentações deste processo.');
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setNewMessage(
+                        "Crie uma nova tarefa para revisar as últimas movimentações deste processo.",
+                      );
+                    }}
+                  >
                     <Target className="w-4 h-4 mr-2" />
                     Criar Tarefa
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    setNewMessage('Agende um compromisso relacionado a este processo.');
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setNewMessage(
+                        "Agende um compromisso relacionado a este processo.",
+                      );
+                    }}
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     Agendar Evento
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    setNewMessage('Solicite um documento específico para este processo.');
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setNewMessage(
+                        "Solicite um documento específico para este processo.",
+                      );
+                    }}
+                  >
                     <FileText className="w-4 h-4 mr-2" />
                     Solicitar Documento
                   </DropdownMenuItem>
@@ -511,11 +541,13 @@ export default function ProcessoChatDrawer({
               </DropdownMenu>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 mt-2">
             <Badge variant="outline" className="text-xs">
               <Clock className="w-3 h-3 mr-1" />
-              {contextoProcesso ? 'Contexto carregado' : 'Carregando contexto...'}
+              {contextoProcesso
+                ? "Contexto carregado"
+                : "Carregando contexto..."}
             </Badge>
             <Badge variant="outline" className="text-xs">
               IA: AdvogaAI v1
@@ -533,26 +565,32 @@ export default function ProcessoChatDrawer({
               Crie uma nova conversa para este processo
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            criarConversaMutation.mutate({
-              titulo: formData.get('titulo') as string,
-              tipo: formData.get('tipo') as string
-            });
-          }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              criarConversaMutation.mutate({
+                titulo: formData.get("titulo") as string,
+                tipo: formData.get("tipo") as string,
+              });
+            }}
+          >
             <div className="space-y-4 py-4">
               <div>
                 <Label htmlFor="titulo">Título da Conversa</Label>
-                <Input 
-                  name="titulo" 
-                  placeholder="Ex: Análise de recursos, Preparação para audiência..." 
-                  required 
+                <Input
+                  name="titulo"
+                  placeholder="Ex: Análise de recursos, Preparação para audiência..."
+                  required
                 />
               </div>
               <div>
                 <Label htmlFor="tipo">Tipo de Conversa</Label>
-                <select name="tipo" className="w-full p-2 border border-neutral-200 rounded-md" required>
+                <select
+                  name="tipo"
+                  className="w-full p-2 border border-neutral-200 rounded-md"
+                  required
+                >
                   <option value="analise">Análise Jurídica</option>
                   <option value="estrategia">Estratégia Processual</option>
                   <option value="documentos">Documentos e Petições</option>
@@ -562,7 +600,11 @@ export default function ProcessoChatDrawer({
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsNovaConversaOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsNovaConversaOpen(false)}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={criarConversaMutation.isPending}>

@@ -72,7 +72,7 @@ export function Clientes() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const itemsPerPage = 20;
@@ -88,7 +88,8 @@ export function Clientes() {
     queryFn: async () => {
       let query = supabase
         .from("clientes")
-        .select(`
+        .select(
+          `
           cpfcnpj,
           nome,
           whatsapp,
@@ -97,12 +98,15 @@ export function Clientes() {
           clientes_processos (
             numero_cnj
           )
-        `)
+        `,
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`cpfcnpj.ilike.%${searchTerm}%,nome.ilike.%${searchTerm}%`);
+        query = query.or(
+          `cpfcnpj.ilike.%${searchTerm}%,nome.ilike.%${searchTerm}%`,
+        );
       }
 
       const { data, error } = await query;
@@ -117,15 +121,15 @@ export function Clientes() {
       // Filtrar por processos
       let filteredData = processedData;
       if (filterProcessos === "com-processos") {
-        filteredData = processedData.filter(c => c.processo_count > 0);
+        filteredData = processedData.filter((c) => c.processo_count > 0);
       } else if (filterProcessos === "sem-processos") {
-        filteredData = processedData.filter(c => c.processo_count === 0);
+        filteredData = processedData.filter((c) => c.processo_count === 0);
       }
 
       // Aplicar paginação
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      
+
       return {
         data: filteredData.slice(startIndex, endIndex),
         total: filteredData.length,
@@ -144,10 +148,7 @@ export function Clientes() {
             .update(clienteData)
             .eq("cpfcnpj", editingCliente.cpfcnpj)
             .select()
-        : await supabase
-            .from("clientes")
-            .insert([clienteData])
-            .select();
+        : await supabase.from("clientes").insert([clienteData]).select();
 
       if (error) throw error;
       return data;
@@ -158,8 +159,8 @@ export function Clientes() {
       setEditingCliente(null);
       toast({
         title: editingCliente ? "Cliente atualizado" : "Cliente criado",
-        description: editingCliente 
-          ? "Cliente atualizado com sucesso" 
+        description: editingCliente
+          ? "Cliente atualizado com sucesso"
           : "Novo cliente adicionado à base",
       });
     },
@@ -175,7 +176,7 @@ export function Clientes() {
   const handleSubmitCliente = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     const clienteData: ClienteFormData = {
       cpfcnpj: formData.get("cpfcnpj") as string,
       nome: formData.get("nome") as string,
@@ -199,7 +200,10 @@ export function Clientes() {
     if (clean.length === 11) {
       return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     } else if (clean.length === 14) {
-      return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+      return clean.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+        "$1.$2.$3/$4-$5",
+      );
     }
     return cpfcnpj;
   };
@@ -221,14 +225,18 @@ export function Clientes() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-heading font-semibold">Clientes</h1>
-            <p className="text-neutral-600 mt-1">Base de clientes e relacionamento</p>
+            <p className="text-neutral-600 mt-1">
+              Base de clientes e relacionamento
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar clientes</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar clientes
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -244,11 +252,15 @@ export function Clientes() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Clientes</h1>
-          <p className="text-neutral-600 mt-1">Base de clientes e relacionamento</p>
+          <p className="text-neutral-600 mt-1">
+            Base de clientes e relacionamento
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+            <Button
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Novo Cliente
             </Button>
@@ -260,14 +272,16 @@ export function Clientes() {
                   {editingCliente ? "Editar Cliente" : "Novo Cliente"}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingCliente 
-                    ? "Atualize as informações do cliente" 
+                  {editingCliente
+                    ? "Atualize as informações do cliente"
                     : "Preencha os dados para cadastrar um novo cliente"}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">CPF/CNPJ</label>
+                  <label className="block text-sm font-medium mb-2">
+                    CPF/CNPJ
+                  </label>
                   <Input
                     name="cpfcnpj"
                     placeholder="000.000.000-00 ou 00.000.000/0000-00"
@@ -286,7 +300,9 @@ export function Clientes() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">WhatsApp</label>
+                  <label className="block text-sm font-medium mb-2">
+                    WhatsApp
+                  </label>
                   <Input
                     name="whatsapp"
                     placeholder="(00) 00000-0000"
@@ -306,7 +322,9 @@ export function Clientes() {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={clienteMutation.isPending}>
-                  {clienteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {clienteMutation.isPending && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   {editingCliente ? "Atualizar" : "Criar"}
                 </Button>
               </DialogFooter>
@@ -361,8 +379,13 @@ export function Clientes() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-              <span className="ml-2 text-neutral-600">Carregando clientes...</span>
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: "var(--brand-700)" }}
+              />
+              <span className="ml-2 text-neutral-600">
+                Carregando clientes...
+              </span>
             </div>
           ) : (
             <Table>
@@ -390,7 +413,10 @@ export function Clientes() {
                   </TableRow>
                 ) : (
                   clientesData.data?.map((cliente) => (
-                    <TableRow key={cliente.cpfcnpj} className="hover:bg-neutral-50">
+                    <TableRow
+                      key={cliente.cpfcnpj}
+                      className="hover:bg-neutral-50"
+                    >
                       <TableCell className="font-mono text-sm">
                         {formatCpfCnpj(cliente.cpfcnpj)}
                       </TableCell>
@@ -403,7 +429,10 @@ export function Clientes() {
                         <div className="flex items-center gap-2">
                           {cliente.whatsapp ? (
                             <>
-                              <Phone className="w-4 h-4" style={{ color: 'var(--success)' }} />
+                              <Phone
+                                className="w-4 h-4"
+                                style={{ color: "var(--success)" }}
+                              />
                               <span className="text-sm">
                                 {formatWhatsApp(cliente.whatsapp)}
                               </span>
@@ -415,10 +444,20 @@ export function Clientes() {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={cliente.processo_count > 0 ? "default" : "secondary"}
-                          style={cliente.processo_count > 0 ? { backgroundColor: 'var(--brand-700)', color: 'white' } : {}}
+                          variant={
+                            cliente.processo_count > 0 ? "default" : "secondary"
+                          }
+                          style={
+                            cliente.processo_count > 0
+                              ? {
+                                  backgroundColor: "var(--brand-700)",
+                                  color: "white",
+                                }
+                              : {}
+                          }
                         >
-                          {cliente.processo_count} processo{cliente.processo_count !== 1 ? 's' : ''}
+                          {cliente.processo_count} processo
+                          {cliente.processo_count !== 1 ? "s" : ""}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -438,7 +477,7 @@ export function Clientes() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleCreateProcess(cliente)}
-                            style={{ color: 'var(--brand-700)' }}
+                            style={{ color: "var(--brand-700)" }}
                           >
                             <FolderPlus className="w-4 h-4 mr-1" />
                             Criar Processo
@@ -469,7 +508,9 @@ export function Clientes() {
       {clientesData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, clientesData.total)} de {clientesData.total} clientes
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, clientesData.total)} de{" "}
+            {clientesData.total} clientes
           </p>
           <div className="flex items-center gap-2">
             <Button

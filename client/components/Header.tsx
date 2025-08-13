@@ -62,7 +62,7 @@ export function Header({
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 text-white px-4 py-2 rounded-lg z-50"
-        style={{ backgroundColor: 'var(--brand-700)' }}
+        style={{ backgroundColor: "var(--brand-700)" }}
       >
         Pular para o conteúdo principal
       </a>
@@ -104,13 +104,15 @@ export function Header({
             size="sm"
             onClick={onChatToggle}
             className="relative text-gray-600 hover:text-gray-900"
-            style={hasUnreadMessages ? { color: 'var(--brand-700)' } : {}}
+            style={hasUnreadMessages ? { color: "var(--brand-700)" } : {}}
             title="Chat"
           >
             <MessageSquare className="w-5 h-5" />
             {hasUnreadMessages && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
-                   style={{ backgroundColor: 'var(--brand-700)' }} />
+              <div
+                className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
+                style={{ backgroundColor: "var(--brand-700)" }}
+              />
             )}
           </Button>
 
@@ -142,8 +144,13 @@ export function Header({
               >
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user?.avatar} alt={user?.email || ""} />
-                  <AvatarFallback className="font-medium"
-                                  style={{ backgroundColor: 'var(--brand-100)', color: 'var(--brand-700)' }}>
+                  <AvatarFallback
+                    className="font-medium"
+                    style={{
+                      backgroundColor: "var(--brand-100)",
+                      color: "var(--brand-700)",
+                    }}
+                  >
                     {user?.email?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -164,7 +171,10 @@ export function Header({
                     <Badge
                       variant="outline"
                       className="text-xs"
-                      style={{ borderColor: 'var(--brand-200)', color: 'var(--brand-700)' }}
+                      style={{
+                        borderColor: "var(--brand-200)",
+                        color: "var(--brand-700)",
+                      }}
                     >
                       {userType === "advogado" ? "Advogado" : "Cliente"}
                     </Badge>

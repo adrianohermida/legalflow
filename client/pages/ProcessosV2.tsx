@@ -32,7 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
 } from "../components/ui/dropdown-menu";
 import {
   Select,
@@ -64,7 +64,7 @@ import {
   Target,
   FileUp,
   Sparkles,
-  Bot
+  Bot,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase, lf } from "../lib/supabase";
@@ -91,16 +91,18 @@ interface Processo {
 export default function ProcessosV2() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterOab, setFilterOab] = useState('todos');
-  const [filterTribunal, setFilterTribunal] = useState('todos');
-  const [selectedProcesso, setSelectedProcesso] = useState<Processo | null>(null);
+  const [filterOab, setFilterOab] = useState("todos");
+  const [filterTribunal, setFilterTribunal] = useState("todos");
+  const [selectedProcesso, setSelectedProcesso] = useState<Processo | null>(
+    null,
+  );
   const [isResumoDialogOpen, setIsResumoDialogOpen] = useState(false);
   const [isFinanceiroDialogOpen, setIsFinanceiroDialogOpen] = useState(false);
   const [isRelatorioDialogOpen, setIsRelatorioDialogOpen] = useState(false);
-  const [novoResumo, setNovoResumo] = useState('');
+  const [novoResumo, setNovoResumo] = useState("");
 
   const itemsPerPage = 20;
 
@@ -109,13 +111,20 @@ export default function ProcessosV2() {
     data: processosData = { data: [], total: 0, totalPages: 0 },
     isLoading: processosLoading,
     error: processosError,
-    refetch: refetchProcessos
+    refetch: refetchProcessos,
   } = useQuery({
-    queryKey: ["processos-v2", searchTerm, currentPage, filterOab, filterTribunal],
+    queryKey: [
+      "processos-v2",
+      searchTerm,
+      currentPage,
+      filterOab,
+      filterTribunal,
+    ],
     queryFn: async () => {
       let query = supabase
         .from("processos")
-        .select(`
+        .select(
+          `
           numero_cnj,
           tribunal_sigla,
           titulo_polo_ativo,
@@ -130,13 +139,15 @@ export default function ProcessosV2() {
           advogados_processos(
             advogados(oab, nome)
           )
-        `, { count: "exact" })
+        `,
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtro de busca
       if (searchTerm) {
         query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%,titulo_polo_passivo.ilike.%${searchTerm}%`
+          `numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%,titulo_polo_passivo.ilike.%${searchTerm}%`,
         );
       }
 
@@ -159,7 +170,8 @@ export default function ProcessosV2() {
             .limit(1);
 
           // Extrair resumo dos dados se disponível
-          const resumo = processo.data?.resumo || processo.data?.capa?.assunto || '';
+          const resumo =
+            processo.data?.resumo || processo.data?.capa?.assunto || "";
 
           return {
             ...processo,
@@ -170,23 +182,25 @@ export default function ProcessosV2() {
             responsavel_nome: processo.advogados_processos[0]?.advogados?.nome,
             ultimo_evento: timelineData?.[0] || null,
           };
-        })
+        }),
       );
 
       // Filtrar por OAB se especificado
       let filteredData = processosComEventos;
       if (filterOab !== "todos") {
         if (filterOab === "sem-oab") {
-          filteredData = processosComEventos.filter(p => !p.responsavel_oab);
+          filteredData = processosComEventos.filter((p) => !p.responsavel_oab);
         } else {
-          filteredData = processosComEventos.filter(p => p.responsavel_oab?.toString() === filterOab);
+          filteredData = processosComEventos.filter(
+            (p) => p.responsavel_oab?.toString() === filterOab,
+          );
         }
       }
 
       // Aplicar paginação
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      
+
       return {
         data: filteredData.slice(startIndex, endIndex),
         total: filteredData.length,
@@ -204,7 +218,7 @@ export default function ProcessosV2() {
         .from("advogados")
         .select("oab, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -218,34 +232,40 @@ export default function ProcessosV2() {
         .from("processos")
         .select("tribunal_sigla")
         .not("tribunal_sigla", "is", null);
-      
+
       if (error) throw error;
-      
-      const uniqueTribunais = [...new Set(data.map(p => p.tribunal_sigla))];
+
+      const uniqueTribunais = [...new Set(data.map((p) => p.tribunal_sigla))];
       return uniqueTribunais.filter(Boolean);
     },
   });
 
   // Mutation para atualizar resumo
   const updateResumoMutation = useMutation({
-    mutationFn: async ({ numero_cnj, resumo }: { numero_cnj: string; resumo: string }) => {
+    mutationFn: async ({
+      numero_cnj,
+      resumo,
+    }: {
+      numero_cnj: string;
+      resumo: string;
+    }) => {
       // Buscar dados atuais
       const { data: processoAtual } = await supabase
-        .from('processos')
-        .select('data')
-        .eq('numero_cnj', numero_cnj)
+        .from("processos")
+        .select("data")
+        .eq("numero_cnj", numero_cnj)
         .single();
 
       // Atualizar com resumo
       const novoData = {
         ...(processoAtual?.data || {}),
-        resumo
+        resumo,
       };
 
       const { data, error } = await supabase
-        .from('processos')
+        .from("processos")
         .update({ data: novoData })
-        .eq('numero_cnj', numero_cnj)
+        .eq("numero_cnj", numero_cnj)
         .select();
 
       if (error) throw error;
@@ -254,12 +274,12 @@ export default function ProcessosV2() {
     onSuccess: () => {
       refetchProcessos();
       setIsResumoDialogOpen(false);
-      setNovoResumo('');
+      setNovoResumo("");
       toast({
         title: "Resumo atualizado",
-        description: "Resumo do processo foi salvo com sucesso"
+        description: "Resumo do processo foi salvo com sucesso",
       });
-    }
+    },
   });
 
   // Mutation para gerar resumo com IA
@@ -267,14 +287,14 @@ export default function ProcessosV2() {
     mutationFn: async ({ numero_cnj }: { numero_cnj: string }) => {
       // Buscar dados do processo
       const { data: processo } = await supabase
-        .from('processos')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
+        .from("processos")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
         .single();
 
       // Simular IA gerando resumo baseado nos dados
       const capa = processo?.data?.capa || {};
-      const resumoIA = `${capa.classe || 'Processo'} na área ${capa.area || 'Jurídica'} sobre ${capa.assunto || 'assunto não especificado'}. Valor da causa: ${capa.valor_causa?.valor_formatado || 'não informado'}. Distribuído em ${capa.data_distribuicao ? formatDate(capa.data_distribuicao) : 'data não informada'}.`;
+      const resumoIA = `${capa.classe || "Processo"} na área ${capa.area || "Jurídica"} sobre ${capa.assunto || "assunto não especificado"}. Valor da causa: ${capa.valor_causa?.valor_formatado || "não informado"}. Distribuído em ${capa.data_distribuicao ? formatDate(capa.data_distribuicao) : "data não informada"}.`;
 
       return resumoIA;
     },
@@ -282,35 +302,36 @@ export default function ProcessosV2() {
       setNovoResumo(resumoIA);
       toast({
         title: "Resumo gerado",
-        description: "IA gerou um resumo automático. Revise e ajuste se necessário."
+        description:
+          "IA gerou um resumo automático. Revise e ajuste se necessário.",
       });
-    }
+    },
   });
 
   // Mutation para atualização de processo
   const syncProcessoMutation = useMutation({
     mutationFn: async ({ numero_cnj }: { numero_cnj: string }) => {
-      const { data: jobId, error } = await lf.rpc('lf_run_sync', {
-        p_numero_cnj: numero_cnj
+      const { data: jobId, error } = await lf.rpc("lf_run_sync", {
+        p_numero_cnj: numero_cnj,
       });
-      
+
       if (error) throw error;
       return jobId;
     },
     onSuccess: (jobId) => {
       toast({
         title: "Atualização iniciada",
-        description: `Sync #${jobId} enfileirado. Dados serão atualizados em breve.`
+        description: `Sync #${jobId} enfileirado. Dados serão atualizados em breve.`,
       });
-    }
+    },
   });
 
   const handleUpdateResumo = () => {
     if (!selectedProcesso || !novoResumo.trim()) return;
-    
+
     updateResumoMutation.mutate({
       numero_cnj: selectedProcesso.numero_cnj,
-      resumo: novoResumo.trim()
+      resumo: novoResumo.trim(),
     });
   };
 
@@ -321,7 +342,9 @@ export default function ProcessosV2() {
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar processos</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar processos
+              </h3>
               <p className="text-neutral-600 mb-4">{processosError.message}</p>
               <Button onClick={() => refetchProcessos()}>
                 Tentar Novamente
@@ -375,11 +398,14 @@ export default function ProcessosV2() {
                 />
               </div>
             </div>
-            
-            <Select value={filterTribunal} onValueChange={(value) => {
-              setFilterTribunal(value);
-              setCurrentPage(1);
-            }}>
+
+            <Select
+              value={filterTribunal}
+              onValueChange={(value) => {
+                setFilterTribunal(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Tribunal" />
               </SelectTrigger>
@@ -393,10 +419,13 @@ export default function ProcessosV2() {
               </SelectContent>
             </Select>
 
-            <Select value={filterOab} onValueChange={(value) => {
-              setFilterOab(value);
-              setCurrentPage(1);
-            }}>
+            <Select
+              value={filterOab}
+              onValueChange={(value) => {
+                setFilterOab(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Responsável" />
               </SelectTrigger>
@@ -404,7 +433,10 @@ export default function ProcessosV2() {
                 <SelectItem value="todos">Todos</SelectItem>
                 <SelectItem value="sem-oab">Sem responsável</SelectItem>
                 {advogados.map((advogado) => (
-                  <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                  <SelectItem
+                    key={advogado.oab}
+                    value={advogado.oab.toString()}
+                  >
                     {advogado.nome}
                   </SelectItem>
                 ))}
@@ -414,9 +446,9 @@ export default function ProcessosV2() {
             <Button
               variant="outline"
               onClick={() => {
-                setSearchTerm('');
-                setFilterTribunal('todos');
-                setFilterOab('todos');
+                setSearchTerm("");
+                setFilterTribunal("todos");
+                setFilterOab("todos");
                 setCurrentPage(1);
               }}
             >
@@ -435,8 +467,13 @@ export default function ProcessosV2() {
         <CardContent className="p-0">
           {processosLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-              <span className="ml-2 text-neutral-600">Carregando processos...</span>
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: "var(--brand-700)" }}
+              />
+              <span className="ml-2 text-neutral-600">
+                Carregando processos...
+              </span>
             </div>
           ) : (
             <Table>
@@ -466,12 +503,15 @@ export default function ProcessosV2() {
                   </TableRow>
                 ) : (
                   processosData.data?.map((processo) => (
-                    <TableRow key={processo.numero_cnj} className="hover:bg-neutral-50">
+                    <TableRow
+                      key={processo.numero_cnj}
+                      className="hover:bg-neutral-50"
+                    >
                       <TableCell className="font-mono text-sm">
-                        <Link 
+                        <Link
                           to={`/processos-v2/${processo.numero_cnj}`}
                           className="hover:underline"
-                          style={{ color: 'var(--brand-700)' }}
+                          style={{ color: "var(--brand-700)" }}
                         >
                           {formatCNJ(processo.numero_cnj)}
                         </Link>
@@ -482,7 +522,8 @@ export default function ProcessosV2() {
                         </div>
                         {processo.titulo_polo_ativo && (
                           <div className="text-xs text-neutral-500 mt-1">
-                            {processo.titulo_polo_ativo} × {processo.titulo_polo_passivo}
+                            {processo.titulo_polo_ativo} ×{" "}
+                            {processo.titulo_polo_passivo}
                           </div>
                         )}
                       </TableCell>
@@ -491,7 +532,9 @@ export default function ProcessosV2() {
                           {processo.resumo ? (
                             <p className="line-clamp-2">{processo.resumo}</p>
                           ) : (
-                            <span className="text-neutral-400 italic">Sem resumo</span>
+                            <span className="text-neutral-400 italic">
+                              Sem resumo
+                            </span>
                           )}
                         </div>
                       </TableCell>
@@ -507,26 +550,32 @@ export default function ProcessosV2() {
                         {processo.responsavel_oab ? (
                           <Badge
                             variant="default"
-                            style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                            style={{
+                              backgroundColor: "var(--brand-700)",
+                              color: "white",
+                            }}
                           >
-                            {processo.responsavel_nome || `OAB ${processo.responsavel_oab}`}
+                            {processo.responsavel_nome ||
+                              `OAB ${processo.responsavel_oab}`}
                           </Badge>
                         ) : (
-                          <Badge variant="destructive">
-                            Sem responsável
-                          </Badge>
+                          <Badge variant="destructive">Sem responsável</Badge>
                         )}
                       </TableCell>
                       <TableCell>
                         {processo.ultimo_evento ? (
                           <div className="text-sm">
-                            <p className="font-medium">{processo.ultimo_evento.tipo}</p>
+                            <p className="font-medium">
+                              {processo.ultimo_evento.tipo}
+                            </p>
                             <p className="text-neutral-500 text-xs">
                               {formatDate(processo.ultimo_evento.data)}
                             </p>
                           </div>
                         ) : (
-                          <span className="text-neutral-400 text-sm">Sem eventos</span>
+                          <span className="text-neutral-400 text-sm">
+                            Sem eventos
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -539,32 +588,36 @@ export default function ProcessosV2() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            
+
                             <DropdownMenuItem asChild>
                               <Link to={`/processos-v2/${processo.numero_cnj}`}>
                                 <Eye className="w-4 h-4 mr-2" />
                                 Ver Detalhes
                               </Link>
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem
                               onClick={() => {
                                 setSelectedProcesso(processo);
-                                setNovoResumo(processo.resumo || '');
+                                setNovoResumo(processo.resumo || "");
                                 setIsResumoDialogOpen(true);
                               }}
                             >
                               <FileText className="w-4 h-4 mr-2" />
                               Editar Resumo
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem
-                              onClick={() => syncProcessoMutation.mutate({ numero_cnj: processo.numero_cnj })}
+                              onClick={() =>
+                                syncProcessoMutation.mutate({
+                                  numero_cnj: processo.numero_cnj,
+                                })
+                              }
                             >
                               <RefreshCw className="w-4 h-4 mr-2" />
                               Atualizar Dados
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem
                               onClick={() => {
                                 setSelectedProcesso(processo);
@@ -574,7 +627,7 @@ export default function ProcessosV2() {
                               <DollarSign className="w-4 h-4 mr-2" />
                               Financeiro
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem
                               onClick={() => {
                                 setSelectedProcesso(processo);
@@ -600,7 +653,9 @@ export default function ProcessosV2() {
       {processosData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, processosData.total)} de {processosData.total} processos
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, processosData.total)} de{" "}
+            {processosData.total} processos
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -634,7 +689,8 @@ export default function ProcessosV2() {
           <DialogHeader>
             <DialogTitle>Editar Resumo do Processo</DialogTitle>
             <DialogDescription>
-              {selectedProcesso && formatCNJ(selectedProcesso.numero_cnj)} - {selectedProcesso?.titulo_polo_ativo}
+              {selectedProcesso && formatCNJ(selectedProcesso.numero_cnj)} -{" "}
+              {selectedProcesso?.titulo_polo_ativo}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -651,7 +707,12 @@ export default function ProcessosV2() {
             <div>
               <Button
                 variant="outline"
-                onClick={() => selectedProcesso && generateAIResumoMutation.mutate({ numero_cnj: selectedProcesso.numero_cnj })}
+                onClick={() =>
+                  selectedProcesso &&
+                  generateAIResumoMutation.mutate({
+                    numero_cnj: selectedProcesso.numero_cnj,
+                  })
+                }
                 disabled={generateAIResumoMutation.isPending}
               >
                 {generateAIResumoMutation.isPending ? (
@@ -664,10 +725,13 @@ export default function ProcessosV2() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsResumoDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsResumoDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={handleUpdateResumo}
               disabled={updateResumoMutation.isPending || !novoResumo.trim()}
             >
@@ -681,7 +745,10 @@ export default function ProcessosV2() {
       </Dialog>
 
       {/* Dialog Financeiro */}
-      <Dialog open={isFinanceiroDialogOpen} onOpenChange={setIsFinanceiroDialogOpen}>
+      <Dialog
+        open={isFinanceiroDialogOpen}
+        onOpenChange={setIsFinanceiroDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Gestão Financeira</DialogTitle>
@@ -696,7 +763,10 @@ export default function ProcessosV2() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsFinanceiroDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsFinanceiroDialogOpen(false)}
+            >
               Fechar
             </Button>
           </DialogFooter>
@@ -704,7 +774,10 @@ export default function ProcessosV2() {
       </Dialog>
 
       {/* Dialog Relatório */}
-      <Dialog open={isRelatorioDialogOpen} onOpenChange={setIsRelatorioDialogOpen}>
+      <Dialog
+        open={isRelatorioDialogOpen}
+        onOpenChange={setIsRelatorioDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Gerar Relatório Personalizado</DialogTitle>
@@ -719,7 +792,10 @@ export default function ProcessosV2() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsRelatorioDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsRelatorioDialogOpen(false)}
+            >
               Fechar
             </Button>
           </DialogFooter>

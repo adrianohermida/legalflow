@@ -28,9 +28,9 @@ interface EscavadorCapaResponse {
 interface EscavadorEnvolvidosResponse {
   envolvidos: Array<{
     nome: string;
-    tipo_pessoa: 'fisica' | 'juridica';
+    tipo_pessoa: "fisica" | "juridica";
     cpf_cnpj: string | null;
-    polo: 'ativo' | 'passivo' | 'outros';
+    polo: "ativo" | "passivo" | "outros";
     papel: string;
     advogados: Array<{
       nome: string;
@@ -64,9 +64,9 @@ interface AdviseCapaResponse {
 interface AdviseSujeitosResponse {
   sujeitos: Array<{
     nome: string;
-    tipo_pessoa: 'fisica' | 'juridica';
+    tipo_pessoa: "fisica" | "juridica";
     cpf_cnpj: string | null;
-    polo: 'ativo' | 'passivo' | 'terceiro';
+    polo: "ativo" | "passivo" | "terceiro";
     papel: string;
     advogados: Array<{
       nome: string;
@@ -104,10 +104,10 @@ interface ProcessDataResult {
   capa?: EscavadorCapaResponse | AdviseCapaResponse;
   partes?: Array<{
     numero_cnj: string;
-    polo: 'ativo' | 'passivo' | 'outros';
+    polo: "ativo" | "passivo" | "outros";
     papel: string;
     nome: string;
-    tipo_pessoa: 'fisica' | 'juridica';
+    tipo_pessoa: "fisica" | "juridica";
     cpfcnpj: string | null;
     is_cliente: boolean;
     advogado_oabs: number[];
@@ -119,34 +119,39 @@ interface ProcessDataResult {
     texto: string;
     anexos: string[] | null;
   }>;
-  publicacoes?: AdvisePublicacoesResponse['publicacoes'];
+  publicacoes?: AdvisePublicacoesResponse["publicacoes"];
 }
 
 class ProcessAPIService {
-  private escavadorBaseUrl = import.meta.env.VITE_ESCAVADOR_API_URL || 'https://api.escavador.com';
-  private escavadorToken = import.meta.env.VITE_ESCAVADOR_TOKEN || '';
-  private adviseBaseUrl = import.meta.env.VITE_ADVISE_API_URL || 'https://api.advise.com.br';
-  private adviseToken = import.meta.env.VITE_ADVISE_TOKEN || '';
-  
+  private escavadorBaseUrl =
+    import.meta.env.VITE_ESCAVADOR_API_URL || "https://api.escavador.com";
+  private escavadorToken = import.meta.env.VITE_ESCAVADOR_TOKEN || "";
+  private adviseBaseUrl =
+    import.meta.env.VITE_ADVISE_API_URL || "https://api.advise.com.br";
+  private adviseToken = import.meta.env.VITE_ADVISE_TOKEN || "";
+
   /**
    * Fetch comprehensive process data from active source
    */
-  async fetchProcessData(numero_cnj: string, fonte: 'advise' | 'escavador'): Promise<ProcessDataResult> {
+  async fetchProcessData(
+    numero_cnj: string,
+    fonte: "advise" | "escavador",
+  ): Promise<ProcessDataResult> {
     try {
-      if (fonte === 'escavador') {
+      if (fonte === "escavador") {
         return await this.fetchFromEscavador(numero_cnj);
       } else {
         return await this.fetchFromAdvise(numero_cnj);
       }
     } catch (error) {
       console.error(`Error fetching from ${fonte}:`, error);
-      
+
       // Fallback to Advise if Escavador fails
-      if (fonte === 'escavador') {
-        console.log('Falling back to Advise...');
+      if (fonte === "escavador") {
+        console.log("Falling back to Advise...");
         return await this.fetchFromAdvise(numero_cnj);
       }
-      
+
       throw error;
     }
   }
@@ -154,30 +159,43 @@ class ProcessAPIService {
   /**
    * Fetch data from Escavador API (Premium)
    */
-  private async fetchFromEscavador(numero_cnj: string): Promise<ProcessDataResult> {
+  private async fetchFromEscavador(
+    numero_cnj: string,
+  ): Promise<ProcessDataResult> {
     const headers = {
-      'Authorization': `Bearer ${this.escavadorToken}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.escavadorToken}`,
+      "Content-Type": "application/json",
     };
 
     // Parallel requests for different data types
-    const [capaResponse, envolvidosResponse, movimentacoesResponse] = await Promise.allSettled([
-      this.escavadorRequest(`/api/v2/processos/numero_cnj/${numero_cnj}`, headers),
-      this.escavadorRequest(`/api/v2/processos/${numero_cnj}/envolvidos`, headers),
-      this.escavadorRequest(`/api/v2/processos/${numero_cnj}/movimentacoes`, headers),
-    ]);
+    const [capaResponse, envolvidosResponse, movimentacoesResponse] =
+      await Promise.allSettled([
+        this.escavadorRequest(
+          `/api/v2/processos/numero_cnj/${numero_cnj}`,
+          headers,
+        ),
+        this.escavadorRequest(
+          `/api/v2/processos/${numero_cnj}/envolvidos`,
+          headers,
+        ),
+        this.escavadorRequest(
+          `/api/v2/processos/${numero_cnj}/movimentacoes`,
+          headers,
+        ),
+      ]);
 
     const result: ProcessDataResult = {};
 
     // Process capa data
-    if (capaResponse.status === 'fulfilled' && capaResponse.value) {
+    if (capaResponse.status === "fulfilled" && capaResponse.value) {
       result.capa = capaResponse.value as EscavadorCapaResponse;
     }
 
     // Process envolvidos (partes)
-    if (envolvidosResponse.status === 'fulfilled' && envolvidosResponse.value) {
-      const envolvidos = envolvidosResponse.value as EscavadorEnvolvidosResponse;
-      result.partes = envolvidos.envolvidos.map(envolvido => ({
+    if (envolvidosResponse.status === "fulfilled" && envolvidosResponse.value) {
+      const envolvidos =
+        envolvidosResponse.value as EscavadorEnvolvidosResponse;
+      result.partes = envolvidos.envolvidos.map((envolvido) => ({
         numero_cnj,
         polo: envolvido.polo,
         papel: envolvido.papel,
@@ -185,14 +203,18 @@ class ProcessAPIService {
         tipo_pessoa: envolvido.tipo_pessoa,
         cpfcnpj: envolvido.cpf_cnpj,
         is_cliente: false, // Will be determined by backend
-        advogado_oabs: envolvido.advogados.map(adv => adv.oab),
+        advogado_oabs: envolvido.advogados.map((adv) => adv.oab),
       }));
     }
 
     // Process movimentações
-    if (movimentacoesResponse.status === 'fulfilled' && movimentacoesResponse.value) {
-      const movimentacoes = movimentacoesResponse.value as EscavadorMovimentacaoResponse;
-      result.movimentacoes = movimentacoes.movimentacoes.map(mov => ({
+    if (
+      movimentacoesResponse.status === "fulfilled" &&
+      movimentacoesResponse.value
+    ) {
+      const movimentacoes =
+        movimentacoesResponse.value as EscavadorMovimentacaoResponse;
+      result.movimentacoes = movimentacoes.movimentacoes.map((mov) => ({
         numero_cnj,
         data: mov.data,
         orgao: mov.orgao,
@@ -207,24 +229,43 @@ class ProcessAPIService {
   /**
    * Fetch data from Advise API (Fallback)
    */
-  private async fetchFromAdvise(numero_cnj: string): Promise<ProcessDataResult> {
+  private async fetchFromAdvise(
+    numero_cnj: string,
+  ): Promise<ProcessDataResult> {
     const headers = {
-      'Authorization': `Bearer ${this.adviseToken}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.adviseToken}`,
+      "Content-Type": "application/json",
     };
 
     // Parallel requests for different data types
-    const [capaResponse, sujeitosResponse, andamentosResponse, publicacoesResponse] = await Promise.allSettled([
-      this.adviseRequest(`/core/v1/processos-clientes/dados-numero-processo?numero_cnj=${numero_cnj}`, headers),
-      this.adviseRequest(`/core/v1/processos-clientes/sujeitos?numero_cnj=${numero_cnj}`, headers),
-      this.adviseRequest(`/core/v1/processos-clientes/andamentos?numero_cnj=${numero_cnj}`, headers),
-      this.adviseRequest(`/core/v1/publicacoes-clientes?numero_cnj=${numero_cnj}`, headers),
+    const [
+      capaResponse,
+      sujeitosResponse,
+      andamentosResponse,
+      publicacoesResponse,
+    ] = await Promise.allSettled([
+      this.adviseRequest(
+        `/core/v1/processos-clientes/dados-numero-processo?numero_cnj=${numero_cnj}`,
+        headers,
+      ),
+      this.adviseRequest(
+        `/core/v1/processos-clientes/sujeitos?numero_cnj=${numero_cnj}`,
+        headers,
+      ),
+      this.adviseRequest(
+        `/core/v1/processos-clientes/andamentos?numero_cnj=${numero_cnj}`,
+        headers,
+      ),
+      this.adviseRequest(
+        `/core/v1/publicacoes-clientes?numero_cnj=${numero_cnj}`,
+        headers,
+      ),
     ]);
 
     const result: ProcessDataResult = {};
 
     // Process capa data
-    if (capaResponse.status === 'fulfilled' && capaResponse.value) {
+    if (capaResponse.status === "fulfilled" && capaResponse.value) {
       const capa = capaResponse.value as AdviseCapaResponse;
       result.capa = {
         area: capa.area,
@@ -234,45 +275,51 @@ class ProcessAPIService {
         orgao_julgador: capa.orgao_julgador,
         data_distribuicao: capa.data_distribuicao,
         data_arquivamento: capa.data_arquivamento,
-        fontes: [{
-          sigla: 'ADVISE',
-          sistema: 'Advise',
-          grau: 1,
-          tribunal: capa.tribunal,
-        }]
+        fontes: [
+          {
+            sigla: "ADVISE",
+            sistema: "Advise",
+            grau: 1,
+            tribunal: capa.tribunal,
+          },
+        ],
       };
     }
 
     // Process sujeitos (partes)
-    if (sujeitosResponse.status === 'fulfilled' && sujeitosResponse.value) {
+    if (sujeitosResponse.status === "fulfilled" && sujeitosResponse.value) {
       const sujeitos = sujeitosResponse.value as AdviseSujeitosResponse;
-      result.partes = sujeitos.sujeitos.map(sujeito => ({
+      result.partes = sujeitos.sujeitos.map((sujeito) => ({
         numero_cnj,
-        polo: sujeito.polo === 'terceiro' ? 'outros' : sujeito.polo,
+        polo: sujeito.polo === "terceiro" ? "outros" : sujeito.polo,
         papel: sujeito.papel,
         nome: sujeito.nome,
         tipo_pessoa: sujeito.tipo_pessoa,
         cpfcnpj: sujeito.cpf_cnpj,
         is_cliente: false, // Will be determined by backend
-        advogado_oabs: sujeito.advogados.map(adv => adv.oab),
+        advogado_oabs: sujeito.advogados.map((adv) => adv.oab),
       }));
     }
 
     // Process andamentos (movimentações)
-    if (andamentosResponse.status === 'fulfilled' && andamentosResponse.value) {
+    if (andamentosResponse.status === "fulfilled" && andamentosResponse.value) {
       const andamentos = andamentosResponse.value as AdviseAndamentosResponse;
-      result.movimentacoes = andamentos.andamentos.map(andamento => ({
+      result.movimentacoes = andamentos.andamentos.map((andamento) => ({
         numero_cnj,
         data: andamento.data,
         orgao: andamento.orgao,
         texto: andamento.movimento,
-        anexos: andamento.anexos?.map(anexo => anexo.nome) || null,
+        anexos: andamento.anexos?.map((anexo) => anexo.nome) || null,
       }));
     }
 
     // Process publicações
-    if (publicacoesResponse.status === 'fulfilled' && publicacoesResponse.value) {
-      const publicacoes = publicacoesResponse.value as AdvisePublicacoesResponse;
+    if (
+      publicacoesResponse.status === "fulfilled" &&
+      publicacoesResponse.value
+    ) {
+      const publicacoes =
+        publicacoesResponse.value as AdvisePublicacoesResponse;
       result.publicacoes = publicacoes.publicacoes;
     }
 
@@ -284,14 +331,18 @@ class ProcessAPIService {
    */
   async markPublicacaoLida(publicacaoId: number, lido: boolean): Promise<void> {
     const headers = {
-      'Authorization': `Bearer ${this.adviseToken}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.adviseToken}`,
+      "Content-Type": "application/json",
     };
 
-    await this.adviseRequest(`/core/v1/publicacoes-clientes/${publicacaoId}`, headers, {
-      method: 'PUT',
-      body: JSON.stringify({ lido }),
-    });
+    await this.adviseRequest(
+      `/core/v1/publicacoes-clientes/${publicacaoId}`,
+      headers,
+      {
+        method: "PUT",
+        body: JSON.stringify({ lido }),
+      },
+    );
   }
 
   /**
@@ -299,12 +350,15 @@ class ProcessAPIService {
    */
   async downloadAnexo(anexoId: string): Promise<Blob> {
     const headers = {
-      'Authorization': `Bearer ${this.adviseToken}`,
+      Authorization: `Bearer ${this.adviseToken}`,
     };
 
-    const response = await fetch(`${this.adviseBaseUrl}/core/v1/anexo-fonte-processo/${anexoId}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${this.adviseBaseUrl}/core/v1/anexo-fonte-processo/${anexoId}`,
+      {
+        headers,
+      },
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to download anexo: ${response.statusText}`);
@@ -323,8 +377,8 @@ class ProcessAPIService {
   }> {
     try {
       const headers = {
-        'Authorization': `Bearer ${this.escavadorToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.escavadorToken}`,
+        "Content-Type": "application/json",
       };
 
       const response = await fetch(`${this.escavadorBaseUrl}/api/v2/status`, {
@@ -336,14 +390,16 @@ class ProcessAPIService {
       }
 
       const data = await response.json();
-      
+
       return {
         available: true,
         credits: data.credits || 0,
-        rate_limit_remaining: parseInt(response.headers.get('X-RateLimit-Remaining') || '0'),
+        rate_limit_remaining: parseInt(
+          response.headers.get("X-RateLimit-Remaining") || "0",
+        ),
       };
     } catch (error) {
-      console.error('Error checking Escavador status:', error);
+      console.error("Error checking Escavador status:", error);
       return { available: false, credits: 0, rate_limit_remaining: 0 };
     }
   }
@@ -351,18 +407,21 @@ class ProcessAPIService {
   /**
    * Setup webhook callback for Escavador real-time updates
    */
-  async setupEscavadorCallback(numero_cnj: string, callbackUrl: string): Promise<void> {
+  async setupEscavadorCallback(
+    numero_cnj: string,
+    callbackUrl: string,
+  ): Promise<void> {
     const headers = {
-      'Authorization': `Bearer ${this.escavadorToken}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.escavadorToken}`,
+      "Content-Type": "application/json",
     };
 
-    await this.escavadorRequest('/api/v2/webhooks', headers, {
-      method: 'POST',
+    await this.escavadorRequest("/api/v2/webhooks", headers, {
+      method: "POST",
       body: JSON.stringify({
         numero_cnj,
         callback_url: callbackUrl,
-        events: ['movimentacao', 'publicacao', 'audiencia'],
+        events: ["movimentacao", "publicacao", "audiencia"],
       }),
     });
   }
@@ -370,9 +429,13 @@ class ProcessAPIService {
   /**
    * Generic Escavador API request with rate limiting
    */
-  private async escavadorRequest(endpoint: string, headers: Record<string, string>, options?: RequestInit): Promise<any> {
+  private async escavadorRequest(
+    endpoint: string,
+    headers: Record<string, string>,
+    options?: RequestInit,
+  ): Promise<any> {
     // Rate limiting: 500 requests per minute
-    await this.rateLimiter('escavador', 500, 60000);
+    await this.rateLimiter("escavador", 500, 60000);
 
     const response = await fetch(`${this.escavadorBaseUrl}${endpoint}`, {
       ...options,
@@ -381,7 +444,9 @@ class ProcessAPIService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Escavador API error: ${response.status} - ${errorData.message || response.statusText}`);
+      throw new Error(
+        `Escavador API error: ${response.status} - ${errorData.message || response.statusText}`,
+      );
     }
 
     return response.json();
@@ -390,7 +455,11 @@ class ProcessAPIService {
   /**
    * Generic Advise API request
    */
-  private async adviseRequest(endpoint: string, headers: Record<string, string>, options?: RequestInit): Promise<any> {
+  private async adviseRequest(
+    endpoint: string,
+    headers: Record<string, string>,
+    options?: RequestInit,
+  ): Promise<any> {
     const response = await fetch(`${this.adviseBaseUrl}${endpoint}`, {
       ...options,
       headers,
@@ -398,7 +467,9 @@ class ProcessAPIService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Advise API error: ${response.status} - ${errorData.message || response.statusText}`);
+      throw new Error(
+        `Advise API error: ${response.status} - ${errorData.message || response.statusText}`,
+      );
     }
 
     return response.json();
@@ -407,9 +478,14 @@ class ProcessAPIService {
   /**
    * Simple rate limiter
    */
-  private rateLimiters: Map<string, { requests: number; resetTime: number }> = new Map();
+  private rateLimiters: Map<string, { requests: number; resetTime: number }> =
+    new Map();
 
-  private async rateLimiter(key: string, maxRequests: number, windowMs: number): Promise<void> {
+  private async rateLimiter(
+    key: string,
+    maxRequests: number,
+    windowMs: number,
+  ): Promise<void> {
     const now = Date.now();
     const limiter = this.rateLimiters.get(key);
 
@@ -420,7 +496,7 @@ class ProcessAPIService {
 
     if (limiter.requests >= maxRequests) {
       const waitTime = limiter.resetTime - now;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
       return this.rateLimiter(key, maxRequests, windowMs);
     }
 
@@ -431,7 +507,7 @@ class ProcessAPIService {
    * Normalize CNJ format
    */
   normalizeCNJ(cnj: string): string {
-    return cnj.replace(/\D/g, '');
+    return cnj.replace(/\D/g, "");
   }
 
   /**
@@ -447,27 +523,33 @@ export const processAPIService = new ProcessAPIService();
 
 // Utility functions
 export const formatCNJ = (cnj: string): string => {
-  const clean = cnj.replace(/\D/g, '');
+  const clean = cnj.replace(/\D/g, "");
   if (clean.length === 20) {
-    return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, '$1-$2.$3.$4.$5.$6');
+    return clean.replace(
+      /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+      "$1-$2.$3.$4.$5.$6",
+    );
   }
   return cnj;
 };
 
 export const formatCPFCNPJ = (cpfcnpj: string): string => {
-  const clean = cpfcnpj.replace(/\D/g, '');
+  const clean = cpfcnpj.replace(/\D/g, "");
   if (clean.length === 11) {
-    return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   } else if (clean.length === 14) {
-    return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    return clean.replace(
+      /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+      "$1.$2.$3/$4-$5",
+    );
   }
   return cpfcnpj;
 };
 
 export const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('pt-BR');
+  return new Date(dateString).toLocaleDateString("pt-BR");
 };
 
 export const formatDateTime = (dateString: string): string => {
-  return new Date(dateString).toLocaleString('pt-BR');
+  return new Date(dateString).toLocaleString("pt-BR");
 };

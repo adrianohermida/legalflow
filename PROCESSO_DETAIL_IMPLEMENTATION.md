@@ -7,7 +7,8 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 ### **✅ COMPLETED FEATURES**
 
 #### **🎯 Core Page Structure**
-- **Route**: `/processos/:numero_cnj` 
+
+- **Route**: `/processos/:numero_cnj`
 - **Layout**: Two-column responsive design (Context & Timeline | Settings & Premium)
 - **Sticky Header**: CNJ copy, Tribunal, Status, Last update, Quick actions
 - **Search**: Local filtering across all tabs
@@ -16,6 +17,7 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 #### **📊 Comprehensive Data Views**
 
 **1. Capa (Cover)**
+
 - Area, Classe, Assunto display
 - Valor da Causa formatting
 - Órgão Julgador and key dates
@@ -23,12 +25,14 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 - Empty state with fetch suggestions
 
 **2. Audiências (Hearings)**
+
 - Date, Type, Status, Participants table
 - Calendar integration actions
 - Timeline-based display
 
 **3. Partes & Representantes (Parties)**
-- Grouped by Polo (Ativo/Passivo/Outros)  
+
+- Grouped by Polo (Ativo/Passivo/Outros)
 - Person type indicators (física/jurídica)
 - CPF/CNPJ formatting and display
 - OAB linking for lawyers
@@ -36,18 +40,21 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 - Quick actions (Create Ticket/Activity)
 
 **4. Movimentações (Timeline)**
+
 - Unified timeline with infinite pagination (20/page)
 - Date, Organ, Text, Attachments
 - Source indication (Advise/Escavador)
 - Contextual actions on each movement
 
 **5. Publicações (Publications)**
+
 - Diário, Date, Summary, Keywords
 - Read/Unread status management
 - Mark as read via Advise API
 - Quick actions for ticket/activity creation
 
 **6. Documentos (Documents)**
+
 - Official attachments (Advise downloads)
 - Internal library (public.documents)
 - File size and metadata display
@@ -56,14 +63,16 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 #### **🔧 API Integrations**
 
 **Escavador Premium Integration**
+
 - Complete process cover data
-- Detailed parties and representatives  
+- Detailed parties and representatives
 - Rich movement history
 - Rate limiting (500 req/min)
 - Real-time webhook callbacks
 - Credit monitoring and fallback
 
 **Advise Fallback Integration**
+
 - Basic process data
 - Parties and subjects
 - Movements and publications
@@ -74,6 +83,7 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 #### **💎 Premium Features**
 
 **Monitoring Toggle**
+
 - Premium (Escavador) vs Standard (Advise)
 - Automatic source switching
 - Credit and rate-limit monitoring
@@ -81,6 +91,7 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 - Visual indicators for active source
 
 **Auto-Normalization Pipeline**
+
 - Atomic upserts to preserve data integrity
 - Cross-schema relationship management
 - Automatic client/lawyer linking
@@ -89,16 +100,19 @@ Comprehensive 360° process view page with premium Escavador/Advise integrations
 #### **⚡ Quick Actions & Workflows**
 
 **Header Actions**
+
 - Copy CNJ to clipboard
 - Instant data refresh
 - Create: Ticket, Activity, Chat thread, Journey
 
 **Contextual Actions**
+
 - Per-movement: Ticket, Activity, Chat
-- Per-publication: Mark read, Ticket, Activity  
+- Per-publication: Mark read, Ticket, Activity
 - Per-party: Promote to client, Ticket, Activity
 
 **Data Management**
+
 - Real-time status indicators
 - Auto-save preferences
 - Intelligent caching strategies
@@ -137,6 +151,7 @@ legalflow.monitoring_settings {
 ```
 
 #### **Enhanced Public Schema**
+
 - `public.processos.data` JSON field for normalized capa
 - Indexed queries by numero_cnj for performance
 - Cross-schema foreign key relationships maintained
@@ -144,6 +159,7 @@ legalflow.monitoring_settings {
 ### **🔌 API SERVICE ARCHITECTURE**
 
 #### **ProcessAPIService Class**
+
 - Dual-source data fetching (Escavador + Advise)
 - Automatic fallback mechanisms
 - Rate limiting and credit management
@@ -151,6 +167,7 @@ legalflow.monitoring_settings {
 - Error handling and retry logic
 
 #### **Key Methods**
+
 ```typescript
 fetchProcessData(numero_cnj, fonte): Promise<ProcessDataResult>
 markPublicacaoLida(id, lido): Promise<void>
@@ -161,6 +178,7 @@ setupEscavadorCallback(cnj, url): Promise<void>
 ### **🎨 UX/UI IMPLEMENTATION**
 
 #### **Fresh-like Design System**
+
 - Consistent with Phase 2 brand tokens
 - Responsive grid layout (1/3 + 2/3 columns)
 - Hover states and micro-interactions
@@ -168,12 +186,14 @@ setupEscavadorCallback(cnj, url): Promise<void>
 - Error states with recovery options
 
 #### **Progressive Loading**
+
 - Tab-based content loading
 - Skeleton states during fetch
 - Partial updates without full reload
 - Background refresh indicators
 
 #### **Accessibility Features**
+
 - ARIA labels on action buttons
 - Keyboard navigation support
 - Screen reader compatibility
@@ -182,12 +202,14 @@ setupEscavadorCallback(cnj, url): Promise<void>
 ### **⚙️ PREMIUM & BILLING LOGIC**
 
 #### **Subscription Management**
+
 - Adimplente → Escavador ON (full premium features)
 - Em atraso → Escavador OFF (Advise fallback only)
 - Real-time plan status checking
 - Graceful degradation of features
 
 #### **Cost Optimization**
+
 - Intelligent caching to reduce API calls
 - Debounced requests for user interactions
 - Bulk operations where possible
@@ -196,6 +218,7 @@ setupEscavadorCallback(cnj, url): Promise<void>
 ### **🧪 TESTING & VALIDATION**
 
 #### **Acceptance Criteria ✅**
+
 1. **Data Fetching**: Opens CNJ without data → fetches from active source → populates all tabs
 2. **Premium Toggle**: Switches source and re-executes fetch with proper fallback
 3. **Normalization**: Parties registered in legalflow.partes_processo with lawyer linking
@@ -204,6 +227,7 @@ setupEscavadorCallback(cnj, url): Promise<void>
 6. **Billing Integration**: Contract status enforcement works correctly
 
 #### **Performance Criteria ✅**
+
 - Local queries use numero_cnj indexes
 - External APIs show loading states per card
 - Rate limits respected with user feedback
@@ -235,20 +259,23 @@ Environment:
 ### **🚀 DEPLOYMENT NOTES**
 
 #### **Environment Variables Required**
+
 ```bash
 VITE_ESCAVADOR_API_URL=https://api.escavador.com
 VITE_ESCAVADOR_TOKEN=your-bearer-token
-VITE_ADVISE_API_URL=https://api.advise.com.br  
+VITE_ADVISE_API_URL=https://api.advise.com.br
 VITE_ADVISE_TOKEN=your-bearer-token
 ```
 
 #### **Database Migrations Needed**
+
 1. Create `legalflow.partes_processo` table
 2. Create `legalflow.monitoring_settings` table
 3. Add indexes on numero_cnj columns for performance
 4. Set up foreign key constraints
 
 #### **API Rate Limits**
+
 - Escavador: 500 requests/minute
 - Advise: No documented limits (monitor usage)
 - Implement client-side queuing if needed
@@ -256,6 +283,7 @@ VITE_ADVISE_TOKEN=your-bearer-token
 ### **🔮 FUTURE ENHANCEMENTS**
 
 #### **Phase 3+ Opportunities**
+
 - Real-time WebSocket updates
 - Advanced search and filtering
 - Document OCR and AI analysis
@@ -264,6 +292,7 @@ VITE_ADVISE_TOKEN=your-bearer-token
 - Bulk process operations
 
 #### **Premium Feature Extensions**
+
 - Predictive analytics on movements
 - AI-powered case insights
 - Custom automation rules
@@ -274,6 +303,7 @@ VITE_ADVISE_TOKEN=your-bearer-token
 ## **🎯 IMPLEMENTATION STATUS: 100% COMPLETE**
 
 The ProcessoDetail page provides a comprehensive 360° view of legal processes with:
+
 - ✅ Full premium/standard toggle functionality
 - ✅ Complete API integrations (Escavador + Advise)
 - ✅ Normalized data persistence

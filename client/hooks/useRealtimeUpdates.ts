@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
 
 interface RealtimeUpdatesConfig {
   numero_cnj?: string;
@@ -21,7 +21,7 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     enableAiMessages = false,
     enableActivities = false,
     enableEventos = false,
-    enableDocuments = false
+    enableDocuments = false,
   } = config;
 
   useEffect(() => {
@@ -30,26 +30,30 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     // Subscription para movimentações
     if (enableMovimentacoes) {
       const movimentacoesSubscription = supabase
-        .channel(`movimentacoes-${numero_cnj || 'all'}`)
+        .channel(`movimentacoes-${numero_cnj || "all"}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'movimentacoes',
-            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` })
+            event: "*",
+            schema: "public",
+            table: "movimentacoes",
+            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` }),
           },
           (payload) => {
-            console.log('Movimentação atualizada:', payload);
-            
+            console.log("Movimentação atualizada:", payload);
+
             // Invalidar queries relacionadas
-            queryClient.invalidateQueries({ queryKey: ['movimentacoes'] });
-            queryClient.invalidateQueries({ queryKey: ['vw_timeline_processo'] });
-            
+            queryClient.invalidateQueries({ queryKey: ["movimentacoes"] });
+            queryClient.invalidateQueries({
+              queryKey: ["vw_timeline_processo"],
+            });
+
             if (numero_cnj) {
-              queryClient.invalidateQueries({ queryKey: ['movimentacoes', numero_cnj] });
+              queryClient.invalidateQueries({
+                queryKey: ["movimentacoes", numero_cnj],
+              });
             }
-          }
+          },
         )
         .subscribe();
 
@@ -59,26 +63,30 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     // Subscription para publicações
     if (enablePublicacoes) {
       const publicacoesSubscription = supabase
-        .channel(`publicacoes-${numero_cnj || 'all'}`)
+        .channel(`publicacoes-${numero_cnj || "all"}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'publicacoes',
-            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` })
+            event: "*",
+            schema: "public",
+            table: "publicacoes",
+            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` }),
           },
           (payload) => {
-            console.log('Publicação atualizada:', payload);
-            
+            console.log("Publicação atualizada:", payload);
+
             // Invalidar queries relacionadas
-            queryClient.invalidateQueries({ queryKey: ['publicacoes'] });
-            queryClient.invalidateQueries({ queryKey: ['publicacoes-unificadas'] });
-            
+            queryClient.invalidateQueries({ queryKey: ["publicacoes"] });
+            queryClient.invalidateQueries({
+              queryKey: ["publicacoes-unificadas"],
+            });
+
             if (numero_cnj) {
-              queryClient.invalidateQueries({ queryKey: ['publicacoes-unificadas', numero_cnj] });
+              queryClient.invalidateQueries({
+                queryKey: ["publicacoes-unificadas", numero_cnj],
+              });
             }
-          }
+          },
         )
         .subscribe();
 
@@ -88,27 +96,27 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     // Subscription para mensagens de IA
     if (enableAiMessages) {
       const aiMessagesSubscription = supabase
-        .channel('ai-messages')
+        .channel("ai-messages")
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'ai_messages'
+            event: "*",
+            schema: "public",
+            table: "ai_messages",
           },
           (payload) => {
-            console.log('Mensagem IA atualizada:', payload);
-            
+            console.log("Mensagem IA atualizada:", payload);
+
             // Invalidar queries de mensagens
-            queryClient.invalidateQueries({ queryKey: ['ai-messages'] });
-            
+            queryClient.invalidateQueries({ queryKey: ["ai-messages"] });
+
             // Se payload contém thread_link_id, invalidar específicamente
-            if (payload.new && 'thread_link_id' in payload.new) {
+            if (payload.new && "thread_link_id" in payload.new) {
               queryClient.invalidateQueries({
-                queryKey: ['ai-messages', (payload.new as any).thread_link_id]
+                queryKey: ["ai-messages", (payload.new as any).thread_link_id],
               });
             }
-          }
+          },
         )
         .subscribe();
 
@@ -118,25 +126,27 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     // Subscription para atividades/tarefas
     if (enableActivities) {
       const activitiesSubscription = supabase
-        .channel(`activities-${numero_cnj || 'all'}`)
+        .channel(`activities-${numero_cnj || "all"}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'legalflow',
-            table: 'activities',
-            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` })
+            event: "*",
+            schema: "legalflow",
+            table: "activities",
+            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` }),
           },
           (payload) => {
-            console.log('Atividade atualizada:', payload);
-            
+            console.log("Atividade atualizada:", payload);
+
             // Invalidar queries relacionadas
-            queryClient.invalidateQueries({ queryKey: ['activities'] });
-            
+            queryClient.invalidateQueries({ queryKey: ["activities"] });
+
             if (numero_cnj) {
-              queryClient.invalidateQueries({ queryKey: ['activities', numero_cnj] });
+              queryClient.invalidateQueries({
+                queryKey: ["activities", numero_cnj],
+              });
             }
-          }
+          },
         )
         .subscribe();
 
@@ -146,26 +156,28 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     // Subscription para eventos da agenda
     if (enableEventos) {
       const eventosSubscription = supabase
-        .channel(`eventos-${numero_cnj || 'all'}`)
+        .channel(`eventos-${numero_cnj || "all"}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'legalflow',
-            table: 'eventos_agenda',
-            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` })
+            event: "*",
+            schema: "legalflow",
+            table: "eventos_agenda",
+            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` }),
           },
           (payload) => {
-            console.log('Evento atualizado:', payload);
-            
+            console.log("Evento atualizado:", payload);
+
             // Invalidar queries relacionadas
-            queryClient.invalidateQueries({ queryKey: ['eventos_agenda'] });
-            queryClient.invalidateQueries({ queryKey: ['agenda'] });
-            
+            queryClient.invalidateQueries({ queryKey: ["eventos_agenda"] });
+            queryClient.invalidateQueries({ queryKey: ["agenda"] });
+
             if (numero_cnj) {
-              queryClient.invalidateQueries({ queryKey: ['eventos_agenda', numero_cnj] });
+              queryClient.invalidateQueries({
+                queryKey: ["eventos_agenda", numero_cnj],
+              });
             }
-          }
+          },
         )
         .subscribe();
 
@@ -175,28 +187,32 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     // Subscription para documentos
     if (enableDocuments) {
       const documentsSubscription = supabase
-        .channel(`documents-${numero_cnj || 'all'}`)
+        .channel(`documents-${numero_cnj || "all"}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'documents'
+            event: "*",
+            schema: "public",
+            table: "documents",
           },
           (payload) => {
-            console.log('Documento atualizado:', payload);
-            
+            console.log("Documento atualizado:", payload);
+
             // Verificar se documento é relacionado ao processo
-            const documentCnj = (payload.new as any)?.metadata?.numero_cnj || (payload.old as any)?.metadata?.numero_cnj;
-            
+            const documentCnj =
+              (payload.new as any)?.metadata?.numero_cnj ||
+              (payload.old as any)?.metadata?.numero_cnj;
+
             if (!numero_cnj || documentCnj === numero_cnj) {
-              queryClient.invalidateQueries({ queryKey: ['documentos'] });
-              
+              queryClient.invalidateQueries({ queryKey: ["documentos"] });
+
               if (numero_cnj) {
-                queryClient.invalidateQueries({ queryKey: ['documentos', numero_cnj] });
+                queryClient.invalidateQueries({
+                  queryKey: ["documentos", numero_cnj],
+                });
               }
             }
-          }
+          },
         )
         .subscribe();
 
@@ -204,24 +220,26 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
 
       // Subscription para petições
       const peticoesSubscription = supabase
-        .channel(`peticoes-${numero_cnj || 'all'}`)
+        .channel(`peticoes-${numero_cnj || "all"}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'peticoes',
-            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` })
+            event: "*",
+            schema: "public",
+            table: "peticoes",
+            ...(numero_cnj && { filter: `numero_cnj=eq.${numero_cnj}` }),
           },
           (payload) => {
-            console.log('Petição atualizada:', payload);
-            
-            queryClient.invalidateQueries({ queryKey: ['documentos'] });
-            
+            console.log("Petição atualizada:", payload);
+
+            queryClient.invalidateQueries({ queryKey: ["documentos"] });
+
             if (numero_cnj) {
-              queryClient.invalidateQueries({ queryKey: ['documentos', numero_cnj] });
+              queryClient.invalidateQueries({
+                queryKey: ["documentos", numero_cnj],
+              });
             }
-          }
+          },
         )
         .subscribe();
 
@@ -233,18 +251,20 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
       const threadLinksSubscription = supabase
         .channel(`thread-links-${numero_cnj}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'thread_links',
-            filter: `properties->>numero_cnj=eq.${numero_cnj}`
+            event: "*",
+            schema: "public",
+            table: "thread_links",
+            filter: `properties->>numero_cnj=eq.${numero_cnj}`,
           },
           (payload) => {
-            console.log('Thread link atualizado:', payload);
-            
-            queryClient.invalidateQueries({ queryKey: ['thread-links', numero_cnj] });
-          }
+            console.log("Thread link atualizado:", payload);
+
+            queryClient.invalidateQueries({
+              queryKey: ["thread-links", numero_cnj],
+            });
+          },
         )
         .subscribe();
 
@@ -256,20 +276,20 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
       const monitoringSubscription = supabase
         .channel(`monitoring-${numero_cnj}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'legalflow',
-            table: 'monitoring_settings',
-            filter: `numero_cnj=eq.${numero_cnj}`
+            event: "*",
+            schema: "legalflow",
+            table: "monitoring_settings",
+            filter: `numero_cnj=eq.${numero_cnj}`,
           },
           (payload) => {
-            console.log('Configuração de monitoramento atualizada:', payload);
-            
-            queryClient.invalidateQueries({ 
-              queryKey: ['monitoring-settings', numero_cnj] 
+            console.log("Configuração de monitoramento atualizada:", payload);
+
+            queryClient.invalidateQueries({
+              queryKey: ["monitoring-settings", numero_cnj],
             });
-          }
+          },
         )
         .subscribe();
 
@@ -278,7 +298,7 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
 
     // Cleanup function
     return () => {
-      subscriptions.forEach(subscription => {
+      subscriptions.forEach((subscription) => {
         supabase.removeChannel(subscription);
       });
     };
@@ -290,7 +310,7 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
     enableAiMessages,
     enableActivities,
     enableEventos,
-    enableDocuments
+    enableDocuments,
   ]);
 }
 
@@ -303,7 +323,7 @@ export function useProcessoRealtimeUpdates(numero_cnj: string) {
     enableAiMessages: true,
     enableActivities: true,
     enableEventos: true,
-    enableDocuments: true
+    enableDocuments: true,
   });
 }
 
@@ -311,7 +331,7 @@ export function useProcessoRealtimeUpdates(numero_cnj: string) {
 export function useInboxRealtimeUpdates() {
   return useRealtimeUpdates({
     enableMovimentacoes: true,
-    enablePublicacoes: true
+    enablePublicacoes: true,
   });
 }
 
@@ -319,7 +339,7 @@ export function useInboxRealtimeUpdates() {
 export function useChatRealtimeUpdates(numero_cnj?: string) {
   return useRealtimeUpdates({
     numero_cnj,
-    enableAiMessages: true
+    enableAiMessages: true,
   });
 }
 
@@ -327,7 +347,7 @@ export function useChatRealtimeUpdates(numero_cnj?: string) {
 export function useAgendaRealtimeUpdates() {
   return useRealtimeUpdates({
     enableEventos: true,
-    enableActivities: true
+    enableActivities: true,
   });
 }
 

@@ -17,11 +17,13 @@ import { QuickSetup } from "./pages/QuickSetup";
 import { ModeSelector } from "./pages/ModeSelector";
 import { supabaseConfigured } from "./lib/supabase";
 import { useState, useEffect } from "react";
-import { AppErrorBoundary, PageErrorBoundary } from "./components/ErrorBoundary";
+import {
+  AppErrorBoundary,
+  PageErrorBoundary,
+} from "./components/ErrorBoundary";
 import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
 import { runEnumConsistencyCheck } from "./lib/enum-validator";
-
 
 // Initialize development data only when Supabase is configured
 if (supabaseConfigured) {
@@ -656,8 +658,8 @@ export default function App() {
 
   // Run schema validation on app startup
   useEffect(() => {
-    validateSchemaOnStartup().catch(error => {
-      console.error('Schema validation failed on startup:', error);
+    validateSchemaOnStartup().catch((error) => {
+      console.error("Schema validation failed on startup:", error);
     });
 
     // Run enum consistency check

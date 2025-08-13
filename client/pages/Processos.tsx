@@ -81,7 +81,7 @@ export function Processos() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAtribuirDialogOpen, setIsAtribuirDialogOpen] = useState(false);
   const [selectedProcesso, setSelectedProcesso] = useState<string | null>(null);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -94,12 +94,20 @@ export function Processos() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["processos", searchTerm, filterOab, filterTribunal, filterStatus, currentPage],
+    queryKey: [
+      "processos",
+      searchTerm,
+      filterOab,
+      filterTribunal,
+      filterStatus,
+      currentPage,
+    ],
     queryFn: async () => {
       // P2.2 - Query unificada conforme especificação
       let query = supabase
         .from("processos")
-        .select(`
+        .select(
+          `
           numero_cnj,
           tribunal_sigla,
           titulo_polo_ativo,
@@ -117,12 +125,15 @@ export function Processos() {
               nome
             )
           )
-        `)
+        `,
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%,titulo_polo_passivo.ilike.%${searchTerm}%`);
+        query = query.or(
+          `numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%,titulo_polo_passivo.ilike.%${searchTerm}%`,
+        );
       }
 
       if (filterTribunal !== "todos") {
@@ -150,23 +161,25 @@ export function Processos() {
             responsavel_nome: processo.advogados_processos[0]?.advogados?.nome,
             ultimo_evento: timelineData?.[0] || null,
           };
-        })
+        }),
       );
 
       // Filtrar por OAB se especificado
       let filteredData = processosComEventos;
       if (filterOab !== "todos") {
         if (filterOab === "sem-oab") {
-          filteredData = processosComEventos.filter(p => !p.responsavel_oab);
+          filteredData = processosComEventos.filter((p) => !p.responsavel_oab);
         } else {
-          filteredData = processosComEventos.filter(p => p.responsavel_oab?.toString() === filterOab);
+          filteredData = processosComEventos.filter(
+            (p) => p.responsavel_oab?.toString() === filterOab,
+          );
         }
       }
 
       // Aplicar paginação
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      
+
       return {
         data: filteredData.slice(startIndex, endIndex),
         total: filteredData.length,
@@ -184,7 +197,7 @@ export function Processos() {
         .from("advogados")
         .select("oab, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -198,10 +211,10 @@ export function Processos() {
         .from("processos")
         .select("tribunal_sigla")
         .not("tribunal_sigla", "is", null);
-      
+
       if (error) throw error;
-      
-      const uniqueTribunais = [...new Set(data.map(p => p.tribunal_sigla))];
+
+      const uniqueTribunais = [...new Set(data.map((p) => p.tribunal_sigla))];
       return uniqueTribunais.filter(Boolean);
     },
   });
@@ -212,9 +225,9 @@ export function Processos() {
       // Upsert em advogados_processos
       const { data, error } = await supabase
         .from("advogados_processos")
-        .upsert([{ numero_cnj, oab }], { 
+        .upsert([{ numero_cnj, oab }], {
           onConflict: "numero_cnj,oab",
-          ignoreDuplicates: false 
+          ignoreDuplicates: false,
         })
         .select();
 
@@ -242,10 +255,10 @@ export function Processos() {
   const handleAtribuirOab = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProcesso) return;
-    
+
     const formData = new FormData(e.target as HTMLFormElement);
     const oab = parseInt(formData.get("oab") as string);
-    
+
     atribuirOabMutation.mutate({ numero_cnj: selectedProcesso, oab });
   };
 
@@ -257,7 +270,10 @@ export function Processos() {
     // Formatar CNJ: 0000000-00.0000.0.00.0000
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
-      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+      return clean.replace(
+        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+        "$1-$2.$3.$4.$5.$6",
+      );
     }
     return cnj;
   };
@@ -272,14 +288,18 @@ export function Processos() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-heading font-semibold">Processos</h1>
-            <p className="text-neutral-600 mt-1">Gestão completa de processos jurídicos</p>
+            <p className="text-neutral-600 mt-1">
+              Gestão completa de processos jurídicos
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar processos</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar processos
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -295,10 +315,12 @@ export function Processos() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Processos</h1>
-          <p className="text-neutral-600 mt-1">Gestão completa de processos jurídicos</p>
+          <p className="text-neutral-600 mt-1">
+            Gestão completa de processos jurídicos
+          </p>
         </div>
-        <Button 
-          style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+        <Button
+          style={{ backgroundColor: "var(--brand-700)", color: "white" }}
           onClick={() => navigate("/processos/novo")}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -339,7 +361,10 @@ export function Processos() {
                   <SelectItem value="todos">Todos os responsáveis</SelectItem>
                   <SelectItem value="sem-oab">Sem responsável</SelectItem>
                   {advogados.map((advogado) => (
-                    <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                    <SelectItem
+                      key={advogado.oab}
+                      value={advogado.oab.toString()}
+                    >
                       {advogado.nome} (OAB {advogado.oab})
                     </SelectItem>
                   ))}
@@ -379,8 +404,13 @@ export function Processos() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-              <span className="ml-2 text-neutral-600">Carregando processos...</span>
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: "var(--brand-700)" }}
+              />
+              <span className="ml-2 text-neutral-600">
+                Carregando processos...
+              </span>
             </div>
           ) : (
             <Table>
@@ -409,12 +439,15 @@ export function Processos() {
                   </TableRow>
                 ) : (
                   processosData.data?.map((processo) => (
-                    <TableRow key={processo.numero_cnj} className="hover:bg-neutral-50">
+                    <TableRow
+                      key={processo.numero_cnj}
+                      className="hover:bg-neutral-50"
+                    >
                       <TableCell className="font-mono text-sm">
                         <Link
                           to={`/processos-v2/${processo.numero_cnj}`}
                           className="hover:underline"
-                          style={{ color: 'var(--brand-700)' }}
+                          style={{ color: "var(--brand-700)" }}
                         >
                           {formatCNJ(processo.numero_cnj)}
                         </Link>
@@ -425,7 +458,8 @@ export function Processos() {
                         </div>
                         {processo.titulo_polo_ativo && (
                           <div className="text-xs text-neutral-500 mt-1">
-                            {processo.titulo_polo_ativo} x {processo.titulo_polo_passivo}
+                            {processo.titulo_polo_ativo} x{" "}
+                            {processo.titulo_polo_passivo}
                           </div>
                         )}
                       </TableCell>
@@ -441,14 +475,16 @@ export function Processos() {
                         {processo.responsavel_oab ? (
                           <Badge
                             variant="default"
-                            style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                            style={{
+                              backgroundColor: "var(--brand-700)",
+                              color: "white",
+                            }}
                           >
-                            {processo.responsavel_nome || `OAB ${processo.responsavel_oab}`}
+                            {processo.responsavel_nome ||
+                              `OAB ${processo.responsavel_oab}`}
                           </Badge>
                         ) : (
-                          <Badge variant="destructive">
-                            Sem responsável
-                          </Badge>
+                          <Badge variant="destructive">Sem responsável</Badge>
                         )}
                       </TableCell>
                       <TableCell>
@@ -461,11 +497,14 @@ export function Processos() {
                               </span>
                             </div>
                             <div className="text-xs text-neutral-500 truncate max-w-32">
-                              {processo.ultimo_evento.tipo}: {processo.ultimo_evento.conteudo}
+                              {processo.ultimo_evento.tipo}:{" "}
+                              {processo.ultimo_evento.conteudo}
                             </div>
                           </div>
                         ) : (
-                          <span className="text-neutral-400 text-sm">Sem eventos</span>
+                          <span className="text-neutral-400 text-sm">
+                            Sem eventos
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -473,7 +512,9 @@ export function Processos() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => navigate(`/processos/${processo.numero_cnj}`)}
+                            onClick={() =>
+                              navigate(`/processos/${processo.numero_cnj}`)
+                            }
                           >
                             <Eye className="w-4 h-4 mr-1" />
                             Ver
@@ -485,7 +526,7 @@ export function Processos() {
                               setSelectedProcesso(processo.numero_cnj);
                               setIsAtribuirDialogOpen(true);
                             }}
-                            style={{ color: 'var(--brand-700)' }}
+                            style={{ color: "var(--brand-700)" }}
                           >
                             <UserPlus className="w-4 h-4 mr-1" />
                             Atribuir OAB
@@ -505,7 +546,9 @@ export function Processos() {
       {processosData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, processosData.total)} de {processosData.total} processos
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, processosData.total)} de{" "}
+            {processosData.total} processos
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -534,13 +577,17 @@ export function Processos() {
       )}
 
       {/* P2.2 - Dialog Atribuir OAB */}
-      <Dialog open={isAtribuirDialogOpen} onOpenChange={setIsAtribuirDialogOpen}>
+      <Dialog
+        open={isAtribuirDialogOpen}
+        onOpenChange={setIsAtribuirDialogOpen}
+      >
         <DialogContent>
           <form onSubmit={handleAtribuirOab}>
             <DialogHeader>
               <DialogTitle>Atribuir Responsável</DialogTitle>
               <DialogDescription>
-                Selecione o advogado responsável pelo processo {selectedProcesso && formatCNJ(selectedProcesso)}
+                Selecione o advogado responsável pelo processo{" "}
+                {selectedProcesso && formatCNJ(selectedProcesso)}
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
@@ -551,7 +598,10 @@ export function Processos() {
                 </SelectTrigger>
                 <SelectContent>
                   {advogados.map((advogado) => (
-                    <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                    <SelectItem
+                      key={advogado.oab}
+                      value={advogado.oab.toString()}
+                    >
                       {advogado.nome} (OAB {advogado.oab})
                     </SelectItem>
                   ))}
@@ -570,7 +620,9 @@ export function Processos() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={atribuirOabMutation.isPending}>
-                {atribuirOabMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {atribuirOabMutation.isPending && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Atribuir
               </Button>
             </DialogFooter>

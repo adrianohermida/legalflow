@@ -8,7 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -81,7 +86,7 @@ export function Documentos() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isPeticaoDialogOpen, setIsPeticaoDialogOpen] = useState(false);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const itemsPerPage = 20;
@@ -101,7 +106,9 @@ export function Documentos() {
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`file_name.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `file_name.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (filterCNJ !== "todos") {
@@ -115,8 +122,10 @@ export function Documentos() {
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
@@ -145,7 +154,9 @@ export function Documentos() {
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (filterCNJ !== "todos") {
@@ -159,8 +170,10 @@ export function Documentos() {
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
@@ -183,7 +196,7 @@ export function Documentos() {
         .select("numero_cnj")
         .order("created_at", { ascending: false })
         .limit(100);
-      
+
       if (error) throw error;
       return data;
     },
@@ -203,16 +216,18 @@ export function Documentos() {
 
       // Simular upload (na implementação real, usar Supabase Storage)
       const file_path = `documents/${Date.now()}-${file.name}`;
-      
+
       const { data, error } = await supabase
         .from("documents")
-        .insert([{
-          numero_cnj: numero_cnj || null,
-          file_name: file.name,
-          file_path,
-          file_size: file.size,
-          metadata,
-        }])
+        .insert([
+          {
+            numero_cnj: numero_cnj || null,
+            file_name: file.name,
+            file_path,
+            file_size: file.size,
+            metadata,
+          },
+        ])
         .select();
 
       if (error) throw error;
@@ -237,14 +252,20 @@ export function Documentos() {
 
   // P2.6 - Mutation para criar petição
   const peticaoMutation = useMutation({
-    mutationFn: async (data: { tipo: string; numero_cnj: string; conteudo: string }) => {
+    mutationFn: async (data: {
+      tipo: string;
+      numero_cnj: string;
+      conteudo: string;
+    }) => {
       const { data: result, error } = await supabase
         .from("peticoes")
-        .insert([{
-          tipo: data.tipo,
-          numero_cnj: data.numero_cnj || null,
-          conteudo: data.conteudo,
-        }])
+        .insert([
+          {
+            tipo: data.tipo,
+            numero_cnj: data.numero_cnj || null,
+            conteudo: data.conteudo,
+          },
+        ])
         .select();
 
       if (error) throw error;
@@ -276,7 +297,7 @@ export function Documentos() {
   const handleCreatePeticao = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     peticaoMutation.mutate({
       tipo: formData.get("tipo") as string,
       numero_cnj: formData.get("numero_cnj") as string,
@@ -300,29 +321,41 @@ export function Documentos() {
     if (!cnj) return null;
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
-      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+      return clean.replace(
+        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+        "$1-$2.$3.$4.$5.$6",
+      );
     }
     return cnj;
   };
 
-  const currentData = activeTab === "biblioteca" ? documentosData : peticoesData;
-  const currentLoading = activeTab === "biblioteca" ? documentosLoading : peticoesLoading;
-  const currentError = activeTab === "biblioteca" ? documentosError : peticoesError;
+  const currentData =
+    activeTab === "biblioteca" ? documentosData : peticoesData;
+  const currentLoading =
+    activeTab === "biblioteca" ? documentosLoading : peticoesLoading;
+  const currentError =
+    activeTab === "biblioteca" ? documentosError : peticoesError;
 
   if (currentError) {
     return (
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold">Documentos & Peças</h1>
-            <p className="text-neutral-600 mt-1">Centralizar entregáveis e preparar jornada</p>
+            <h1 className="text-2xl font-heading font-semibold">
+              Documentos & Peças
+            </h1>
+            <p className="text-neutral-600 mt-1">
+              Centralizar entregáveis e preparar jornada
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar dados</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar dados
+              </h3>
               <p className="text-neutral-600 mb-4">{currentError.message}</p>
             </div>
           </CardContent>
@@ -336,11 +369,18 @@ export function Documentos() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold">Documentos & Peças</h1>
-          <p className="text-neutral-600 mt-1">Centralizar entregáveis e preparar jornada</p>
+          <h1 className="text-2xl font-heading font-semibold">
+            Documentos & Peças
+          </h1>
+          <p className="text-neutral-600 mt-1">
+            Centralizar entregáveis e preparar jornada
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+          <Dialog
+            open={isUploadDialogOpen}
+            onOpenChange={setIsUploadDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button variant="outline">
                 <Upload className="w-4 h-4 mr-2" />
@@ -357,11 +397,15 @@ export function Documentos() {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Arquivo *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Arquivo *
+                    </label>
                     <Input name="file" type="file" required />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Processo (CNJ)
+                    </label>
                     <Select name="numero_cnj">
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um processo (opcional)" />
@@ -369,7 +413,10 @@ export function Documentos() {
                       <SelectContent>
                         <SelectItem value="">Nenhum processo</SelectItem>
                         {processos.map((processo) => (
-                          <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                          <SelectItem
+                            key={processo.numero_cnj}
+                            value={processo.numero_cnj}
+                          >
                             {formatCNJ(processo.numero_cnj)}
                           </SelectItem>
                         ))}
@@ -386,17 +433,24 @@ export function Documentos() {
                     Cancelar
                   </Button>
                   <Button type="submit" disabled={uploadMutation.isPending}>
-                    {uploadMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {uploadMutation.isPending && (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    )}
                     Upload
                   </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
-          
-          <Dialog open={isPeticaoDialogOpen} onOpenChange={setIsPeticaoDialogOpen}>
+
+          <Dialog
+            open={isPeticaoDialogOpen}
+            onOpenChange={setIsPeticaoDialogOpen}
+          >
             <DialogTrigger asChild>
-              <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+              <Button
+                style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+              >
                 <Wand2 className="w-4 h-4 mr-2" />
                 Nova Petição
               </Button>
@@ -411,7 +465,9 @@ export function Documentos() {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Tipo *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Tipo *
+                    </label>
                     <Select name="tipo" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
@@ -420,14 +476,20 @@ export function Documentos() {
                         <SelectItem value="inicial">Petição Inicial</SelectItem>
                         <SelectItem value="contestacao">Contestação</SelectItem>
                         <SelectItem value="recurso">Recurso</SelectItem>
-                        <SelectItem value="manifestacao">Manifestação</SelectItem>
-                        <SelectItem value="alegacoes">Alegações Finais</SelectItem>
+                        <SelectItem value="manifestacao">
+                          Manifestação
+                        </SelectItem>
+                        <SelectItem value="alegacoes">
+                          Alegações Finais
+                        </SelectItem>
                         <SelectItem value="outro">Outro</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Processo (CNJ)
+                    </label>
                     <Select name="numero_cnj">
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um processo (opcional)" />
@@ -435,7 +497,10 @@ export function Documentos() {
                       <SelectContent>
                         <SelectItem value="">Nenhum processo</SelectItem>
                         {processos.map((processo) => (
-                          <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                          <SelectItem
+                            key={processo.numero_cnj}
+                            value={processo.numero_cnj}
+                          >
                             {formatCNJ(processo.numero_cnj)}
                           </SelectItem>
                         ))}
@@ -443,7 +508,9 @@ export function Documentos() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Conteúdo *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Conteúdo *
+                    </label>
                     <textarea
                       name="conteudo"
                       className="w-full min-h-48 p-3 border rounded-lg"
@@ -461,7 +528,9 @@ export function Documentos() {
                     Cancelar
                   </Button>
                   <Button type="submit" disabled={peticaoMutation.isPending}>
-                    {peticaoMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {peticaoMutation.isPending && (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    )}
                     Criar Petição
                   </Button>
                 </DialogFooter>
@@ -478,7 +547,11 @@ export function Documentos() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <Input
-                placeholder={activeTab === "biblioteca" ? "Buscar documentos..." : "Buscar petições..."}
+                placeholder={
+                  activeTab === "biblioteca"
+                    ? "Buscar documentos..."
+                    : "Buscar petições..."
+                }
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -502,7 +575,10 @@ export function Documentos() {
                 <SelectItem value="com-cnj">Com CNJ</SelectItem>
                 <SelectItem value="sem-cnj">Sem CNJ</SelectItem>
                 {processos.slice(0, 10).map((processo) => (
-                  <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                  <SelectItem
+                    key={processo.numero_cnj}
+                    value={processo.numero_cnj}
+                  >
                     {formatCNJ(processo.numero_cnj)}
                   </SelectItem>
                 ))}
@@ -513,10 +589,13 @@ export function Documentos() {
       </Card>
 
       {/* P2.6 - Abas Biblioteca e Peças */}
-      <Tabs value={activeTab} onValueChange={(value) => {
-        setActiveTab(value);
-        setCurrentPage(1);
-      }}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          setActiveTab(value);
+          setCurrentPage(1);
+        }}
+      >
         <TabsList>
           <TabsTrigger value="biblioteca" className="flex items-center gap-2">
             <Upload className="w-4 h-4" />
@@ -527,7 +606,11 @@ export function Documentos() {
             Peças (IA) ({peticoesData.total})
           </TabsTrigger>
           {/* P2.6 - "Entregáveis da Etapa" só aparece quando houver Jornada (F3) */}
-          <TabsTrigger value="entregaveis" className="flex items-center gap-2" disabled>
+          <TabsTrigger
+            value="entregaveis"
+            className="flex items-center gap-2"
+            disabled
+          >
             <CheckCircle className="w-4 h-4" />
             Entregáveis (F3)
           </TabsTrigger>
@@ -536,13 +619,20 @@ export function Documentos() {
         <TabsContent value="biblioteca">
           <Card>
             <CardHeader>
-              <CardTitle>Biblioteca de Documentos ({documentosData.total})</CardTitle>
+              <CardTitle>
+                Biblioteca de Documentos ({documentosData.total})
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-                  <span className="ml-2 text-neutral-600">Carregando documentos...</span>
+                  <Loader2
+                    className="w-8 h-8 animate-spin"
+                    style={{ color: "var(--brand-700)" }}
+                  />
+                  <span className="ml-2 text-neutral-600">
+                    Carregando documentos...
+                  </span>
                 </div>
               ) : (
                 <Table>
@@ -562,7 +652,9 @@ export function Documentos() {
                           <div className="text-neutral-500">
                             <FileText className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                             <p>Nenhum documento encontrado</p>
-                            <p className="text-sm">Faça upload do primeiro documento</p>
+                            <p className="text-sm">
+                              Faça upload do primeiro documento
+                            </p>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -572,18 +664,23 @@ export function Documentos() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <File className="w-4 h-4 text-neutral-400" />
-                              <span className="font-medium">{item.file_name}</span>
+                              <span className="font-medium">
+                                {item.file_name}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
                             {item.numero_cnj ? (
-                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                              <Badge
+                                style={{
+                                  backgroundColor: "var(--brand-700)",
+                                  color: "white",
+                                }}
+                              >
                                 {formatCNJ(item.numero_cnj)}
                               </Badge>
                             ) : (
-                              <Badge variant="secondary">
-                                Geral
-                              </Badge>
+                              <Badge variant="secondary">Geral</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-sm text-neutral-600">
@@ -622,8 +719,13 @@ export function Documentos() {
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-                  <span className="ml-2 text-neutral-600">Carregando peças...</span>
+                  <Loader2
+                    className="w-8 h-8 animate-spin"
+                    style={{ color: "var(--brand-700)" }}
+                  />
+                  <span className="ml-2 text-neutral-600">
+                    Carregando peças...
+                  </span>
                 </div>
               ) : (
                 <Table>
@@ -643,7 +745,9 @@ export function Documentos() {
                           <div className="text-neutral-500">
                             <Wand2 className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                             <p>Nenhuma petição criada</p>
-                            <p className="text-sm">Crie sua primeira petição com IA</p>
+                            <p className="text-sm">
+                              Crie sua primeira petição com IA
+                            </p>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -653,24 +757,31 @@ export function Documentos() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Wand2 className="w-4 h-4 text-neutral-400" />
-                              <span className="font-medium">{item.tipo || "Não especificado"}</span>
+                              <span className="font-medium">
+                                {item.tipo || "Não especificado"}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
                             {item.numero_cnj ? (
-                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                              <Badge
+                                style={{
+                                  backgroundColor: "var(--brand-700)",
+                                  color: "white",
+                                }}
+                              >
                                 {formatCNJ(item.numero_cnj)}
                               </Badge>
                             ) : (
-                              <Badge variant="secondary">
-                                Geral
-                              </Badge>
+                              <Badge variant="secondary">Geral</Badge>
                             )}
                           </TableCell>
                           <TableCell>
                             <div className="max-w-md">
                               <p className="text-sm text-neutral-700 line-clamp-2">
-                                {item.conteudo ? item.conteudo.substring(0, 100) + "..." : "Sem conteúdo"}
+                                {item.conteudo
+                                  ? item.conteudo.substring(0, 100) + "..."
+                                  : "Sem conteúdo"}
                               </p>
                             </div>
                           </TableCell>
@@ -711,8 +822,9 @@ export function Documentos() {
                   Disponível na Fase 3
                 </h3>
                 <p className="text-neutral-600 max-w-md mx-auto">
-                  Os entregáveis da etapa estarão disponíveis quando uma jornada estiver ativa.
-                  Esta funcionalidade será implementada na Fase 3 - Jornadas.
+                  Os entregáveis da etapa estarão disponíveis quando uma jornada
+                  estiver ativa. Esta funcionalidade será implementada na Fase 3
+                  - Jornadas.
                 </p>
               </div>
             </CardContent>
@@ -724,7 +836,9 @@ export function Documentos() {
       {currentData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, currentData.total)} de {currentData.total} itens
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, currentData.total)} de{" "}
+            {currentData.total} itens
           </p>
           <div className="flex items-center gap-2">
             <Button

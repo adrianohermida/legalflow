@@ -112,7 +112,7 @@ export interface ThreadLink {
 export interface AIMessage {
   id: string;
   thread_link_id: string;
-  sender_type: 'user' | 'agent' | 'system';
+  sender_type: "user" | "agent" | "system";
   content: string;
   created_at: string;
 }
@@ -139,15 +139,31 @@ export interface Notification {
 // ENTITY TYPES - LEGALFLOW SCHEMA
 // ================================
 
-export type EventType = 'audiencia' | 'reuniao' | 'prazo' | 'entrega' | 'compromisso' | 'outros';
-export type JourneyStatus = 'ativo' | 'pausado' | 'concluido' | 'cancelado';
-export type PaymentStatus = 'pendente' | 'pago' | 'vencido' | 'cancelado';
-export type StageStatus = 'pending' | 'in_progress' | 'completed' | 'blocked' | 'skipped';
-export type TicketStatus = 'aberto' | 'em_andamento' | 'resolvido' | 'fechado';
-export type Priority = 'baixa' | 'media' | 'alta' | 'urgente';
-export type ChannelType = 'email' | 'whatsapp' | 'telefone' | 'presencial' | 'sistema';
-export type ActivityStatus = 'todo' | 'in_progress' | 'done' | 'blocked';
-export type ConversationStatus = 'open' | 'pending' | 'resolved' | 'closed';
+export type EventType =
+  | "audiencia"
+  | "reuniao"
+  | "prazo"
+  | "entrega"
+  | "compromisso"
+  | "outros";
+export type JourneyStatus = "ativo" | "pausado" | "concluido" | "cancelado";
+export type PaymentStatus = "pendente" | "pago" | "vencido" | "cancelado";
+export type StageStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "blocked"
+  | "skipped";
+export type TicketStatus = "aberto" | "em_andamento" | "resolvido" | "fechado";
+export type Priority = "baixa" | "media" | "alta" | "urgente";
+export type ChannelType =
+  | "email"
+  | "whatsapp"
+  | "telefone"
+  | "presencial"
+  | "sistema";
+export type ActivityStatus = "todo" | "in_progress" | "done" | "blocked";
+export type ConversationStatus = "open" | "pending" | "resolved" | "closed";
 
 export interface Ticket {
   id: string;
@@ -362,7 +378,7 @@ export interface LoginResponse {
     id: string;
     email: string;
     oab?: number;
-    userType: 'advogado' | 'cliente';
+    userType: "advogado" | "cliente";
   };
   token: string;
   expiresAt: string;
@@ -474,7 +490,7 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   sort_by?: string;
-  sort_order?: 'asc' | 'desc';
+  sort_order?: "asc" | "desc";
 }
 
 export interface TicketFilters extends SearchFilters {
@@ -596,11 +612,21 @@ export interface ApiError {
 
 export type EntityWithRelations<T, R = {}> = T & R;
 
-export type CreateRequest<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
-export type UpdateRequest<T> = Partial<Omit<T, 'id' | 'created_at'>>;
+export type CreateRequest<T> = Omit<T, "id" | "created_at" | "updated_at">;
+export type UpdateRequest<T> = Partial<Omit<T, "id" | "created_at">>;
 
-export type SortDirection = 'asc' | 'desc';
-export type FilterOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'notin';
+export type SortDirection = "asc" | "desc";
+export type FilterOperator =
+  | "eq"
+  | "neq"
+  | "gt"
+  | "gte"
+  | "lt"
+  | "lte"
+  | "like"
+  | "ilike"
+  | "in"
+  | "notin";
 
 export interface FilterCondition {
   field: string;
@@ -626,58 +652,58 @@ export interface QueryOptions {
 
 export const API_ENDPOINTS = {
   // Auth
-  LOGIN: '/api/auth/login',
-  LOGOUT: '/api/auth/logout',
-  REFRESH: '/api/auth/refresh',
-  
+  LOGIN: "/api/auth/login",
+  LOGOUT: "/api/auth/logout",
+  REFRESH: "/api/auth/refresh",
+
   // Entities
-  CLIENTES: '/api/clientes',
-  PROCESSOS: '/api/processos',
-  TICKETS: '/api/tickets',
-  ACTIVITIES: '/api/activities',
-  DEALS: '/api/deals',
-  EVENTOS: '/api/eventos',
-  PLANOS: '/api/planos',
-  
+  CLIENTES: "/api/clientes",
+  PROCESSOS: "/api/processos",
+  TICKETS: "/api/tickets",
+  ACTIVITIES: "/api/activities",
+  DEALS: "/api/deals",
+  EVENTOS: "/api/eventos",
+  PLANOS: "/api/planos",
+
   // Tools
-  ADVOGAAI_TOOLS: '/api/tools',
-  
+  ADVOGAAI_TOOLS: "/api/tools",
+
   // Analytics
-  METRICS: '/api/metrics',
-  DASHBOARD: '/api/dashboard',
+  METRICS: "/api/metrics",
+  DASHBOARD: "/api/dashboard",
 } as const;
 
 export const STATUS_COLORS = {
   // Ticket Status
-  aberto: 'destructive',
-  em_andamento: 'default',
-  resolvido: 'secondary',
-  fechado: 'outline',
-  
+  aberto: "destructive",
+  em_andamento: "default",
+  resolvido: "secondary",
+  fechado: "outline",
+
   // Activity Status
-  todo: 'destructive',
-  in_progress: 'default',
-  done: 'secondary',
-  blocked: 'outline',
-  
+  todo: "destructive",
+  in_progress: "default",
+  done: "secondary",
+  blocked: "outline",
+
   // Priority
-  baixa: 'outline',
-  media: 'secondary',
-  alta: 'default',
-  urgente: 'destructive',
-  
+  baixa: "outline",
+  media: "secondary",
+  alta: "default",
+  urgente: "destructive",
+
   // Payment Status
-  pendente: 'secondary',
-  pago: 'default',
-  vencido: 'destructive',
-  cancelado: 'outline',
+  pendente: "secondary",
+  pago: "default",
+  vencido: "destructive",
+  cancelado: "outline",
 } as const;
 
 export const DEFAULT_PAGINATION = {
   page: 1,
   limit: 20,
-  sort_by: 'created_at',
-  sort_order: 'desc' as const,
+  sort_by: "created_at",
+  sort_order: "desc" as const,
 };
 
 export const SLA_HOURS = {
@@ -686,5 +712,5 @@ export const SLA_HOURS = {
     alta: { frt: 4, ttr: 8 },
     media: { frt: 8, ttr: 24 },
     baixa: { frt: 24, ttr: 72 },
-  }
+  },
 } as const;

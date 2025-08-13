@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Label } from './ui/label';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Label } from "./ui/label";
 import {
   Brain,
   FileText,
@@ -21,17 +33,17 @@ import {
   AlertCircle,
   Clock,
   Zap,
-} from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
-import { useToast } from '../hooks/use-toast';
-import { 
-  AdvogaAITool, 
-  ToolRequest, 
-  ToolResponse, 
+} from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "../hooks/use-toast";
+import {
+  AdvogaAITool,
+  ToolRequest,
+  ToolResponse,
   advogaAIToolsClient,
-  ADVOGAAI_TOOLS 
-} from '../lib/advogaai-tools';
-import { cn } from '../lib/utils';
+  ADVOGAAI_TOOLS,
+} from "../lib/advogaai-tools";
+import { cn } from "../lib/utils";
 
 interface AdvogaAIToolsPanelProps {
   context?: {
@@ -42,12 +54,15 @@ interface AdvogaAIToolsPanelProps {
   onToolResult?: (result: ToolResponse) => void;
 }
 
-export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanelProps) {
+export function AdvogaAIToolsPanel({
+  context,
+  onToolResult,
+}: AdvogaAIToolsPanelProps) {
   const [selectedTool, setSelectedTool] = useState<AdvogaAITool | null>(null);
   const [toolParameters, setToolParameters] = useState<Record<string, any>>({});
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   const { toast } = useToast();
 
   // P2.12 - Mutation para executar ferramenta
@@ -84,45 +99,70 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'peticion': return <FileText className="w-4 h-4" />;
-      case 'analysis': return <Brain className="w-4 h-4" />;
-      case 'research': return <Search className="w-4 h-4" />;
-      case 'document': return <FileText className="w-4 h-4" />;
-      case 'timeline': return <TimelineIcon className="w-4 h-4" />;
-      case 'calculation': return <Calculator className="w-4 h-4" />;
-      default: return <Scale className="w-4 h-4" />;
+      case "peticion":
+        return <FileText className="w-4 h-4" />;
+      case "analysis":
+        return <Brain className="w-4 h-4" />;
+      case "research":
+        return <Search className="w-4 h-4" />;
+      case "document":
+        return <FileText className="w-4 h-4" />;
+      case "timeline":
+        return <TimelineIcon className="w-4 h-4" />;
+      case "calculation":
+        return <Calculator className="w-4 h-4" />;
+      default:
+        return <Scale className="w-4 h-4" />;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'peticion': return 'bg-blue-100 text-blue-800';
-      case 'analysis': return 'bg-purple-100 text-purple-800';
-      case 'research': return 'bg-green-100 text-green-800';
-      case 'document': return 'bg-orange-100 text-orange-800';
-      case 'timeline': return 'bg-indigo-100 text-indigo-800';
-      case 'calculation': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "peticion":
+        return "bg-blue-100 text-blue-800";
+      case "analysis":
+        return "bg-purple-100 text-purple-800";
+      case "research":
+        return "bg-green-100 text-green-800";
+      case "document":
+        return "bg-orange-100 text-orange-800";
+      case "timeline":
+        return "bg-indigo-100 text-indigo-800";
+      case "calculation":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getCategoryName = (category: string) => {
     switch (category) {
-      case 'peticion': return 'Petições';
-      case 'analysis': return 'Análise';
-      case 'research': return 'Pesquisa';
-      case 'document': return 'Documentos';
-      case 'timeline': return 'Timeline';
-      case 'calculation': return 'Cálculo';
-      default: return 'Outros';
+      case "peticion":
+        return "Petições";
+      case "analysis":
+        return "Análise";
+      case "research":
+        return "Pesquisa";
+      case "document":
+        return "Documentos";
+      case "timeline":
+        return "Timeline";
+      case "calculation":
+        return "Cálculo";
+      default:
+        return "Outros";
     }
   };
 
-  const filteredTools = activeCategory === 'all' 
-    ? ADVOGAAI_TOOLS 
-    : ADVOGAAI_TOOLS.filter(tool => tool.category === activeCategory);
+  const filteredTools =
+    activeCategory === "all"
+      ? ADVOGAAI_TOOLS
+      : ADVOGAAI_TOOLS.filter((tool) => tool.category === activeCategory);
 
-  const categories = ['all', ...Array.from(new Set(ADVOGAAI_TOOLS.map(t => t.category)))];
+  const categories = [
+    "all",
+    ...Array.from(new Set(ADVOGAAI_TOOLS.map((t) => t.category))),
+  ];
 
   const handleExecuteTool = () => {
     if (!selectedTool) return;
@@ -130,28 +170,25 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
     const request: ToolRequest = {
       tool_id: selectedTool.id,
       parameters: toolParameters,
-      context
+      context,
     };
 
     executeToolMutation.mutate(request);
   };
 
   const renderParameterInput = (param: any) => {
-    const value = toolParameters[param.name] || '';
-    
+    const value = toolParameters[param.name] || "";
+
     const updateParameter = (newValue: any) => {
-      setToolParameters(prev => ({
+      setToolParameters((prev) => ({
         ...prev,
-        [param.name]: newValue
+        [param.name]: newValue,
       }));
     };
 
     if (param.validation?.enum) {
       return (
-        <Select
-          value={value}
-          onValueChange={updateParameter}
-        >
+        <Select value={value} onValueChange={updateParameter}>
           <SelectTrigger>
             <SelectValue placeholder={`Selecione ${param.description}`} />
           </SelectTrigger>
@@ -167,11 +204,11 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
     }
 
     switch (param.type) {
-      case 'boolean':
+      case "boolean":
         return (
           <Select
             value={value.toString()}
-            onValueChange={(val) => updateParameter(val === 'true')}
+            onValueChange={(val) => updateParameter(val === "true")}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione" />
@@ -182,8 +219,8 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
             </SelectContent>
           </Select>
         );
-      
-      case 'number':
+
+      case "number":
         return (
           <Input
             type="number"
@@ -192,21 +229,25 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
             placeholder={param.description}
           />
         );
-      
-      case 'array':
+
+      case "array":
         return (
           <Textarea
-            value={Array.isArray(value) ? value.join('\n') : value}
-            onChange={(e) => updateParameter(e.target.value.split('\n').filter(Boolean))}
+            value={Array.isArray(value) ? value.join("\n") : value}
+            onChange={(e) =>
+              updateParameter(e.target.value.split("\n").filter(Boolean))
+            }
             placeholder="Um item por linha"
             rows={3}
           />
         );
-      
-      case 'object':
+
+      case "object":
         return (
           <Textarea
-            value={typeof value === 'object' ? JSON.stringify(value, null, 2) : value}
+            value={
+              typeof value === "object" ? JSON.stringify(value, null, 2) : value
+            }
             onChange={(e) => {
               try {
                 updateParameter(JSON.parse(e.target.value));
@@ -218,7 +259,7 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
             rows={4}
           />
         );
-      
+
       default:
         return (
           <Input
@@ -255,8 +296,8 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
             onClick={() => setActiveCategory(category)}
             className="flex items-center gap-1"
           >
-            {category !== 'all' && getCategoryIcon(category)}
-            {category === 'all' ? 'Todas' : getCategoryName(category)}
+            {category !== "all" && getCategoryIcon(category)}
+            {category === "all" ? "Todas" : getCategoryName(category)}
           </Button>
         ))}
       </div>
@@ -271,7 +312,9 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
                   {getCategoryIcon(tool.category)}
                   <CardTitle className="text-sm">{tool.name}</CardTitle>
                 </div>
-                <Badge className={cn("text-xs", getCategoryColor(tool.category))}>
+                <Badge
+                  className={cn("text-xs", getCategoryColor(tool.category))}
+                >
                   v{tool.version}
                 </Badge>
               </div>
@@ -280,14 +323,17 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
               <p className="text-xs text-neutral-600 mb-3 line-clamp-2">
                 {tool.description}
               </p>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-xs text-neutral-500">
                   <Clock className="w-3 h-3" />
                   {tool.parameters.length} parâmetros
                 </div>
-                
-                <Dialog open={isDialogOpen && selectedTool?.id === tool.id} onOpenChange={setIsDialogOpen}>
+
+                <Dialog
+                  open={isDialogOpen && selectedTool?.id === tool.id}
+                  onOpenChange={setIsDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button
                       size="sm"
@@ -295,31 +341,44 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
                         setSelectedTool(tool);
                         setToolParameters({});
                         // Pré-preencher com contexto
-                        if (context?.numero_cnj && tool.parameters.some(p => p.name === 'numero_cnj')) {
-                          setToolParameters(prev => ({ ...prev, numero_cnj: context.numero_cnj }));
+                        if (
+                          context?.numero_cnj &&
+                          tool.parameters.some((p) => p.name === "numero_cnj")
+                        ) {
+                          setToolParameters((prev) => ({
+                            ...prev,
+                            numero_cnj: context.numero_cnj,
+                          }));
                         }
                       }}
-                      style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                      style={{
+                        backgroundColor: "var(--brand-700)",
+                        color: "white",
+                      }}
                     >
                       <Play className="w-3 h-3 mr-1" />
                       Executar
                     </Button>
                   </DialogTrigger>
-                  
+
                   <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         {getCategoryIcon(tool.category)}
                         {tool.name}
                       </DialogTitle>
-                      <p className="text-sm text-neutral-600">{tool.description}</p>
+                      <p className="text-sm text-neutral-600">
+                        {tool.description}
+                      </p>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4">
                       {/* Context Info */}
                       {context && (
                         <div className="p-3 bg-neutral-50 rounded-lg">
-                          <h4 className="text-sm font-medium mb-2">Contexto Atual</h4>
+                          <h4 className="text-sm font-medium mb-2">
+                            Contexto Atual
+                          </h4>
                           <div className="space-y-1 text-xs">
                             {context.numero_cnj && (
                               <div>Processo: {context.numero_cnj}</div>
@@ -333,7 +392,7 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Parameters */}
                       <div className="space-y-3">
                         <h4 className="text-sm font-medium">Parâmetros</h4>
@@ -341,14 +400,18 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
                           <div key={param.name} className="space-y-2">
                             <Label className="text-xs">
                               {param.name}
-                              {param.required && <span className="text-red-500 ml-1">*</span>}
+                              {param.required && (
+                                <span className="text-red-500 ml-1">*</span>
+                              )}
                             </Label>
-                            <p className="text-xs text-neutral-600">{param.description}</p>
+                            <p className="text-xs text-neutral-600">
+                              {param.description}
+                            </p>
                             {renderParameterInput(param)}
                           </div>
                         ))}
                       </div>
-                      
+
                       {/* Execute Button */}
                       <div className="flex justify-end gap-2 pt-4 border-t">
                         <Button
@@ -361,7 +424,10 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
                         <Button
                           onClick={handleExecuteTool}
                           disabled={executeToolMutation.isPending}
-                          style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                          style={{
+                            backgroundColor: "var(--brand-700)",
+                            color: "white",
+                          }}
                         >
                           {executeToolMutation.isPending ? (
                             <>

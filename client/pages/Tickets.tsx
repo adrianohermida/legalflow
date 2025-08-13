@@ -9,7 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -92,7 +97,7 @@ export function Tickets() {
   const [filterChannel, setFilterChannel] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -105,11 +110,19 @@ export function Tickets() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["tickets", searchTerm, filterStatus, filterPriority, filterChannel, currentPage],
+    queryKey: [
+      "tickets",
+      searchTerm,
+      filterStatus,
+      filterPriority,
+      filterChannel,
+      currentPage,
+    ],
     queryFn: async () => {
       let query = lf
         .from("tickets")
-        .select(`
+        .select(
+          `
           *,
           clientes:public.clientes!tickets_cliente_cpfcnpj_fkey (
             nome
@@ -117,12 +130,16 @@ export function Tickets() {
           advogados:public.advogados!tickets_assigned_oab_fkey (
             nome
           )
-        `, { count: "exact" })
+        `,
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`subject.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `subject.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (filterStatus !== "todos") {
@@ -138,17 +155,20 @@ export function Tickets() {
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
       // Processar dados relacionados
-      const processedData = data?.map((ticket: any) => ({
-        ...ticket,
-        cliente_nome: ticket.clientes?.nome,
-        responsavel_nome: ticket.advogados?.nome,
-      })) || [];
+      const processedData =
+        data?.map((ticket: any) => ({
+          ...ticket,
+          cliente_nome: ticket.clientes?.nome,
+          responsavel_nome: ticket.advogados?.nome,
+        })) || [];
 
       return {
         data: processedData,
@@ -167,7 +187,7 @@ export function Tickets() {
         .from("clientes")
         .select("cpfcnpj, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -181,7 +201,7 @@ export function Tickets() {
         .from("advogados")
         .select("oab, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -196,7 +216,7 @@ export function Tickets() {
         .select("numero_cnj")
         .order("created_at", { ascending: false })
         .limit(100);
-      
+
       if (error) throw error;
       return data;
     },
@@ -210,7 +230,9 @@ export function Tickets() {
         status: "aberto",
         priority: ticketData.priority,
         channel: ticketData.channel,
-        assigned_oab: ticketData.assigned_oab ? parseInt(ticketData.assigned_oab) : null,
+        assigned_oab: ticketData.assigned_oab
+          ? parseInt(ticketData.assigned_oab)
+          : null,
         cliente_cpfcnpj: ticketData.cliente_cpfcnpj || null,
         numero_cnj: ticketData.numero_cnj || null,
         created_by: "current_user", // TODO: Get from auth context
@@ -247,14 +269,28 @@ export function Tickets() {
   // P2.7 - SLA simples baseado na prioridade
   const getFRTDueDate = (priority: string) => {
     const now = new Date();
-    const hours = priority === "urgente" ? 1 : priority === "alta" ? 4 : priority === "media" ? 8 : 24;
+    const hours =
+      priority === "urgente"
+        ? 1
+        : priority === "alta"
+          ? 4
+          : priority === "media"
+            ? 8
+            : 24;
     now.setHours(now.getHours() + hours);
     return now.toISOString();
   };
 
   const getTTRDueDate = (priority: string) => {
     const now = new Date();
-    const hours = priority === "urgente" ? 4 : priority === "alta" ? 8 : priority === "media" ? 24 : 72;
+    const hours =
+      priority === "urgente"
+        ? 4
+        : priority === "alta"
+          ? 8
+          : priority === "media"
+            ? 24
+            : 72;
     now.setHours(now.getHours() + hours);
     return now.toISOString();
   };
@@ -262,7 +298,7 @@ export function Tickets() {
   const handleSubmitTicket = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     const ticketData: TicketFormData = {
       subject: formData.get("subject") as string,
       cliente_cpfcnpj: formData.get("cliente_cpfcnpj") as string,
@@ -287,39 +323,58 @@ export function Tickets() {
     if (!cnj) return null;
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
-      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+      return clean.replace(
+        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+        "$1-$2.$3.$4.$5.$6",
+      );
     }
     return cnj;
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "aberto": return "destructive";
-      case "em_andamento": return "default";
-      case "resolvido": return "secondary";
-      case "fechado": return "outline";
-      default: return "secondary";
+      case "aberto":
+        return "destructive";
+      case "em_andamento":
+        return "default";
+      case "resolvido":
+        return "secondary";
+      case "fechado":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "urgente": return "destructive";
-      case "alta": return "default";
-      case "media": return "secondary";
-      case "baixa": return "outline";
-      default: return "secondary";
+      case "urgente":
+        return "destructive";
+      case "alta":
+        return "default";
+      case "media":
+        return "secondary";
+      case "baixa":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
-      case "email": return "✉️";
-      case "whatsapp": return "💬";
-      case "telefone": return "📞";
-      case "presencial": return "🏢";
-      case "sistema": return "🖥️";
-      default: return "📋";
+      case "email":
+        return "✉️";
+      case "whatsapp":
+        return "💬";
+      case "telefone":
+        return "📞";
+      case "presencial":
+        return "🏢";
+      case "sistema":
+        return "🖥️";
+      default:
+        return "📋";
     }
   };
 
@@ -329,7 +384,7 @@ export function Tickets() {
     const due = new Date(dueAt);
     const diff = due.getTime() - now.getTime();
     const hours = diff / (1000 * 60 * 60);
-    
+
     if (hours < 0) return "vencido";
     if (hours < 2) return "urgente";
     if (hours < 8) return "atencao";
@@ -338,11 +393,16 @@ export function Tickets() {
 
   const getSLAColor = (status: string | null) => {
     switch (status) {
-      case "vencido": return "bg-red-100 text-red-700";
-      case "urgente": return "bg-orange-100 text-orange-700";
-      case "atencao": return "bg-yellow-100 text-yellow-700";
-      case "ok": return "bg-green-100 text-green-700";
-      default: return "";
+      case "vencido":
+        return "bg-red-100 text-red-700";
+      case "urgente":
+        return "bg-orange-100 text-orange-700";
+      case "atencao":
+        return "bg-yellow-100 text-yellow-700";
+      case "ok":
+        return "bg-green-100 text-green-700";
+      default:
+        return "";
     }
   };
 
@@ -352,14 +412,18 @@ export function Tickets() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-heading font-semibold">Tickets</h1>
-            <p className="text-neutral-600 mt-1">Entrada única de atendimentos com SLA simples</p>
+            <p className="text-neutral-600 mt-1">
+              Entrada única de atendimentos com SLA simples
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar tickets</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar tickets
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -375,11 +439,15 @@ export function Tickets() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Tickets</h1>
-          <p className="text-neutral-600 mt-1">Entrada única de atendimentos com SLA simples</p>
+          <p className="text-neutral-600 mt-1">
+            Entrada única de atendimentos com SLA simples
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+            <Button
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Novo Ticket
             </Button>
@@ -394,7 +462,9 @@ export function Tickets() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Assunto *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Assunto *
+                  </label>
                   <Input
                     name="subject"
                     placeholder="Descreva brevemente o assunto"
@@ -403,7 +473,9 @@ export function Tickets() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Prioridade *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Prioridade *
+                    </label>
                     <Select name="priority" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a prioridade" />
@@ -417,7 +489,9 @@ export function Tickets() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Canal *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Canal *
+                    </label>
                     <Select name="channel" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o canal" />
@@ -433,7 +507,9 @@ export function Tickets() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Cliente</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Cliente
+                  </label>
                   <Select name="cliente_cpfcnpj">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um cliente (opcional)" />
@@ -441,7 +517,10 @@ export function Tickets() {
                     <SelectContent>
                       <SelectItem value="">Nenhum cliente</SelectItem>
                       {clientes.map((cliente) => (
-                        <SelectItem key={cliente.cpfcnpj} value={cliente.cpfcnpj}>
+                        <SelectItem
+                          key={cliente.cpfcnpj}
+                          value={cliente.cpfcnpj}
+                        >
                           {cliente.nome} ({cliente.cpfcnpj})
                         </SelectItem>
                       ))}
@@ -449,7 +528,9 @@ export function Tickets() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Processo (CNJ)
+                  </label>
                   <Select name="numero_cnj">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um processo (opcional)" />
@@ -457,7 +538,10 @@ export function Tickets() {
                     <SelectContent>
                       <SelectItem value="">Nenhum processo</SelectItem>
                       {processos.map((processo) => (
-                        <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                        <SelectItem
+                          key={processo.numero_cnj}
+                          value={processo.numero_cnj}
+                        >
                           {formatCNJ(processo.numero_cnj)}
                         </SelectItem>
                       ))}
@@ -465,7 +549,9 @@ export function Tickets() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Responsável (OAB)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Responsável (OAB)
+                  </label>
                   <Select name="assigned_oab">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um responsável (opcional)" />
@@ -473,7 +559,10 @@ export function Tickets() {
                     <SelectContent>
                       <SelectItem value="">Não atribuído</SelectItem>
                       {advogados.map((advogado) => (
-                        <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                        <SelectItem
+                          key={advogado.oab}
+                          value={advogado.oab.toString()}
+                        >
                           {advogado.nome} (OAB {advogado.oab})
                         </SelectItem>
                       ))}
@@ -490,7 +579,9 @@ export function Tickets() {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={ticketMutation.isPending}>
-                  {ticketMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {ticketMutation.isPending && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Criar Ticket
                 </Button>
               </DialogFooter>
@@ -588,8 +679,13 @@ export function Tickets() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-              <span className="ml-2 text-neutral-600">Carregando tickets...</span>
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: "var(--brand-700)" }}
+              />
+              <span className="ml-2 text-neutral-600">
+                Carregando tickets...
+              </span>
             </div>
           ) : (
             <Table>
@@ -644,18 +740,28 @@ export function Tickets() {
                       <TableCell>
                         {ticket.cliente_nome ? (
                           <div className="text-sm">
-                            <div className="font-medium">{ticket.cliente_nome}</div>
-                            <div className="text-xs text-neutral-500">{ticket.cliente_cpfcnpj}</div>
+                            <div className="font-medium">
+                              {ticket.cliente_nome}
+                            </div>
+                            <div className="text-xs text-neutral-500">
+                              {ticket.cliente_cpfcnpj}
+                            </div>
                           </div>
                         ) : (
-                          <span className="text-neutral-400 text-sm">Não informado</span>
+                          <span className="text-neutral-400 text-sm">
+                            Não informado
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
                         {ticket.responsavel_nome ? (
                           <div className="text-sm">
-                            <div className="font-medium">{ticket.responsavel_nome}</div>
-                            <div className="text-xs text-neutral-500">OAB {ticket.assigned_oab}</div>
+                            <div className="font-medium">
+                              {ticket.responsavel_nome}
+                            </div>
+                            <div className="text-xs text-neutral-500">
+                              OAB {ticket.assigned_oab}
+                            </div>
                           </div>
                         ) : (
                           <Badge variant="outline">Não atribuído</Badge>
@@ -670,12 +776,16 @@ export function Tickets() {
                       <TableCell>
                         <div className="space-y-1">
                           {ticket.frt_due_at && (
-                            <div className={`text-xs px-2 py-1 rounded ${getSLAColor(getSLAStatus(ticket.frt_due_at))}`}>
+                            <div
+                              className={`text-xs px-2 py-1 rounded ${getSLAColor(getSLAStatus(ticket.frt_due_at))}`}
+                            >
                               FRT: {formatDateTime(ticket.frt_due_at)}
                             </div>
                           )}
                           {ticket.ttr_due_at && (
-                            <div className={`text-xs px-2 py-1 rounded ${getSLAColor(getSLAStatus(ticket.ttr_due_at))}`}>
+                            <div
+                              className={`text-xs px-2 py-1 rounded ${getSLAColor(getSLAStatus(ticket.ttr_due_at))}`}
+                            >
                               TTR: {formatDateTime(ticket.ttr_due_at)}
                             </div>
                           )}
@@ -706,7 +816,9 @@ export function Tickets() {
       {ticketsData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, ticketsData.total)} de {ticketsData.total} tickets
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, ticketsData.total)} de{" "}
+            {ticketsData.total} tickets
           </p>
           <div className="flex items-center gap-2">
             <Button

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Copy, 
-  RefreshCw, 
-  Plus, 
-  MessageSquare, 
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Copy,
+  RefreshCw,
+  Plus,
+  MessageSquare,
   Calendar,
   FileText,
   Users,
@@ -27,38 +27,53 @@ import {
   Filter,
   ArrowLeft,
   Eye,
-  MoreHorizontal
-} from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Input } from '../components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { 
+  MoreHorizontal,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Input } from "../components/ui/input";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogDescription,
-  DialogFooter
-} from '../components/ui/dialog';
-import { 
+  DialogFooter,
+} from "../components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '../components/ui/dropdown-menu';
-import { Switch } from '../components/ui/switch';
-import { Label } from '../components/ui/label';
-import { Separator } from '../components/ui/separator';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { supabase, lf } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
-import { PageErrorBoundary } from '../components/ErrorBoundary';
-import { processAPIService } from '../lib/process-api-service';
-import { formatCNJ, formatCPFCNPJ, formatDate, formatDateTime } from '../lib/utils';
-import ProcessoChatSimple from '../components/ProcessoChatSimple';
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import { Switch } from "../components/ui/switch";
+import { Label } from "../components/ui/label";
+import { Separator } from "../components/ui/separator";
+import { ScrollArea } from "../components/ui/scroll-area";
+import { supabase, lf } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import { PageErrorBoundary } from "../components/ErrorBoundary";
+import { processAPIService } from "../lib/process-api-service";
+import {
+  formatCNJ,
+  formatCPFCNPJ,
+  formatDate,
+  formatDateTime,
+} from "../lib/utils";
+import ProcessoChatSimple from "../components/ProcessoChatSimple";
 
 interface ProcessoData {
   numero_cnj: string;
@@ -96,10 +111,10 @@ interface ProcessoCapa {
 interface ParteProcesso {
   id: string;
   numero_cnj: string;
-  polo: 'ativo' | 'passivo' | 'outros';
+  polo: "ativo" | "passivo" | "outros";
   papel: string;
   nome: string;
-  tipo_pessoa: 'fisica' | 'juridica';
+  tipo_pessoa: "fisica" | "juridica";
   cpfcnpj: string | null;
   is_cliente: boolean;
   advogado_oabs: number[];
@@ -129,7 +144,7 @@ interface Publicacao {
 
 interface MonitoringSettings {
   numero_cnj: string;
-  fonte: 'advise' | 'escavador';
+  fonte: "advise" | "escavador";
   premium_on: boolean;
   updated_at: string;
 }
@@ -139,12 +154,14 @@ export function ProcessoDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('capa');
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("capa");
   const [premiumEnabled, setPremiumEnabled] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [selectedParte, setSelectedParte] = useState<ParteProcesso | null>(null);
+  const [selectedParte, setSelectedParte] = useState<ParteProcesso | null>(
+    null,
+  );
   const [isClienteDialogOpen, setIsClienteDialogOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -154,8 +171,10 @@ export function ProcessoDetail() {
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">CNJ não informado</h2>
-          <p className="text-neutral-600 mb-4">O número CNJ é obrigatório para visualizar o processo.</p>
-          <Button onClick={() => navigate('/processos')}>
+          <p className="text-neutral-600 mb-4">
+            O número CNJ é obrigatório para visualizar o processo.
+          </p>
+          <Button onClick={() => navigate("/processos")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar para Processos
           </Button>
@@ -169,35 +188,32 @@ export function ProcessoDetail() {
     data: processo,
     isLoading: processoLoading,
     error: processoError,
-    refetch: refetchProcesso
+    refetch: refetchProcesso,
   } = useQuery({
-    queryKey: ['processo', numero_cnj],
+    queryKey: ["processo", numero_cnj],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('processos')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
+        .from("processos")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
         .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
+
+      if (error && error.code !== "PGRST116") throw error;
       return data;
     },
   });
 
   // Query monitoring settings
-  const {
-    data: monitoringSettings,
-    refetch: refetchSettings
-  } = useQuery({
-    queryKey: ['monitoring-settings', numero_cnj],
+  const { data: monitoringSettings, refetch: refetchSettings } = useQuery({
+    queryKey: ["monitoring-settings", numero_cnj],
     queryFn: async () => {
       const { data, error } = await lf
-        .from('monitoring_settings')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
+        .from("monitoring_settings")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
         .single();
-      
-      if (error && error.code !== 'PGRST116') return null;
+
+      if (error && error.code !== "PGRST116") return null;
       return data;
     },
   });
@@ -206,16 +222,16 @@ export function ProcessoDetail() {
   const {
     data: partes = [],
     isLoading: partesLoading,
-    refetch: refetchPartes
+    refetch: refetchPartes,
   } = useQuery({
-    queryKey: ['partes-processo', numero_cnj],
+    queryKey: ["partes-processo", numero_cnj],
     queryFn: async () => {
       const { data, error } = await lf
-        .from('partes_processo')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .order('polo', { ascending: true });
-      
+        .from("partes_processo")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .order("polo", { ascending: true });
+
       if (error) throw error;
       return data || [];
     },
@@ -225,17 +241,17 @@ export function ProcessoDetail() {
   const {
     data: movimentacoes = [],
     isLoading: movimentacoesLoading,
-    refetch: refetchMovimentacoes
+    refetch: refetchMovimentacoes,
   } = useQuery({
-    queryKey: ['movimentacoes', numero_cnj],
+    queryKey: ["movimentacoes", numero_cnj],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('movimentacoes')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .order('data', { ascending: false })
+        .from("movimentacoes")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .order("data", { ascending: false })
         .limit(20);
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -245,17 +261,17 @@ export function ProcessoDetail() {
   const {
     data: publicacoes = [],
     isLoading: publicacoesLoading,
-    refetch: refetchPublicacoes
+    refetch: refetchPublicacoes,
   } = useQuery({
-    queryKey: ['publicacoes', numero_cnj],
+    queryKey: ["publicacoes", numero_cnj],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('publicacoes')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .order('data_publicacao', { ascending: false })
+        .from("publicacoes")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .order("data_publicacao", { ascending: false })
         .limit(20);
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -265,16 +281,16 @@ export function ProcessoDetail() {
   const {
     data: documentos = [],
     isLoading: documentosLoading,
-    refetch: refetchDocumentos
+    refetch: refetchDocumentos,
   } = useQuery({
-    queryKey: ['documentos', numero_cnj],
+    queryKey: ["documentos", numero_cnj],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('numero_cnj', numero_cnj)
-        .order('created_at', { ascending: false });
-      
+        .from("documents")
+        .select("*")
+        .eq("numero_cnj", numero_cnj)
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       return data || [];
     },
@@ -290,13 +306,13 @@ export function ProcessoDetail() {
   // Mutation para configurar monitoramento
   const updateMonitoringMutation = useMutation({
     mutationFn: async ({ premium }: { premium: boolean }) => {
-      const provider = premium ? 'escavador' : 'advise';
+      const provider = premium ? "escavador" : "advise";
 
-      const { error } = await lf.rpc('lf_set_monitoring', {
+      const { error } = await lf.rpc("lf_set_monitoring", {
         p_numero_cnj: numero_cnj,
         p_provider: provider,
         p_active: true,
-        p_premium: premium
+        p_premium: premium,
       });
 
       if (error) throw error;
@@ -306,16 +322,16 @@ export function ProcessoDetail() {
       refetchMonitoring();
       toast({
         title: "Monitoramento atualizado",
-        description: "Configurações de monitoramento salvas com sucesso"
+        description: "Configurações de monitoramento salvas com sucesso",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Erro",
         description: error.message || "Erro ao atualizar monitoramento",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   // Mutation para executar sync
@@ -323,8 +339,8 @@ export function ProcessoDetail() {
     mutationFn: async () => {
       setIsUpdating(true);
 
-      const { data: jobId, error } = await lf.rpc('lf_run_sync', {
-        p_numero_cnj: numero_cnj
+      const { data: jobId, error } = await lf.rpc("lf_run_sync", {
+        p_numero_cnj: numero_cnj,
       });
 
       if (error) throw error;
@@ -339,9 +355,13 @@ export function ProcessoDetail() {
 
       // Invalidar queries após sync
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['processo', numero_cnj] });
-        queryClient.invalidateQueries({ queryKey: ['partes-processo', numero_cnj] });
-        queryClient.invalidateQueries({ queryKey: ['monitoring-settings', numero_cnj] });
+        queryClient.invalidateQueries({ queryKey: ["processo", numero_cnj] });
+        queryClient.invalidateQueries({
+          queryKey: ["partes-processo", numero_cnj],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["monitoring-settings", numero_cnj],
+        });
         refetchMovimentacoes();
         refetchPublicacoes();
       }, 2000);
@@ -358,9 +378,18 @@ export function ProcessoDetail() {
 
   // Mutation para marcar publicação como lida
   const markPublicacaoMutation = useMutation({
-    mutationFn: async ({ publicacaoId, lido }: { publicacaoId: number; lido: boolean }) => {
+    mutationFn: async ({
+      publicacaoId,
+      lido,
+    }: {
+      publicacaoId: number;
+      lido: boolean;
+    }) => {
       // Implement Advise API call to mark as read
-      const result = await processAPIService.markPublicacaoLida(publicacaoId, lido);
+      const result = await processAPIService.markPublicacaoLida(
+        publicacaoId,
+        lido,
+      );
       return result;
     },
     onSuccess: () => {
@@ -392,9 +421,11 @@ export function ProcessoDetail() {
 
   const openChat = () => {
     // Open chat thread for this process
-    window.dispatchEvent(new CustomEvent('open-chat', { 
-      detail: { numero_cnj, context: 'processo' } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent("open-chat", {
+        detail: { numero_cnj, context: "processo" },
+      }),
+    );
   };
 
   const startJourney = () => {
@@ -413,20 +444,18 @@ export function ProcessoDetail() {
     }
 
     try {
-      const { error } = await supabase
-        .from('clientes')
-        .upsert({
-          cpfcnpj: parte.cpfcnpj,
-          nome: parte.nome,
-        });
+      const { error } = await supabase.from("clientes").upsert({
+        cpfcnpj: parte.cpfcnpj,
+        nome: parte.nome,
+      });
 
       if (error) throw error;
 
       // Update parte to mark as cliente
       const { error: parteError } = await lf
-        .from('partes_processo')
+        .from("partes_processo")
         .update({ is_cliente: true })
-        .eq('id', parte.id);
+        .eq("id", parte.id);
 
       if (parteError) throw parteError;
 
@@ -448,21 +477,25 @@ export function ProcessoDetail() {
 
   // Get processo capa data
   const capa: ProcessoCapa | null = processo?.data?.capa || null;
-  const lastUpdate = processo?.created_at ? new Date(processo.created_at) : null;
+  const lastUpdate = processo?.created_at
+    ? new Date(processo.created_at)
+    : null;
 
   // Filter data based on search
-  const filteredMovimentacoes = movimentacoes.filter(mov =>
-    mov.texto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    mov.orgao.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredMovimentacoes = movimentacoes.filter(
+    (mov) =>
+      mov.texto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mov.orgao.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const filteredPublicacoes = publicacoes.filter(pub =>
-    pub.resumo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    pub.palavra_chave.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPublicacoes = publicacoes.filter(
+    (pub) =>
+      pub.resumo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pub.palavra_chave.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const filteredDocumentos = documentos.filter(doc =>
-    doc.file_name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDocumentos = documentos.filter((doc) =>
+    doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   if (processoError) {
@@ -470,14 +503,16 @@ export function ProcessoDetail() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Erro ao carregar processo</h2>
+          <h2 className="text-xl font-semibold mb-2">
+            Erro ao carregar processo
+          </h2>
           <p className="text-neutral-600 mb-4">{processoError.message}</p>
           <div className="flex gap-2 justify-center">
             <Button onClick={() => refetchProcesso()}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Tentar Novamente
             </Button>
-            <Button variant="outline" onClick={() => navigate('/processos')}>
+            <Button variant="outline" onClick={() => navigate("/processos")}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar
             </Button>
@@ -495,7 +530,10 @@ export function ProcessoDetail() {
           <div className="flex items-center justify-between max-w-6xl mx-auto">
             <div className="flex items-center gap-3">
               <span className="font-medium">🚀 Nova versão disponível!</span>
-              <span className="text-blue-100">Experimente o ProcessoDetail v2 com chat IA, monitoramento avançado e muito mais</span>
+              <span className="text-blue-100">
+                Experimente o ProcessoDetail v2 com chat IA, monitoramento
+                avançado e muito mais
+              </span>
             </div>
             <Link
               to={`/processos-v2/${numero_cnj}`}
@@ -512,13 +550,13 @@ export function ProcessoDetail() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/processos')}
+                onClick={() => navigate("/processos")}
                 className="text-neutral-600 hover:text-neutral-900"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Processos
               </Button>
-              
+
               <div className="flex items-center gap-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -549,7 +587,9 @@ export function ProcessoDetail() {
                     {lastUpdate && (
                       <>
                         <span>•</span>
-                        <span>Atualizado {formatDateTime(lastUpdate.toISOString())}</span>
+                        <span>
+                          Atualizado {formatDateTime(lastUpdate.toISOString())}
+                        </span>
                       </>
                     )}
                   </div>
@@ -564,7 +604,9 @@ export function ProcessoDetail() {
                 variant="outline"
                 size="sm"
               >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 mr-2 ${isUpdating ? "animate-spin" : ""}`}
+                />
                 Atualizar Agora
               </Button>
 
@@ -636,50 +678,72 @@ export function ProcessoDetail() {
                     {processoLoading ? (
                       <div className="space-y-4">
                         {Array.from({ length: 6 }).map((_, i) => (
-                          <div key={i} className="h-4 bg-neutral-200 rounded animate-pulse" />
+                          <div
+                            key={i}
+                            className="h-4 bg-neutral-200 rounded animate-pulse"
+                          />
                         ))}
                       </div>
                     ) : capa ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div>
-                            <Label className="text-sm font-medium text-neutral-600">��rea</Label>
+                            <Label className="text-sm font-medium text-neutral-600">
+                              ��rea
+                            </Label>
                             <p className="text-sm mt-1">{capa.area}</p>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-neutral-600">Classe</Label>
+                            <Label className="text-sm font-medium text-neutral-600">
+                              Classe
+                            </Label>
                             <p className="text-sm mt-1">{capa.classe}</p>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-neutral-600">Assunto</Label>
+                            <Label className="text-sm font-medium text-neutral-600">
+                              Assunto
+                            </Label>
                             <p className="text-sm mt-1">{capa.assunto}</p>
                           </div>
                         </div>
                         <div className="space-y-4">
                           <div>
-                            <Label className="text-sm font-medium text-neutral-600">Valor da Causa</Label>
+                            <Label className="text-sm font-medium text-neutral-600">
+                              Valor da Causa
+                            </Label>
                             <p className="text-sm mt-1">
-                              {capa.valor_causa 
-                                ? new Intl.NumberFormat('pt-BR', { 
-                                    style: 'currency', 
-                                    currency: 'BRL' 
+                              {capa.valor_causa
+                                ? new Intl.NumberFormat("pt-BR", {
+                                    style: "currency",
+                                    currency: "BRL",
                                   }).format(capa.valor_causa)
-                                : 'Não informado'
-                              }
+                                : "Não informado"}
                             </p>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-neutral-600">Órgão Julgador</Label>
-                            <p className="text-sm mt-1">{capa.orgao_julgador}</p>
+                            <Label className="text-sm font-medium text-neutral-600">
+                              Órgão Julgador
+                            </Label>
+                            <p className="text-sm mt-1">
+                              {capa.orgao_julgador}
+                            </p>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-neutral-600">Data de Distribuição</Label>
-                            <p className="text-sm mt-1">{formatDate(capa.data_distribuicao)}</p>
+                            <Label className="text-sm font-medium text-neutral-600">
+                              Data de Distribuição
+                            </Label>
+                            <p className="text-sm mt-1">
+                              {formatDate(capa.data_distribuicao)}
+                            </p>
                           </div>
                           {capa.data_arquivamento && (
                             <div>
-                              <Label className="text-sm font-medium text-neutral-600">Data de Arquivamento</Label>
-                              <p className="text-sm mt-1">{formatDate(capa.data_arquivamento)}</p>
+                              <Label className="text-sm font-medium text-neutral-600">
+                                Data de Arquivamento
+                              </Label>
+                              <p className="text-sm mt-1">
+                                {formatDate(capa.data_arquivamento)}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -691,13 +755,16 @@ export function ProcessoDetail() {
                           Dados da capa não disponíveis
                         </h3>
                         <p className="text-neutral-500 mb-4">
-                          Clique em "Atualizar Agora" para buscar os dados da fonte ativa.
+                          Clique em "Atualizar Agora" para buscar os dados da
+                          fonte ativa.
                         </p>
                         <Button
                           onClick={() => updateProcessoMutation.mutate()}
                           disabled={isUpdating}
                         >
-                          <RefreshCw className={`w-4 h-4 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
+                          <RefreshCw
+                            className={`w-4 h-4 mr-2 ${isUpdating ? "animate-spin" : ""}`}
+                          />
                           Buscar Dados
                         </Button>
                       </div>
@@ -716,20 +783,32 @@ export function ProcessoDetail() {
                     {capa?.audiencias && capa.audiencias.length > 0 ? (
                       <div className="space-y-4">
                         {capa.audiencias.map((audiencia, index) => (
-                          <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-4 border rounded-lg"
+                          >
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <Calendar className="w-4 h-4 text-neutral-500" />
-                                <span className="font-medium">{formatDateTime(audiencia.data)}</span>
-                                <Badge variant="outline">{audiencia.tipo}</Badge>
-                                <Badge 
-                                  variant={audiencia.situacao === 'Realizada' ? 'default' : 'secondary'}
+                                <span className="font-medium">
+                                  {formatDateTime(audiencia.data)}
+                                </span>
+                                <Badge variant="outline">
+                                  {audiencia.tipo}
+                                </Badge>
+                                <Badge
+                                  variant={
+                                    audiencia.situacao === "Realizada"
+                                      ? "default"
+                                      : "secondary"
+                                  }
                                 >
                                   {audiencia.situacao}
                                 </Badge>
                               </div>
                               <p className="text-sm text-neutral-600">
-                                Participantes: {audiencia.participantes.join(', ')}
+                                Participantes:{" "}
+                                {audiencia.participantes.join(", ")}
                               </p>
                             </div>
                             <Button variant="outline" size="sm">
@@ -742,7 +821,9 @@ export function ProcessoDetail() {
                     ) : (
                       <div className="text-center py-8">
                         <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-                        <p className="text-neutral-500">Nenhuma audiência encontrada</p>
+                        <p className="text-neutral-500">
+                          Nenhuma audiência encontrada
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -763,22 +844,33 @@ export function ProcessoDetail() {
                   <CardContent>
                     {partes.length > 0 ? (
                       <div className="space-y-6">
-                        {['ativo', 'passivo', 'outros'].map((polo) => {
-                          const partesGrupo = partes.filter(p => p.polo === polo);
+                        {["ativo", "passivo", "outros"].map((polo) => {
+                          const partesGrupo = partes.filter(
+                            (p) => p.polo === polo,
+                          );
                           if (partesGrupo.length === 0) return null;
 
                           return (
                             <div key={polo}>
                               <h4 className="font-medium mb-3 text-sm uppercase tracking-wide text-neutral-600">
-                                Polo {polo.charAt(0).toUpperCase() + polo.slice(1)}
+                                Polo{" "}
+                                {polo.charAt(0).toUpperCase() + polo.slice(1)}
                               </h4>
                               <div className="space-y-3">
                                 {partesGrupo.map((parte) => (
-                                  <div key={parte.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                  <div
+                                    key={parte.id}
+                                    className="flex items-center justify-between p-4 border rounded-lg"
+                                  >
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-medium">{parte.nome}</span>
-                                        <Badge variant="outline" className="text-xs">
+                                        <span className="font-medium">
+                                          {parte.nome}
+                                        </span>
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs"
+                                        >
                                           {parte.papel}
                                         </Badge>
                                         {parte.is_cliente && (
@@ -789,14 +881,23 @@ export function ProcessoDetail() {
                                       </div>
                                       <div className="flex items-center gap-4 text-sm text-neutral-600">
                                         <span>
-                                          {parte.tipo_pessoa === 'fisica' ? '👤' : '🏢'} 
-                                          {parte.tipo_pessoa === 'fisica' ? 'Pessoa Física' : 'Pessoa Jurídica'}
+                                          {parte.tipo_pessoa === "fisica"
+                                            ? "👤"
+                                            : "🏢"}
+                                          {parte.tipo_pessoa === "fisica"
+                                            ? "Pessoa Física"
+                                            : "Pessoa Jurídica"}
                                         </span>
                                         {parte.cpfcnpj && (
-                                          <span>{formatCPFCNPJ(parte.cpfcnpj)}</span>
+                                          <span>
+                                            {formatCPFCNPJ(parte.cpfcnpj)}
+                                          </span>
                                         )}
                                         {parte.advogado_oabs.length > 0 && (
-                                          <span>OABs: {parte.advogado_oabs.join(', ')}</span>
+                                          <span>
+                                            OABs:{" "}
+                                            {parte.advogado_oabs.join(", ")}
+                                          </span>
                                         )}
                                       </div>
                                     </div>
@@ -821,10 +922,14 @@ export function ProcessoDetail() {
                                           </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent>
-                                          <DropdownMenuItem onClick={createTicket}>
+                                          <DropdownMenuItem
+                                            onClick={createTicket}
+                                          >
                                             Criar Ticket
                                           </DropdownMenuItem>
-                                          <DropdownMenuItem onClick={createActivity}>
+                                          <DropdownMenuItem
+                                            onClick={createActivity}
+                                          >
                                             Criar Atividade
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -840,7 +945,9 @@ export function ProcessoDetail() {
                     ) : (
                       <div className="text-center py-8">
                         <Users className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-                        <p className="text-neutral-500">Nenhuma parte encontrada</p>
+                        <p className="text-neutral-500">
+                          Nenhuma parte encontrada
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -852,7 +959,9 @@ export function ProcessoDetail() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Movimentações ({filteredMovimentacoes.length})</CardTitle>
+                      <CardTitle>
+                        Movimentações ({filteredMovimentacoes.length})
+                      </CardTitle>
                       {movimentacoesLoading && (
                         <RefreshCw className="w-4 h-4 animate-spin text-neutral-500" />
                       )}
@@ -862,7 +971,10 @@ export function ProcessoDetail() {
                     {filteredMovimentacoes.length > 0 ? (
                       <div className="space-y-4">
                         {filteredMovimentacoes.map((mov) => (
-                          <div key={mov.id} className="flex gap-4 p-4 border rounded-lg">
+                          <div
+                            key={mov.id}
+                            className="flex gap-4 p-4 border rounded-lg"
+                          >
                             <div className="flex-shrink-0">
                               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                                 <Building className="w-4 h-4 text-blue-600" />
@@ -870,18 +982,28 @@ export function ProcessoDetail() {
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm font-medium">{formatDateTime(mov.data)}</span>
+                                <span className="text-sm font-medium">
+                                  {formatDateTime(mov.data)}
+                                </span>
                                 <Badge variant="outline" className="text-xs">
                                   {mov.orgao}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-neutral-700">{mov.texto}</p>
+                              <p className="text-sm text-neutral-700">
+                                {mov.texto}
+                              </p>
                               {mov.anexos && mov.anexos.length > 0 && (
                                 <div className="mt-2">
-                                  <p className="text-xs text-neutral-500 mb-1">Anexos:</p>
+                                  <p className="text-xs text-neutral-500 mb-1">
+                                    Anexos:
+                                  </p>
                                   <div className="flex gap-2">
                                     {mov.anexos.map((anexo, idx) => (
-                                      <Button key={idx} variant="outline" size="sm">
+                                      <Button
+                                        key={idx}
+                                        variant="outline"
+                                        size="sm"
+                                      >
                                         <Download className="w-3 h-3 mr-1" />
                                         {anexo}
                                       </Button>
@@ -915,7 +1037,9 @@ export function ProcessoDetail() {
                       <div className="text-center py-8">
                         <Activity className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
                         <p className="text-neutral-500">
-                          {searchTerm ? 'Nenhuma movimentação encontrada para o filtro' : 'Nenhuma movimentação encontrada'}
+                          {searchTerm
+                            ? "Nenhuma movimentação encontrada para o filtro"
+                            : "Nenhuma movimentação encontrada"}
                         </p>
                       </div>
                     )}
@@ -928,7 +1052,9 @@ export function ProcessoDetail() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Publicações ({filteredPublicacoes.length})</CardTitle>
+                      <CardTitle>
+                        Publicações ({filteredPublicacoes.length})
+                      </CardTitle>
                       {publicacoesLoading && (
                         <RefreshCw className="w-4 h-4 animate-spin text-neutral-500" />
                       )}
@@ -938,11 +1064,16 @@ export function ProcessoDetail() {
                     {filteredPublicacoes.length > 0 ? (
                       <div className="space-y-4">
                         {filteredPublicacoes.map((pub) => (
-                          <div key={pub.id} className="flex gap-4 p-4 border rounded-lg">
+                          <div
+                            key={pub.id}
+                            className="flex gap-4 p-4 border rounded-lg"
+                          >
                             <div className="flex-shrink-0">
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                pub.lido ? 'bg-green-100' : 'bg-yellow-100'
-                              }`}>
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  pub.lido ? "bg-green-100" : "bg-yellow-100"
+                                }`}
+                              >
                                 {pub.lido ? (
                                   <CheckCircle2 className="w-4 h-4 text-green-600" />
                                 ) : (
@@ -952,7 +1083,9 @@ export function ProcessoDetail() {
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm font-medium">{formatDate(pub.data_publicacao)}</span>
+                                <span className="text-sm font-medium">
+                                  {formatDate(pub.data_publicacao)}
+                                </span>
                                 <Badge variant="outline" className="text-xs">
                                   {pub.diario}
                                 </Badge>
@@ -962,17 +1095,23 @@ export function ProcessoDetail() {
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-sm text-neutral-700 mb-1">{pub.resumo}</p>
-                              <p className="text-xs text-neutral-500">Palavra-chave: {pub.palavra_chave}</p>
+                              <p className="text-sm text-neutral-700 mb-1">
+                                {pub.resumo}
+                              </p>
+                              <p className="text-xs text-neutral-500">
+                                Palavra-chave: {pub.palavra_chave}
+                              </p>
                             </div>
                             <div className="flex items-center gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => markPublicacaoMutation.mutate({
-                                  publicacaoId: pub.id,
-                                  lido: !pub.lido
-                                })}
+                                onClick={() =>
+                                  markPublicacaoMutation.mutate({
+                                    publicacaoId: pub.id,
+                                    lido: !pub.lido,
+                                  })
+                                }
                               >
                                 {pub.lido ? (
                                   <>
@@ -1009,7 +1148,9 @@ export function ProcessoDetail() {
                       <div className="text-center py-8">
                         <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
                         <p className="text-neutral-500">
-                          {searchTerm ? 'Nenhuma publicação encontrada para o filtro' : 'Nenhuma publicação encontrada'}
+                          {searchTerm
+                            ? "Nenhuma publicação encontrada para o filtro"
+                            : "Nenhuma publicação encontrada"}
                         </p>
                       </div>
                     )}
@@ -1022,7 +1163,9 @@ export function ProcessoDetail() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Documentos ({filteredDocumentos.length})</CardTitle>
+                      <CardTitle>
+                        Documentos ({filteredDocumentos.length})
+                      </CardTitle>
                       {documentosLoading && (
                         <RefreshCw className="w-4 h-4 animate-spin text-neutral-500" />
                       )}
@@ -1032,13 +1175,17 @@ export function ProcessoDetail() {
                     {filteredDocumentos.length > 0 ? (
                       <div className="space-y-4">
                         {filteredDocumentos.map((doc) => (
-                          <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div
+                            key={doc.id}
+                            className="flex items-center justify-between p-4 border rounded-lg"
+                          >
                             <div className="flex items-center gap-3">
                               <FileText className="w-8 h-8 text-neutral-400" />
                               <div>
                                 <p className="font-medium">{doc.file_name}</p>
                                 <p className="text-sm text-neutral-500">
-                                  {(doc.file_size / 1024 / 1024).toFixed(2)} MB • {formatDateTime(doc.created_at)}
+                                  {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                                  • {formatDateTime(doc.created_at)}
                                 </p>
                               </div>
                             </div>
@@ -1059,7 +1206,9 @@ export function ProcessoDetail() {
                       <div className="text-center py-8">
                         <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
                         <p className="text-neutral-500">
-                          {searchTerm ? 'Nenhum documento encontrado para o filtro' : 'Nenhum documento encontrado'}
+                          {searchTerm
+                            ? "Nenhum documento encontrado para o filtro"
+                            : "Nenhum documento encontrado"}
                         </p>
                       </div>
                     )}
@@ -1079,11 +1228,16 @@ export function ProcessoDetail() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="premium-toggle" className="text-sm font-medium">
+                    <Label
+                      htmlFor="premium-toggle"
+                      className="text-sm font-medium"
+                    >
                       Monitoramento Premium
                     </Label>
                     <p className="text-xs text-neutral-500 mt-1">
-                      {premiumEnabled ? 'Escavador ativo' : 'Usando Advise (padrão)'}
+                      {premiumEnabled
+                        ? "Escavador ativo"
+                        : "Usando Advise (padrão)"}
                     </p>
                   </div>
                   <Switch
@@ -1095,14 +1249,14 @@ export function ProcessoDetail() {
                     disabled={updateMonitoringMutation.isPending}
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Fonte ativa:</span>
-                    <Badge variant={premiumEnabled ? 'default' : 'secondary'}>
-                      {premiumEnabled ? 'Escavador' : 'Advise'}
+                    <Badge variant={premiumEnabled ? "default" : "secondary"}>
+                      {premiumEnabled ? "Escavador" : "Advise"}
                     </Badge>
                   </div>
                   {monitoringSettings && (
@@ -1121,7 +1275,9 @@ export function ProcessoDetail() {
                   className="w-full"
                   size="sm"
                 >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isUpdating || runSyncMutation.isPending ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`w-4 h-4 mr-2 ${isUpdating || runSyncMutation.isPending ? "animate-spin" : ""}`}
+                  />
                   Aplicar e Atualizar
                 </Button>
               </CardContent>
@@ -1138,7 +1294,9 @@ export function ProcessoDetail() {
                   <Badge variant="outline">{partes.length}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Movimentações</span>
+                  <span className="text-sm text-neutral-600">
+                    Movimentações
+                  </span>
                   <Badge variant="outline">{movimentacoes.length}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
@@ -1152,7 +1310,7 @@ export function ProcessoDetail() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-600">Não lidas</span>
                   <Badge variant="destructive">
-                    {publicacoes.filter(p => !p.lido).length}
+                    {publicacoes.filter((p) => !p.lido).length}
                   </Badge>
                 </div>
               </CardContent>
@@ -1192,7 +1350,10 @@ export function ProcessoDetail() {
         </div>
 
         {/* Create Cliente Dialog */}
-        <Dialog open={isClienteDialogOpen} onOpenChange={setIsClienteDialogOpen}>
+        <Dialog
+          open={isClienteDialogOpen}
+          onOpenChange={setIsClienteDialogOpen}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Criar Cliente</DialogTitle>
@@ -1208,13 +1369,17 @@ export function ProcessoDetail() {
                 </div>
                 <div>
                   <Label>CPF/CNPJ</Label>
-                  <Input value={selectedParte.cpfcnpj || ''} readOnly />
+                  <Input value={selectedParte.cpfcnpj || ""} readOnly />
                 </div>
                 <div>
                   <Label>Tipo</Label>
-                  <Input 
-                    value={selectedParte.tipo_pessoa === 'fisica' ? 'Pessoa Física' : 'Pessoa Jurídica'} 
-                    readOnly 
+                  <Input
+                    value={
+                      selectedParte.tipo_pessoa === "fisica"
+                        ? "Pessoa Física"
+                        : "Pessoa Jurídica"
+                    }
+                    readOnly
                   />
                 </div>
                 <div>
@@ -1224,10 +1389,17 @@ export function ProcessoDetail() {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsClienteDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsClienteDialogOpen(false)}
+              >
                 Cancelar
               </Button>
-              <Button onClick={() => selectedParte && addParteAsCliente(selectedParte)}>
+              <Button
+                onClick={() =>
+                  selectedParte && addParteAsCliente(selectedParte)
+                }
+              >
                 Criar Cliente
               </Button>
             </DialogFooter>

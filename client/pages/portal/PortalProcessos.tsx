@@ -48,10 +48,11 @@ interface ProcessoPortal {
 
 export function PortalProcessos() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProcesso, setSelectedProcesso] = useState<ProcessoPortal | null>(null);
+  const [selectedProcesso, setSelectedProcesso] =
+    useState<ProcessoPortal | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const itemsPerPage = 10;
 
   // P2.10 - Buscar processos do cliente logado
@@ -67,7 +68,8 @@ export function PortalProcessos() {
       // Por enquanto, buscar todos os processos como demo
       let query = supabase
         .from("processos")
-        .select(`
+        .select(
+          `
           numero_cnj,
           tribunal_sigla,
           titulo_polo_ativo,
@@ -79,17 +81,23 @@ export function PortalProcessos() {
               cpfcnpj
             )
           )
-        `, { count: "exact" })
+        `,
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtro de busca
       if (searchTerm) {
-        query = query.or(`numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%`);
+        query = query.or(
+          `numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%`,
+        );
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
@@ -107,7 +115,7 @@ export function PortalProcessos() {
             ...processo,
             ultimo_evento: timelineData?.[0] || null,
           };
-        })
+        }),
       );
 
       return {
@@ -120,10 +128,7 @@ export function PortalProcessos() {
   });
 
   // Buscar documentos básicos do processo selecionado
-  const {
-    data: documentos = [],
-    isLoading: documentosLoading,
-  } = useQuery({
+  const { data: documentos = [], isLoading: documentosLoading } = useQuery({
     queryKey: ["processo-documentos", selectedProcesso?.numero_cnj],
     queryFn: async () => {
       if (!selectedProcesso?.numero_cnj) return [];
@@ -142,9 +147,12 @@ export function PortalProcessos() {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      return [...(docs || []), ...(peticoes || [])].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      ).slice(0, 5);
+      return [...(docs || []), ...(peticoes || [])]
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )
+        .slice(0, 5);
     },
     enabled: !!selectedProcesso?.numero_cnj,
   });
@@ -156,7 +164,10 @@ export function PortalProcessos() {
   const formatCNJ = (cnj: string) => {
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
-      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+      return clean.replace(
+        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+        "$1-$2.$3.$4.$5.$6",
+      );
     }
     return cnj;
   };
@@ -173,15 +184,21 @@ export function PortalProcessos() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold">Meus Processos</h1>
-            <p className="text-neutral-600 mt-1">Visualize seus processos ativos</p>
+            <h1 className="text-2xl font-heading font-semibold">
+              Meus Processos
+            </h1>
+            <p className="text-neutral-600 mt-1">
+              Visualize seus processos ativos
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar processos</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar processos
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -196,8 +213,12 @@ export function PortalProcessos() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold">Meus Processos</h1>
-          <p className="text-neutral-600 mt-1">Visualize seus processos ativos</p>
+          <h1 className="text-2xl font-heading font-semibold">
+            Meus Processos
+          </h1>
+          <p className="text-neutral-600 mt-1">
+            Visualize seus processos ativos
+          </p>
         </div>
       </div>
 
@@ -232,8 +253,13 @@ export function PortalProcessos() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-              <span className="ml-2 text-neutral-600">Carregando processos...</span>
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: "var(--brand-700)" }}
+              />
+              <span className="ml-2 text-neutral-600">
+                Carregando processos...
+              </span>
             </div>
           ) : processosData.data.length === 0 ? (
             <div className="text-center py-12">
@@ -242,10 +268,9 @@ export function PortalProcessos() {
                 Nenhum processo encontrado
               </h3>
               <p className="text-neutral-600">
-                {searchTerm 
+                {searchTerm
                   ? "Ajuste os termos de busca ou entre em contato com seu advogado"
-                  : "Você ainda não possui processos cadastrados"
-                }
+                  : "Você ainda não possui processos cadastrados"}
               </p>
             </div>
           ) : (
@@ -312,7 +337,9 @@ export function PortalProcessos() {
       {processosData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, processosData.total)} de {processosData.total} processos
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, processosData.total)} de{" "}
+            {processosData.total} processos
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -351,7 +378,7 @@ export function PortalProcessos() {
               {selectedProcesso && getResumo(selectedProcesso)}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedProcesso && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Informações do Processo */}
@@ -362,16 +389,28 @@ export function PortalProcessos() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <label className="text-sm font-medium text-neutral-600">CNJ</label>
-                      <p className="text-sm font-mono">{formatCNJ(selectedProcesso.numero_cnj)}</p>
+                      <label className="text-sm font-medium text-neutral-600">
+                        CNJ
+                      </label>
+                      <p className="text-sm font-mono">
+                        {formatCNJ(selectedProcesso.numero_cnj)}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-neutral-600">Tribunal</label>
-                      <p className="text-sm">{selectedProcesso.tribunal_sigla || "Não informado"}</p>
+                      <label className="text-sm font-medium text-neutral-600">
+                        Tribunal
+                      </label>
+                      <p className="text-sm">
+                        {selectedProcesso.tribunal_sigla || "Não informado"}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-neutral-600">Cadastrado em</label>
-                      <p className="text-sm">{formatDate(selectedProcesso.created_at)}</p>
+                      <label className="text-sm font-medium text-neutral-600">
+                        Cadastrado em
+                      </label>
+                      <p className="text-sm">
+                        {formatDate(selectedProcesso.created_at)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -380,12 +419,16 @@ export function PortalProcessos() {
                 {selectedProcesso.ultimo_evento && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Última Movimentação</CardTitle>
+                      <CardTitle className="text-lg">
+                        Última Movimentação
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{selectedProcesso.ultimo_evento.tipo}</span>
+                          <span className="text-sm font-medium">
+                            {selectedProcesso.ultimo_evento.tipo}
+                          </span>
                           <span className="text-xs text-neutral-500">
                             {formatDate(selectedProcesso.ultimo_evento.data)}
                           </span>
@@ -413,13 +456,19 @@ export function PortalProcessos() {
                     <div className="text-center py-6">
                       <MessageSquare className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
                       <p className="text-sm text-neutral-600 mb-3">
-                        Converse diretamente com seu advogado sobre este processo
+                        Converse diretamente com seu advogado sobre este
+                        processo
                       </p>
-                      <Link 
+                      <Link
                         to="/portal/chat"
                         onClick={() => setIsDetailDialogOpen(false)}
                       >
-                        <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                        <Button
+                          style={{
+                            backgroundColor: "var(--brand-700)",
+                            color: "white",
+                          }}
+                        >
                           <MessageSquare className="w-4 h-4 mr-2" />
                           Abrir Chat
                         </Button>
@@ -451,7 +500,10 @@ export function PortalProcessos() {
                     ) : (
                       <div className="space-y-2">
                         {documentos.map((doc) => (
-                          <div key={doc.id} className="flex items-center justify-between p-2 rounded hover:bg-neutral-50">
+                          <div
+                            key={doc.id}
+                            className="flex items-center justify-between p-2 rounded hover:bg-neutral-50"
+                          >
                             <div className="flex items-center gap-2">
                               <FileText className="w-4 h-4 text-neutral-400" />
                               <div>

@@ -9,7 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -110,10 +115,12 @@ export function Activities() {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null,
+  );
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -126,11 +133,19 @@ export function Activities() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["activities", searchTerm, filterStatus, filterPriority, filterAssigned, currentPage],
+    queryKey: [
+      "activities",
+      searchTerm,
+      filterStatus,
+      filterPriority,
+      filterAssigned,
+      currentPage,
+    ],
     queryFn: async () => {
       let query = lf
         .from("activities")
-        .select(`
+        .select(
+          `
           *,
           clientes:public.clientes!activities_cliente_cpfcnpj_fkey (
             nome
@@ -138,12 +153,16 @@ export function Activities() {
           advogados:public.advogados!activities_assigned_oab_fkey (
             nome
           )
-        `, { count: "exact" })
+        `,
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `title.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (filterStatus !== "todos") {
@@ -163,8 +182,10 @@ export function Activities() {
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
@@ -182,7 +203,7 @@ export function Activities() {
             responsavel_nome: activity.advogados?.nome,
             comments_count: commentsCount || 0,
           };
-        })
+        }),
       );
 
       return {
@@ -202,7 +223,7 @@ export function Activities() {
         .from("clientes")
         .select("cpfcnpj, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -216,7 +237,7 @@ export function Activities() {
         .from("advogados")
         .select("oab, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -231,17 +252,14 @@ export function Activities() {
         .select("numero_cnj")
         .order("created_at", { ascending: false })
         .limit(100);
-      
+
       if (error) throw error;
       return data;
     },
   });
 
   // Buscar comentários da activity selecionada
-  const {
-    data: comments = [],
-    isLoading: commentsLoading,
-  } = useQuery({
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: ["activity-comments", selectedActivity?.id],
     queryFn: async () => {
       if (!selectedActivity?.id) return [];
@@ -265,8 +283,12 @@ export function Activities() {
         title: activityData.title,
         status: "todo",
         priority: activityData.priority,
-        due_at: activityData.due_at ? new Date(activityData.due_at).toISOString() : null,
-        assigned_oab: activityData.assigned_oab ? parseInt(activityData.assigned_oab) : null,
+        due_at: activityData.due_at
+          ? new Date(activityData.due_at).toISOString()
+          : null,
+        assigned_oab: activityData.assigned_oab
+          ? parseInt(activityData.assigned_oab)
+          : null,
         cliente_cpfcnpj: activityData.cliente_cpfcnpj || null,
         numero_cnj: activityData.numero_cnj || null,
         created_by: "current_user", // TODO: Get from auth context
@@ -327,14 +349,22 @@ export function Activities() {
 
   // P2.8 - Mutation para adicionar comentário
   const commentMutation = useMutation({
-    mutationFn: async ({ activityId, body }: { activityId: string; body: string }) => {
+    mutationFn: async ({
+      activityId,
+      body,
+    }: {
+      activityId: string;
+      body: string;
+    }) => {
       const { data, error } = await lf
         .from("activity_comments")
-        .insert([{
-          activity_id: activityId,
-          author_id: "current_user", // TODO: Get from auth context
-          body,
-        }])
+        .insert([
+          {
+            activity_id: activityId,
+            author_id: "current_user", // TODO: Get from auth context
+            body,
+          },
+        ])
         .select();
 
       if (error) throw error;
@@ -359,12 +389,18 @@ export function Activities() {
 
   // P2.8 - Mutation para alterar status (kanban drag-and-drop)
   const statusMutation = useMutation({
-    mutationFn: async ({ activityId, newStatus }: { activityId: string; newStatus: string }) => {
+    mutationFn: async ({
+      activityId,
+      newStatus,
+    }: {
+      activityId: string;
+      newStatus: string;
+    }) => {
       const { data, error } = await lf
         .from("activities")
         .update({
           status: newStatus,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", activityId)
         .select();
@@ -391,7 +427,7 @@ export function Activities() {
   const handleSubmitActivity = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     const activityData: ActivityFormData = {
       title: formData.get("title") as string,
       due_at: formData.get("due_at") as string,
@@ -424,38 +460,56 @@ export function Activities() {
     if (!cnj) return null;
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
-      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+      return clean.replace(
+        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+        "$1-$2.$3.$4.$5.$6",
+      );
     }
     return cnj;
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "todo": return "destructive";
-      case "in_progress": return "default";
-      case "done": return "secondary";
-      case "blocked": return "outline";
-      default: return "secondary";
+      case "todo":
+        return "destructive";
+      case "in_progress":
+        return "default";
+      case "done":
+        return "secondary";
+      case "blocked":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "todo": return <AlertCircle className="w-4 h-4" />;
-      case "in_progress": return <PlayCircle className="w-4 h-4" />;
-      case "done": return <CheckCircle2 className="w-4 h-4" />;
-      case "blocked": return <AlertCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case "todo":
+        return <AlertCircle className="w-4 h-4" />;
+      case "in_progress":
+        return <PlayCircle className="w-4 h-4" />;
+      case "done":
+        return <CheckCircle2 className="w-4 h-4" />;
+      case "blocked":
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "urgente": return "destructive";
-      case "alta": return "default";
-      case "media": return "secondary";
-      case "baixa": return "outline";
-      default: return "secondary";
+      case "urgente":
+        return "destructive";
+      case "alta":
+        return "default";
+      case "media":
+        return "secondary";
+      case "baixa":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
@@ -470,14 +524,18 @@ export function Activities() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-heading font-semibold">Activities</h1>
-            <p className="text-neutral-600 mt-1">Tarefas com prazo/responsável vinculadas ao caso</p>
+            <p className="text-neutral-600 mt-1">
+              Tarefas com prazo/responsável vinculadas ao caso
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar activities</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar activities
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -493,11 +551,15 @@ export function Activities() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Activities</h1>
-          <p className="text-neutral-600 mt-1">Tarefas com prazo/responsável vinculadas ao caso</p>
+          <p className="text-neutral-600 mt-1">
+            Tarefas com prazo/responsável vinculadas ao caso
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+            <Button
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nova Activity
             </Button>
@@ -512,7 +574,9 @@ export function Activities() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Título *</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Título *
+                  </label>
                   <Input
                     name="title"
                     placeholder="Descreva a tarefa"
@@ -521,14 +585,15 @@ export function Activities() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Vence em</label>
-                    <Input
-                      name="due_at"
-                      type="datetime-local"
-                    />
+                    <label className="block text-sm font-medium mb-2">
+                      Vence em
+                    </label>
+                    <Input name="due_at" type="datetime-local" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Prioridade</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Prioridade
+                    </label>
                     <Select name="priority" defaultValue="media">
                       <SelectTrigger>
                         <SelectValue />
@@ -543,7 +608,9 @@ export function Activities() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Responsável (OAB)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Responsável (OAB)
+                  </label>
                   <Select name="assigned_oab">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um responsável (opcional)" />
@@ -551,7 +618,10 @@ export function Activities() {
                     <SelectContent>
                       <SelectItem value="">Não atribuído</SelectItem>
                       {advogados.map((advogado) => (
-                        <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                        <SelectItem
+                          key={advogado.oab}
+                          value={advogado.oab.toString()}
+                        >
                           {advogado.nome} (OAB {advogado.oab})
                         </SelectItem>
                       ))}
@@ -559,7 +629,9 @@ export function Activities() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Cliente</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Cliente
+                  </label>
                   <Select name="cliente_cpfcnpj">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um cliente (opcional)" />
@@ -567,7 +639,10 @@ export function Activities() {
                     <SelectContent>
                       <SelectItem value="">Nenhum cliente</SelectItem>
                       {clientes.map((cliente) => (
-                        <SelectItem key={cliente.cpfcnpj} value={cliente.cpfcnpj}>
+                        <SelectItem
+                          key={cliente.cpfcnpj}
+                          value={cliente.cpfcnpj}
+                        >
                           {cliente.nome} ({cliente.cpfcnpj})
                         </SelectItem>
                       ))}
@@ -575,7 +650,9 @@ export function Activities() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Processo (CNJ)
+                  </label>
                   <Select name="numero_cnj">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um processo (opcional)" />
@@ -583,7 +660,10 @@ export function Activities() {
                     <SelectContent>
                       <SelectItem value="">Nenhum processo</SelectItem>
                       {processos.map((processo) => (
-                        <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                        <SelectItem
+                          key={processo.numero_cnj}
+                          value={processo.numero_cnj}
+                        >
                           {formatCNJ(processo.numero_cnj)}
                         </SelectItem>
                       ))}
@@ -600,7 +680,9 @@ export function Activities() {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={activityMutation.isPending}>
-                  {activityMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {activityMutation.isPending && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Criar Activity
                 </Button>
               </DialogFooter>
@@ -678,7 +760,10 @@ export function Activities() {
                   <SelectItem value="todos">Todos os responsáveis</SelectItem>
                   <SelectItem value="nao-atribuido">Não atribuído</SelectItem>
                   {advogados.map((advogado) => (
-                    <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                    <SelectItem
+                      key={advogado.oab}
+                      value={advogado.oab.toString()}
+                    >
                       {advogado.nome} (OAB {advogado.oab})
                     </SelectItem>
                   ))}
@@ -699,8 +784,13 @@ export function Activities() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-              <span className="ml-2 text-neutral-600">Carregando activities...</span>
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: "var(--brand-700)" }}
+              />
+              <span className="ml-2 text-neutral-600">
+                Carregando activities...
+              </span>
             </div>
           ) : (
             <Table>
@@ -739,7 +829,8 @@ export function Activities() {
                         {activity.comments_count > 0 && (
                           <div className="flex items-center gap-1 text-xs text-neutral-500 mt-1">
                             <MessageSquare className="w-3 h-3" />
-                            {activity.comments_count} comentário{activity.comments_count !== 1 ? 's' : ''}
+                            {activity.comments_count} comentário
+                            {activity.comments_count !== 1 ? "s" : ""}
                           </div>
                         )}
                       </TableCell>
@@ -758,24 +849,34 @@ export function Activities() {
                       </TableCell>
                       <TableCell>
                         {activity.due_at ? (
-                          <div className={`text-sm ${isOverdue(activity.due_at) ? 'text-red-600 font-medium' : 'text-neutral-600'}`}>
+                          <div
+                            className={`text-sm ${isOverdue(activity.due_at) ? "text-red-600 font-medium" : "text-neutral-600"}`}
+                          >
                             <div className="flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
                               {formatDateTime(activity.due_at)}
                             </div>
                             {isOverdue(activity.due_at) && (
-                              <div className="text-xs text-red-500">Atrasado</div>
+                              <div className="text-xs text-red-500">
+                                Atrasado
+                              </div>
                             )}
                           </div>
                         ) : (
-                          <span className="text-neutral-400 text-sm">Sem prazo</span>
+                          <span className="text-neutral-400 text-sm">
+                            Sem prazo
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
                         {activity.responsavel_nome ? (
                           <div className="text-sm">
-                            <div className="font-medium">{activity.responsavel_nome}</div>
-                            <div className="text-xs text-neutral-500">OAB {activity.assigned_oab}</div>
+                            <div className="font-medium">
+                              {activity.responsavel_nome}
+                            </div>
+                            <div className="text-xs text-neutral-500">
+                              OAB {activity.assigned_oab}
+                            </div>
                           </div>
                         ) : (
                           <Badge variant="outline">Não atribuído</Badge>
@@ -784,7 +885,9 @@ export function Activities() {
                       <TableCell>
                         {activity.cliente_nome ? (
                           <div className="text-sm">
-                            <div className="font-medium truncate max-w-32">{activity.cliente_nome}</div>
+                            <div className="font-medium truncate max-w-32">
+                              {activity.cliente_nome}
+                            </div>
                           </div>
                         ) : (
                           <span className="text-neutral-400 text-sm">-</span>
@@ -792,7 +895,12 @@ export function Activities() {
                       </TableCell>
                       <TableCell>
                         {activity.numero_cnj ? (
-                          <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                          <Badge
+                            style={{
+                              backgroundColor: "var(--brand-700)",
+                              color: "white",
+                            }}
+                          >
                             {formatCNJ(activity.numero_cnj)}
                           </Badge>
                         ) : (
@@ -816,8 +924,10 @@ export function Activities() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => moveToDoneMutation.mutate(activity.id)}
-                              style={{ color: 'var(--success)' }}
+                              onClick={() =>
+                                moveToDoneMutation.mutate(activity.id)
+                              }
+                              style={{ color: "var(--success)" }}
                             >
                               <CheckCircle2 className="w-4 h-4 mr-1" />
                               Concluir
@@ -838,7 +948,9 @@ export function Activities() {
       {activitiesData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, activitiesData.total)} de {activitiesData.total} activities
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, activitiesData.total)} de{" "}
+            {activitiesData.total} activities
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -871,17 +983,17 @@ export function Activities() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Detalhes da Activity</DialogTitle>
-            <DialogDescription>
-              {selectedActivity?.title}
-            </DialogDescription>
+            <DialogDescription>{selectedActivity?.title}</DialogDescription>
           </DialogHeader>
           {selectedActivity && (
             <Tabs defaultValue="comments">
               <TabsList>
-                <TabsTrigger value="comments">Comentários ({comments.length})</TabsTrigger>
+                <TabsTrigger value="comments">
+                  Comentários ({comments.length})
+                </TabsTrigger>
                 <TabsTrigger value="properties">Propriedades</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="comments" className="space-y-4">
                 {/* Lista de comentários */}
                 <div className="max-h-64 overflow-y-auto space-y-3">
@@ -903,7 +1015,9 @@ export function Activities() {
                             {formatDateTime(comment.created_at)}
                           </span>
                         </div>
-                        <p className="text-sm text-neutral-700">{comment.body}</p>
+                        <p className="text-sm text-neutral-700">
+                          {comment.body}
+                        </p>
                       </div>
                     ))
                   )}
@@ -920,7 +1034,10 @@ export function Activities() {
                   <Button
                     onClick={handleAddComment}
                     disabled={!newComment.trim() || commentMutation.isPending}
-                    style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                    style={{
+                      backgroundColor: "var(--brand-700)",
+                      color: "white",
+                    }}
                   >
                     {commentMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -934,7 +1051,9 @@ export function Activities() {
               <TabsContent value="properties" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Status</label>
+                    <label className="text-sm font-medium text-neutral-600">
+                      Status
+                    </label>
                     <div className="mt-1">
                       <Badge variant={getStatusColor(selectedActivity.status)}>
                         {selectedActivity.status.replace("_", " ")}
@@ -942,20 +1061,32 @@ export function Activities() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Prioridade</label>
+                    <label className="text-sm font-medium text-neutral-600">
+                      Prioridade
+                    </label>
                     <div className="mt-1">
-                      <Badge variant={getPriorityColor(selectedActivity.priority)}>
+                      <Badge
+                        variant={getPriorityColor(selectedActivity.priority)}
+                      >
                         {selectedActivity.priority}
                       </Badge>
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Criado em</label>
-                    <div className="text-sm mt-1">{formatDateTime(selectedActivity.created_at)}</div>
+                    <label className="text-sm font-medium text-neutral-600">
+                      Criado em
+                    </label>
+                    <div className="text-sm mt-1">
+                      {formatDateTime(selectedActivity.created_at)}
+                    </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Atualizado em</label>
-                    <div className="text-sm mt-1">{formatDateTime(selectedActivity.updated_at)}</div>
+                    <label className="text-sm font-medium text-neutral-600">
+                      Atualizado em
+                    </label>
+                    <div className="text-sm mt-1">
+                      {formatDateTime(selectedActivity.updated_at)}
+                    </div>
                   </div>
                 </div>
                 {selectedActivity.status !== "done" && (
@@ -965,7 +1096,10 @@ export function Activities() {
                         moveToDoneMutation.mutate(selectedActivity.id);
                         setIsDetailDialogOpen(false);
                       }}
-                      style={{ backgroundColor: 'var(--success)', color: 'white' }}
+                      style={{
+                        backgroundColor: "var(--success)",
+                        color: "white",
+                      }}
                     >
                       <CheckCircle2 className="w-4 h-4 mr-2" />
                       Mover para Done

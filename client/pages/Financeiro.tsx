@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Plus, 
+import React, { useState } from "react";
+import {
+  DollarSign,
+  TrendingUp,
+  Plus,
   Calendar,
   CheckCircle,
   AlertCircle,
@@ -17,42 +17,52 @@ import {
   Loader2,
   Clock,
   Users,
-  FileText
-} from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+  FileText,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
   DialogDescription,
-  DialogFooter 
-} from '../components/ui/dialog';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '../components/ui/select';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '../components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Label } from '../components/ui/label';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { lf, supabase } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
-import { cn } from '../lib/utils';
+  DialogFooter,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { Label } from "../components/ui/label";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { lf, supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import { cn } from "../lib/utils";
 
 interface PlanoPagamento {
   id: string;
@@ -91,9 +101,11 @@ export function Financeiro() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPlano, setEditingPlano] = useState<PlanoPagamento | null>(null);
-  const [selectedPlano, setSelectedPlano] = useState<PlanoPagamento | null>(null);
+  const [selectedPlano, setSelectedPlano] = useState<PlanoPagamento | null>(
+    null,
+  );
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const itemsPerPage = 20;
@@ -109,17 +121,22 @@ export function Financeiro() {
     queryFn: async () => {
       let query = lf
         .from("planos_pagamento")
-        .select(`
+        .select(
+          `
           *,
           clientes:public.clientes!planos_pagamento_cliente_cpfcnpj_fkey (
             nome
           )
-        `, { count: "exact" })
+        `,
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`cliente_cpfcnpj.ilike.%${searchTerm}%,processo_numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `cliente_cpfcnpj.ilike.%${searchTerm}%,processo_numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (filterStatus !== "todos") {
@@ -132,18 +149,19 @@ export function Financeiro() {
       query = query.range(from, to);
 
       const { data, error, count } = await query;
-      
+
       if (error) throw error;
-      
+
       const totalPages = Math.ceil((count || 0) / itemsPerPage);
-      
+
       return {
-        data: data?.map(plano => ({
-          ...plano,
-          cliente_nome: plano.clientes?.[0]?.nome
-        })) || [],
+        data:
+          data?.map((plano) => ({
+            ...plano,
+            cliente_nome: plano.clientes?.[0]?.nome,
+          })) || [],
         total: count || 0,
-        totalPages
+        totalPages,
       };
     },
     staleTime: 5 * 60 * 1000,
@@ -157,7 +175,7 @@ export function Financeiro() {
         .from("clientes")
         .select("cpfcnpj, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data;
     },
@@ -171,7 +189,7 @@ export function Financeiro() {
         .from("processos")
         .select("numero_cnj, titulo_polo_ativo")
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
@@ -182,13 +200,13 @@ export function Financeiro() {
     queryKey: ["parcelas-pagamento", selectedPlano?.id],
     queryFn: async () => {
       if (!selectedPlano?.id) return [];
-      
+
       const { data, error } = await lf
         .from("parcelas_pagamento")
         .select("*")
         .eq("plano_id", selectedPlano.id)
         .order("n_parcela", { ascending: true });
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -213,30 +231,31 @@ export function Financeiro() {
             .update(dataToSave)
             .eq("id", editingPlano.id)
             .select()
-        : await lf
-            .from("planos_pagamento")
-            .insert([dataToSave])
-            .select();
+        : await lf.from("planos_pagamento").insert([dataToSave]).select();
 
       if (error) throw error;
-      
+
       // Se for novo plano, criar parcelas
       if (!editingPlano && data?.[0]) {
         const planoId = data[0].id;
-        const amountPerInstallment = planoData.amount_total / planoData.installments;
-        
-        const parcelas = Array.from({ length: planoData.installments }, (_, index) => {
-          const dueDate = new Date();
-          dueDate.setMonth(dueDate.getMonth() + index + 1);
-          
-          return {
-            plano_id: planoId,
-            n_parcela: index + 1,
-            due_date: dueDate.toISOString().split('T')[0],
-            amount: amountPerInstallment,
-            status: "pendente",
-          };
-        });
+        const amountPerInstallment =
+          planoData.amount_total / planoData.installments;
+
+        const parcelas = Array.from(
+          { length: planoData.installments },
+          (_, index) => {
+            const dueDate = new Date();
+            dueDate.setMonth(dueDate.getMonth() + index + 1);
+
+            return {
+              plano_id: planoId,
+              n_parcela: index + 1,
+              due_date: dueDate.toISOString().split("T")[0],
+              amount: amountPerInstallment,
+              status: "pendente",
+            };
+          },
+        );
 
         const { error: parcelasError } = await lf
           .from("parcelas_pagamento")
@@ -253,8 +272,8 @@ export function Financeiro() {
       setEditingPlano(null);
       toast({
         title: editingPlano ? "Plano atualizado" : "Plano criado",
-        description: editingPlano 
-          ? "Plano de pagamento atualizado com sucesso" 
+        description: editingPlano
+          ? "Plano de pagamento atualizado com sucesso"
           : "Novo plano de pagamento criado",
       });
     },
@@ -269,7 +288,13 @@ export function Financeiro() {
 
   // Mutation para atualizar status de parcela
   const parcelaMutation = useMutation({
-    mutationFn: async ({ parcelaId, status }: { parcelaId: string; status: string }) => {
+    mutationFn: async ({
+      parcelaId,
+      status,
+    }: {
+      parcelaId: string;
+      status: string;
+    }) => {
       const updateData: any = { status };
       if (status === "pago") {
         updateData.paid_at = new Date().toISOString();
@@ -297,7 +322,7 @@ export function Financeiro() {
   const handleSubmitPlano = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     const planoData: PlanoFormData = {
       cliente_cpfcnpj: formData.get("cliente_cpfcnpj") as string,
       processo_numero_cnj: formData.get("processo_numero_cnj") as string,
@@ -310,21 +335,31 @@ export function Financeiro() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pendente": return "bg-yellow-100 text-yellow-800";
-      case "pago": return "bg-green-100 text-green-800";
-      case "vencido": return "bg-red-100 text-red-800";
-      case "cancelado": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "pendente":
+        return "bg-yellow-100 text-yellow-800";
+      case "pago":
+        return "bg-green-100 text-green-800";
+      case "vencido":
+        return "bg-red-100 text-red-800";
+      case "cancelado":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pendente": return <Clock className="w-4 h-4" />;
-      case "pago": return <CheckCircle className="w-4 h-4" />;
-      case "vencido": return <AlertCircle className="w-4 h-4" />;
-      case "cancelado": return <AlertCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case "pendente":
+        return <Clock className="w-4 h-4" />;
+      case "pago":
+        return <CheckCircle className="w-4 h-4" />;
+      case "vencido":
+        return <AlertCircle className="w-4 h-4" />;
+      case "cancelado":
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
     }
   };
 
@@ -343,7 +378,7 @@ export function Financeiro() {
     const total = planosData.data.reduce((sum, p) => sum + p.amount_total, 0);
     const pago = planosData.data.reduce((sum, p) => sum + p.paid_amount, 0);
     const pendente = total - pago;
-    
+
     return { total, pago, pendente };
   };
 
@@ -355,14 +390,18 @@ export function Financeiro() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-heading font-semibold">Financeiro</h1>
-            <p className="text-neutral-600 mt-1">Gestão financeira e faturamento</p>
+            <p className="text-neutral-600 mt-1">
+              Gestão financeira e faturamento
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar dados financeiros</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar dados financeiros
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -378,11 +417,15 @@ export function Financeiro() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Financeiro</h1>
-          <p className="text-neutral-600 mt-1">Gestão financeira e faturamento</p>
+          <p className="text-neutral-600 mt-1">
+            Gestão financeira e faturamento
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+            <Button
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Novo Plano de Pagamento
             </Button>
@@ -394,21 +437,28 @@ export function Financeiro() {
                   {editingPlano ? "Editar Plano" : "Novo Plano de Pagamento"}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingPlano 
-                    ? "Atualize as informações do plano de pagamento" 
+                  {editingPlano
+                    ? "Atualize as informações do plano de pagamento"
                     : "Crie um novo plano de pagamento para o cliente"}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
                   <Label>Cliente *</Label>
-                  <Select name="cliente_cpfcnpj" defaultValue={editingPlano?.cliente_cpfcnpj} required>
+                  <Select
+                    name="cliente_cpfcnpj"
+                    defaultValue={editingPlano?.cliente_cpfcnpj}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o cliente" />
                     </SelectTrigger>
                     <SelectContent>
                       {clientes.map((cliente) => (
-                        <SelectItem key={cliente.cpfcnpj} value={cliente.cpfcnpj}>
+                        <SelectItem
+                          key={cliente.cpfcnpj}
+                          value={cliente.cpfcnpj}
+                        >
                           {cliente.nome} ({cliente.cpfcnpj})
                         </SelectItem>
                       ))}
@@ -417,14 +467,20 @@ export function Financeiro() {
                 </div>
                 <div>
                   <Label>Processo (opcional)</Label>
-                  <Select name="processo_numero_cnj" defaultValue={editingPlano?.processo_numero_cnj || ""}>
+                  <Select
+                    name="processo_numero_cnj"
+                    defaultValue={editingPlano?.processo_numero_cnj || ""}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o processo (opcional)" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Nenhum processo</SelectItem>
                       {processos.map((processo) => (
-                        <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                        <SelectItem
+                          key={processo.numero_cnj}
+                          value={processo.numero_cnj}
+                        >
                           {processo.numero_cnj} - {processo.titulo_polo_ativo}
                         </SelectItem>
                       ))}
@@ -445,16 +501,22 @@ export function Financeiro() {
                 </div>
                 <div>
                   <Label>Número de Parcelas *</Label>
-                  <Select name="installments" defaultValue={editingPlano?.installments?.toString()} required>
+                  <Select
+                    name="installments"
+                    defaultValue={editingPlano?.installments?.toString()}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num}x
-                        </SelectItem>
-                      ))}
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                        (num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num}x
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -467,18 +529,23 @@ export function Financeiro() {
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={planoMutation.isPending}
-                  style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                  style={{
+                    backgroundColor: "var(--brand-700)",
+                    color: "white",
+                  }}
                 >
                   {planoMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Salvando...
                     </>
+                  ) : editingPlano ? (
+                    "Atualizar"
                   ) : (
-                    editingPlano ? "Atualizar" : "Criar Plano"
+                    "Criar Plano"
                   )}
                 </Button>
               </DialogFooter>
@@ -491,7 +558,9 @@ export function Financeiro() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total a Receber</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total a Receber
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -513,7 +582,10 @@ export function Financeiro() {
               {formatCurrency(stats.pago)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.total > 0 ? `${((stats.pago / stats.total) * 100).toFixed(1)}%` : "0%"} do total
+              {stats.total > 0
+                ? `${((stats.pago / stats.total) * 100).toFixed(1)}%`
+                : "0%"}{" "}
+              do total
             </p>
           </CardContent>
         </Card>
@@ -591,8 +663,8 @@ export function Financeiro() {
                 Nenhum plano encontrado
               </h3>
               <p className="text-neutral-500">
-                {searchTerm || filterStatus !== "todos" 
-                  ? "Tente ajustar os filtros de busca" 
+                {searchTerm || filterStatus !== "todos"
+                  ? "Tente ajustar os filtros de busca"
                   : "Crie o primeiro plano de pagamento"}
               </p>
             </div>
@@ -616,7 +688,9 @@ export function Financeiro() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{plano.cliente_nome}</div>
-                        <div className="text-sm text-neutral-500">{plano.cliente_cpfcnpj}</div>
+                        <div className="text-sm text-neutral-500">
+                          {plano.cliente_cpfcnpj}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -630,14 +704,22 @@ export function Financeiro() {
                     <TableCell>{plano.installments}x</TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{formatCurrency(plano.paid_amount)}</div>
+                        <div className="font-medium">
+                          {formatCurrency(plano.paid_amount)}
+                        </div>
                         <div className="text-sm text-neutral-500">
-                          {((plano.paid_amount / plano.amount_total) * 100).toFixed(1)}%
+                          {(
+                            (plano.paid_amount / plano.amount_total) *
+                            100
+                          ).toFixed(1)}
+                          %
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={cn("text-xs", getStatusColor(plano.status))}>
+                      <Badge
+                        className={cn("text-xs", getStatusColor(plano.status))}
+                      >
                         <div className="flex items-center gap-1">
                           {getStatusIcon(plano.status)}
                           {plano.status}
@@ -681,7 +763,9 @@ export function Financeiro() {
       {planosData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, planosData.total)} de {planosData.total} resultados
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, planosData.total)} de{" "}
+            {planosData.total} resultados
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -716,7 +800,7 @@ export function Financeiro() {
               Detalhes do Plano de Pagamento
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedPlano && (
             <div className="space-y-6">
               {/* Plano Info */}
@@ -731,11 +815,18 @@ export function Financeiro() {
                 </div>
                 <div>
                   <span className="text-sm text-neutral-600">Valor Total:</span>
-                  <p className="font-medium text-lg">{formatCurrency(selectedPlano.amount_total)}</p>
+                  <p className="font-medium text-lg">
+                    {formatCurrency(selectedPlano.amount_total)}
+                  </p>
                 </div>
                 <div>
                   <span className="text-sm text-neutral-600">Status:</span>
-                  <Badge className={cn("text-xs", getStatusColor(selectedPlano.status))}>
+                  <Badge
+                    className={cn(
+                      "text-xs",
+                      getStatusColor(selectedPlano.status),
+                    )}
+                  >
                     {selectedPlano.status}
                   </Badge>
                 </div>
@@ -743,7 +834,9 @@ export function Financeiro() {
 
               {/* Parcelas */}
               <div>
-                <h4 className="text-lg font-medium mb-4">Parcelas ({parcelas.length})</h4>
+                <h4 className="text-lg font-medium mb-4">
+                  Parcelas ({parcelas.length})
+                </h4>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -758,13 +851,20 @@ export function Financeiro() {
                   <TableBody>
                     {parcelas.map((parcela) => (
                       <TableRow key={parcela.id}>
-                        <TableCell>{parcela.n_parcela}/{selectedPlano.installments}</TableCell>
+                        <TableCell>
+                          {parcela.n_parcela}/{selectedPlano.installments}
+                        </TableCell>
                         <TableCell>{formatDate(parcela.due_date)}</TableCell>
                         <TableCell className="font-medium">
                           {formatCurrency(parcela.amount)}
                         </TableCell>
                         <TableCell>
-                          <Badge className={cn("text-xs", getStatusColor(parcela.status))}>
+                          <Badge
+                            className={cn(
+                              "text-xs",
+                              getStatusColor(parcela.status),
+                            )}
+                          >
                             {parcela.status}
                           </Badge>
                         </TableCell>
@@ -775,10 +875,10 @@ export function Financeiro() {
                           {parcela.status === "pendente" && (
                             <Button
                               size="sm"
-                              onClick={() => 
-                                parcelaMutation.mutate({ 
-                                  parcelaId: parcela.id, 
-                                  status: "pago" 
+                              onClick={() =>
+                                parcelaMutation.mutate({
+                                  parcelaId: parcela.id,
+                                  status: "pago",
                                 })
                               }
                               disabled={parcelaMutation.isPending}

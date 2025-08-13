@@ -16,7 +16,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -60,7 +65,7 @@ import {
   User,
   Clock,
   MessageSquare,
-  MoreHorizontal
+  MoreHorizontal,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
@@ -69,7 +74,7 @@ import { formatDate, formatCNJ } from "../lib/utils";
 import { useInboxRealtimeUpdates } from "../hooks/useRealtimeUpdates";
 
 interface PublicacaoUnificada {
-  source: 'publicacoes' | 'movimentacoes';
+  source: "publicacoes" | "movimentacoes";
   uid: number;
   numero_cnj: string | null;
   occured_at: string;
@@ -99,18 +104,21 @@ interface Advogado {
 export default function InboxLegalV2() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
-  const [activeTab, setActiveTab] = useState<'publicacoes' | 'movimentacoes'>('publicacoes');
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">(
+    "publicacoes",
+  );
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isVincularDialogOpen, setIsVincularDialogOpen] = useState(false);
   const [isNotificarDialogOpen, setIsNotificarDialogOpen] = useState(false);
-  const [isCriarProcessoDialogOpen, setIsCriarProcessoDialogOpen] = useState(false);
-  const [periodoFilter, setPeriodoFilter] = useState('all');
-  const [tribunalFilter, setTribunalFilter] = useState('all');
-  const [vinculadaFilter, setVinculadaFilter] = useState('all');
-  const [novoProcessoCnj, setNovoProcessoCnj] = useState('');
+  const [isCriarProcessoDialogOpen, setIsCriarProcessoDialogOpen] =
+    useState(false);
+  const [periodoFilter, setPeriodoFilter] = useState("all");
+  const [tribunalFilter, setTribunalFilter] = useState("all");
+  const [vinculadaFilter, setVinculadaFilter] = useState("all");
+  const [novoProcessoCnj, setNovoProcessoCnj] = useState("");
   const [buscandoProcesso, setBuscandoProcesso] = useState(false);
   const [dadosProcessoAdvise, setDadosProcessoAdvise] = useState<any>(null);
   const [isPrazoDialogOpen, setIsPrazoDialogOpen] = useState(false);
@@ -127,7 +135,14 @@ export default function InboxLegalV2() {
     isLoading: publicacoesLoading,
     error: publicacoesError,
   } = useQuery({
-    queryKey: ["publicacoes-unificadas", searchTerm, currentPage, periodoFilter, tribunalFilter, vinculadaFilter],
+    queryKey: [
+      "publicacoes-unificadas",
+      searchTerm,
+      currentPage,
+      periodoFilter,
+      tribunalFilter,
+      vinculadaFilter,
+    ],
     queryFn: async () => {
       let query = supabase
         .from("vw_publicacoes_unificadas")
@@ -136,25 +151,29 @@ export default function InboxLegalV2() {
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`numero_cnj.ilike.%${searchTerm}%,payload->>resumo.ilike.%${searchTerm}%,payload->>texto.ilike.%${searchTerm}%`);
+        query = query.or(
+          `numero_cnj.ilike.%${searchTerm}%,payload->>resumo.ilike.%${searchTerm}%,payload->>texto.ilike.%${searchTerm}%`,
+        );
       }
 
-      if (vinculadaFilter === 'vinculadas') {
-        query = query.not('numero_cnj', 'is', null);
-      } else if (vinculadaFilter === 'nao-vinculadas') {
-        query = query.is('numero_cnj', null);
+      if (vinculadaFilter === "vinculadas") {
+        query = query.not("numero_cnj", "is", null);
+      } else if (vinculadaFilter === "nao-vinculadas") {
+        query = query.is("numero_cnj", null);
       }
 
-      if (periodoFilter !== 'all') {
+      if (periodoFilter !== "all") {
         const days = parseInt(periodoFilter);
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
-        query = query.gte('occured_at', startDate.toISOString());
+        query = query.gte("occured_at", startDate.toISOString());
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
@@ -174,7 +193,14 @@ export default function InboxLegalV2() {
     isLoading: movimentacoesLoading,
     error: movimentacoesError,
   } = useQuery({
-    queryKey: ["movimentacoes", searchTerm, currentPage, periodoFilter, tribunalFilter, vinculadaFilter],
+    queryKey: [
+      "movimentacoes",
+      searchTerm,
+      currentPage,
+      periodoFilter,
+      tribunalFilter,
+      vinculadaFilter,
+    ],
     queryFn: async () => {
       let query = supabase
         .from("movimentacoes")
@@ -183,25 +209,29 @@ export default function InboxLegalV2() {
 
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(`numero_cnj.ilike.%${searchTerm}%,data->>texto.ilike.%${searchTerm}%,data->>resumo.ilike.%${searchTerm}%`);
+        query = query.or(
+          `numero_cnj.ilike.%${searchTerm}%,data->>texto.ilike.%${searchTerm}%,data->>resumo.ilike.%${searchTerm}%`,
+        );
       }
 
-      if (vinculadaFilter === 'vinculadas') {
-        query = query.not('numero_cnj', 'is', null);
-      } else if (vinculadaFilter === 'nao-vinculadas') {
-        query = query.is('numero_cnj', null);
+      if (vinculadaFilter === "vinculadas") {
+        query = query.not("numero_cnj", "is", null);
+      } else if (vinculadaFilter === "nao-vinculadas") {
+        query = query.is("numero_cnj", null);
       }
 
-      if (periodoFilter !== 'all') {
+      if (periodoFilter !== "all") {
         const days = parseInt(periodoFilter);
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
-        query = query.gte('data_movimentacao', startDate.toISOString());
+        query = query.gte("data_movimentacao", startDate.toISOString());
       }
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query
-        .range(startIndex, startIndex + itemsPerPage - 1);
+      const { data, error, count } = await query.range(
+        startIndex,
+        startIndex + itemsPerPage - 1,
+      );
 
       if (error) throw error;
 
@@ -223,7 +253,7 @@ export default function InboxLegalV2() {
         .from("processos")
         .select("numero_cnj, titulo_polo_ativo, titulo_polo_passivo")
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       return data as ProcessoParaVincular[];
     },
@@ -237,7 +267,7 @@ export default function InboxLegalV2() {
         .from("advogados")
         .select("oab, nome")
         .order("nome");
-      
+
       if (error) throw error;
       return data as Advogado[];
     },
@@ -245,7 +275,15 @@ export default function InboxLegalV2() {
 
   // Mutation para vincular ao CNJ
   const vincularMutation = useMutation({
-    mutationFn: async ({ itemId, tableName, numero_cnj }: { itemId: number; tableName: string; numero_cnj: string }) => {
+    mutationFn: async ({
+      itemId,
+      tableName,
+      numero_cnj,
+    }: {
+      itemId: number;
+      tableName: string;
+      numero_cnj: string;
+    }) => {
       const { data, error } = await supabase
         .from(tableName)
         .update({ numero_cnj })
@@ -276,7 +314,13 @@ export default function InboxLegalV2() {
 
   // Mutation para criar processo
   const criarProcessoMutation = useMutation({
-    mutationFn: async ({ numero_cnj, dadosAdvise }: { numero_cnj: string; dadosAdvise: any }) => {
+    mutationFn: async ({
+      numero_cnj,
+      dadosAdvise,
+    }: {
+      numero_cnj: string;
+      dadosAdvise: any;
+    }) => {
       const { data, error } = await supabase
         .from("processos")
         .insert({
@@ -284,7 +328,7 @@ export default function InboxLegalV2() {
           tribunal_sigla: dadosAdvise?.tribunal,
           titulo_polo_ativo: dadosAdvise?.polo_ativo || dadosAdvise?.assunto,
           titulo_polo_passivo: dadosAdvise?.polo_passivo,
-          data: { capa: dadosAdvise }
+          data: { capa: dadosAdvise },
         })
         .select()
         .single();
@@ -296,17 +340,19 @@ export default function InboxLegalV2() {
       queryClient.invalidateQueries({ queryKey: ["processos-para-vincular"] });
       setIsCriarProcessoDialogOpen(false);
       setDadosProcessoAdvise(null);
-      
+
       // Vincular automaticamente o item ao processo criado
       if (selectedItem) {
-        const tableName = selectedItem.source || (activeTab === 'publicacoes' ? 'publicacoes' : 'movimentacoes');
+        const tableName =
+          selectedItem.source ||
+          (activeTab === "publicacoes" ? "publicacoes" : "movimentacoes");
         vincularMutation.mutate({
           itemId: selectedItem.uid || selectedItem.id,
           tableName,
-          numero_cnj: processo.numero_cnj
+          numero_cnj: processo.numero_cnj,
         });
       }
-      
+
       toast({
         title: "Processo criado",
         description: `Processo ${formatCNJ(processo.numero_cnj)} criado e vinculado`,
@@ -323,7 +369,15 @@ export default function InboxLegalV2() {
 
   // Mutation para notificar responsável
   const notificarMutation = useMutation({
-    mutationFn: async ({ oab, message, title }: { oab: number; message: string; title: string }) => {
+    mutationFn: async ({
+      oab,
+      message,
+      title,
+    }: {
+      oab: number;
+      message: string;
+      title: string;
+    }) => {
       // Buscar user_id do advogado
       const { data: userAdvogado } = await supabase
         .from("user_advogado")
@@ -338,12 +392,14 @@ export default function InboxLegalV2() {
       // Inserir notificação
       const { data, error } = await supabase
         .from("notifications")
-        .insert([{
-          user_id: userAdvogado.user_id,
-          title,
-          message,
-          read: false,
-        }])
+        .insert([
+          {
+            user_id: userAdvogado.user_id,
+            title,
+            message,
+            read: false,
+          },
+        ])
         .select();
 
       if (error) throw error;
@@ -371,8 +427,10 @@ export default function InboxLegalV2() {
     setBuscandoProcesso(true);
     try {
       // Simular busca no Advise - aqui você colocaria a chamada real da API
-      const response = await fetch(`/api/advise/processo/${cnj}`).catch(() => null);
-      
+      const response = await fetch(`/api/advise/processo/${cnj}`).catch(
+        () => null,
+      );
+
       if (response?.ok) {
         const dados = await response.json();
         setDadosProcessoAdvise(dados);
@@ -380,12 +438,12 @@ export default function InboxLegalV2() {
         // Dados mock para demonstração
         const mockData = {
           numero_cnj: cnj,
-          tribunal: 'TJSP',
-          assunto: 'Ação Civil Pública',
-          polo_ativo: 'Requerente',
-          polo_passivo: 'Requerido',
-          classe: 'Procedimento Comum',
-          area: 'Cível'
+          tribunal: "TJSP",
+          assunto: "Ação Civil Pública",
+          polo_ativo: "Requerente",
+          polo_passivo: "Requerido",
+          classe: "Procedimento Comum",
+          area: "Cível",
         };
         setDadosProcessoAdvise(mockData);
       }
@@ -404,10 +462,11 @@ export default function InboxLegalV2() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const numero_cnj = formData.get("numero_cnj") as string;
-    
+
     if (!selectedItem) return;
 
-    const tableName = selectedItem.source === 'publicacoes' ? 'publicacoes' : 'movimentacoes';
+    const tableName =
+      selectedItem.source === "publicacoes" ? "publicacoes" : "movimentacoes";
     const itemId = selectedItem.source ? selectedItem.uid : selectedItem.id;
 
     vincularMutation.mutate({ itemId, tableName, numero_cnj });
@@ -433,27 +492,40 @@ export default function InboxLegalV2() {
     if (!dadosProcessoAdvise || !novoProcessoCnj) return;
     criarProcessoMutation.mutate({
       numero_cnj: novoProcessoCnj,
-      dadosAdvise: dadosProcessoAdvise
+      dadosAdvise: dadosProcessoAdvise,
     });
   };
 
   const getOrigem = (item: any) => {
-    if (activeTab === 'publicacoes') {
+    if (activeTab === "publicacoes") {
       return item.payload?.diario || item.payload?.origem || item.source;
     }
-    return item.data?.origem || item.data?.tribunal || 'Sistema';
+    return item.data?.origem || item.data?.tribunal || "Sistema";
   };
 
   const getResumo = (item: any) => {
-    if (activeTab === 'publicacoes') {
-      return item.payload?.resumo || item.payload?.texto || item.payload?.conteudo || 'Sem resumo';
+    if (activeTab === "publicacoes") {
+      return (
+        item.payload?.resumo ||
+        item.payload?.texto ||
+        item.payload?.conteudo ||
+        "Sem resumo"
+      );
     }
-    return item.data?.texto || item.data?.resumo || item.data?.movimento || 'Sem resumo';
+    return (
+      item.data?.texto ||
+      item.data?.resumo ||
+      item.data?.movimento ||
+      "Sem resumo"
+    );
   };
 
-  const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
-  const currentLoading = activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
-  const currentError = activeTab === "publicacoes" ? publicacoesError : movimentacoesError;
+  const currentData =
+    activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+  const currentLoading =
+    activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
+  const currentError =
+    activeTab === "publicacoes" ? publicacoesError : movimentacoesError;
 
   return (
     <div className="p-6 space-y-6">
@@ -461,7 +533,9 @@ export default function InboxLegalV2() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Inbox Legal</h1>
-          <p className="text-neutral-600 mt-1">Triagem de publicações e movimentações</p>
+          <p className="text-neutral-600 mt-1">
+            Triagem de publicações e movimentações
+          </p>
         </div>
       </div>
 
@@ -483,11 +557,14 @@ export default function InboxLegalV2() {
                 />
               </div>
             </div>
-            
-            <Select value={periodoFilter} onValueChange={(value) => {
-              setPeriodoFilter(value);
-              setCurrentPage(1);
-            }}>
+
+            <Select
+              value={periodoFilter}
+              onValueChange={(value) => {
+                setPeriodoFilter(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Período" />
               </SelectTrigger>
@@ -499,10 +576,13 @@ export default function InboxLegalV2() {
               </SelectContent>
             </Select>
 
-            <Select value={vinculadaFilter} onValueChange={(value) => {
-              setVinculadaFilter(value);
-              setCurrentPage(1);
-            }}>
+            <Select
+              value={vinculadaFilter}
+              onValueChange={(value) => {
+                setVinculadaFilter(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Vinculação" />
               </SelectTrigger>
@@ -516,10 +596,10 @@ export default function InboxLegalV2() {
             <Button
               variant="outline"
               onClick={() => {
-                setSearchTerm('');
-                setPeriodoFilter('all');
-                setTribunalFilter('all');
-                setVinculadaFilter('all');
+                setSearchTerm("");
+                setPeriodoFilter("all");
+                setTribunalFilter("all");
+                setVinculadaFilter("all");
                 setCurrentPage(1);
               }}
             >
@@ -531,16 +611,22 @@ export default function InboxLegalV2() {
       </Card>
 
       {/* Tabs Publicações | Movimentações */}
-      <Tabs value={activeTab} onValueChange={(value) => {
-        setActiveTab(value as 'publicacoes' | 'movimentacoes');
-        setCurrentPage(1);
-      }}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          setActiveTab(value as "publicacoes" | "movimentacoes");
+          setCurrentPage(1);
+        }}
+      >
         <TabsList>
           <TabsTrigger value="publicacoes" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Publicações ({publicacoesData.total})
           </TabsTrigger>
-          <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
+          <TabsTrigger
+            value="movimentacoes"
+            className="flex items-center gap-2"
+          >
             <Activity className="w-4 h-4" />
             Movimentações ({movimentacoesData.total})
           </TabsTrigger>
@@ -549,13 +635,20 @@ export default function InboxLegalV2() {
         <TabsContent value="publicacoes">
           <Card>
             <CardHeader>
-              <CardTitle>Publicações Unificadas ({publicacoesData.total})</CardTitle>
+              <CardTitle>
+                Publicações Unificadas ({publicacoesData.total})
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-                  <span className="ml-2 text-neutral-600">Carregando publicações...</span>
+                  <Loader2
+                    className="w-8 h-8 animate-spin"
+                    style={{ color: "var(--brand-700)" }}
+                  />
+                  <span className="ml-2 text-neutral-600">
+                    Carregando publicações...
+                  </span>
                 </div>
               ) : (
                 <Table>
@@ -580,7 +673,10 @@ export default function InboxLegalV2() {
                       </TableRow>
                     ) : (
                       currentData.data?.map((item: any) => (
-                        <TableRow key={`${item.source}-${item.uid}`} className="hover:bg-neutral-50">
+                        <TableRow
+                          key={`${item.source}-${item.uid}`}
+                          className="hover:bg-neutral-50"
+                        >
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-neutral-400" />
@@ -592,9 +688,7 @@ export default function InboxLegalV2() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <FileText className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">
-                                {getOrigem(item)}
-                              </span>
+                              <span className="text-sm">{getOrigem(item)}</span>
                               <Badge variant="outline" className="text-xs">
                                 {item.source}
                               </Badge>
@@ -609,13 +703,16 @@ export default function InboxLegalV2() {
                           </TableCell>
                           <TableCell>
                             {item.numero_cnj ? (
-                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                              <Badge
+                                style={{
+                                  backgroundColor: "var(--brand-700)",
+                                  color: "white",
+                                }}
+                              >
                                 {formatCNJ(item.numero_cnj)}
                               </Badge>
                             ) : (
-                              <Badge variant="destructive">
-                                Não vinculado
-                              </Badge>
+                              <Badge variant="destructive">Não vinculado</Badge>
                             )}
                           </TableCell>
                           <TableCell>
@@ -627,7 +724,7 @@ export default function InboxLegalV2() {
                                   setSelectedItem(item);
                                   setIsVincularDialogOpen(true);
                                 }}
-                                style={{ color: 'var(--brand-700)' }}
+                                style={{ color: "var(--brand-700)" }}
                               >
                                 <Link2 className="w-4 h-4 mr-1" />
                                 Vincular
@@ -647,7 +744,9 @@ export default function InboxLegalV2() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => window.open(item.payload.url, '_blank')}
+                                  onClick={() =>
+                                    window.open(item.payload.url, "_blank")
+                                  }
                                 >
                                   <ExternalLink className="w-4 h-4 mr-1" />
                                   Abrir
@@ -673,8 +772,13 @@ export default function InboxLegalV2() {
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
-                  <span className="ml-2 text-neutral-600">Carregando movimentações...</span>
+                  <Loader2
+                    className="w-8 h-8 animate-spin"
+                    style={{ color: "var(--brand-700)" }}
+                  />
+                  <span className="ml-2 text-neutral-600">
+                    Carregando movimentações...
+                  </span>
                 </div>
               ) : (
                 <Table>
@@ -704,16 +808,16 @@ export default function InboxLegalV2() {
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-neutral-400" />
                               <span className="text-sm">
-                                {formatDate(item.data_movimentacao || item.created_at)}
+                                {formatDate(
+                                  item.data_movimentacao || item.created_at,
+                                )}
                               </span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Building className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">
-                                {getOrigem(item)}
-                              </span>
+                              <span className="text-sm">{getOrigem(item)}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -725,13 +829,16 @@ export default function InboxLegalV2() {
                           </TableCell>
                           <TableCell>
                             {item.numero_cnj ? (
-                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                              <Badge
+                                style={{
+                                  backgroundColor: "var(--brand-700)",
+                                  color: "white",
+                                }}
+                              >
                                 {formatCNJ(item.numero_cnj)}
                               </Badge>
                             ) : (
-                              <Badge variant="destructive">
-                                Não vinculado
-                              </Badge>
+                              <Badge variant="destructive">Não vinculado</Badge>
                             )}
                           </TableCell>
                           <TableCell>
@@ -743,7 +850,7 @@ export default function InboxLegalV2() {
                                   setSelectedItem(item);
                                   setIsVincularDialogOpen(true);
                                 }}
-                                style={{ color: 'var(--brand-700)' }}
+                                style={{ color: "var(--brand-700)" }}
                               >
                                 <Link2 className="w-4 h-4 mr-1" />
                                 Vincular
@@ -766,7 +873,8 @@ export default function InboxLegalV2() {
                                   // Aqui você pode adicionar lógica para criar tarefa
                                   toast({
                                     title: "Criar Tarefa",
-                                    description: "Funcionalidade será implementada"
+                                    description:
+                                      "Funcionalidade será implementada",
                                   });
                                 }}
                               >
@@ -790,7 +898,9 @@ export default function InboxLegalV2() {
       {currentData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, currentData.total)} de {currentData.total} itens
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
+            {Math.min(currentPage * itemsPerPage, currentData.total)} de{" "}
+            {currentData.total} itens
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -819,38 +929,48 @@ export default function InboxLegalV2() {
       )}
 
       {/* Dialog Vincular CNJ */}
-      <Dialog open={isVincularDialogOpen} onOpenChange={setIsVincularDialogOpen}>
+      <Dialog
+        open={isVincularDialogOpen}
+        onOpenChange={setIsVincularDialogOpen}
+      >
         <DialogContent>
           <form onSubmit={handleVincular}>
             <DialogHeader>
               <DialogTitle>Vincular ao Processo</DialogTitle>
               <DialogDescription>
-                Selecione o processo para vincular este item ou crie um novo processo
+                Selecione o processo para vincular este item ou crie um novo
+                processo
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                <label className="block text-sm font-medium mb-2">
+                  Processo (CNJ)
+                </label>
                 <Select name="numero_cnj" required>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um processo" />
                   </SelectTrigger>
                   <SelectContent>
                     {processos.map((processo) => (
-                      <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
-                        {formatCNJ(processo.numero_cnj)} - {processo.titulo_polo_ativo}
+                      <SelectItem
+                        key={processo.numero_cnj}
+                        value={processo.numero_cnj}
+                      >
+                        {formatCNJ(processo.numero_cnj)} -{" "}
+                        {processo.titulo_polo_ativo}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <div className="flex-1 border-t border-neutral-200" />
                 <span className="text-sm text-neutral-500">ou</span>
                 <div className="flex-1 border-t border-neutral-200" />
               </div>
-              
+
               <Button
                 type="button"
                 variant="outline"
@@ -876,7 +996,9 @@ export default function InboxLegalV2() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={vincularMutation.isPending}>
-                {vincularMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {vincularMutation.isPending && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Vincular
               </Button>
             </DialogFooter>
@@ -885,7 +1007,10 @@ export default function InboxLegalV2() {
       </Dialog>
 
       {/* Dialog Criar Processo */}
-      <Dialog open={isCriarProcessoDialogOpen} onOpenChange={setIsCriarProcessoDialogOpen}>
+      <Dialog
+        open={isCriarProcessoDialogOpen}
+        onOpenChange={setIsCriarProcessoDialogOpen}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Criar Novo Processo</DialogTitle>
@@ -895,7 +1020,9 @@ export default function InboxLegalV2() {
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Número CNJ</label>
+              <label className="block text-sm font-medium mb-2">
+                Número CNJ
+              </label>
               <div className="flex gap-2">
                 <Input
                   placeholder="0000000-00.0000.0.00.0000"
@@ -917,25 +1044,32 @@ export default function InboxLegalV2() {
                 </Button>
               </div>
             </div>
-            
+
             {dadosProcessoAdvise && (
               <div className="border rounded-lg p-4 bg-neutral-50">
-                <h4 className="font-medium mb-3">Dados encontrados no Advise:</h4>
+                <h4 className="font-medium mb-3">
+                  Dados encontrados no Advise:
+                </h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="font-medium">CNJ:</span> {dadosProcessoAdvise.numero_cnj}
+                    <span className="font-medium">CNJ:</span>{" "}
+                    {dadosProcessoAdvise.numero_cnj}
                   </div>
                   <div>
-                    <span className="font-medium">Tribunal:</span> {dadosProcessoAdvise.tribunal}
+                    <span className="font-medium">Tribunal:</span>{" "}
+                    {dadosProcessoAdvise.tribunal}
                   </div>
                   <div>
-                    <span className="font-medium">Classe:</span> {dadosProcessoAdvise.classe}
+                    <span className="font-medium">Classe:</span>{" "}
+                    {dadosProcessoAdvise.classe}
                   </div>
                   <div>
-                    <span className="font-medium">Área:</span> {dadosProcessoAdvise.area}
+                    <span className="font-medium">Área:</span>{" "}
+                    {dadosProcessoAdvise.area}
                   </div>
                   <div className="col-span-2">
-                    <span className="font-medium">Assunto:</span> {dadosProcessoAdvise.assunto}
+                    <span className="font-medium">Assunto:</span>{" "}
+                    {dadosProcessoAdvise.assunto}
                   </div>
                 </div>
               </div>
@@ -948,7 +1082,7 @@ export default function InboxLegalV2() {
               onClick={() => {
                 setIsCriarProcessoDialogOpen(false);
                 setDadosProcessoAdvise(null);
-                setNovoProcessoCnj('');
+                setNovoProcessoCnj("");
               }}
             >
               Cancelar
@@ -957,7 +1091,9 @@ export default function InboxLegalV2() {
               onClick={handleCriarProcesso}
               disabled={!dadosProcessoAdvise || criarProcessoMutation.isPending}
             >
-              {criarProcessoMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {criarProcessoMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
               Criar Processo
             </Button>
           </DialogFooter>
@@ -965,7 +1101,10 @@ export default function InboxLegalV2() {
       </Dialog>
 
       {/* Dialog Notificar Responsável */}
-      <Dialog open={isNotificarDialogOpen} onOpenChange={setIsNotificarDialogOpen}>
+      <Dialog
+        open={isNotificarDialogOpen}
+        onOpenChange={setIsNotificarDialogOpen}
+      >
         <DialogContent>
           <form onSubmit={handleNotificar}>
             <DialogHeader>
@@ -976,14 +1115,19 @@ export default function InboxLegalV2() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Advogado</label>
+                <label className="block text-sm font-medium mb-2">
+                  Advogado
+                </label>
                 <Select name="oab" required>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um advogado" />
                   </SelectTrigger>
                   <SelectContent>
                     {advogados.map((advogado) => (
-                      <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                      <SelectItem
+                        key={advogado.oab}
+                        value={advogado.oab.toString()}
+                      >
                         {advogado.nome} (OAB {advogado.oab})
                       </SelectItem>
                     ))}
@@ -991,7 +1135,9 @@ export default function InboxLegalV2() {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Mensagem personalizada (opcional)</label>
+                <label className="block text-sm font-medium mb-2">
+                  Mensagem personalizada (opcional)
+                </label>
                 <Input
                   name="message"
                   placeholder="Deixe em branco para usar mensagem padrão"
@@ -1010,7 +1156,9 @@ export default function InboxLegalV2() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={notificarMutation.isPending}>
-                {notificarMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {notificarMutation.isPending && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Notificar
               </Button>
             </DialogFooter>

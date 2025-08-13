@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '../lib/utils';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "../lib/utils";
 import {
   LayoutDashboard,
   FileText,
@@ -19,154 +19,160 @@ import {
   CalendarCheck,
   Receipt,
   Ticket,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface SidebarProps {
-  userType: 'advogado' | 'cliente';
+  userType: "advogado" | "cliente";
 }
 
 const advogadoNavItems = [
   {
-    title: 'Dashboard',
-    href: '/',
+    title: "Dashboard",
+    href: "/",
     icon: LayoutDashboard,
-    description: 'Visão geral do escritório'
+    description: "Visão geral do escritório",
   },
   {
-    title: 'Processos',
-    href: '/processos',
+    title: "Processos",
+    href: "/processos",
     icon: FileText,
-    description: 'Gestão de processos'
+    description: "Gestão de processos",
   },
   {
-    title: 'Clientes',
-    href: '/clientes',
+    title: "Clientes",
+    href: "/clientes",
     icon: Users,
-    description: 'Base de clientes'
+    description: "Base de clientes",
   },
   {
-    title: 'Jornadas',
-    href: '/jornadas',
+    title: "Jornadas",
+    href: "/jornadas",
     icon: Target,
-    description: 'Jornadas do cliente'
+    description: "Jornadas do cliente",
   },
   {
-    title: 'Inbox Legal',
-    href: '/inbox',
+    title: "Inbox Legal",
+    href: "/inbox",
     icon: Inbox,
-    description: 'Triagem de publicações'
+    description: "Triagem de publicações",
   },
   {
-    title: 'Agenda',
-    href: '/agenda',
+    title: "Agenda",
+    href: "/agenda",
     icon: Calendar,
-    description: 'Compromissos e prazos'
+    description: "Compromissos e prazos",
   },
   {
-    title: 'Documentos',
-    href: '/documentos',
+    title: "Documentos",
+    href: "/documentos",
     icon: FolderOpen,
-    description: 'Biblioteca de documentos'
+    description: "Biblioteca de documentos",
   },
   {
-    title: 'Planos de Pagamento',
-    href: '/planos-pagamento',
+    title: "Planos de Pagamento",
+    href: "/planos-pagamento",
     icon: DollarSign,
-    description: 'Gestão de planos de pagamento'
+    description: "Gestão de planos de pagamento",
   },
   {
-    title: 'Relatórios',
-    href: '/relatorios',
+    title: "Relatórios",
+    href: "/relatorios",
     icon: BarChart3,
-    description: 'Análises e relatórios'
+    description: "Análises e relatórios",
   },
   {
-    title: 'Helpdesk',
-    href: '/helpdesk',
+    title: "Helpdesk",
+    href: "/helpdesk",
     icon: HeadphonesIcon,
-    description: 'Suporte ao cliente'
+    description: "Suporte ao cliente",
   },
   {
-    title: 'Serviços',
-    href: '/servicos',
+    title: "Serviços",
+    href: "/servicos",
     icon: ShoppingBag,
-    description: 'Catálogo de serviços'
+    description: "Catálogo de serviços",
   },
   {
-    title: 'Tickets',
-    href: '/tickets',
+    title: "Tickets",
+    href: "/tickets",
     icon: Ticket,
-    description: 'Sistema de atendimento'
+    description: "Sistema de atendimento",
   },
 ];
 
 const clienteNavItems = [
   {
-    title: 'Chat',
-    href: '/portal/chat',
+    title: "Chat",
+    href: "/portal/chat",
     icon: MessageSquare,
-    description: 'Fale com seu advogado'
+    description: "Fale com seu advogado",
   },
   {
-    title: 'Jornada',
-    href: '/portal/jornada',
+    title: "Jornada",
+    href: "/portal/jornada",
     icon: Target,
-    description: 'Acompanhe seu processo'
+    description: "Acompanhe seu processo",
   },
   {
-    title: 'Meus Processos',
-    href: '/portal/processos',
+    title: "Meus Processos",
+    href: "/portal/processos",
     icon: FileText,
-    description: 'Seus processos ativos'
+    description: "Seus processos ativos",
   },
   {
-    title: 'Compromissos',
-    href: '/portal/compromissos',
+    title: "Compromissos",
+    href: "/portal/compromissos",
     icon: CalendarCheck,
-    description: 'Agenda e prazos'
+    description: "Agenda e prazos",
   },
   {
-    title: 'Financeiro',
-    href: '/portal/financeiro',
+    title: "Financeiro",
+    href: "/portal/financeiro",
     icon: Receipt,
-    description: 'Faturas e pagamentos'
+    description: "Faturas e pagamentos",
   },
   {
-    title: 'Helpdesk',
-    href: '/portal/helpdesk',
+    title: "Helpdesk",
+    href: "/portal/helpdesk",
     icon: HeadphonesIcon,
-    description: 'Central de ajuda'
+    description: "Central de ajuda",
   },
   {
-    title: 'Serviços',
-    href: '/portal/servicos',
+    title: "Serviços",
+    href: "/portal/servicos",
     icon: ShoppingBag,
-    description: 'Contratar serviços'
+    description: "Contratar serviços",
   },
 ];
 
 export function Sidebar({ userType }: SidebarProps) {
   const location = useLocation();
-  const navItems = userType === 'advogado' ? advogadoNavItems : clienteNavItems;
+  const navItems = userType === "advogado" ? advogadoNavItems : clienteNavItems;
 
   const isActive = (href: string) => {
-    if (href === '/') return location.pathname === '/';
+    if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
   };
 
   return (
     <div className="app-sidebar">
       {/* Logo - F1.0 Branding */}
-      <div className="flex items-center justify-center h-16 border-b border-gray-200" style={{ backgroundColor: 'var(--brand-700)' }}>
+      <div
+        className="flex items-center justify-center h-16 border-b border-gray-200"
+        style={{ backgroundColor: "var(--brand-700)" }}
+      >
         <Link to="/" className="flex items-center space-x-3">
           <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg">
-            <Scale className="w-5 h-5" style={{ color: 'var(--brand-700)' }} />
+            <Scale className="w-5 h-5" style={{ color: "var(--brand-700)" }} />
           </div>
           <div className="text-white">
             <div className="text-lg font-semibold leading-none">
               Hermida Maia
             </div>
-            <div className="text-xs font-medium" style={{ color: 'var(--brand-100)' }}>
+            <div
+              className="text-xs font-medium"
+              style={{ color: "var(--brand-100)" }}
+            >
               Advocacia
             </div>
           </div>
@@ -174,33 +180,39 @@ export function Sidebar({ userType }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" role="navigation" aria-label="Menu principal">
+      <nav
+        className="flex-1 px-3 py-4 space-y-1 overflow-y-auto"
+        role="navigation"
+        aria-label="Menu principal"
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
-          
+
           return (
             <Link
               key={item.href}
               to={item.href}
               className={cn(
-                'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-out',
+                "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-out",
                 active
-                  ? 'text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? "text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
               )}
-              style={active ? { backgroundColor: 'var(--brand-700)' } : {}}
+              style={active ? { backgroundColor: "var(--brand-700)" } : {}}
               title={item.description}
-              aria-current={active ? 'page' : undefined}
+              aria-current={active ? "page" : undefined}
             >
               <Icon
                 className={cn(
-                  'flex-shrink-0 w-5 h-5 mr-3',
-                  active ? 'text-white' : 'text-neutral-400 group-hover:text-neutral-600'
+                  "flex-shrink-0 w-5 h-5 mr-3",
+                  active
+                    ? "text-white"
+                    : "text-neutral-400 group-hover:text-neutral-600",
                 )}
               />
               <span className="truncate">{item.title}</span>
-              
+
               {/* Active indicator */}
               {active && (
                 <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />
@@ -212,10 +224,15 @@ export function Sidebar({ userType }: SidebarProps) {
 
       {/* Footer - User Type Indicator */}
       <div className="px-3 py-4 border-t border-gray-200">
-        <div className="flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg"
-             style={{ backgroundColor: 'var(--brand-100)', color: 'var(--brand-700)' }}>
+        <div
+          className="flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg"
+          style={{
+            backgroundColor: "var(--brand-100)",
+            color: "var(--brand-700)",
+          }}
+        >
           <UserCheck className="w-4 h-4 mr-2" />
-          {userType === 'advogado' ? 'Área do Advogado' : 'Portal do Cliente'}
+          {userType === "advogado" ? "Área do Advogado" : "Portal do Cliente"}
         </div>
       </div>
     </div>

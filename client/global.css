@@ -8,24 +8,24 @@
 ============================ */
 :root {
   /* Cores principais - F1.0 Specification */
-  --brand-900: #1b3a2f;   /* Brand dark */
-  --brand-700: #285245;   /* Brand primary */
-  --brand-100: #e9f3ef;   /* Brand light */
-  --danger: #ef4444;      /* Danger red */
-  --warn: #f59e0b;        /* Warning amber */
-  --success: #16a34a;     /* Success green */
+  --brand-900: #1b3a2f; /* Brand dark */
+  --brand-700: #285245; /* Brand primary */
+  --brand-100: #e9f3ef; /* Brand light */
+  --danger: #ef4444; /* Danger red */
+  --warn: #f59e0b; /* Warning amber */
+  --success: #16a34a; /* Success green */
 
   /* Estados e superfícies */
-  --muted: #6b7280;       /* Texto muted */
-  --surface: #ffffff;     /* Superfície primária */
-  --on-surface: #111827;  /* Texto sobre superfície */
-  --disabled: #d1d5db;    /* Estado desabilitado */
+  --muted: #6b7280; /* Texto muted */
+  --surface: #ffffff; /* Superfície primária */
+  --on-surface: #111827; /* Texto sobre superfície */
+  --disabled: #d1d5db; /* Estado desabilitado */
 
   /* Borders e sombras */
   --border: #e5e7eb;
   --border-hover: #d3e7df;
   --focus-ring: 2px solid var(--brand-700);
-  --radius: 12px;         /* Bordas 10-12px */
+  --radius: 12px; /* Bordas 10-12px */
 
   /* Aliases para compatibilidade */
   --theme-primary: var(--brand-700);
@@ -71,15 +71,20 @@ body {
   background: var(--surface);
   color: var(--on-surface);
   font-family: Inter, "Open Sans", system-ui, sans-serif;
-  line-height: 1.6;  /* F1.0 specification */
+  line-height: 1.6; /* F1.0 specification */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 /* F1.0 - Títulos com Montserrat/Inter */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: Montserrat, Inter, sans-serif;
-  line-height: 1.6;  /* F1.0 specification */
+  line-height: 1.6; /* F1.0 specification */
   font-weight: 600;
 }
 
@@ -90,7 +95,7 @@ h1, h2, h3, h4, h5, h6 {
 button {
   background: var(--brand-700);
   color: #ffffff;
-  border-radius: var(--radius);  /* 12px */
+  border-radius: var(--radius); /* 12px */
   padding: 0.5rem 1rem;
   border: none;
   transition: all 0.2s ease-out;
@@ -106,16 +111,20 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   background: var(--surface);
   color: var(--on-surface);
   border: 1px solid var(--border);
-  border-radius: 10px;  /* F1.0 range 10-12px */
+  border-radius: 10px; /* F1.0 range 10-12px */
   padding: 0.5rem 0.75rem;
   transition: border-color 0.2s ease-out;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: var(--focus-ring);
   outline-offset: 2px;
   border-color: var(--brand-700);
@@ -126,7 +135,7 @@ input:focus, textarea:focus, select:focus {
   border-radius: var(--radius);
   padding: 1rem;
   border: 1px solid var(--border);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);  /* Sombras suaves */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); /* Sombras suaves */
 }
 
 /* ============================
@@ -239,7 +248,9 @@ input:focus, textarea:focus, select:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

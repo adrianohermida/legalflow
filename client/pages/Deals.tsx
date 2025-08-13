@@ -78,7 +78,7 @@ export function Deals() {
   const [viewMode, setViewMode] = useState<"kanban" | "grid">("kanban");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -93,7 +93,8 @@ export function Deals() {
     queryFn: async () => {
       const { data, error } = await lf
         .from("deals")
-        .select(`
+        .select(
+          `
           *,
           clientes:public.clientes!deals_cliente_cpfcnpj_fkey (
             nome
@@ -101,7 +102,8 @@ export function Deals() {
           advogados:public.advogados!deals_owner_oab_fkey (
             nome
           )
-        `)
+        `,
+        )
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -173,10 +175,7 @@ export function Deals() {
             .update(dataToSave)
             .eq("id", editingDeal.id)
             .select()
-        : await lf
-            .from("deals")
-            .insert([dataToSave])
-            .select();
+        : await lf.from("deals").insert([dataToSave]).select();
 
       if (error) throw error;
       return data;
@@ -187,8 +186,8 @@ export function Deals() {
       setEditingDeal(null);
       toast({
         title: editingDeal ? "Deal atualizado" : "Deal criado",
-        description: editingDeal 
-          ? "Deal atualizado com sucesso" 
+        description: editingDeal
+          ? "Deal atualizado com sucesso"
           : "Novo deal adicionado ao pipeline",
       });
     },
@@ -203,7 +202,13 @@ export function Deals() {
 
   // P2.9 - Mutation para mover de estágio
   const moveStageMutation = useMutation({
-    mutationFn: async ({ dealId, newStage }: { dealId: string; newStage: string }) => {
+    mutationFn: async ({
+      dealId,
+      newStage,
+    }: {
+      dealId: string;
+      newStage: string;
+    }) => {
       const { data, error } = await lf
         .from("deals")
         .update({ stage: newStage, updated_at: new Date().toISOString() })
@@ -225,7 +230,7 @@ export function Deals() {
   const handleSubmitDeal = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     const dealData: DealFormData = {
       title: formData.get("title") as string,
       value: formData.get("value") as string,
@@ -250,18 +255,21 @@ export function Deals() {
     if (!cnj) return null;
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
-      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+      return clean.replace(
+        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
+        "$1-$2.$3.$4.$5.$6",
+      );
     }
     return cnj;
   };
 
   const getStageColor = (stage: string) => {
-    const stageConfig = stages.find(s => s.value === stage);
+    const stageConfig = stages.find((s) => s.value === stage);
     return stageConfig?.color || "secondary";
   };
 
   const getDealsByStage = (stage: string) => {
-    return deals.filter(deal => deal.stage === stage);
+    return deals.filter((deal) => deal.stage === stage);
   };
 
   const getTotalValue = () => {
@@ -270,7 +278,7 @@ export function Deals() {
 
   const getWonValue = () => {
     return deals
-      .filter(deal => deal.stage === "ganho")
+      .filter((deal) => deal.stage === "ganho")
       .reduce((sum, deal) => sum + deal.value, 0);
   };
 
@@ -280,14 +288,18 @@ export function Deals() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-heading font-semibold">Deals</h1>
-            <p className="text-neutral-600 mt-1">Acompanhar oportunidades/serviços até "ganho"</p>
+            <p className="text-neutral-600 mt-1">
+              Acompanhar oportunidades/serviços até "ganho"
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar deals</h3>
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar deals
+              </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
@@ -303,10 +315,15 @@ export function Deals() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Deals</h1>
-          <p className="text-neutral-600 mt-1">Acompanhar oportunidades/serviços até "ganho"</p>
+          <p className="text-neutral-600 mt-1">
+            Acompanhar oportunidades/serviços até "ganho"
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={viewMode} onValueChange={(value: "kanban" | "grid") => setViewMode(value)}>
+          <Select
+            value={viewMode}
+            onValueChange={(value: "kanban" | "grid") => setViewMode(value)}
+          >
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -317,7 +334,9 @@ export function Deals() {
           </Select>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+              <Button
+                style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Deal
               </Button>
@@ -329,14 +348,16 @@ export function Deals() {
                     {editingDeal ? "Editar Deal" : "Novo Deal"}
                   </DialogTitle>
                   <DialogDescription>
-                    {editingDeal 
-                      ? "Atualize as informações do deal" 
+                    {editingDeal
+                      ? "Atualize as informações do deal"
                       : "Crie uma nova oportunidade de negócio"}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Título *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Título *
+                    </label>
                     <Input
                       name="title"
                       placeholder="Título do deal"
@@ -346,7 +367,9 @@ export function Deals() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Valor *</label>
+                      <label className="block text-sm font-medium mb-2">
+                        Valor *
+                      </label>
                       <Input
                         name="value"
                         type="number"
@@ -357,8 +380,13 @@ export function Deals() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Moeda</label>
-                      <Select name="currency" defaultValue={editingDeal?.currency || "BRL"}>
+                      <label className="block text-sm font-medium mb-2">
+                        Moeda
+                      </label>
+                      <Select
+                        name="currency"
+                        defaultValue={editingDeal?.currency || "BRL"}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -371,7 +399,9 @@ export function Deals() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Probabilidade (%)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Probabilidade (%)
+                    </label>
                     <Input
                       name="probability"
                       type="number"
@@ -382,15 +412,23 @@ export function Deals() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Cliente</label>
-                    <Select name="cliente_cpfcnpj" defaultValue={editingDeal?.cliente_cpfcnpj || ""}>
+                    <label className="block text-sm font-medium mb-2">
+                      Cliente
+                    </label>
+                    <Select
+                      name="cliente_cpfcnpj"
+                      defaultValue={editingDeal?.cliente_cpfcnpj || ""}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um cliente (opcional)" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="">Nenhum cliente</SelectItem>
                         {clientes.map((cliente) => (
-                          <SelectItem key={cliente.cpfcnpj} value={cliente.cpfcnpj}>
+                          <SelectItem
+                            key={cliente.cpfcnpj}
+                            value={cliente.cpfcnpj}
+                          >
                             {cliente.nome} ({cliente.cpfcnpj})
                           </SelectItem>
                         ))}
@@ -398,15 +436,23 @@ export function Deals() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
-                    <Select name="numero_cnj" defaultValue={editingDeal?.numero_cnj || ""}>
+                    <label className="block text-sm font-medium mb-2">
+                      Processo (CNJ)
+                    </label>
+                    <Select
+                      name="numero_cnj"
+                      defaultValue={editingDeal?.numero_cnj || ""}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um processo (opcional)" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="">Nenhum processo</SelectItem>
                         {processos.map((processo) => (
-                          <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                          <SelectItem
+                            key={processo.numero_cnj}
+                            value={processo.numero_cnj}
+                          >
                             {formatCNJ(processo.numero_cnj)}
                           </SelectItem>
                         ))}
@@ -414,15 +460,23 @@ export function Deals() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Dono (OAB)</label>
-                    <Select name="owner_oab" defaultValue={editingDeal?.owner_oab?.toString() || ""}>
+                    <label className="block text-sm font-medium mb-2">
+                      Dono (OAB)
+                    </label>
+                    <Select
+                      name="owner_oab"
+                      defaultValue={editingDeal?.owner_oab?.toString() || ""}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um responsável (opcional)" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="">Não atribuído</SelectItem>
                         {advogados.map((advogado) => (
-                          <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                          <SelectItem
+                            key={advogado.oab}
+                            value={advogado.oab.toString()}
+                          >
                             {advogado.nome} (OAB {advogado.oab})
                           </SelectItem>
                         ))}
@@ -442,7 +496,9 @@ export function Deals() {
                     Cancelar
                   </Button>
                   <Button type="submit" disabled={dealMutation.isPending}>
-                    {dealMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {dealMutation.isPending && (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    )}
                     {editingDeal ? "Atualizar" : "Criar"}
                   </Button>
                 </DialogFooter>
@@ -457,7 +513,10 @@ export function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Target className="w-4 h-4" style={{ color: 'var(--brand-700)' }} />
+              <Target
+                className="w-4 h-4"
+                style={{ color: "var(--brand-700)" }}
+              />
               <div>
                 <p className="text-2xl font-semibold">{deals.length}</p>
                 <p className="text-xs text-neutral-600">Total Deals</p>
@@ -468,9 +527,15 @@ export function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="w-4 h-4" style={{ color: 'var(--success)' }} />
+              <DollarSign
+                className="w-4 h-4"
+                style={{ color: "var(--success)" }}
+              />
               <div>
-                <p className="text-2xl font-semibold" style={{ color: 'var(--success)' }}>
+                <p
+                  className="text-2xl font-semibold"
+                  style={{ color: "var(--success)" }}
+                >
                   {formatCurrency(getTotalValue())}
                 </p>
                 <p className="text-xs text-neutral-600">Valor Total</p>
@@ -481,9 +546,15 @@ export function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4" style={{ color: 'var(--success)' }} />
+              <TrendingUp
+                className="w-4 h-4"
+                style={{ color: "var(--success)" }}
+              />
               <div>
-                <p className="text-2xl font-semibold" style={{ color: 'var(--success)' }}>
+                <p
+                  className="text-2xl font-semibold"
+                  style={{ color: "var(--success)" }}
+                >
                   {formatCurrency(getWonValue())}
                 </p>
                 <p className="text-xs text-neutral-600">Valor Ganho</p>
@@ -494,10 +565,13 @@ export function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4" style={{ color: 'var(--brand-700)' }} />
+              <Users
+                className="w-4 h-4"
+                style={{ color: "var(--brand-700)" }}
+              />
               <div>
                 <p className="text-2xl font-semibold">
-                  {deals.filter(d => d.stage === "ganho").length}
+                  {deals.filter((d) => d.stage === "ganho").length}
                 </p>
                 <p className="text-xs text-neutral-600">Deals Ganhos</p>
               </div>
@@ -509,15 +583,21 @@ export function Deals() {
       {/* P2.9 - Kanban por stage ou grid */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+          <Loader2
+            className="w-8 h-8 animate-spin"
+            style={{ color: "var(--brand-700)" }}
+          />
           <span className="ml-2 text-neutral-600">Carregando deals...</span>
         </div>
       ) : viewMode === "kanban" ? (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {stages.map((stage) => {
             const stageDeals = getDealsByStage(stage.value);
-            const stageValue = stageDeals.reduce((sum, deal) => sum + deal.value, 0);
-            
+            const stageValue = stageDeals.reduce(
+              (sum, deal) => sum + deal.value,
+              0,
+            );
+
             return (
               <Card key={stage.value}>
                 <CardHeader className="pb-3">
@@ -553,24 +633,28 @@ export function Deals() {
                         <Badge variant="outline" className="text-xs">
                           {deal.probability}%
                         </Badge>
-                        {stage.value !== "perdido" && stage.value !== "ganho" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const nextStageIndex = stages.findIndex(s => s.value === stage.value) + 1;
-                              if (nextStageIndex < stages.length - 1) {
-                                moveStageMutation.mutate({
-                                  dealId: deal.id,
-                                  newStage: stages[nextStageIndex].value,
-                                });
-                              }
-                            }}
-                          >
-                            <ArrowRight className="w-3 h-3" />
-                          </Button>
-                        )}
+                        {stage.value !== "perdido" &&
+                          stage.value !== "ganho" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const nextStageIndex =
+                                  stages.findIndex(
+                                    (s) => s.value === stage.value,
+                                  ) + 1;
+                                if (nextStageIndex < stages.length - 1) {
+                                  moveStageMutation.mutate({
+                                    dealId: deal.id,
+                                    newStage: stages[nextStageIndex].value,
+                                  });
+                                }
+                              }}
+                            >
+                              <ArrowRight className="w-3 h-3" />
+                            </Button>
+                          )}
                       </div>
                     </div>
                   ))}
@@ -598,19 +682,20 @@ export function Deals() {
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium truncate">{deal.title}</h4>
                     <Badge variant={getStageColor(deal.stage)}>
-                      {stages.find(s => s.value === deal.stage)?.label}
+                      {stages.find((s) => s.value === deal.stage)?.label}
                     </Badge>
                   </div>
-                  <div className="text-lg font-semibold mb-2" style={{ color: 'var(--success)' }}>
+                  <div
+                    className="text-lg font-semibold mb-2"
+                    style={{ color: "var(--success)" }}
+                  >
                     {formatCurrency(deal.value, deal.currency)}
                   </div>
                   <div className="space-y-1 text-sm text-neutral-600">
                     {deal.cliente_nome && (
                       <div>Cliente: {deal.cliente_nome}</div>
                     )}
-                    {deal.owner_nome && (
-                      <div>Dono: {deal.owner_nome}</div>
-                    )}
+                    {deal.owner_nome && <div>Dono: {deal.owner_nome}</div>}
                     <div>Probabilidade: {deal.probability}%</div>
                   </div>
                 </div>
