@@ -4,34 +4,44 @@
 @tailwind utilities;
 
 /* ============================
-   VARIÁVEIS BASE (Modo Claro)
+   F1.0 - BRANDING TOKENS CONFORME ESPECIFICAÇÃO
 ============================ */
 :root {
-  --theme-primary: #000000;
-  --theme-primary-hover: #1f2937;
-  --theme-primary-light: #f9fafb;
-  --theme-background: #ffffff;
+  /* Cores principais - F1.0 Specification */
+  --brand-900: #1b3a2f;   /* Brand dark */
+  --brand-700: #285245;   /* Brand primary */
+  --brand-100: #e9f3ef;   /* Brand light */
+  --danger: #ef4444;      /* Danger red */
+  --warn: #f59e0b;        /* Warning amber */
+  --success: #16a34a;     /* Success green */
+
+  /* Estados e superfícies */
+  --muted: #6b7280;       /* Texto muted */
+  --surface: #ffffff;     /* Superfície primária */
+  --on-surface: #111827;  /* Texto sobre superfície */
+  --disabled: #d1d5db;    /* Estado desabilitado */
+
+  /* Borders e sombras */
+  --border: #e5e7eb;
+  --border-hover: #d3e7df;
+  --focus-ring: 2px solid var(--brand-700);
+  --radius: 12px;         /* Bordas 10-12px */
+
+  /* Aliases para compatibilidade */
+  --theme-primary: var(--brand-700);
+  --theme-primary-hover: var(--brand-900);
+  --theme-primary-light: var(--brand-100);
+  --theme-background: var(--surface);
   --theme-background-secondary: #f9fafb;
-  --theme-text: #000000;
+  --theme-text: var(--on-surface);
   --theme-text-secondary: #374151;
-  --theme-text-muted: #6b7280;
-  --theme-border: #e5e7eb;
-  --theme-border-hover: #d1d5db;
-
-  --theme-success: #4b5563;
-  --theme-warning: #6b7280;
-  --theme-danger: #1f2937;
-  --theme-info: #111827;
-
-  --brand-900: #000000;
-  --brand-700: #000000;
-  --brand-100: #f9fafb;
-  --brand-50: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f9fafb;
-  --on-surface: #000000;
-  --muted: #6b7280;
-  --focus-ring: 2px solid #000000;
+  --theme-text-muted: var(--muted);
+  --theme-border: var(--border);
+  --theme-border-hover: var(--border-hover);
+  --theme-success: var(--success);
+  --theme-warning: var(--warn);
+  --theme-danger: var(--danger);
+  --theme-info: var(--brand-700);
 }
 
 /* ============================
@@ -58,52 +68,65 @@
    RESET GERAL
 ============================ */
 body {
-  background: var(--theme-background);
-  color: var(--theme-text);
-  font-family: Inter, sans-serif;
-  line-height: 1.7;
+  background: var(--surface);
+  color: var(--on-surface);
+  font-family: Inter, "Open Sans", system-ui, sans-serif;
+  line-height: 1.6;  /* F1.0 specification */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+/* F1.0 - Títulos com Montserrat/Inter */
 h1, h2, h3, h4, h5, h6 {
-  font-family: Montserrat, sans-serif;
-  line-height: 1.4;
+  font-family: Montserrat, Inter, sans-serif;
+  line-height: 1.6;  /* F1.0 specification */
+  font-weight: 600;
 }
 
 /* ============================
    COMPONENTES BASE
 ============================ */
+/* F1.0 - Componentes com tokens padronizados */
 button {
-  background: var(--theme-primary);
+  background: var(--brand-700);
   color: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--radius);  /* 12px */
   padding: 0.5rem 1rem;
   border: none;
   transition: all 0.2s ease-out;
+  font-weight: 500;
 }
 
 button:hover {
-  background: var(--theme-primary-hover);
+  background: var(--brand-900);
+}
+
+button:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
 }
 
 input, textarea, select {
   background: var(--surface);
   color: var(--on-surface);
-  border: 1px solid var(--theme-border);
-  border-radius: 10px;
-  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;  /* F1.0 range 10-12px */
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease-out;
 }
 
 input:focus, textarea:focus, select:focus {
   outline: var(--focus-ring);
+  outline-offset: 2px;
+  border-color: var(--brand-700);
 }
 
 .card {
   background: var(--surface);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 1rem;
-  border: 1px solid var(--theme-border);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);  /* Sombras suaves */
 }
 
 /* ============================
