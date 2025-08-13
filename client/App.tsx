@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
+import { runEnumConsistencyCheck } from "./lib/enum-validator";
 
 function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
