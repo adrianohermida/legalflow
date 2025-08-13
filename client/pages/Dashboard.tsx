@@ -133,7 +133,7 @@ export function Dashboard() {
                   {mockStats.totalProcessos}
                 </p>
               </div>
-              <div className="bg-brand-100 p-2 rounded-lg">
+              <div className="bg-neutral-100 p-2 rounded-lg">
                 <FileText className="w-5 h-5 text-brand-700" />
               </div>
             </div>
