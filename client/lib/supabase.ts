@@ -253,6 +253,111 @@ export interface PublicDatabase {
           oab?: number;
         };
       };
+      // P2.0 - Additional public schema tables for FASE 2
+      timeline: {
+        Row: {
+          id: string;
+          numero_cnj: string | null;
+          data: string;
+          tipo: string;
+          conteudo: string;
+          created_at: string;
+        };
+        Insert: {
+          numero_cnj?: string | null;
+          data: string;
+          tipo: string;
+          conteudo: string;
+        };
+        Update: {
+          numero_cnj?: string | null;
+          data?: string;
+          tipo?: string;
+          conteudo?: string;
+        };
+      };
+      thread_links: {
+        Row: {
+          id: string;
+          numero_cnj: string | null;
+          cliente_cpfcnpj: string | null;
+          context_type: string;
+          created_at: string;
+        };
+        Insert: {
+          numero_cnj?: string | null;
+          cliente_cpfcnpj?: string | null;
+          context_type: string;
+        };
+        Update: {
+          numero_cnj?: string | null;
+          cliente_cpfcnpj?: string | null;
+          context_type?: string;
+        };
+      };
+      ai_messages: {
+        Row: {
+          id: string;
+          thread_link_id: string;
+          sender_type: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          thread_link_id: string;
+          sender_type: string;
+          content: string;
+        };
+        Update: {
+          content?: string;
+        };
+      };
+      documents: {
+        Row: {
+          id: string;
+          numero_cnj: string | null;
+          file_name: string;
+          file_path: string;
+          file_size: number;
+          metadata: any | null;
+          created_at: string;
+        };
+        Insert: {
+          numero_cnj?: string | null;
+          file_name: string;
+          file_path: string;
+          file_size: number;
+          metadata?: any | null;
+        };
+        Update: {
+          numero_cnj?: string | null;
+          file_name?: string;
+          file_path?: string;
+          file_size?: number;
+          metadata?: any | null;
+        };
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          message: string;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          title: string;
+          message: string;
+          read?: boolean;
+        };
+        Update: {
+          title?: string;
+          message?: string;
+          read?: boolean;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
