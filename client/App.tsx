@@ -597,7 +597,7 @@ function RegularAppRoutes() {
   );
 }
 
-function App() {
+export default function App() {
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
       return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
