@@ -11,6 +11,7 @@ interface User {
   email: string;
   oab?: number;
   advogado?: Advogado;
+  role?: 'superadmin' | 'admin' | 'advogado' | 'cliente';
 }
 
 interface DemoAuthContextType {
