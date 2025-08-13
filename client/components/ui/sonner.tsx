@@ -1,10 +1,10 @@
-import { useTheme } from "../../hooks/useTheme";
+import { useNeutralTheme } from "../../hooks/useNeutralTheme";
 import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { mode } = useTheme();
+  const { mode } = useNeutralTheme();
 
   return (
     <Sonner
