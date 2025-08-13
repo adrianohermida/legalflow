@@ -1012,7 +1012,16 @@ export interface LegalFlowDatabase {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      // USER-DEFINED enums from real schema
+      event_type: 'audiencia' | 'reuniao' | 'prazo' | 'entrega' | 'compromisso' | 'outros';
+      journey_status: 'ativo' | 'pausado' | 'concluido' | 'cancelado';
+      payment_status: 'pendente' | 'pago' | 'vencido' | 'cancelado';
+      stage_status: 'pending' | 'in_progress' | 'completed' | 'blocked' | 'skipped';
+      ticket_status: 'aberto' | 'em_andamento' | 'resolvido' | 'fechado';
+      priority: 'baixa' | 'media' | 'alta' | 'urgente';
+      channel_type: 'email' | 'whatsapp' | 'telefone' | 'presencial' | 'sistema';
+      activity_status: 'todo' | 'in_progress' | 'done' | 'blocked';
+      conversation_status: 'open' | 'pending' | 'resolved' | 'closed';
     };
   };
 }
