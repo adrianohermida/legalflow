@@ -10,6 +10,9 @@ import { DemoAuthProvider, useDemoAuth } from "./contexts/DemoAuthContext";
 import { AppShell } from "./components/AppShell";
 import { Login } from "./pages/Login";
 import { DemoLogin } from "./pages/DemoLogin";
+import { LoginPage } from "./pages/LoginPage";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
 import Setup from "./pages/Setup";
 import { QuickSetup } from "./pages/QuickSetup";
 import { ModeSelector } from "./pages/ModeSelector";
@@ -145,7 +148,15 @@ function DemoAppRoutes() {
     <Routes>
       <Route
         path="/login"
-        element={user ? <Navigate to="/" replace /> : <DemoLogin />}
+        element={user ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/forgot-password"
+        element={user ? <Navigate to="/" replace /> : <ForgotPassword />}
+      />
+      <Route
+        path="/reset-password"
+        element={user ? <Navigate to="/" replace /> : <ResetPassword />}
       />
       
       {/* Escritório - Área do Advogado */}
@@ -274,7 +285,15 @@ function RegularAppRoutes() {
     <Routes>
       <Route
         path="/login"
-        element={user ? <Navigate to="/" replace /> : <Login />}
+        element={user ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/forgot-password"
+        element={user ? <Navigate to="/" replace /> : <ForgotPassword />}
+      />
+      <Route
+        path="/reset-password"
+        element={user ? <Navigate to="/" replace /> : <ResetPassword />}
       />
       <Route
         path="/setup"
