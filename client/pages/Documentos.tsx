@@ -153,7 +153,7 @@ export function Documentos() {
       case "rascunho":
         return "bg-danger-100 text-danger-700";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-100 text-neutral-800";
     }
   };
 
@@ -186,10 +186,10 @@ export function Documentos() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-neutral-900">
             Documentos & Peças
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-neutral-600 mt-1">
             Gerencie documentos e peças processuais
           </p>
         </div>
@@ -268,7 +268,7 @@ export function Documentos() {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
             <Input
               placeholder="Buscar documentos ou CNJ..."
               value={searchTerm}
@@ -350,7 +350,7 @@ export function Documentos() {
                     <TableRow key={doc.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-gray-400" />
+                          <FileText className="h-4 w-4 text-neutral-400" />
                           <span className="font-medium">{doc.name}</span>
                         </div>
                       </TableCell>
@@ -388,7 +388,7 @@ export function Documentos() {
               </Table>
 
               {filteredDocuments.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-neutral-500">
                   Nenhum documento encontrado.
                 </div>
               )}
@@ -443,7 +443,7 @@ export function Documentos() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-neutral-600">
                           {peca.template_used}
                         </span>
                       </TableCell>
@@ -477,7 +477,7 @@ export function Documentos() {
               </Table>
 
               {filteredPeticoes.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-neutral-500">
                   Nenhuma peça processual encontrada.
                 </div>
               )}
