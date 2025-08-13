@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { supabase, lf } from "../lib/supabase";
 import { formatCNJ, formatDate } from "../lib/utils";
+import UpdateBanner from "../components/UpdateBanner";
 
 interface DashboardStats {
   totalProcessos: number;
