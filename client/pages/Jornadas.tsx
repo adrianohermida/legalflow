@@ -216,11 +216,11 @@ export function Jornadas() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "active":
-        return <PlayCircle className="h-4 w-4 text-green-600" />;
+        return <PlayCircle className="h-4 w-4 text-success" />;
       case "paused":
         return <PauseCircle className="h-4 w-4 text-warning-600" />;
       case "completed":
-        return <CheckCircle className="h-4 w-4 text-blue-600" />;
+        return <CheckCircle className="h-4 w-4 text-brand-700" />;
       default:
         return <Clock className="h-4 w-4 text-neutral-600" />;
     }
