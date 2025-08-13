@@ -258,7 +258,7 @@ export function Activities() {
     mutationFn: async (activityData: ActivityFormData) => {
       const dataToSave = {
         title: activityData.title,
-        status: "open",
+        status: "todo",
         priority: activityData.priority,
         due_at: activityData.due_at ? new Date(activityData.due_at).toISOString() : null,
         assigned_oab: activityData.assigned_oab ? parseInt(activityData.assigned_oab) : null,
@@ -677,7 +677,7 @@ export function Activities() {
                   <TableHead>Responsável (OAB)</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>CNJ</TableHead>
-                  <TableHead>Ações</TableHead>
+                  <TableHead>A��ões</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
