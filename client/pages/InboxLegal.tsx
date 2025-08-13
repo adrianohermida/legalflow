@@ -202,8 +202,8 @@ export function InboxLegal() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Inbox Legal</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-neutral-900">Inbox Legal</h1>
+          <p className="text-neutral-600 mt-1">
             Publicações e movimentações processuais para triagem
           </p>
         </div>
@@ -282,7 +282,7 @@ export function InboxLegal() {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
             <Input
               placeholder="Buscar por CNJ ou conteúdo..."
               value={searchTerm}
