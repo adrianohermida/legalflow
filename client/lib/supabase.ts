@@ -933,40 +933,6 @@ export interface LegalFlowDatabase {
           file_size?: number;
         };
       };
-      eventos_agenda: {
-        Row: {
-          id: string;
-          instance_id: string | null;
-          processo_numero_cnj: string | null;
-          advogado_oab: number;
-          title: string;
-          description: string | null;
-          start_time: string;
-          end_time: string | null;
-          event_type: string;
-          reminder_at: string | null;
-          created_at: string;
-        };
-        Insert: {
-          instance_id?: string | null;
-          processo_numero_cnj?: string | null;
-          advogado_oab: number;
-          title: string;
-          description?: string | null;
-          start_time: string;
-          end_time?: string | null;
-          event_type?: string;
-          reminder_at?: string | null;
-        };
-        Update: {
-          title?: string;
-          description?: string | null;
-          start_time?: string;
-          end_time?: string | null;
-          event_type?: string;
-          reminder_at?: string | null;
-        };
-      };
       planos_pagamento: {
         Row: {
           id: string;
