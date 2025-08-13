@@ -17,118 +17,202 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
   Search,
   Plus,
   Filter,
   Users,
   Phone,
-  Mail,
   FileText,
   ChevronLeft,
   ChevronRight,
   Loader2,
   AlertTriangle,
+  Edit,
+  Eye,
+  FolderPlus,
 } from "lucide-react";
-import { clientesApi, type Cliente } from "../lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+
+interface Cliente {
+  cpfcnpj: string;
+  nome: string | null;
+  whatsapp: string | null;
+  created_at: string;
+  crm_id: string | null;
+  processo_count?: number;
+}
+
+interface ClienteFormData {
+  cpfcnpj: string;
+  nome: string;
+  whatsapp: string;
+}
 
 export function Clientes() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterProcessos, setFilterProcessos] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const itemsPerPage = 20;
 
-  // Fetch clientes from Supabase
+  // P2.1 - Buscar clientes com count de processos
   const {
     data: clientesData = [],
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["clientes"],
-    queryFn: clientesApi.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryKey: ["clientes", searchTerm, filterProcessos, currentPage],
+    queryFn: async () => {
+      let query = supabase
+        .from("clientes")
+        .select(`
+          cpfcnpj,
+          nome,
+          whatsapp,
+          created_at,
+          crm_id,
+          clientes_processos (
+            numero_cnj
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      // Aplicar filtros
+      if (searchTerm) {
+        query = query.or(`cpfcnpj.ilike.%${searchTerm}%,nome.ilike.%${searchTerm}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Processar count de processos e aplicar filtro
+      const processedData = data.map((cliente: any) => ({
+        ...cliente,
+        processo_count: cliente.clientes_processos?.length || 0,
+      }));
+
+      // Filtrar por processos
+      let filteredData = processedData;
+      if (filterProcessos === "com-processos") {
+        filteredData = processedData.filter(c => c.processo_count > 0);
+      } else if (filterProcessos === "sem-processos") {
+        filteredData = processedData.filter(c => c.processo_count === 0);
+      }
+
+      // Aplicar paginação
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      
+      return {
+        data: filteredData.slice(startIndex, endIndex),
+        total: filteredData.length,
+        totalPages: Math.ceil(filteredData.length / itemsPerPage),
+      };
+    },
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Filter data based on search
-  const filteredClientes = clientesData.filter(
-    (cliente) =>
-      cliente.cpfcnpj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cliente.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cliente.whatsapp?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  // P2.1 - Mutation para criar/editar cliente
+  const clienteMutation = useMutation({
+    mutationFn: async (clienteData: ClienteFormData) => {
+      const { data, error } = editingCliente
+        ? await supabase
+            .from("clientes")
+            .update(clienteData)
+            .eq("cpfcnpj", editingCliente.cpfcnpj)
+            .select()
+        : await supabase
+            .from("clientes")
+            .insert([clienteData])
+            .select();
 
-  const totalItems = filteredClientes.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      setIsDialogOpen(false);
+      setEditingCliente(null);
+      toast({
+        title: editingCliente ? "Cliente atualizado" : "Cliente criado",
+        description: editingCliente 
+          ? "Cliente atualizado com sucesso" 
+          : "Novo cliente adicionado à base",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao salvar cliente",
+        variant: "destructive",
+      });
+    },
+  });
 
-  // Paginate filtered results
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedClientes = filteredClientes.slice(startIndex, endIndex);
-
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSubmitCliente = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
+    const formData = new FormData(e.target as HTMLFormElement);
+    
+    const clienteData: ClienteFormData = {
+      cpfcnpj: formData.get("cpfcnpj") as string,
+      nome: formData.get("nome") as string,
+      whatsapp: formData.get("whatsapp") as string,
+    };
+
+    clienteMutation.mutate(clienteData);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleCreateProcess = (cliente: Cliente) => {
+    // P2.1 - CTA "Criar processo" pré-preenche cpfcnpj
+    const params = new URLSearchParams({
+      cliente_cpfcnpj: cliente.cpfcnpj,
+      cliente_nome: cliente.nome || "",
+    });
+    window.location.href = `/processos/novo?${params.toString()}`;
   };
 
   const formatCpfCnpj = (cpfcnpj: string) => {
-    // Remove any existing formatting
     const clean = cpfcnpj.replace(/\D/g, "");
-
     if (clean.length === 11) {
-      // CPF format: 000.000.000-00
       return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     } else if (clean.length === 14) {
-      // CNPJ format: 00.000.000/0000-00
-      return clean.replace(
-        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-        "$1.$2.$3/$4-$5",
-      );
+      return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
     }
-
-    return cpfcnpj; // Return original if doesn't match expected lengths
+    return cpfcnpj;
   };
 
   const formatWhatsApp = (whatsapp?: string) => {
     if (!whatsapp) return "-";
-
-    // Remove any existing formatting
     const clean = whatsapp.replace(/\D/g, "");
-
     if (clean.length === 11) {
-      // Mobile format: (00) 00000-0000
       return clean.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
     } else if (clean.length === 10) {
-      // Landline format: (00) 0000-0000
       return clean.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
     }
-
-    return whatsapp; // Return original if doesn't match expected lengths
-  };
-
-  const getClienteType = (cpfcnpj: string) => {
-    const clean = cpfcnpj.replace(/\D/g, "");
-    return clean.length === 11 ? "Pessoa Física" : "Pessoa Jurídica";
-  };
-
-  // Calculate stats from real data
-  const stats = {
-    total: clientesData.length,
-    pessoaFisica: clientesData.filter(
-      (c) => c.cpfcnpj.replace(/\D/g, "").length === 11,
-    ).length,
-    pessoaJuridica: clientesData.filter(
-      (c) => c.cpfcnpj.replace(/\D/g, "").length === 14,
-    ).length,
-    comWhatsApp: clientesData.filter((c) => c.whatsapp).length,
+    return whatsapp;
   };
 
   if (error) {
@@ -136,25 +220,16 @@ export function Clientes() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold text-neutral-900">
-              Clientes
-            </h1>
-            <p className="text-neutral-600 mt-1">
-              Base de clientes e relacionamento
-            </p>
+            <h1 className="text-2xl font-heading font-semibold">Clientes</h1>
+            <p className="text-neutral-600 mt-1">Base de clientes e relacionamento</p>
           </div>
         </div>
-
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-neutral-900 mb-2">
-                Erro ao carregar clientes
-              </h3>
-              <p className="text-neutral-600 mb-4">
-                {error.message || "Erro desconhecido"}
-              </p>
+              <h3 className="text-lg font-medium mb-2">Erro ao carregar clientes</h3>
+              <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
           </CardContent>
@@ -168,106 +243,126 @@ export function Clientes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold text-neutral-900">
-            Clientes
-          </h1>
-          <p className="text-neutral-600 mt-1">
-            Base de clientes e relacionamento
-          </p>
+          <h1 className="text-2xl font-heading font-semibold">Clientes</h1>
+          <p className="text-neutral-600 mt-1">Base de clientes e relacionamento</p>
         </div>
-        <Button className="btn-brand">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Cliente
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Cliente
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <form onSubmit={handleSubmitCliente}>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingCliente ? "Editar Cliente" : "Novo Cliente"}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingCliente 
+                    ? "Atualize as informações do cliente" 
+                    : "Preencha os dados para cadastrar um novo cliente"}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">CPF/CNPJ</label>
+                  <Input
+                    name="cpfcnpj"
+                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                    defaultValue={editingCliente?.cpfcnpj}
+                    disabled={!!editingCliente}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nome</label>
+                  <Input
+                    name="nome"
+                    placeholder="Nome completo ou razão social"
+                    defaultValue={editingCliente?.nome || ""}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">WhatsApp</label>
+                  <Input
+                    name="whatsapp"
+                    placeholder="(00) 00000-0000"
+                    defaultValue={editingCliente?.whatsapp || ""}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                    setEditingCliente(null);
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={clienteMutation.isPending}>
+                  {clienteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {editingCliente ? "Atualizar" : "Criar"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4 text-brand-700" />
-              <div>
-                <p className="text-2xl font-semibold">{stats.total}</p>
-                <p className="text-xs text-neutral-600">Total</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4 text-success" />
-              <div>
-                <p className="text-2xl font-semibold text-success">
-                  {stats.pessoaFisica}
-                </p>
-                <p className="text-xs text-neutral-600">Pessoa Física</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <FileText className="w-4 h-4 text-brand-700" />
-              <div>
-                <p className="text-2xl font-semibold text-brand-700">
-                  {stats.pessoaJuridica}
-                </p>
-                <p className="text-xs text-neutral-600">Pessoa Jurídica</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Phone className="w-4 h-4 text-warning" />
-              <div>
-                <p className="text-2xl font-semibold text-warning">
-                  {stats.comWhatsApp}
-                </p>
-                <p className="text-xs text-neutral-600">Com WhatsApp</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Search */}
+      {/* P2.1 - Filtros conforme especificação */}
       <Card>
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <Input
-                placeholder="Buscar por CPF/CNPJ, nome ou WhatsApp..."
+                placeholder="Buscar por CPF/CNPJ ou nome..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-10"
               />
             </div>
-            <Button type="submit" variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filtrar
-            </Button>
-          </form>
+            <Select
+              value={filterProcessos}
+              onValueChange={(value) => {
+                setFilterProcessos(value);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os clientes</SelectItem>
+                <SelectItem value="com-processos">Com processos</SelectItem>
+                <SelectItem value="sem-processos">Sem processos</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Clients Table */}
+      {/* P2.1 - Tabela conforme especificação */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Clientes ({totalItems})</CardTitle>
+          <CardTitle className="text-lg">
+            Clientes ({clientesData.total || 0})
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-              <span className="ml-2 text-neutral-600">
-                Carregando clientes...
-              </span>
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+              <span className="ml-2 text-neutral-600">Carregando clientes...</span>
             </div>
           ) : (
             <Table>
@@ -275,17 +370,15 @@ export function Clientes() {
                 <TableRow>
                   <TableHead>CPF/CNPJ</TableHead>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Tipo</TableHead>
                   <TableHead>WhatsApp</TableHead>
-                  <TableHead>CRM ID</TableHead>
-                  <TableHead>Cadastrado em</TableHead>
+                  <TableHead># Processos</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedClientes.length === 0 ? (
+                {clientesData.data?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
+                    <TableCell colSpan={5} className="text-center py-8">
                       <div className="text-neutral-500">
                         <Users className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                         <p>Nenhum cliente encontrado</p>
@@ -296,11 +389,8 @@ export function Clientes() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedClientes.map((cliente) => (
-                    <TableRow
-                      key={cliente.cpfcnpj}
-                      className="hover:bg-neutral-50 cursor-pointer"
-                    >
+                  clientesData.data?.map((cliente) => (
+                    <TableRow key={cliente.cpfcnpj} className="hover:bg-neutral-50">
                       <TableCell className="font-mono text-sm">
                         {formatCpfCnpj(cliente.cpfcnpj)}
                       </TableCell>
@@ -310,21 +400,10 @@ export function Clientes() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            getClienteType(cliente.cpfcnpj) === "Pessoa Física"
-                              ? "default"
-                              : "secondary"
-                          }
-                        >
-                          {getClienteType(cliente.cpfcnpj)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
                         <div className="flex items-center gap-2">
                           {cliente.whatsapp ? (
                             <>
-                              <Phone className="w-4 h-4 text-success" />
+                              <Phone className="w-4 h-4" style={{ color: 'var(--success)' }} />
                               <span className="text-sm">
                                 {formatWhatsApp(cliente.whatsapp)}
                               </span>
@@ -334,22 +413,48 @@ export function Clientes() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {cliente.crm_id ? (
-                          <span className="font-mono text-xs bg-neutral-100 px-2 py-1 rounded">
-                            {cliente.crm_id}
-                          </span>
-                        ) : (
-                          <span className="text-neutral-400">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-sm text-neutral-600">
-                        {formatDate(cliente.created_at)}
+                      <TableCell>
+                        <Badge
+                          variant={cliente.processo_count > 0 ? "default" : "secondary"}
+                          style={cliente.processo_count > 0 ? { backgroundColor: 'var(--brand-700)', color: 'white' } : {}}
+                        >
+                          {cliente.processo_count} processo{cliente.processo_count !== 1 ? 's' : ''}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          Ver detalhes
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingCliente(cliente);
+                              setIsDialogOpen(true);
+                            }}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Abrir
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCreateProcess(cliente)}
+                            style={{ color: 'var(--brand-700)' }}
+                          >
+                            <FolderPlus className="w-4 h-4 mr-1" />
+                            Criar Processo
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingCliente(cliente);
+                              setIsDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Editar
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -360,31 +465,30 @@ export function Clientes() {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
+      {/* P2.1 - Paginação 20/pg */}
+      {clientesData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de{" "}
-            {totalItems} clientes
+            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, clientesData.total)} de {clientesData.total} clientes
           </p>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
             >
               <ChevronLeft className="w-4 h-4" />
               Anterior
             </Button>
             <span className="text-sm text-neutral-600">
-              Página {currentPage} de {totalPages}
+              Página {currentPage} de {clientesData.totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === clientesData.totalPages}
             >
               Próximo
               <ChevronRight className="w-4 h-4" />
