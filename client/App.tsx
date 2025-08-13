@@ -615,6 +615,9 @@ function RegularAppRoutes() {
 }
 
 export default function App() {
+  // Initialize neutral theme immediately
+  const neutralTheme = useNeutralTheme();
+
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
       return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
@@ -661,13 +664,11 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <BrowserRouter>{AppContent}</BrowserRouter>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <BrowserRouter>{AppContent}</BrowserRouter>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
