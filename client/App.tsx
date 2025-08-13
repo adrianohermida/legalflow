@@ -675,16 +675,33 @@ export default function App() {
 
 const container = document.getElementById("root");
 if (container) {
-  const root = createRoot(container);
-  root.render(
-    <ErrorBoundary
-      FallbackComponent={ErrorFallback}
-      onError={(error, errorInfo) => {
-        console.error("🚨 App Error:", error);
-        console.error("🚨 Error Info:", errorInfo);
-      }}
-    >
-      <App />
-    </ErrorBoundary>,
-  );
+  // Check if root already exists to prevent React warning
+  if (!container._reactRoot) {
+    const root = createRoot(container);
+    container._reactRoot = root;
+    root.render(
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onError={(error, errorInfo) => {
+          console.error("🚨 App Error:", error);
+          console.error("🚨 Error Info:", errorInfo);
+        }}
+      >
+        <App />
+      </ErrorBoundary>,
+    );
+  } else {
+    // Re-render on existing root
+    container._reactRoot.render(
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onError={(error, errorInfo) => {
+          console.error("🚨 App Error:", error);
+          console.error("🚨 Error Info:", errorInfo);
+        }}
+      >
+        <App />
+      </ErrorBoundary>,
+    );
+  }
 }
