@@ -63,7 +63,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
                   <strong>Credenciais:</strong>
                   <br />• Email: <code>admin.test@gmail.com</code>
                   <br />• Senha: <code>123456</code>
-                  <br />• OAB: <code>123456</code>
+                  <br />��� OAB: <code>123456</code>
                 </AlertDescription>
               </Alert>
 
@@ -132,7 +132,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
         </div>
 
         <div className="text-center mt-6">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-neutral-500">
             💡 Recomendamos começar com o <strong>Modo Demo</strong> para
             explorar o sistema
           </p>
