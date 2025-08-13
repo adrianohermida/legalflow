@@ -33,7 +33,7 @@ const advogadoApps = [
     description: 'Visão geral do escritório e métricas',
     href: '/',
     icon: LayoutDashboard,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'processos',
@@ -41,7 +41,7 @@ const advogadoApps = [
     description: 'Gestão completa de processos jurídicos',
     href: '/processos',
     icon: FileText,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'clientes',
@@ -225,23 +225,43 @@ export function AppLauncher({ isOpen, onClose, userType }: AppLauncherProps) {
                     key={app.id}
                     to={app.href}
                     onClick={onClose}
-                    className="group interactive p-4 rounded-lg border border-border hover:border-brand-100 hover:shadow-soft transition-all duration-200 bg-white hover:bg-brand-100/30"
+                    className="group p-4 border transition-all duration-200 bg-white"
+                    style={{
+                      borderRadius: 'var(--radius)',
+                      borderColor: 'var(--border)',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--brand-700)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(40, 82, 69, 0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                    }}
                   >
                     <div className="flex flex-col items-center text-center space-y-3">
                       {/* Icon */}
-                      <div className={cn(
-                        'flex items-center justify-center w-12 h-12 rounded-lg text-white transition-transform group-hover:scale-105',
-                        app.color
-                      )}>
+                      <div className="flex items-center justify-center w-12 h-12 rounded-lg text-white"
+                           style={{
+                             backgroundColor: app.color === 'primary' ? 'var(--brand-700)' :
+                                             app.color === 'bg-success' ? 'var(--success)' :
+                                             app.color === 'bg-danger' ? 'var(--danger)' : 'var(--brand-700)',
+                             borderRadius: 'calc(var(--radius) - 2px)'
+                           }}>
                         <Icon className="w-6 h-6" />
                       </div>
 
                       {/* Content */}
                       <div className="space-y-1">
-                        <h3 className="font-medium text-sm text-neutral-900 group-hover:text-brand-700">
+                        <h3 className="font-medium text-sm transition-colors"
+                            style={{ color: 'var(--on-surface)' }}>
                           {app.title}
                         </h3>
-                        <p className="text-xs text-neutral-600 text-ellipsis-2 leading-relaxed">
+                        <p className="text-xs leading-relaxed line-clamp-2"
+                           style={{ color: 'var(--muted)' }}>
                           {app.description}
                         </p>
                       </div>
