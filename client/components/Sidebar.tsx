@@ -34,7 +34,7 @@ const advogadoNavItems = [
   },
   {
     title: "Processos",
-    href: "/processos",
+    href: "/processos-v2",
     icon: FileText,
     description: "Gestão de processos",
   },
@@ -52,7 +52,7 @@ const advogadoNavItems = [
   },
   {
     title: "Inbox Legal",
-    href: "/inbox",
+    href: "/inbox-v2",
     icon: Inbox,
     description: "Triagem de publicações",
   },
@@ -69,10 +69,10 @@ const advogadoNavItems = [
     description: "Biblioteca de documentos",
   },
   {
-    title: "Planos de Pagamento",
-    href: "/planos-pagamento",
+    title: "Financeiro",
+    href: "/financeiro",
     icon: DollarSign,
-    description: "Gestão de planos de pagamento",
+    description: "Gestão financeira",
   },
   {
     title: "Relatórios",
