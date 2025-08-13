@@ -42,10 +42,10 @@ VITE_DEV_MODE=true`;
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-neutral-900 mb-2">
           Configuração do Supabase
         </h1>
-        <p className="text-gray-600">
+        <p className="text-neutral-600">
           Configure sua conexão com o banco de dados Supabase
         </p>
       </div>
@@ -110,7 +110,7 @@ VITE_DEV_MODE=true`;
                   <div className="bg-brand-100 text-brand-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">1</div>
                   <div>
                     <p className="font-medium">Acesse o Supabase</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-neutral-600">
                       Vá para <Button variant="link" className="p-0 h-auto" asChild>
                         <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer">
                           supabase.com/dashboard <ExternalLink className="h-3 w-3 inline ml-1" />
@@ -124,7 +124,7 @@ VITE_DEV_MODE=true`;
                   <div className="bg-brand-100 text-brand-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">2</div>
                   <div>
                     <p className="font-medium">Selecione seu projeto</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-neutral-600">
                       Ou crie um novo projeto se ainda não tiver
                     </p>
                   </div>
@@ -134,7 +134,7 @@ VITE_DEV_MODE=true`;
                   <div className="bg-brand-100 text-brand-700 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">3</div>
                   <div>
                     <p className="font-medium">Vá para Settings → API</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-neutral-600">
                       Copie a URL e a chave anônima (anon/public)
                     </p>
                   </div>
@@ -171,10 +171,10 @@ VITE_DEV_MODE=true`;
 
             <div>
               <h3 className="font-semibold mb-2">Opção 1: Arquivo .env (Desenvolvimento Local)</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Crie um arquivo <code className="bg-gray-100 px-1 rounded">.env</code> na raiz do projeto:
+              <p className="text-sm text-neutral-600 mb-3">
+                Crie um arquivo <code className="bg-neutral-100 px-1 rounded">.env</code> na raiz do projeto:
               </p>
-              <div className="bg-gray-50 p-4 rounded-lg border relative">
+              <div className="bg-neutral-50 p-4 rounded-lg border relative">
                 <pre className="text-sm overflow-x-auto">
 {`VITE_SUPABASE_URL=${credentials.url}
 VITE_SUPABASE_ANON_KEY=${credentials.anonKey}
@@ -192,17 +192,17 @@ VITE_DEV_MODE=true`}
 
             <div>
               <h3 className="font-semibold mb-2">Opção 2: Variáveis do Sistema (Produção)</h3>
-              <p className="text-sm text-gray-600 mb-3">
+              <p className="text-sm text-neutral-600 mb-3">
                 Configure diretamente nas variáveis de ambiente do seu provedor de hospedagem
               </p>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-neutral-50 rounded">
                   <code>VITE_SUPABASE_URL</code>
-                  <span className="text-gray-600">= {credentials.url}</span>
+                  <span className="text-neutral-600">= {credentials.url}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <div className="flex justify-between items-center p-2 bg-neutral-50 rounded">
                   <code>VITE_SUPABASE_ANON_KEY</code>
-                  <span className="text-gray-600">= {credentials.anonKey.substring(0, 20)}...</span>
+                  <span className="text-neutral-600">= {credentials.anonKey.substring(0, 20)}...</span>
                 </div>
               </div>
             </div>
