@@ -111,7 +111,7 @@ export function IniciarJornada() {
           Voltar
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Iniciar Nova Jornada</h1>
+          <h1 className="text-3xl font-bold text-neutral-900">Iniciar Nova Jornada</h1>
           <p className="text-gray-600 mt-1">
             Matricule um cliente em uma jornada automatizada
           </p>
