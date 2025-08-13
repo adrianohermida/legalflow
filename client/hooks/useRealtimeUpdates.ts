@@ -103,9 +103,9 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
             queryClient.invalidateQueries({ queryKey: ['ai-messages'] });
             
             // Se payload contém thread_link_id, invalidar específicamente
-            if (payload.new?.thread_link_id) {
-              queryClient.invalidateQueries({ 
-                queryKey: ['ai-messages', payload.new.thread_link_id] 
+            if (payload.new && 'thread_link_id' in payload.new) {
+              queryClient.invalidateQueries({
+                queryKey: ['ai-messages', (payload.new as any).thread_link_id]
               });
             }
           }
