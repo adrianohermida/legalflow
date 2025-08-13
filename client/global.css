@@ -129,9 +129,9 @@ body,
 
 @layer base {
   :root {
-    /* F1.0 - Hermida Maia Brand Colors (padronização site ↔ app) */
-    --brand-50: 245 250 248;
-    --brand-100: 233 243 239; /* #e9f3ef - Primary light */
+    /* F1.0 - Hermida Maia Brand Colors (padronização site ↔ app) - Anti-Yellow */
+    --brand-50: 240 247 244;  /* #f0f7f4 - More green, less yellow */
+    --brand-100: 220 240 230; /* #dcf0e6 - Pure green light */
     --brand-200: 211 231 223;
     --brand-300: 176 212 196;
     --brand-400: 134 189 164;

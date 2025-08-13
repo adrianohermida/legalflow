@@ -5,10 +5,10 @@
 
 // Paleta de cores APROVADAS - Hermida Maia Advocacia
 export const APPROVED_BRAND_COLORS = {
-  // Verde Hermida Maia - Cores principais
+  // Verde Hermida Maia - Cores principais (anti-yellow optimized)
   primary: {
-    50: '#f5faf8',
-    100: '#e9f3ef', 
+    50: '#f0f7f4',    // Mais verde, menos amarelo
+    100: '#dcf0e6',   // Verde mais puro
     200: '#d3e7df',
     300: '#b0d4c4',
     400: '#86bda4',
