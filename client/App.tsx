@@ -712,15 +712,9 @@ if (container) {
   } else {
     // Re-render on existing root
     container._reactRoot.render(
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onError={(error, errorInfo) => {
-          console.error("🚨 App Error:", error);
-          console.error("🚨 Error Info:", errorInfo);
-        }}
-      >
+      <AppErrorBoundary>
         <App />
-      </ErrorBoundary>,
+      </AppErrorBoundary>,
     );
   }
 }
