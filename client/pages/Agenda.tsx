@@ -226,7 +226,7 @@ export function Agenda() {
     const formData = new FormData(e.target as HTMLFormElement);
     
     const eventoData: EventoFormData = {
-      tipo: formData.get("tipo") as string,
+      event_type: formData.get("event_type") as string,
       title: formData.get("title") as string,
       starts_at: formData.get("starts_at") as string,
       ends_at: formData.get("ends_at") as string,
@@ -665,7 +665,7 @@ export function Agenda() {
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-medium">{evento.title}</h4>
                       <Badge variant="outline" className="text-xs">
-                        {evento.tipo}
+                        {evento.event_type}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-neutral-600">
