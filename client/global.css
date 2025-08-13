@@ -1,8 +1,50 @@
-/* Cache-busting: v2.2 - Final color normalization and brand consistency */
+/* Cache-busting: v3.0 - Brand tokens implementation and yellow elimination */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Tokens globais para eliminar amarelo e garantir branding */
+:root {
+  /* Brand - tokens principais */
+  --brand-900: #1b3a2f;
+  --brand-700: #285245;
+  --brand-100: #e9f3ef;
+
+  /* Semânticas */
+  --surface: #ffffff;
+  --surface-2: #f7f9f8;   /* leve cinza-esverdeado */
+  --on-surface: #0f1b17;  /* texto principal */
+  --muted: #6c7a73;       /* texto secundário */
+
+  /* Status */
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --success: #16a34a;
+
+  /* Acessibilidade */
+  --focus-ring: 2px solid #285245; /* brand-700 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #101513;
+    --surface-2: #0c100e;
+    --on-surface: #e7ece9;
+    --muted: #98a6a0;
+  }
+}
+
+/* Reset de overlays/amarelo indevido */
+body, [data-app-root], .app-bg, .page-container {
+  background: var(--surface) !important;
+}
+
+/* Focus visível */
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
 
 @layer base {
   :root {
