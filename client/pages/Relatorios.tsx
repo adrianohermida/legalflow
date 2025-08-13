@@ -563,7 +563,7 @@ export function Relatorios() {
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center font-medium">
                   <span>Taxa de Processamento</span>
-                  <span className="text-green-600">
+                  <span className="text-success">
                     {formatPercentage(mockPublicationsMetrics.processing_rate)}
                   </span>
                 </div>
