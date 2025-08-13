@@ -58,6 +58,7 @@ import { useToast } from '../hooks/use-toast';
 import { PageErrorBoundary } from '../components/ErrorBoundary';
 import { processAPIService } from '../lib/process-api-service';
 import { formatCNJ, formatCPFCNPJ, formatDate, formatDateTime } from '../lib/utils';
+import ProcessoChatSimple from '../components/ProcessoChatSimple';
 
 interface ProcessoData {
   numero_cnj: string;
