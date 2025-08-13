@@ -187,7 +187,7 @@ export function useRealtimeUpdates(config: RealtimeUpdatesConfig = {}) {
             console.log('Documento atualizado:', payload);
             
             // Verificar se documento é relacionado ao processo
-            const documentCnj = payload.new?.metadata?.numero_cnj || payload.old?.metadata?.numero_cnj;
+            const documentCnj = (payload.new as any)?.metadata?.numero_cnj || (payload.old as any)?.metadata?.numero_cnj;
             
             if (!numero_cnj || documentCnj === numero_cnj) {
               queryClient.invalidateQueries({ queryKey: ['documentos'] });
