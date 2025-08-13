@@ -43,6 +43,7 @@ import { Jornadas } from "./pages/Jornadas";
 import { NovaJornada } from "./pages/NovaJornada";
 import { IniciarJornada } from "./pages/IniciarJornada";
 import { InboxLegal } from "./pages/InboxLegal";
+import InboxLegalV2 from "./pages/InboxLegalV2";
 import { Agenda } from "./pages/Agenda";
 import { Documentos } from "./pages/Documentos";
 import { Financeiro } from "./pages/Financeiro";
