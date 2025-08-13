@@ -81,6 +81,8 @@ import {
 import { supabase, lf } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { formatCNJ, formatDate } from '../lib/utils';
+import ProcessoChatDrawer from '../components/ProcessoChatDrawer';
+import { useProcessoRealtimeUpdates } from '../hooks/useRealtimeUpdates';
 
 interface Processo {
   numero_cnj: string;
@@ -136,7 +138,7 @@ export default function ProcessoDetailV2() {
   const itemsPerPage = 20;
 
   if (!numero_cnj) {
-    return <div>CNJ n��o fornecido</div>;
+    return <div>CNJ não fornecido</div>;
   }
 
   // Query processo
@@ -1030,7 +1032,7 @@ export default function ProcessoDetailV2() {
                               {doc.tipo === 'documento' ? doc.metadata?.name || doc.name : doc.tipo}
                             </p>
                             <p className="text-sm text-neutral-600">
-                              {doc.tipo === 'documento' ? 'Documento' : 'Petição'} • 
+                              {doc.tipo === 'documento' ? 'Documento' : 'Petiç��o'} • 
                               {formatDate(doc.created_at)}
                             </p>
                           </div>
