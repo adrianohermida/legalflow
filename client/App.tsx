@@ -612,6 +612,8 @@ function App() {
     );
   }
 
+  console.log("🔄 Creating AppContent for mode:", authMode);
+
   const AppContent =
     authMode === "demo" ? (
       <DemoAuthProvider>
@@ -622,6 +624,8 @@ function App() {
         <RegularAppRoutes />
       </AuthProvider>
     );
+
+  console.log("✅ Rendering main app with AppContent");
 
   return (
     <QueryClientProvider client={queryClient}>
