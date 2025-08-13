@@ -98,6 +98,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('user_id', supabaseUser.id)
         .single();
 
+      // Determine user role
+      let role: User['role'] = 'cliente'; // Default role
+
+      // Check for superadmin
+      if (supabaseUser.email === 'adrianohermida@gmail.com') {
+        role = 'superadmin';
+      } else if (userAdvogado?.oab) {
+        role = 'advogado';
+      }
+
       const userData: User = {
         id: supabaseUser.id,
         email: supabaseUser.email || '',
@@ -106,15 +116,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           oab: userAdvogado.advogados[0].oab,
           nome: userAdvogado.advogados[0].nome || '',
           uf: userAdvogado.advogados[0].uf || ''
-        } : undefined
+        } : undefined,
+        role
       };
 
       setUser(userData);
     } catch (error: any) {
       console.error('Failed to load user data:', error.message || error);
+      // Determine role for fallback case too
+      let fallbackRole: User['role'] = 'cliente';
+      if (supabaseUser.email === 'adrianohermida@gmail.com') {
+        fallbackRole = 'superadmin';
+      }
+
       setUser({
         id: supabaseUser.id,
-        email: supabaseUser.email || ''
+        email: supabaseUser.email || '',
+        role: fallbackRole
       });
     }
   };
