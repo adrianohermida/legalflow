@@ -489,6 +489,21 @@ export function ProcessoDetail() {
   return (
     <PageErrorBoundary pageName="ProcessoDetail">
       <div className="min-h-screen bg-neutral-50">
+        {/* V2 Banner */}
+        <div className="bg-blue-600 text-white p-3">
+          <div className="flex items-center justify-between max-w-6xl mx-auto">
+            <div className="flex items-center gap-3">
+              <span className="font-medium">🚀 Nova versão disponível!</span>
+              <span className="text-blue-100">Experimente o ProcessoDetail v2 com chat IA, monitoramento avançado e muito mais</span>
+            </div>
+            <Link
+              to={`/processos-v2/${numero_cnj}`}
+              className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+            >
+              Testar V2
+            </Link>
+          </div>
+        </div>
         {/* Sticky Header */}
         <div className="sticky top-0 z-50 bg-white border-b border-neutral-200 px-6 py-4">
           <div className="flex items-center justify-between">
