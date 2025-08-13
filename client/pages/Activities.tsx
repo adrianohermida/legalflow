@@ -604,10 +604,10 @@ export function Activities() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos os status</SelectItem>
-                  <SelectItem value="open">Aberto</SelectItem>
+                  <SelectItem value="todo">A Fazer</SelectItem>
                   <SelectItem value="in_progress">Em Andamento</SelectItem>
                   <SelectItem value="done">Concluído</SelectItem>
-                  <SelectItem value="cancelled">Cancelado</SelectItem>
+                  <SelectItem value="blocked">Bloqueado</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -622,10 +622,10 @@ export function Activities() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todas as prioridades</SelectItem>
-                  <SelectItem value="urgent">Urgente</SelectItem>
-                  <SelectItem value="high">Alta</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="low">Baixa</SelectItem>
+                  <SelectItem value="urgente">Urgente</SelectItem>
+                  <SelectItem value="alta">Alta</SelectItem>
+                  <SelectItem value="media">Média</SelectItem>
+                  <SelectItem value="baixa">Baixa</SelectItem>
                 </SelectContent>
               </Select>
               <Select
