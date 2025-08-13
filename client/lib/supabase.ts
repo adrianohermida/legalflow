@@ -388,10 +388,10 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           subject: string;
-          status: string;
-          priority: string;
+          status: Database['legalflow']['Enums']['ticket_status'];
+          priority: Database['legalflow']['Enums']['priority'];
           group_key: string | null;
-          channel: string;
+          channel: Database['legalflow']['Enums']['channel_type'];
           assigned_oab: number | null;
           cliente_cpfcnpj: string | null;
           numero_cnj: string | null;
@@ -403,10 +403,10 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           subject: string;
-          status?: string;
-          priority?: string;
+          status?: Database['legalflow']['Enums']['ticket_status'];
+          priority?: Database['legalflow']['Enums']['priority'];
           group_key?: string | null;
-          channel?: string;
+          channel?: Database['legalflow']['Enums']['channel_type'];
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
           numero_cnj?: string | null;
@@ -416,8 +416,8 @@ export interface LegalFlowDatabase {
         };
         Update: {
           subject?: string;
-          status?: string;
-          priority?: string;
+          status?: Database['legalflow']['Enums']['ticket_status'];
+          priority?: Database['legalflow']['Enums']['priority'];
           group_key?: string | null;
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
