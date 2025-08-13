@@ -145,7 +145,7 @@ export function IniciarJornada() {
                         <SelectItem key={template.id} value={template.id}>
                           <div className="flex items-center justify-between w-full">
                             <span>{template.name}</span>
-                            <span className="text-xs text-gray-500 ml-2">
+                            <span className="text-xs text-neutral-500 ml-2">
                               {template.nicho} • {template.estimated_days} dias
                             </span>
                           </div>
@@ -179,7 +179,7 @@ export function IniciarJornada() {
                             }
                             <div>
                               <span>{cliente.nome}</span>
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-neutral-500 ml-2">
                                 {cliente.cpfcnpj}
                               </span>
                             </div>
@@ -213,7 +213,7 @@ export function IniciarJornada() {
                             <FileText className="h-4 w-4" />
                             <div>
                               <span className="font-mono text-sm">{processo.numero_cnj}</span>
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-neutral-500 ml-2">
                                 {processo.titulo}
                               </span>
                             </div>
@@ -239,7 +239,7 @@ export function IniciarJornada() {
                         <SelectItem key={advogado.oab} value={advogado.oab}>
                           <div>
                             <span>{advogado.nome}</span>
-                            <span className="text-xs text-gray-500 ml-2">
+                            <span className="text-xs text-neutral-500 ml-2">
                               OAB: {advogado.oab}
                             </span>
                           </div>
@@ -323,8 +323,8 @@ export function IniciarJornada() {
                 <div>
                   <h4 className="font-medium text-sm text-neutral-600">Template</h4>
                   <p className="font-medium">{selectedTemplate.name}</p>
-                  <p className="text-sm text-gray-500">{selectedTemplate.nicho}</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-sm text-neutral-500">{selectedTemplate.nicho}</p>
+                  <p className="text-xs text-neutral-500 mt-1">
                     Duração estimada: {selectedTemplate.estimated_days} dias
                   </p>
                 </div>
@@ -334,7 +334,7 @@ export function IniciarJornada() {
                 <div>
                   <h4 className="font-medium text-sm text-neutral-600">Cliente</h4>
                   <p className="font-medium">{selectedCliente.nome}</p>
-                  <p className="text-sm text-gray-500">{selectedCliente.cpfcnpj}</p>
+                  <p className="text-sm text-neutral-500">{selectedCliente.cpfcnpj}</p>
                 </div>
               )}
 
@@ -342,7 +342,7 @@ export function IniciarJornada() {
                 <div>
                   <h4 className="font-medium text-sm text-neutral-600">Processo</h4>
                   <p className="font-mono text-sm">{selectedProcesso.numero_cnj}</p>
-                  <p className="text-sm text-gray-500">{selectedProcesso.titulo}</p>
+                  <p className="text-sm text-neutral-500">{selectedProcesso.titulo}</p>
                 </div>
               )}
 
@@ -350,7 +350,7 @@ export function IniciarJornada() {
                 <div>
                   <h4 className="font-medium text-sm text-neutral-600">Responsável</h4>
                   <p className="font-medium">{selectedAdvogado.nome}</p>
-                  <p className="text-sm text-gray-500">OAB: {selectedAdvogado.oab}</p>
+                  <p className="text-sm text-neutral-500">OAB: {selectedAdvogado.oab}</p>
                 </div>
               )}
 
