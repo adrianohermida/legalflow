@@ -1,4 +1,4 @@
-/* Cache-busting: v2.0 - Brand refactor complete */
+/* Cache-busting: v2.1 - Brand refactor complete with AA+ contrast */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -103,6 +103,12 @@
   /* F1.0 - Focus ring visível para acessibilidade AA+ */
   *:focus-visible {
     @apply outline-none ring-2 ring-brand-700 ring-offset-2 ring-offset-background;
+  }
+
+  /* Ensure buttons have proper brand styling */
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    @apply ring-brand-700 ring-offset-background;
   }
 
   /* F1.0 - Elementos interativos com transições suaves */
