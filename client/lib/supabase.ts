@@ -32,7 +32,11 @@ export const supabase = isConfigured
       }
     });
 
-// Create client for LEGALFLOW schema (new LegalFlow tables)
+// ===============================
+// F1.0 - LEGALFLOW SCHEMA CLIENT
+// ===============================
+// Create client for LEGALFLOW schema (F2+ tables: jornadas, stage_types, etc.)
+// F1.0: Apenas instanciado, queries começam na F2
 export const legalflow = isConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       db: { schema: 'legalflow' },
@@ -52,6 +56,7 @@ export const legalflow = isConfigured
     });
 
 // Alternative approach: Use schema() method on main client
+// F1.0: Pronto para uso nas próximas fases
 export const lf = supabase.schema('legalflow');
 
 // Export configuration status
