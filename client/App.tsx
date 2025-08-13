@@ -8,8 +8,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { DemoAuthProvider, useDemoAuth } from "./contexts/DemoAuthContext";
 import { AppShell } from "./components/AppShell";
-import { Login } from "./pages/Login";
-import { DemoLogin } from "./pages/DemoLogin";
 import { LoginPage } from "./pages/LoginPage";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
