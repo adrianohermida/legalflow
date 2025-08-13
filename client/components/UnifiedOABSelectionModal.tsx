@@ -67,10 +67,24 @@ export function UnifiedOABSelectionModal({
   // Determine which auth context to use
   const authMode =
     mode || (localStorage.getItem("auth-mode") as "demo" | "supabase" | null);
-  const { selectOAB: selectOABProduction } = useAuth();
-  const { selectOAB: selectOABDemo } = useDemoAuth();
 
-  const selectOAB = authMode === "demo" ? selectOABDemo : selectOABProduction;
+  // Use hooks conditionally based on auth mode
+  let selectOAB;
+  try {
+    if (authMode === "demo") {
+      const demoAuth = useDemoAuth();
+      selectOAB = demoAuth.selectOAB;
+    } else {
+      const supabaseAuth = useAuth();
+      selectOAB = supabaseAuth.selectOAB;
+    }
+  } catch (error) {
+    console.error("Auth context error in OAB modal:", error);
+    selectOAB = async () => {
+      throw new Error("Contexto de autenticação não disponível");
+    };
+  }
+
   const isDemo = authMode === "demo";
 
   const handleSubmit = async (e: React.FormEvent) => {
