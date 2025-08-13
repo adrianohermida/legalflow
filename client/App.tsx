@@ -573,20 +573,35 @@ function RegularAppRoutes() {
 }
 
 function App() {
-  const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(
-    localStorage.getItem("auth-mode") as "demo" | "supabase" | null,
-  );
+  const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
+    try {
+      const stored = localStorage.getItem("auth-mode");
+      console.log("🔧 Auth mode from localStorage:", stored);
+      return stored as "demo" | "supabase" | null;
+    } catch (error) {
+      console.warn("Failed to read localStorage:", error);
+      return null;
+    }
+  });
+
+  console.log("🚀 App rendering with authMode:", authMode);
 
   // Show mode selector if no mode is selected
   if (!authMode) {
+    console.log("📱 Showing mode selector");
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <BrowserRouter>
             <ModeSelector
               onModeSelect={(mode) => {
-                localStorage.setItem("auth-mode", mode);
-                setAuthMode(mode);
+                console.log("🎯 Mode selected:", mode);
+                try {
+                  localStorage.setItem("auth-mode", mode);
+                  setAuthMode(mode);
+                } catch (error) {
+                  console.error("Failed to set auth mode:", error);
+                }
               }}
             />
           </BrowserRouter>
