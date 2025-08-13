@@ -222,7 +222,7 @@ export function Jornadas() {
       case "completed":
         return <CheckCircle className="h-4 w-4 text-blue-600" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
+        return <Clock className="h-4 w-4 text-neutral-600" />;
     }
   };
 
@@ -235,9 +235,9 @@ export function Jornadas() {
       case "completed":
         return "bg-brand-100 text-brand-700";
       case "cancelled":
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-100 text-neutral-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-neutral-100 text-neutral-800";
     }
   };
 
@@ -246,8 +246,8 @@ export function Jornadas() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Jornadas</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-neutral-900">Jornadas</h1>
+          <p className="text-neutral-600 mt-1">
             Gerencie templates e instâncias de jornadas do cliente
           </p>
         </div>
@@ -271,7 +271,7 @@ export function Jornadas() {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
             <Input
               placeholder="Buscar jornadas..."
               value={searchTerm}
@@ -333,7 +333,7 @@ export function Jornadas() {
                 <CardContent>
                   <div className="space-y-4">
                     {/* Template stats */}
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center justify-between text-sm text-neutral-600">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         {template.estimated_days} dias
@@ -380,8 +380,8 @@ export function Jornadas() {
           </div>
 
           {filteredTemplates.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-12 text-neutral-500">
+              <FileText className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
               <p>Nenhum template encontrado.</p>
             </div>
           )}
@@ -432,11 +432,11 @@ export function Jornadas() {
                   <div className="space-y-4">
                     {/* Progress */}
                     <div>
-                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <div className="flex justify-between text-sm text-neutral-600 mb-2">
                         <span>Progresso</span>
                         <span>{instance.progress_pct}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-neutral-200 rounded-full h-2">
                         <div
                           className="bg-primary h-2 rounded-full"
                           style={{ width: `${instance.progress_pct}%` }}
@@ -447,11 +447,11 @@ export function Jornadas() {
                     {/* Details */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">Responsável:</span>
+                        <span className="text-neutral-600">Responsável:</span>
                         <p className="font-medium">{instance.owner_nome}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600">Início:</span>
+                        <span className="text-neutral-600">Início:</span>
                         <p className="font-medium">
                           {new Date(instance.started_at).toLocaleDateString(
                             "pt-BR",
@@ -462,7 +462,7 @@ export function Jornadas() {
 
                     {instance.processo_numero_cnj && (
                       <div className="text-sm">
-                        <span className="text-gray-600">Processo:</span>
+                        <span className="text-neutral-600">Processo:</span>
                         <p className="font-mono text-xs">
                           {instance.processo_numero_cnj}
                         </p>
@@ -494,8 +494,8 @@ export function Jornadas() {
           </div>
 
           {filteredInstances.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-12 text-neutral-500">
+              <Users className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
               <p>Nenhuma jornada ativa encontrada.</p>
             </div>
           )}
