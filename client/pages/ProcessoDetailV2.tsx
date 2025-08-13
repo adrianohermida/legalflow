@@ -690,6 +690,15 @@ export default function ProcessoDetailV2() {
                     <div className="space-y-4">
                       <div>
                         <Label className="text-sm font-medium text-neutral-600">
+                          Tribunal
+                        </Label>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">{processo?.tribunal_sigla || capa.tribunal_sigla || "-"}</p>
+                          <p className="text-xs text-neutral-500">{capa.tribunal_nome || "-"}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-neutral-600">
                           Área
                         </Label>
                         <p className="text-sm">{capa.area || "-"}</p>
@@ -706,17 +715,37 @@ export default function ProcessoDetailV2() {
                         </Label>
                         <p className="text-sm">{capa.assunto || "-"}</p>
                       </div>
+                      <div>
+                        <Label className="text-sm font-medium text-neutral-600">
+                          Instância/Grau
+                        </Label>
+                        <div className="flex gap-2">
+                          <Badge variant="outline">{capa.instancia || "1ª Instância"}</Badge>
+                          {capa.grau && <Badge variant="outline">Grau {capa.grau}</Badge>}
+                        </div>
+                      </div>
                     </div>
                     <div className="space-y-4">
                       <div>
                         <Label className="text-sm font-medium text-neutral-600">
                           Valor da Causa
                         </Label>
-                        <p className="text-sm">
-                          {capa.valor_causa
-                            ? `R$ ${Number(capa.valor_causa).toLocaleString("pt-BR")}`
-                            : "-"}
+                        <p className="text-sm font-medium">
+                          {capa.valor_formatado ||
+                           (capa.valor_causa
+                            ? `R$ ${Number(capa.valor_causa).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                            : "-")}
                         </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-neutral-600">
+                          Situação/Status
+                        </Label>
+                        <div className="flex gap-2">
+                          {capa.situacao && <Badge variant="secondary">{capa.situacao}</Badge>}
+                          {capa.status && <Badge variant="outline">{capa.status}</Badge>}
+                          {!capa.situacao && !capa.status && <span className="text-sm">-</span>}
+                        </div>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-neutral-600">
@@ -726,11 +755,21 @@ export default function ProcessoDetailV2() {
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-neutral-600">
-                          Distribuição
+                          Data de Distribuição
                         </Label>
                         <p className="text-sm">
                           {capa.data_distribuicao
                             ? formatDate(capa.data_distribuicao)
+                            : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-neutral-600">
+                          Data de Ajuizamento
+                        </Label>
+                        <p className="text-sm">
+                          {capa.data_ajuizamento
+                            ? formatDate(capa.data_ajuizamento)
                             : "-"}
                         </p>
                       </div>
