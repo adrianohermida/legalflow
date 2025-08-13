@@ -169,13 +169,19 @@ export default function ProcessosV2() {
             .order("data", { ascending: false })
             .limit(1);
 
-          // Extrair resumo dos dados se disponível
-          const resumo =
-            processo.data?.resumo || processo.data?.capa?.assunto || "";
+          // Extrair dados completos da capa e resumo
+          const capa = processo.data?.capa || {};
+          const resumo = processo.data?.resumo || capa?.assunto || '';
+          const valorCausa = capa?.valor_formatado ||
+                           (capa?.valor_causa ? `R$ ${Number(capa.valor_causa).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : null);
 
           return {
             ...processo,
             resumo,
+            capa,
+            valor_causa: valorCausa,
+            situacao: capa?.situacao || capa?.status,
+            instancia: capa?.instancia,
             cliente_nome: processo.clientes_processos[0]?.clientes?.nome,
             cliente_cpfcnpj: processo.clientes_processos[0]?.clientes?.cpfcnpj,
             responsavel_oab: processo.advogados_processos[0]?.advogados?.oab,
