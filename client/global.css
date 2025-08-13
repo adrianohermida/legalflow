@@ -18,9 +18,9 @@
     --brand-800: 33 66 57;
     --brand-900: 27 58 47;   /* #1b3a2f - Primary dark */
 
-    /* State colors - apenas subtons do branding */
+    /* State colors - brand-aligned */
     --danger: 239 68 68;     /* #ef4444 */
-    --warn: 245 158 11;      /* #f59e0b */
+    --warn: 217 119 6;       /* #d97706 - More muted amber */
     --success: 22 163 74;    /* #16a34a */
 
     /* Neutral scale baseada no branding */
@@ -179,7 +179,7 @@
   }
 
   .badge-warning {
-    @apply bg-warning-100 text-warning-700 border-warning-200;
+    @apply bg-amber-50 text-amber-800 border-amber-200;
   }
 
   .badge-danger {

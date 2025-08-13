@@ -43,11 +43,11 @@ const config: Config = {
           700: "#166534",
         },
         warning: {
-          DEFAULT: "#f59e0b",
-          50: "#fffbeb",
-          100: "#fef3c7",
-          500: "#f59e0b",
-          600: "#d97706",
+          DEFAULT: "#d97706",
+          50: "#fefbf3",
+          100: "#fef3e2",
+          500: "#d97706",
+          600: "#b45309",
         },
         danger: {
           DEFAULT: "#ef4444",
