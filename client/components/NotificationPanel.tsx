@@ -1,68 +1,81 @@
-import React, { useState } from 'react';
-import { X, Bell, Filter, CheckCircle, AlertTriangle, DollarSign, MessageSquare } from 'lucide-react';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { cn } from '../lib/utils';
+import React, { useState } from "react";
+import {
+  X,
+  Bell,
+  Filter,
+  CheckCircle,
+  AlertTriangle,
+  DollarSign,
+  MessageSquare,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { cn } from "../lib/utils";
 
 interface NotificationPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  userType: 'advogado' | 'cliente';
+  userType: "advogado" | "cliente";
 }
 
-type FilterType = 'todos' | 'prazos' | 'publicacoes' | 'financeiro' | 'chat';
+type FilterType = "todos" | "prazos" | "publicacoes" | "financeiro" | "chat";
 
 const mockNotifications = [
   {
-    id: '1',
-    type: 'prazos' as FilterType,
-    title: 'Prazo de contestação',
-    message: 'Processo 1000123-45.2024.8.26.0001 - Prazo em 3 dias',
-    time: '2h atrás',
+    id: "1",
+    type: "prazos" as FilterType,
+    title: "Prazo de contestação",
+    message: "Processo 1000123-45.2024.8.26.0001 - Prazo em 3 dias",
+    time: "2h atrás",
     read: false,
     icon: AlertTriangle,
-    color: 'text-warning'
+    color: "text-warning",
   },
   {
-    id: '2',
-    type: 'publicacoes' as FilterType,
-    title: 'Nova publicação',
-    message: 'Despacho publicado no processo 2000456-78.2024.8.26.0002',
-    time: '4h atrás',
+    id: "2",
+    type: "publicacoes" as FilterType,
+    title: "Nova publicação",
+    message: "Despacho publicado no processo 2000456-78.2024.8.26.0002",
+    time: "4h atrás",
     read: false,
     icon: Bell,
-    color: 'text-brand-700'
+    color: "text-brand-700",
   },
   {
-    id: '3',
-    type: 'financeiro' as FilterType,
-    title: 'Pagamento recebido',
-    message: 'Cliente João Silva - R$ 2.500,00',
-    time: '1d atrás',
+    id: "3",
+    type: "financeiro" as FilterType,
+    title: "Pagamento recebido",
+    message: "Cliente João Silva - R$ 2.500,00",
+    time: "1d atrás",
     read: true,
     icon: DollarSign,
-    color: 'text-success'
+    color: "text-success",
   },
 ];
 
 const filterConfig = {
-  todos: { label: 'Todos', count: 3 },
-  prazos: { label: 'Prazos', count: 1 },
-  publicacoes: { label: 'Publicações', count: 1 },
-  financeiro: { label: 'Financeiro', count: 1 },
-  chat: { label: 'Chat', count: 0 },
+  todos: { label: "Todos", count: 3 },
+  prazos: { label: "Prazos", count: 1 },
+  publicacoes: { label: "Publicações", count: 1 },
+  financeiro: { label: "Financeiro", count: 1 },
+  chat: { label: "Chat", count: 0 },
 };
 
-export function NotificationPanel({ isOpen, onClose, userType }: NotificationPanelProps) {
-  const [activeFilter, setActiveFilter] = useState<FilterType>('todos');
+export function NotificationPanel({
+  isOpen,
+  onClose,
+  userType,
+}: NotificationPanelProps) {
+  const [activeFilter, setActiveFilter] = useState<FilterType>("todos");
 
   if (!isOpen) return null;
 
-  const filteredNotifications = activeFilter === 'todos' 
-    ? mockNotifications 
-    : mockNotifications.filter(n => n.type === activeFilter);
+  const filteredNotifications =
+    activeFilter === "todos"
+      ? mockNotifications
+      : mockNotifications.filter((n) => n.type === activeFilter);
 
-  const unreadCount = mockNotifications.filter(n => !n.read).length;
+  const unreadCount = mockNotifications.filter((n) => !n.read).length;
 
   return (
     <>
@@ -82,7 +95,7 @@ export function NotificationPanel({ isOpen, onClose, userType }: NotificationPan
             </h2>
             {unreadCount > 0 && (
               <p className="text-sm text-neutral-600">
-                {unreadCount} não lida{unreadCount !== 1 ? 's' : ''}
+                {unreadCount} não lida{unreadCount !== 1 ? "s" : ""}
               </p>
             )}
           </div>
@@ -143,19 +156,28 @@ export function NotificationPanel({ isOpen, onClose, userType }: NotificationPan
                   <div
                     key={notification.id}
                     className={cn(
-                      'p-3 rounded-lg border cursor-pointer transition-colors hover:bg-neutral-50',
-                      notification.read 
-                        ? 'border-transparent bg-neutral-50/50' 
-                        : 'border-brand-200 bg-brand-50/30'
+                      "p-3 rounded-lg border cursor-pointer transition-colors hover:bg-neutral-50",
+                      notification.read
+                        ? "border-transparent bg-neutral-50/50"
+                        : "border-brand-200 bg-brand-50/30",
                     )}
                   >
                     <div className="flex items-start space-x-3">
-                      <Icon className={cn('w-4 h-4 mt-0.5 flex-shrink-0', notification.color)} />
+                      <Icon
+                        className={cn(
+                          "w-4 h-4 mt-0.5 flex-shrink-0",
+                          notification.color,
+                        )}
+                      />
                       <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          'text-sm leading-tight',
-                          notification.read ? 'text-neutral-700' : 'font-medium text-neutral-900'
-                        )}>
+                        <p
+                          className={cn(
+                            "text-sm leading-tight",
+                            notification.read
+                              ? "text-neutral-700"
+                              : "font-medium text-neutral-900",
+                          )}
+                        >
                           {notification.title}
                         </p>
                         <p className="text-xs text-neutral-600 mt-1 line-clamp-2">
@@ -179,7 +201,9 @@ export function NotificationPanel({ isOpen, onClose, userType }: NotificationPan
         {/* Footer */}
         <div className="p-4 border-t border-border bg-neutral-50">
           <p className="text-xs text-neutral-500 text-center">
-            {userType === 'advogado' ? 'Hermida Maia Advocacia' : 'Portal do Cliente'}
+            {userType === "advogado"
+              ? "Hermida Maia Advocacia"
+              : "Portal do Cliente"}
           </p>
         </div>
       </div>

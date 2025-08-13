@@ -1,7 +1,12 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 
 export function ColorTest() {
   return (
@@ -98,12 +103,13 @@ export function ColorTest() {
             <Button className="bg-brand-700 hover:bg-brand-900 text-white">
               Botão Primary
             </Button>
-            <Button variant="outline" className="border-brand-700 text-brand-700 hover:bg-brand-100">
+            <Button
+              variant="outline"
+              className="border-brand-700 text-brand-700 hover:bg-brand-100"
+            >
               Botão Outline
             </Button>
-            <Badge className="bg-brand-100 text-brand-900">
-              Badge Brand
-            </Badge>
+            <Badge className="bg-brand-100 text-brand-900">Badge Brand</Badge>
             <Badge className="bg-success-100 text-success-700">
               Badge Success
             </Badge>
@@ -123,7 +129,9 @@ export function ColorTest() {
           <CardTitle>Hierarquia de Texto</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-neutral-900 font-bold">Texto Principal (neutral-900)</p>
+          <p className="text-neutral-900 font-bold">
+            Texto Principal (neutral-900)
+          </p>
           <p className="text-neutral-600">Texto Secundário (neutral-600)</p>
           <p className="text-neutral-500">Texto Terciário (neutral-500)</p>
           <p className="text-brand-700">Texto Brand (brand-700)</p>
@@ -136,12 +144,15 @@ export function ColorTest() {
       {/* Verificação Contra Amarelo */}
       <Card className="border-2 border-success">
         <CardHeader>
-          <CardTitle className="text-success">✅ Verificação: Sem Amarelo</CardTitle>
+          <CardTitle className="text-success">
+            ✅ Verificação: Sem Amarelo
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-neutral-600">
-            Se você estiver vendo esta página com fundo branco e cores consistentes da marca,
-            o sistema de cores foi implementado corretamente e todo amarelo foi eliminado.
+            Se você estiver vendo esta página com fundo branco e cores
+            consistentes da marca, o sistema de cores foi implementado
+            corretamente e todo amarelo foi eliminado.
           </p>
           <div className="mt-4 p-4 bg-success-50 border border-success-200 rounded">
             <p className="text-success-700 font-medium">
@@ -154,8 +165,7 @@ export function ColorTest() {
               ✅ Sistema totalmente consistente
               <br />
               ✅ Layout backgrounds corrigidos
-              <br />
-              ✅ Componentes UI padronizados
+              <br />✅ Componentes UI padronizados
             </p>
           </div>
         </CardContent>

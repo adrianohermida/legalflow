@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import React from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +9,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Badge } from './ui/badge';
+} from "./ui/dropdown-menu";
+import { Badge } from "./ui/badge";
 import {
   Search,
   Grid3X3,
@@ -20,11 +20,11 @@ import {
   LogOut,
   User,
   HelpCircle,
-} from 'lucide-react';
-import { cn } from '../lib/utils';
+} from "lucide-react";
+import { cn } from "../lib/utils";
 
 interface HeaderProps {
-  userType: 'advogado' | 'cliente';
+  userType: "advogado" | "cliente";
   onAppLauncherToggle: () => void;
   onNotificationToggle: () => void;
   onChatToggle: () => void;
@@ -45,23 +45,27 @@ export function Header({
   const notificationCount = 3; // TODO: Get from real data
   const hasUnreadMessages = true; // TODO: Get from real data
 
-  const searchPlaceholder = userType === 'advogado' 
-    ? 'Buscar CNJ/CPF/Cliente...'
-    : 'Buscar nos seus processos...';
+  const searchPlaceholder =
+    userType === "advogado"
+      ? "Buscar CNJ/CPF/Cliente..."
+      : "Buscar nos seus processos...";
 
   // Get auth mode for display
-  const authMode = localStorage.getItem('auth-mode') as 'demo' | 'supabase' | null;
+  const authMode = localStorage.getItem("auth-mode") as
+    | "demo"
+    | "supabase"
+    | null;
 
   return (
     <>
       {/* Skip to main content link for keyboard users */}
-      <a 
-        href="#main-content" 
+      <a
+        href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-700 text-white px-4 py-2 rounded-lg z-50"
       >
         Pular para o conteúdo principal
       </a>
-      
+
       <header className="app-header" role="banner">
         {/* Left section - App Launcher & Search */}
         <div className="flex items-center flex-1 space-x-4">
@@ -99,8 +103,8 @@ export function Header({
             size="sm"
             onClick={onChatToggle}
             className={cn(
-              'relative text-neutral-600 hover:text-neutral-900',
-              hasUnreadMessages && 'text-brand-700'
+              "relative text-neutral-600 hover:text-neutral-900",
+              hasUnreadMessages && "text-brand-700",
             )}
             title="Chat"
           >
@@ -124,7 +128,7 @@ export function Header({
                 variant="destructive"
                 className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs font-medium"
               >
-                {notificationCount > 9 ? '9+' : notificationCount}
+                {notificationCount > 9 ? "9+" : notificationCount}
               </Badge>
             )}
           </Button>
@@ -137,9 +141,9 @@ export function Header({
                 className="relative h-9 w-9 rounded-full ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={user?.avatar} alt={user?.email || ''} />
+                  <AvatarImage src={user?.avatar} alt={user?.email || ""} />
                   <AvatarFallback className="bg-brand-100 text-brand-700 font-medium">
-                    {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    {user?.email?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -148,7 +152,7 @@ export function Header({
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    {user?.email || 'Usuário'}
+                    {user?.email || "Usuário"}
                   </p>
                   {user?.oab && (
                     <p className="text-xs leading-none text-muted-foreground">
@@ -159,13 +163,15 @@ export function Header({
                     <Badge
                       variant="outline"
                       className={cn(
-                        'text-xs',
-                        userType === 'advogado' ? 'border-brand-200 text-brand-700' : 'border-brand-200 text-brand-700'
+                        "text-xs",
+                        userType === "advogado"
+                          ? "border-brand-200 text-brand-700"
+                          : "border-brand-200 text-brand-700",
                       )}
                     >
-                      {userType === 'advogado' ? 'Advogado' : 'Cliente'}
+                      {userType === "advogado" ? "Advogado" : "Cliente"}
                     </Badge>
-                    {authMode === 'demo' && (
+                    {authMode === "demo" && (
                       <Badge variant="secondary" className="text-xs">
                         Demo
                       </Badge>

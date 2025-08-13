@@ -57,11 +57,11 @@ const config: Config = {
           600: "#dc2626",
         },
         // Tokens semânticos - superfícies e estado
-        surface: 'var(--surface)',
-        'surface-2': 'var(--surface-2)',
-        'on-surface': 'var(--on-surface)',
-        muted: 'var(--muted)',
-        warn: 'var(--warn)',
+        surface: "var(--surface)",
+        "surface-2": "var(--surface-2)",
+        "on-surface": "var(--on-surface)",
+        muted: "var(--muted)",
+        warn: "var(--warn)",
         // Neutral scale - tons de cinza neutros para confiança
         neutral: {
           50: "#f9fafb",

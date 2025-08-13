@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { CheckCircle, ExternalLink, User, Database } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { CheckCircle, ExternalLink, User, Database } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 interface QuickSetupProps {
   onComplete: () => void;
@@ -12,28 +18,38 @@ interface QuickSetupProps {
 export function QuickSetup({ onComplete }: QuickSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { signup } = useAuth();
 
   const openSupabaseDashboard = () => {
-    window.open('https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users', '_blank');
+    window.open(
+      "https://supabase.com/dashboard/project/zqxpvajhzgirgciucwxl/auth/users",
+      "_blank",
+    );
   };
 
   const handleCreateAndConfirm = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Use a more standard email format that Supabase accepts
-      await signup('admin.test@gmail.com', '123456');
+      await signup("admin.test@gmail.com", "123456");
     } catch (err: any) {
-      if (err.message?.includes('rate limit')) {
-        setError('Muitas tentativas. Aguarde alguns minutos ou pule para o passo 2.');
-      } else if (err.message?.includes('invalid')) {
+      if (err.message?.includes("rate limit")) {
+        setError(
+          "Muitas tentativas. Aguarde alguns minutos ou pule para o passo 2.",
+        );
+      } else if (err.message?.includes("invalid")) {
         // Skip account creation and go directly to manual setup
-        setError('Vamos pular a criação automática. Clique em "Pular para Painel" para criar manualmente.');
-      } else if (!err.message?.includes('já cadastrado') && !err.message?.includes('User already registered')) {
-        setError('Aviso: ' + err.message + '. Pode prosseguir para o passo 2.');
+        setError(
+          'Vamos pular a criação automática. Clique em "Pular para Painel" para criar manualmente.',
+        );
+      } else if (
+        !err.message?.includes("já cadastrado") &&
+        !err.message?.includes("User already registered")
+      ) {
+        setError("Aviso: " + err.message + ". Pode prosseguir para o passo 2.");
       }
     }
 
@@ -49,18 +65,18 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
     {
       title: "Passo 1: Criar Usuário de Teste",
       description: "Vamos criar um usuário e abrir o painel do Supabase",
-      action: "Criar e Abrir Painel"
+      action: "Criar e Abrir Painel",
     },
     {
       title: "Passo 2: Confirmar Email",
       description: "No painel que abriu, confirme o email do usuário",
-      action: "Confirmar Email"
+      action: "Confirmar Email",
     },
     {
       title: "Passo 3: Fazer Login",
       description: "Volte aqui e faça login com as credenciais",
-      action: "Continuar para Login"
-    }
+      action: "Continuar para Login",
+    },
   ];
 
   return (
@@ -72,8 +88,12 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
               <Database className="h-8 w-8" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-neutral-900">Configuração Rápida</h1>
-          <p className="text-neutral-600 mt-2">Configure sua conta em 3 passos simples</p>
+          <h1 className="text-3xl font-bold text-neutral-900">
+            Configuração Rápida
+          </h1>
+          <p className="text-neutral-600 mt-2">
+            Configure sua conta em 3 passos simples
+          </p>
         </div>
 
         <Card>
@@ -110,7 +130,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                     className="w-full"
                     size="lg"
                   >
-                    {isLoading ? 'Criando usuário...' : 'Criar e Abrir Painel'}
+                    {isLoading ? "Criando usuário..." : "Criar e Abrir Painel"}
                   </Button>
 
                   <Button
@@ -133,15 +153,23 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                 <Alert>
                   <AlertDescription>
                     <strong>No painel do Supabase que abriu:</strong>
-                    <br />1. Se o usuário <code>admin.test@gmail.com</code> existe: clique em <strong>"Confirm email"</strong>
-                    <br />2. Se não existe: clique em <strong>"Add user"</strong> → use email <code>admin.test@gmail.com</code> e senha <code>123456</code>
-                    <br />3. Marque <strong>"Confirm email"</strong> ao criar o usuário
-                    <br />4. Volte aqui e clique em "Email Confirmado"
+                    <br />
+                    1. Se o usuário <code>admin.test@gmail.com</code> existe:
+                    clique em <strong>"Confirm email"</strong>
+                    <br />
+                    2. Se não existe: clique em <strong>"Add user"</strong> →
+                    use email <code>admin.test@gmail.com</code> e senha{" "}
+                    <code>123456</code>
+                    <br />
+                    3. Marque <strong>"Confirm email"</strong> ao criar o
+                    usuário
+                    <br />
+                    4. Volte aqui e clique em "Email Confirmado"
                   </AlertDescription>
                 </Alert>
 
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={openSupabaseDashboard}
                     className="flex-1"
@@ -149,10 +177,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Reabrir Painel
                   </Button>
-                  <Button 
-                    onClick={() => setCurrentStep(3)}
-                    className="flex-1"
-                  >
+                  <Button onClick={() => setCurrentStep(3)} className="flex-1">
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Email Confirmado
                   </Button>
@@ -171,12 +196,8 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                     <br />• OAB para vincular: <code>123456</code>
                   </AlertDescription>
                 </Alert>
-                
-                <Button 
-                  onClick={onComplete}
-                  className="w-full"
-                  size="lg"
-                >
+
+                <Button onClick={onComplete} className="w-full" size="lg">
                   Ir para Login
                 </Button>
               </div>
@@ -188,7 +209,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                 <div
                   key={step}
                   className={`w-3 h-3 rounded-full ${
-                    step <= currentStep ? 'bg-primary' : 'bg-neutral-300'
+                    step <= currentStep ? "bg-primary" : "bg-neutral-300"
                   }`}
                 />
               ))}

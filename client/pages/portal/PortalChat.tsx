@@ -1,7 +1,12 @@
-import React from 'react';
-import { MessageSquare, Send, Plus } from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import React from "react";
+import { MessageSquare, Send, Plus } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 
 export function PortalChat() {
   return (
@@ -11,9 +16,7 @@ export function PortalChat() {
           <h1 className="text-2xl font-heading font-semibold text-neutral-900">
             Chat
           </h1>
-          <p className="text-neutral-600 mt-1">
-            Converse com seu advogado
-          </p>
+          <p className="text-neutral-600 mt-1">Converse com seu advogado</p>
         </div>
         <Button className="bg-brand-700 hover:bg-brand-900 text-white">
           <Plus className="w-4 h-4 mr-2" />
@@ -35,7 +38,7 @@ export function PortalChat() {
               Módulo em Desenvolvimento
             </h3>
             <p className="text-neutral-600 max-w-md mx-auto">
-              O chat será implementado na Fase 2 com conversas em tempo real, 
+              O chat será implementado na Fase 2 com conversas em tempo real,
               histórico de mensagens e notificações push.
             </p>
           </div>

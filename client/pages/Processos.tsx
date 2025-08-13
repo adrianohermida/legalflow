@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import React, { useState, useEffect } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,59 +9,73 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { 
-  Search, 
-  Plus, 
-  Filter, 
-  FileText, 
+} from "../components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Search,
+  Plus,
+  Filter,
+  FileText,
   Calendar,
   AlertTriangle,
   CheckCircle,
   Clock,
   ChevronLeft,
   ChevronRight,
-  Loader2
-} from 'lucide-react';
-import { processosApi, type Processo } from '../lib/api';
-import { useQuery } from '@tanstack/react-query';
+  Loader2,
+} from "lucide-react";
+import { processosApi, type Processo } from "../lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 const statusConfig = {
-  ativo: { label: 'Ativo', variant: 'default' as const, icon: CheckCircle },
-  suspenso: { label: 'Suspenso', variant: 'secondary' as const, icon: Clock },
-  arquivado: { label: 'Arquivado', variant: 'outline' as const, icon: FileText },
+  ativo: { label: "Ativo", variant: "default" as const, icon: CheckCircle },
+  suspenso: { label: "Suspenso", variant: "secondary" as const, icon: Clock },
+  arquivado: {
+    label: "Arquivado",
+    variant: "outline" as const,
+    icon: FileText,
+  },
 };
 
 const riscoConfig = {
-  alto: { label: 'Alto', variant: 'destructive' as const },
-  medio: { label: 'Médio', variant: 'default' as const },
-  baixo: { label: 'Baixo', variant: 'secondary' as const },
+  alto: { label: "Alto", variant: "destructive" as const },
+  medio: { label: "Médio", variant: "default" as const },
+  baixo: { label: "Baixo", variant: "secondary" as const },
 };
 
 export function Processos() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const itemsPerPage = 20;
 
   // Fetch processos from Supabase
-  const { 
-    data: processosData = [], 
-    isLoading, 
+  const {
+    data: processosData = [],
+    isLoading,
     error,
-    refetch 
+    refetch,
   } = useQuery({
-    queryKey: ['processos'],
+    queryKey: ["processos"],
     queryFn: processosApi.getAll,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Filter data based on search
-  const filteredProcessos = processosData.filter(processo =>
-    processo.numero_cnj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    processo.titulo_polo_ativo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    processo.titulo_polo_passivo?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProcessos = processosData.filter(
+    (processo) =>
+      processo.numero_cnj.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      processo.titulo_polo_ativo
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      processo.titulo_polo_passivo
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   const totalItems = filteredProcessos.length;
@@ -78,8 +92,8 @@ export function Processos() {
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const handlePageChange = (page: number) => {
@@ -90,38 +104,50 @@ export function Processos() {
   const getProcessoData = (processo: Processo) => {
     const data = processo.data || {};
     return {
-      status: data.status || 'ativo',
-      fase: data.fase || 'Em andamento',
-      risco: data.risco || 'medio',
-      proxima_acao: data.proxima_acao || '',
-      prazo: data.prazo || null
+      status: data.status || "ativo",
+      fase: data.fase || "Em andamento",
+      risco: data.risco || "medio",
+      proxima_acao: data.proxima_acao || "",
+      prazo: data.prazo || null,
     };
   };
 
   // Get client name from related data
   const getClienteName = (processo: any) => {
-    return processo.clientes_processos?.[0]?.clientes?.nome || 'Cliente não identificado';
+    return (
+      processo.clientes_processos?.[0]?.clientes?.nome ||
+      "Cliente não identificado"
+    );
   };
 
   // Get lawyer name from related data
   const getLawyerName = (processo: any) => {
-    return processo.advogados_processos?.[0]?.advogados?.nome || 'Advogado não atribuído';
+    return (
+      processo.advogados_processos?.[0]?.advogados?.nome ||
+      "Advogado não atribuído"
+    );
   };
 
   const isPrazoVencendo = (prazo?: string) => {
     if (!prazo) return false;
     const prazoDate = new Date(prazo);
     const hoje = new Date();
-    const diasRestantes = Math.ceil((prazoDate.getTime() - hoje.getTime()) / (1000 * 3600 * 24));
+    const diasRestantes = Math.ceil(
+      (prazoDate.getTime() - hoje.getTime()) / (1000 * 3600 * 24),
+    );
     return diasRestantes <= 3 && diasRestantes >= 0;
   };
 
   // Calculate stats from real data
   const stats = {
     total: processosData.length,
-    ativos: processosData.filter(p => getProcessoData(p).status === 'ativo').length,
-    prazosVencendo: processosData.filter(p => isPrazoVencendo(getProcessoData(p).prazo)).length,
-    altoRisco: processosData.filter(p => getProcessoData(p).risco === 'alto').length,
+    ativos: processosData.filter((p) => getProcessoData(p).status === "ativo")
+      .length,
+    prazosVencendo: processosData.filter((p) =>
+      isPrazoVencendo(getProcessoData(p).prazo),
+    ).length,
+    altoRisco: processosData.filter((p) => getProcessoData(p).risco === "alto")
+      .length,
   };
 
   if (error) {
@@ -146,11 +172,9 @@ export function Processos() {
                 Erro ao carregar processos
               </h3>
               <p className="text-neutral-600 mb-4">
-                {error.message || 'Erro desconhecido'}
+                {error.message || "Erro desconhecido"}
               </p>
-              <Button onClick={() => refetch()}>
-                Tentar novamente
-              </Button>
+              <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
           </CardContent>
         </Card>
@@ -254,15 +278,15 @@ export function Processos() {
       {/* Processes Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
-            Processos ({totalItems})
-          </CardTitle>
+          <CardTitle className="text-lg">Processos ({totalItems})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-              <span className="ml-2 text-neutral-600">Carregando processos...</span>
+              <span className="ml-2 text-neutral-600">
+                Carregando processos...
+              </span>
             </div>
           ) : (
             <Table>
@@ -286,27 +310,36 @@ export function Processos() {
                       <div className="text-neutral-500">
                         <FileText className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                         <p>Nenhum processo encontrado</p>
-                        <p className="text-sm">Ajuste os filtros ou adicione um novo processo</p>
+                        <p className="text-sm">
+                          Ajuste os filtros ou adicione um novo processo
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   paginatedProcessos.map((processo) => {
                     const processoData = getProcessoData(processo);
-                    const StatusIcon = statusConfig[processoData.status as keyof typeof statusConfig]?.icon || FileText;
-                    
+                    const StatusIcon =
+                      statusConfig[
+                        processoData.status as keyof typeof statusConfig
+                      ]?.icon || FileText;
+
                     return (
-                      <TableRow key={processo.numero_cnj} className="hover:bg-neutral-50 cursor-pointer">
+                      <TableRow
+                        key={processo.numero_cnj}
+                        className="hover:bg-neutral-50 cursor-pointer"
+                      >
                         <TableCell className="font-mono text-sm">
                           {processo.numero_cnj}
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
                             <div className="font-medium text-sm">
-                              {processo.titulo_polo_ativo || 'Não informado'}
+                              {processo.titulo_polo_ativo || "Não informado"}
                             </div>
                             <div className="text-xs text-neutral-600">
-                              vs {processo.titulo_polo_passivo || 'Não informado'}
+                              vs{" "}
+                              {processo.titulo_polo_passivo || "Não informado"}
                             </div>
                           </div>
                         </TableCell>
@@ -318,17 +351,37 @@ export function Processos() {
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={statusConfig[processoData.status as keyof typeof statusConfig]?.variant}
+                            variant={
+                              statusConfig[
+                                processoData.status as keyof typeof statusConfig
+                              ]?.variant
+                            }
                             className="flex items-center gap-1 w-fit"
                           >
                             <StatusIcon className="w-3 h-3" />
-                            {statusConfig[processoData.status as keyof typeof statusConfig]?.label}
+                            {
+                              statusConfig[
+                                processoData.status as keyof typeof statusConfig
+                              ]?.label
+                            }
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm">{processoData.fase}</TableCell>
+                        <TableCell className="text-sm">
+                          {processoData.fase}
+                        </TableCell>
                         <TableCell>
-                          <Badge variant={riscoConfig[processoData.risco as keyof typeof riscoConfig]?.variant}>
-                            {riscoConfig[processoData.risco as keyof typeof riscoConfig]?.label}
+                          <Badge
+                            variant={
+                              riscoConfig[
+                                processoData.risco as keyof typeof riscoConfig
+                              ]?.variant
+                            }
+                          >
+                            {
+                              riscoConfig[
+                                processoData.risco as keyof typeof riscoConfig
+                              ]?.label
+                            }
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm">
@@ -336,9 +389,13 @@ export function Processos() {
                             <div className="flex items-center gap-2">
                               <span>{processoData.proxima_acao}</span>
                               {processoData.prazo && (
-                                <div className={`flex items-center gap-1 text-xs ${
-                                  isPrazoVencendo(processoData.prazo) ? 'text-danger' : 'text-neutral-500'
-                                }`}>
+                                <div
+                                  className={`flex items-center gap-1 text-xs ${
+                                    isPrazoVencendo(processoData.prazo)
+                                      ? "text-danger"
+                                      : "text-neutral-500"
+                                  }`}
+                                >
                                   <Calendar className="h-3 w-3" />
                                   {formatDate(processoData.prazo)}
                                 </div>
@@ -363,7 +420,8 @@ export function Processos() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} processos
+            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de{" "}
+            {totalItems} processos
           </p>
           <div className="flex items-center gap-2">
             <Button

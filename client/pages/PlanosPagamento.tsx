@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import React, { useState } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,20 +9,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+} from "../components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { 
-  Search, 
-  Plus, 
-  Filter, 
-  DollarSign, 
+} from "../components/ui/select";
+import {
+  Search,
+  Plus,
+  Filter,
+  DollarSign,
   Calendar,
   TrendingUp,
   AlertTriangle,
@@ -31,46 +36,59 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Eye
-} from 'lucide-react';
-import { planosPagamentoApi, crossSchemaApi, type PlanoPagamento } from '../lib/api';
-import { useQuery } from '@tanstack/react-query';
+  Eye,
+} from "lucide-react";
+import {
+  planosPagamentoApi,
+  crossSchemaApi,
+  type PlanoPagamento,
+} from "../lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 const statusConfig = {
-  active: { label: 'Ativo', variant: 'default' as const, icon: CheckCircle },
-  completed: { label: 'Concluído', variant: 'secondary' as const, icon: CheckCircle },
-  cancelled: { label: 'Cancelado', variant: 'destructive' as const, icon: AlertTriangle },
-  suspended: { label: 'Suspenso', variant: 'outline' as const, icon: Clock },
+  active: { label: "Ativo", variant: "default" as const, icon: CheckCircle },
+  completed: {
+    label: "Concluído",
+    variant: "secondary" as const,
+    icon: CheckCircle,
+  },
+  cancelled: {
+    label: "Cancelado",
+    variant: "destructive" as const,
+    icon: AlertTriangle,
+  },
+  suspended: { label: "Suspenso", variant: "outline" as const, icon: Clock },
 };
 
 export function PlanosPagamento() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('todos');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const itemsPerPage = 20;
 
   // Fetch planos from LegalFlow schema with client data
-  const { 
-    data: planosData = [], 
-    isLoading, 
+  const {
+    data: planosData = [],
+    isLoading,
     error,
-    refetch 
+    refetch,
   } = useQuery({
-    queryKey: ['planos-pagamento'],
+    queryKey: ["planos-pagamento"],
     queryFn: crossSchemaApi.getPlanosPagamentoWithClientes,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Filter data based on search and status
-  const filteredPlanos = planosData.filter(plano => {
-    const matchesSearch = 
+  const filteredPlanos = planosData.filter((plano) => {
+    const matchesSearch =
       plano.cliente?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       plano.cliente_cpfcnpj.includes(searchTerm) ||
       plano.id.includes(searchTerm);
-    
-    const matchesStatus = statusFilter === 'todos' || plano.status === statusFilter;
-    
+
+    const matchesStatus =
+      statusFilter === "todos" || plano.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
@@ -88,25 +106,28 @@ export function PlanosPagamento() {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(value);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const formatCpfCnpj = (cpfcnpj: string) => {
-    const clean = cpfcnpj.replace(/\D/g, '');
-    
+    const clean = cpfcnpj.replace(/\D/g, "");
+
     if (clean.length === 11) {
-      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     } else if (clean.length === 14) {
-      return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      return clean.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+        "$1.$2.$3/$4-$5",
+      );
     }
-    
+
     return cpfcnpj;
   };
 
@@ -117,7 +138,7 @@ export function PlanosPagamento() {
   // Calculate stats from real data
   const stats = {
     total: planosData.length,
-    ativos: planosData.filter(p => p.status === 'active').length,
+    ativos: planosData.filter((p) => p.status === "active").length,
     valorTotal: planosData.reduce((sum, p) => sum + p.amount_total, 0),
     valorPago: planosData.reduce((sum, p) => sum + p.paid_amount, 0),
   };
@@ -144,11 +165,9 @@ export function PlanosPagamento() {
                 Erro ao carregar planos de pagamento
               </h3>
               <p className="text-neutral-600 mb-4">
-                {error.message || 'Erro desconhecido'}
+                {error.message || "Erro desconhecido"}
               </p>
-              <Button onClick={() => refetch()}>
-                Tentar novamente
-              </Button>
+              <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
           </CardContent>
         </Card>
@@ -164,9 +183,7 @@ export function PlanosPagamento() {
           <h1 className="text-2xl font-heading font-semibold text-neutral-900">
             Planos de Pagamento
           </h1>
-          <p className="text-neutral-600 mt-1">
-            Gestão de planos de pagamento
-          </p>
+          <p className="text-neutral-600 mt-1">Gestão de planos de pagamento</p>
         </div>
         <Button className="btn-brand">
           <Plus className="w-4 h-4 mr-2" />
@@ -272,7 +289,9 @@ export function PlanosPagamento() {
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-              <span className="ml-2 text-neutral-600">Carregando planos...</span>
+              <span className="ml-2 text-neutral-600">
+                Carregando planos...
+              </span>
             </div>
           ) : (
             <Table>
@@ -296,23 +315,31 @@ export function PlanosPagamento() {
                       <div className="text-neutral-500">
                         <DollarSign className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                         <p>Nenhum plano de pagamento encontrado</p>
-                        <p className="text-sm">Ajuste os filtros ou crie um novo plano</p>
+                        <p className="text-sm">
+                          Ajuste os filtros ou crie um novo plano
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   paginatedPlanos.map((plano: any) => {
-                    const StatusIcon = statusConfig[plano.status as keyof typeof statusConfig]?.icon || CheckCircle;
-                    const progressPct = (plano.paid_amount / plano.amount_total) * 100;
-                    
+                    const StatusIcon =
+                      statusConfig[plano.status as keyof typeof statusConfig]
+                        ?.icon || CheckCircle;
+                    const progressPct =
+                      (plano.paid_amount / plano.amount_total) * 100;
+
                     return (
-                      <TableRow key={plano.id} className="hover:bg-neutral-50 cursor-pointer">
+                      <TableRow
+                        key={plano.id}
+                        className="hover:bg-neutral-50 cursor-pointer"
+                      >
                         <TableCell className="font-mono text-xs">
                           {plano.id.slice(0, 8)}...
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">
-                            {plano.cliente?.nome || 'Nome não informado'}
+                            {plano.cliente?.nome || "Nome não informado"}
                           </div>
                         </TableCell>
                         <TableCell className="font-mono text-sm">
@@ -322,9 +349,7 @@ export function PlanosPagamento() {
                           {formatCurrency(plano.amount_total)}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">
-                            {plano.installments}x
-                          </Badge>
+                          <Badge variant="outline">{plano.installments}x</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
@@ -332,9 +357,11 @@ export function PlanosPagamento() {
                               {formatCurrency(plano.paid_amount)}
                             </div>
                             <div className="w-full bg-neutral-200 rounded-full h-1.5">
-                              <div 
+                              <div
                                 className="bg-success h-1.5 rounded-full transition-all"
-                                style={{ width: `${Math.min(progressPct, 100)}%` }}
+                                style={{
+                                  width: `${Math.min(progressPct, 100)}%`,
+                                }}
                               />
                             </div>
                             <div className="text-xs text-neutral-600">
@@ -344,11 +371,19 @@ export function PlanosPagamento() {
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={statusConfig[plano.status as keyof typeof statusConfig]?.variant}
+                            variant={
+                              statusConfig[
+                                plano.status as keyof typeof statusConfig
+                              ]?.variant
+                            }
                             className="flex items-center gap-1 w-fit"
                           >
                             <StatusIcon className="w-3 h-3" />
-                            {statusConfig[plano.status as keyof typeof statusConfig]?.label}
+                            {
+                              statusConfig[
+                                plano.status as keyof typeof statusConfig
+                              ]?.label
+                            }
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-neutral-600">
@@ -374,7 +409,8 @@ export function PlanosPagamento() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} planos
+            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de{" "}
+            {totalItems} planos
           </p>
           <div className="flex items-center gap-2">
             <Button

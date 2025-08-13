@@ -1,8 +1,13 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import {
   LayoutDashboard,
   FileText,
@@ -17,7 +22,7 @@ import {
   ArrowRight,
   Plus,
   Eye,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Mock data for dashboard
 const mockStats = {
@@ -33,62 +38,62 @@ const mockStats = {
 
 const mockRecentActivity = [
   {
-    id: '1',
-    type: 'processo',
-    title: 'Novo processo cadastrado',
-    description: '1000123-45.2024.8.26.0001 - João Silva',
-    time: '2h atrás',
+    id: "1",
+    type: "processo",
+    title: "Novo processo cadastrado",
+    description: "1000123-45.2024.8.26.0001 - João Silva",
+    time: "2h atrás",
     icon: FileText,
-    color: 'text-brand-700'
+    color: "text-brand-700",
   },
   {
-    id: '2',
-    type: 'prazo',
-    title: 'Prazo próximo do vencimento',
-    description: 'Contestação - Processo 2000456-78.2024',
-    time: '4h atrás',
+    id: "2",
+    type: "prazo",
+    title: "Prazo próximo do vencimento",
+    description: "Contestação - Processo 2000456-78.2024",
+    time: "4h atrás",
     icon: AlertTriangle,
-    color: 'text-warning'
+    color: "text-warning",
   },
   {
-    id: '3',
-    type: 'cliente',
-    title: 'Novo cliente cadastrado',
-    description: 'Empresa ABC Ltda - CNPJ 12.345.678/0001-90',
-    time: '6h atrás',
+    id: "3",
+    type: "cliente",
+    title: "Novo cliente cadastrado",
+    description: "Empresa ABC Ltda - CNPJ 12.345.678/0001-90",
+    time: "6h atrás",
     icon: Users,
-    color: 'text-success'
+    color: "text-success",
   },
 ];
 
 const quickActions = [
   {
-    title: 'Novo Processo',
-    description: 'Cadastrar novo processo',
-    href: '/processos/novo',
+    title: "Novo Processo",
+    description: "Cadastrar novo processo",
+    href: "/processos/novo",
     icon: FileText,
-    color: 'bg-brand-700'
+    color: "bg-brand-700",
   },
   {
-    title: 'Novo Cliente',
-    description: 'Adicionar cliente',
-    href: '/clientes/novo',
+    title: "Novo Cliente",
+    description: "Adicionar cliente",
+    href: "/clientes/novo",
     icon: Users,
-    color: 'bg-success'
+    color: "bg-success",
   },
   {
-    title: 'Nova Jornada',
-    description: 'Criar jornada do cliente',
-    href: '/jornadas/nova',
+    title: "Nova Jornada",
+    description: "Criar jornada do cliente",
+    href: "/jornadas/nova",
     icon: Target,
-    color: 'bg-brand-700'
+    color: "bg-brand-700",
   },
   {
-    title: 'Agenda',
-    description: 'Ver compromissos',
-    href: '/agenda',
+    title: "Agenda",
+    description: "Ver compromissos",
+    href: "/agenda",
     icon: Calendar,
-    color: 'bg-brand-100'
+    color: "bg-brand-100",
   },
 ];
 
@@ -221,7 +226,9 @@ export function Dashboard() {
                     className="group p-4 rounded-lg border border-border hover:border-brand-200 hover:shadow-soft transition-all duration-200 bg-white hover:bg-brand-50/30"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className={`${action.color} p-2 rounded-lg text-white group-hover:scale-105 transition-transform`}>
+                      <div
+                        className={`${action.color} p-2 rounded-lg text-white group-hover:scale-105 transition-transform`}
+                      >
                         <Icon className="w-5 h-5" />
                       </div>
                       <div>

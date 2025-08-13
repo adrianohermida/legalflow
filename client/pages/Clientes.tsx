@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import React, { useState } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,47 +9,53 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { 
-  Search, 
-  Plus, 
-  Filter, 
-  Users, 
+} from "../components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Search,
+  Plus,
+  Filter,
+  Users,
   Phone,
   Mail,
   FileText,
   ChevronLeft,
   ChevronRight,
   Loader2,
-  AlertTriangle
-} from 'lucide-react';
-import { clientesApi, type Cliente } from '../lib/api';
-import { useQuery } from '@tanstack/react-query';
+  AlertTriangle,
+} from "lucide-react";
+import { clientesApi, type Cliente } from "../lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 export function Clientes() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const itemsPerPage = 20;
 
   // Fetch clientes from Supabase
-  const { 
-    data: clientesData = [], 
-    isLoading, 
+  const {
+    data: clientesData = [],
+    isLoading,
     error,
-    refetch 
+    refetch,
   } = useQuery({
-    queryKey: ['clientes'],
+    queryKey: ["clientes"],
     queryFn: clientesApi.getAll,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Filter data based on search
-  const filteredClientes = clientesData.filter(cliente =>
-    cliente.cpfcnpj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.whatsapp?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredClientes = clientesData.filter(
+    (cliente) =>
+      cliente.cpfcnpj.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cliente.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cliente.whatsapp?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const totalItems = filteredClientes.length;
@@ -66,7 +72,7 @@ export function Clientes() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const handlePageChange = (page: number) => {
@@ -75,47 +81,54 @@ export function Clientes() {
 
   const formatCpfCnpj = (cpfcnpj: string) => {
     // Remove any existing formatting
-    const clean = cpfcnpj.replace(/\D/g, '');
-    
+    const clean = cpfcnpj.replace(/\D/g, "");
+
     if (clean.length === 11) {
       // CPF format: 000.000.000-00
-      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     } else if (clean.length === 14) {
       // CNPJ format: 00.000.000/0000-00
-      return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      return clean.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+        "$1.$2.$3/$4-$5",
+      );
     }
-    
+
     return cpfcnpj; // Return original if doesn't match expected lengths
   };
 
   const formatWhatsApp = (whatsapp?: string) => {
-    if (!whatsapp) return '-';
-    
+    if (!whatsapp) return "-";
+
     // Remove any existing formatting
-    const clean = whatsapp.replace(/\D/g, '');
-    
+    const clean = whatsapp.replace(/\D/g, "");
+
     if (clean.length === 11) {
       // Mobile format: (00) 00000-0000
-      return clean.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      return clean.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
     } else if (clean.length === 10) {
       // Landline format: (00) 0000-0000
-      return clean.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+      return clean.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
     }
-    
+
     return whatsapp; // Return original if doesn't match expected lengths
   };
 
   const getClienteType = (cpfcnpj: string) => {
-    const clean = cpfcnpj.replace(/\D/g, '');
-    return clean.length === 11 ? 'Pessoa Física' : 'Pessoa Jurídica';
+    const clean = cpfcnpj.replace(/\D/g, "");
+    return clean.length === 11 ? "Pessoa Física" : "Pessoa Jurídica";
   };
 
   // Calculate stats from real data
   const stats = {
     total: clientesData.length,
-    pessoaFisica: clientesData.filter(c => c.cpfcnpj.replace(/\D/g, '').length === 11).length,
-    pessoaJuridica: clientesData.filter(c => c.cpfcnpj.replace(/\D/g, '').length === 14).length,
-    comWhatsApp: clientesData.filter(c => c.whatsapp).length,
+    pessoaFisica: clientesData.filter(
+      (c) => c.cpfcnpj.replace(/\D/g, "").length === 11,
+    ).length,
+    pessoaJuridica: clientesData.filter(
+      (c) => c.cpfcnpj.replace(/\D/g, "").length === 14,
+    ).length,
+    comWhatsApp: clientesData.filter((c) => c.whatsapp).length,
   };
 
   if (error) {
@@ -140,11 +153,9 @@ export function Clientes() {
                 Erro ao carregar clientes
               </h3>
               <p className="text-neutral-600 mb-4">
-                {error.message || 'Erro desconhecido'}
+                {error.message || "Erro desconhecido"}
               </p>
-              <Button onClick={() => refetch()}>
-                Tentar novamente
-              </Button>
+              <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
           </CardContent>
         </Card>
@@ -248,15 +259,15 @@ export function Clientes() {
       {/* Clients Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
-            Clientes ({totalItems})
-          </CardTitle>
+          <CardTitle className="text-lg">Clientes ({totalItems})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-              <span className="ml-2 text-neutral-600">Carregando clientes...</span>
+              <span className="ml-2 text-neutral-600">
+                Carregando clientes...
+              </span>
             </div>
           ) : (
             <Table>
@@ -278,24 +289,33 @@ export function Clientes() {
                       <div className="text-neutral-500">
                         <Users className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                         <p>Nenhum cliente encontrado</p>
-                        <p className="text-sm">Ajuste os filtros ou adicione um novo cliente</p>
+                        <p className="text-sm">
+                          Ajuste os filtros ou adicione um novo cliente
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   paginatedClientes.map((cliente) => (
-                    <TableRow key={cliente.cpfcnpj} className="hover:bg-neutral-50 cursor-pointer">
+                    <TableRow
+                      key={cliente.cpfcnpj}
+                      className="hover:bg-neutral-50 cursor-pointer"
+                    >
                       <TableCell className="font-mono text-sm">
                         {formatCpfCnpj(cliente.cpfcnpj)}
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">
-                          {cliente.nome || 'Nome não informado'}
+                          {cliente.nome || "Nome não informado"}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={getClienteType(cliente.cpfcnpj) === 'Pessoa Física' ? 'default' : 'secondary'}
+                        <Badge
+                          variant={
+                            getClienteType(cliente.cpfcnpj) === "Pessoa Física"
+                              ? "default"
+                              : "secondary"
+                          }
                         >
                           {getClienteType(cliente.cpfcnpj)}
                         </Badge>
@@ -305,7 +325,9 @@ export function Clientes() {
                           {cliente.whatsapp ? (
                             <>
                               <Phone className="w-4 h-4 text-success" />
-                              <span className="text-sm">{formatWhatsApp(cliente.whatsapp)}</span>
+                              <span className="text-sm">
+                                {formatWhatsApp(cliente.whatsapp)}
+                              </span>
                             </>
                           ) : (
                             <span className="text-neutral-400 text-sm">-</span>
@@ -342,7 +364,8 @@ export function Clientes() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} clientes
+            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de{" "}
+            {totalItems} clientes
           </p>
           <div className="flex items-center gap-2">
             <Button

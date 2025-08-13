@@ -1,16 +1,27 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useDemoAuth } from '../contexts/DemoAuthContext';
-import { Button } from './ui/button';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useDemoAuth } from "../contexts/DemoAuthContext";
+import { Button } from "./ui/button";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Scale, FileText, Users, BookOpen, Settings, LogOut, Bell, Target, DollarSign, BarChart3 } from 'lucide-react';
+} from "./ui/dropdown-menu";
+import {
+  Scale,
+  FileText,
+  Users,
+  BookOpen,
+  Settings,
+  LogOut,
+  Bell,
+  Target,
+  DollarSign,
+  BarChart3,
+} from "lucide-react";
 
 interface DemoLayoutProps {
   children: React.ReactNode;
@@ -21,17 +32,17 @@ export function DemoLayout({ children }: DemoLayoutProps) {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Processos', href: '/', icon: FileText },
-    { name: 'Clientes', href: '/clientes', icon: Users },
-    { name: 'Jornadas', href: '/jornadas', icon: Target },
-    { name: 'Inbox Legal', href: '/inbox', icon: Bell },
-    { name: 'Documentos', href: '/documentos', icon: BookOpen },
-    { name: 'Pagamentos', href: '/planos-pagamento', icon: DollarSign },
-    { name: 'Relatórios', href: '/relatorios', icon: BarChart3 },
+    { name: "Processos", href: "/", icon: FileText },
+    { name: "Clientes", href: "/clientes", icon: Users },
+    { name: "Jornadas", href: "/jornadas", icon: Target },
+    { name: "Inbox Legal", href: "/inbox", icon: Bell },
+    { name: "Documentos", href: "/documentos", icon: BookOpen },
+    { name: "Pagamentos", href: "/planos-pagamento", icon: DollarSign },
+    { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
   ];
 
   const isActive = (href: string) => {
-    if (href === '/') return location.pathname === '/';
+    if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
   };
 
@@ -47,7 +58,9 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                 <div className="bg-success text-white p-2 rounded-lg">
                   <Scale className="h-6 w-6" />
                 </div>
-                <span className="text-xl font-bold text-neutral-900">LegalFlow</span>
+                <span className="text-xl font-bold text-neutral-900">
+                  LegalFlow
+                </span>
                 <span className="bg-success-100 text-success-700 text-xs px-2 py-1 rounded-full ml-2">
                   DEMO
                 </span>
@@ -64,8 +77,8 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                     to={item.href}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.href)
-                        ? 'bg-success text-white'
-                        : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                        ? "bg-success text-white"
+                        : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -86,10 +99,13 @@ export function DemoLayout({ children }: DemoLayoutProps) {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-success text-white">
-                        {user?.email?.charAt(0).toUpperCase() || 'U'}
+                        {user?.email?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -103,7 +119,9 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                           OAB: {user.oab}
                         </p>
                       )}
-                      <p className="text-xs text-success font-medium">Modo Demo</p>
+                      <p className="text-xs text-success font-medium">
+                        Modo Demo
+                      </p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />

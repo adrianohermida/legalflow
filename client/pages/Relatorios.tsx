@@ -365,7 +365,9 @@ export function Relatorios() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-900">Relatórios & SLA</h1>
+          <h1 className="text-3xl font-bold text-neutral-900">
+            Relatórios & SLA
+          </h1>
           <p className="text-neutral-600 mt-1">
             Gestão por exceção e monitoramento de performance
           </p>

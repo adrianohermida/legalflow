@@ -1,17 +1,17 @@
-import React, { useState, useRef } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
+import React, { useState, useRef } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from "./ui/select";
 import {
   Dialog,
   DialogContent,
@@ -19,22 +19,22 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog';
-import { Switch } from './ui/switch';
-import { 
-  Plus, 
-  BookOpen, 
-  FileText, 
-  Upload, 
-  Calendar, 
-  CheckCircle, 
+} from "./ui/dialog";
+import { Switch } from "./ui/switch";
+import {
+  Plus,
+  BookOpen,
+  FileText,
+  Upload,
+  Calendar,
+  CheckCircle,
   Clipboard,
   Edit,
   Trash2,
   GripVertical,
-  Save
-} from 'lucide-react';
-import { StageType, JourneyTemplateStage } from '../types/journey';
+  Save,
+} from "lucide-react";
+import { StageType, JourneyTemplateStage } from "../types/journey";
 
 interface StageTypeConfig {
   type: StageType;
@@ -46,47 +46,47 @@ interface StageTypeConfig {
 
 const stageTypes: StageTypeConfig[] = [
   {
-    type: 'lesson',
+    type: "lesson",
     icon: <BookOpen className="h-4 w-4" />,
-    label: 'Aula/Conteúdo',
-    description: 'Conteúdo educacional (vídeo, texto, quiz)',
-    color: 'bg-brand-100 text-brand-700 border-brand-200'
+    label: "Aula/Conteúdo",
+    description: "Conteúdo educacional (vídeo, texto, quiz)",
+    color: "bg-brand-100 text-brand-700 border-brand-200",
   },
   {
-    type: 'form',
+    type: "form",
     icon: <FileText className="h-4 w-4" />,
-    label: 'Formulário',
-    description: 'Formulário para preenchimento',
-    color: 'bg-success-100 text-success-700 border-success'
+    label: "Formulário",
+    description: "Formulário para preenchimento",
+    color: "bg-success-100 text-success-700 border-success",
   },
   {
-    type: 'upload',
+    type: "upload",
     icon: <Upload className="h-4 w-4" />,
-    label: 'Upload',
-    description: 'Upload de documentos/arquivos',
-    color: 'bg-brand-100 text-brand-700 border-brand-200'
+    label: "Upload",
+    description: "Upload de documentos/arquivos",
+    color: "bg-brand-100 text-brand-700 border-brand-200",
   },
   {
-    type: 'meeting',
+    type: "meeting",
     icon: <Calendar className="h-4 w-4" />,
-    label: 'Reunião',
-    description: 'Agendamento de reunião/audiência',
-    color: 'bg-warning-100 text-warning-700 border-warning'
+    label: "Reunião",
+    description: "Agendamento de reunião/audiência",
+    color: "bg-warning-100 text-warning-700 border-warning",
   },
   {
-    type: 'gate',
+    type: "gate",
     icon: <CheckCircle className="h-4 w-4" />,
-    label: 'Portão',
-    description: 'Validação/aprovação obrigatória',
-    color: 'bg-danger-100 text-danger-700 border-danger'
+    label: "Portão",
+    description: "Validação/aprovação obrigatória",
+    color: "bg-danger-100 text-danger-700 border-danger",
   },
   {
-    type: 'task',
+    type: "task",
     icon: <Clipboard className="h-4 w-4" />,
-    label: 'Tarefa',
-    description: 'Tarefa geral/checklist',
-    color: 'bg-neutral-100 text-neutral-800 border-neutral-200'
-  }
+    label: "Tarefa",
+    description: "Tarefa geral/checklist",
+    color: "bg-neutral-100 text-neutral-800 border-neutral-200",
+  },
 ];
 
 interface JourneyDesignerProps {
@@ -103,55 +103,60 @@ interface JourneyDesignerProps {
 
 export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
   const [templateData, setTemplateData] = useState({
-    name: template?.name || '',
-    description: template?.description || '',
-    nicho: template?.nicho || '',
+    name: template?.name || "",
+    description: template?.description || "",
+    nicho: template?.nicho || "",
     estimated_days: template?.estimated_days || 30,
-    stages: template?.stages || []
+    stages: template?.stages || [],
   });
 
-  const [selectedStage, setSelectedStage] = useState<JourneyTemplateStage | null>(null);
+  const [selectedStage, setSelectedStage] =
+    useState<JourneyTemplateStage | null>(null);
   const [isStageDialogOpen, setIsStageDialogOpen] = useState(false);
   const dragItemIndex = useRef<number | null>(null);
 
   const getStageTypeConfig = (type: StageType) => {
-    return stageTypes.find(st => st.type === type) || stageTypes[0];
+    return stageTypes.find((st) => st.type === type) || stageTypes[0];
   };
 
   const addStage = (type: StageType) => {
     const newStage: JourneyTemplateStage = {
       id: `stage-${Date.now()}`,
-      template_id: template?.id || 'new',
+      template_id: template?.id || "new",
       name: `Nova ${getStageTypeConfig(type).label}`,
-      description: '',
+      description: "",
       stage_type: type,
       sequence_order: templateData.stages.length + 1,
       is_required: true,
       sla_hours: 24,
       estimated_days: 1,
-      rules: []
+      rules: [],
     };
 
-    setTemplateData(prev => ({
+    setTemplateData((prev) => ({
       ...prev,
-      stages: [...prev.stages, newStage]
+      stages: [...prev.stages, newStage],
     }));
   };
 
-  const updateStage = (stageId: string, updates: Partial<JourneyTemplateStage>) => {
-    setTemplateData(prev => ({
+  const updateStage = (
+    stageId: string,
+    updates: Partial<JourneyTemplateStage>,
+  ) => {
+    setTemplateData((prev) => ({
       ...prev,
-      stages: prev.stages.map(stage => 
-        stage.id === stageId ? { ...stage, ...updates } : stage
-      )
+      stages: prev.stages.map((stage) =>
+        stage.id === stageId ? { ...stage, ...updates } : stage,
+      ),
     }));
   };
 
   const removeStage = (stageId: string) => {
-    setTemplateData(prev => ({
+    setTemplateData((prev) => ({
       ...prev,
-      stages: prev.stages.filter(stage => stage.id !== stageId)
-        .map((stage, index) => ({ ...stage, sequence_order: index + 1 }))
+      stages: prev.stages
+        .filter((stage) => stage.id !== stageId)
+        .map((stage, index) => ({ ...stage, sequence_order: index + 1 })),
     }));
   };
 
@@ -165,27 +170,27 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    
+
     if (dragItemIndex.current === null) return;
-    
+
     const dragIndex = dragItemIndex.current;
     const newStages = [...templateData.stages];
     const draggedStage = newStages[dragIndex];
-    
+
     // Remove from old position
     newStages.splice(dragIndex, 1);
     // Insert at new position
     newStages.splice(dropIndex, 0, draggedStage);
-    
+
     // Update sequence orders
     const updatedStages = newStages.map((stage, index) => ({
       ...stage,
-      sequence_order: index + 1
+      sequence_order: index + 1,
     }));
 
-    setTemplateData(prev => ({
+    setTemplateData((prev) => ({
       ...prev,
-      stages: updatedStages
+      stages: updatedStages,
     }));
 
     dragItemIndex.current = null;
@@ -193,7 +198,7 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
 
   const handleSave = () => {
     if (!templateData.name || !templateData.nicho) {
-      alert('Preencha nome e nicho do template');
+      alert("Preencha nome e nicho do template");
       return;
     }
 
@@ -214,16 +219,20 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
               <Input
                 id="name"
                 value={templateData.name}
-                onChange={(e) => setTemplateData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setTemplateData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Ex: Onboarding Trabalhista"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="nicho">Nicho Jurídico</Label>
-              <Select 
-                value={templateData.nicho} 
-                onValueChange={(value) => setTemplateData(prev => ({ ...prev, nicho: value }))}
+              <Select
+                value={templateData.nicho}
+                onValueChange={(value) =>
+                  setTemplateData((prev) => ({ ...prev, nicho: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o nicho" />
@@ -245,7 +254,12 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
             <Textarea
               id="description"
               value={templateData.description}
-              onChange={(e) => setTemplateData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setTemplateData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Descreva o objetivo e escopo desta jornada..."
               rows={3}
             />
@@ -257,7 +271,12 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
               id="estimated_days"
               type="number"
               value={templateData.estimated_days}
-              onChange={(e) => setTemplateData(prev => ({ ...prev, estimated_days: parseInt(e.target.value) || 30 }))}
+              onChange={(e) =>
+                setTemplateData((prev) => ({
+                  ...prev,
+                  estimated_days: parseInt(e.target.value) || 30,
+                }))
+              }
               min="1"
               max="365"
             />
@@ -291,7 +310,9 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Fluxo da Jornada ({templateData.stages.length} etapas)</CardTitle>
+            <CardTitle>
+              Fluxo da Jornada ({templateData.stages.length} etapas)
+            </CardTitle>
             <Button onClick={handleSave}>
               <Save className="h-4 w-4 mr-2" />
               Salvar Template
@@ -339,12 +360,14 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                               </Badge>
                             )}
                           </div>
-                          
+
                           <h4 className="font-medium">{stage.name}</h4>
                           {stage.description && (
-                            <p className="text-sm text-neutral-600 mt-1">{stage.description}</p>
+                            <p className="text-sm text-neutral-600 mt-1">
+                              {stage.description}
+                            </p>
                           )}
-                          
+
                           <div className="flex gap-4 mt-2 text-xs text-neutral-500">
                             <span>SLA: {stage.sla_hours}h</span>
                             <span>Duração: {stage.estimated_days} dias</span>
@@ -398,7 +421,10 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                     id="stage-name"
                     value={selectedStage.name}
                     onChange={(e) => {
-                      const updated = { ...selectedStage, name: e.target.value };
+                      const updated = {
+                        ...selectedStage,
+                        name: e.target.value,
+                      };
                       setSelectedStage(updated);
                       updateStage(selectedStage.id, { name: e.target.value });
                     }}
@@ -438,9 +464,14 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                   id="stage-description"
                   value={selectedStage.description}
                   onChange={(e) => {
-                    const updated = { ...selectedStage, description: e.target.value };
+                    const updated = {
+                      ...selectedStage,
+                      description: e.target.value,
+                    };
                     setSelectedStage(updated);
-                    updateStage(selectedStage.id, { description: e.target.value });
+                    updateStage(selectedStage.id, {
+                      description: e.target.value,
+                    });
                   }}
                   rows={3}
                 />
@@ -471,7 +502,10 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                     value={selectedStage.estimated_days}
                     onChange={(e) => {
                       const value = parseInt(e.target.value) || 1;
-                      const updated = { ...selectedStage, estimated_days: value };
+                      const updated = {
+                        ...selectedStage,
+                        estimated_days: value,
+                      };
                       setSelectedStage(updated);
                       updateStage(selectedStage.id, { estimated_days: value });
                     }}
@@ -484,7 +518,10 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                     <Switch
                       checked={selectedStage.is_required}
                       onCheckedChange={(checked) => {
-                        const updated = { ...selectedStage, is_required: checked };
+                        const updated = {
+                          ...selectedStage,
+                          is_required: checked,
+                        };
                         setSelectedStage(updated);
                         updateStage(selectedStage.id, { is_required: checked });
                       }}

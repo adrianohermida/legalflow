@@ -13,9 +13,9 @@
 
   /* Semânticas */
   --surface: #ffffff;
-  --surface-2: #f7f9f8;   /* leve cinza-esverdeado */
-  --on-surface: #0f1b17;  /* texto principal */
-  --muted: #6c7a73;       /* texto secundário */
+  --surface-2: #f7f9f8; /* leve cinza-esverdeado */
+  --on-surface: #0f1b17; /* texto principal */
+  --muted: #6c7a73; /* texto secundário */
 
   /* Status */
   --danger: #ef4444;
@@ -36,7 +36,12 @@
 }
 
 /* Reset de overlays/amarelo indevido */
-body, [data-app-root], .app-bg, .page-container, .main-content, .app-container {
+body,
+[data-app-root],
+.app-bg,
+.page-container,
+.main-content,
+.app-container {
   background: var(--surface) !important;
 }
 
@@ -47,24 +52,50 @@ body, [data-app-root], .app-bg, .page-container, .main-content, .app-container {
 
 /* Elimina qualquer amarelo/orange não-brand */
 *[style*="yellow"],
-*[style*="#ff0"], *[style*="#ffa"], *[style*="#ffb"], *[style*="#ffc"], *[style*="#ffd"], *[style*="#ffe"], *[style*="#fff0"],
-*[style*="rgb(255,255"], *[style*="rgb(255, 255"],
-*[class*="yellow"], *[class*="amber"], *[class*="orange-4"], *[class*="orange-5"],
-.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300, .bg-yellow-400, .bg-yellow-500,
-.text-yellow-500, .text-yellow-600, .text-orange-400, .text-orange-500,
-*[style*="background-color: yellow"], *[style*="background: yellow"] {
+*[style*="#ff0"],
+*[style*="#ffa"],
+*[style*="#ffb"],
+*[style*="#ffc"],
+*[style*="#ffd"],
+*[style*="#ffe"],
+*[style*="#fff0"],
+*[style*="rgb(255,255"],
+*[style*="rgb(255, 255"],
+*[class*="yellow"],
+*[class*="amber"],
+*[class*="orange-4"],
+*[class*="orange-5"],
+.bg-yellow-50,
+.bg-yellow-100,
+.bg-yellow-200,
+.bg-yellow-300,
+.bg-yellow-400,
+.bg-yellow-500,
+.text-yellow-500,
+.text-yellow-600,
+.text-orange-400,
+.text-orange-500,
+*[style*="background-color: yellow"],
+*[style*="background: yellow"] {
   background: var(--surface) !important;
   color: var(--on-surface) !important;
 }
 
 /* Força aplicação de brand em override de qualquer amarelo */
-body, html, #root, [data-app-root] {
+body,
+html,
+#root,
+[data-app-root] {
   background: var(--surface) !important;
   color: var(--on-surface) !important;
 }
 
 /* Elimina amarelo específico de componentes */
-.app-bg, .page-bg, .main-bg, .dashboard-bg, .container-bg {
+.app-bg,
+.page-bg,
+.main-bg,
+.dashboard-bg,
+.container-bg {
   background: var(--surface) !important;
 }
 
@@ -353,28 +384,45 @@ body, html, #root, [data-app-root] {
     background: var(--brand-700);
     color: #fff;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(27,58,47,0.15);
+    box-shadow: 0 2px 8px rgba(27, 58, 47, 0.15);
   }
-  .btn-primary:hover { background: var(--brand-900); }
-  .btn-outline { border: 1px solid var(--brand-700); color: var(--brand-700); }
-  .btn-outline:hover { background: var(--brand-100); }
+  .btn-primary:hover {
+    background: var(--brand-900);
+  }
+  .btn-outline {
+    border: 1px solid var(--brand-700);
+    color: var(--brand-700);
+  }
+  .btn-outline:hover {
+    background: var(--brand-100);
+  }
 
   /* Input */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     background: var(--surface);
     border: 1px solid color-mix(in srgb, var(--brand-700) 20%, #cfd8d5 80%);
     color: var(--on-surface);
     border-radius: 10px;
   }
-  input:focus, textarea:focus, select:focus { outline: var(--focus-ring); }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: var(--focus-ring);
+  }
 
   /* Table */
   .table thead th {
     background: var(--brand-100);
     color: var(--brand-900);
   }
-  .table tbody tr { background: var(--surface); }
-  .table tbody tr:nth-child(even) { background: var(--surface-2); }
+  .table tbody tr {
+    background: var(--surface);
+  }
+  .table tbody tr:nth-child(even) {
+    background: var(--surface-2);
+  }
 
   /* Badge */
   .badge,
@@ -383,10 +431,22 @@ body, html, #root, [data-app-root] {
     padding: 2px 8px;
     font-weight: 600;
   }
-  .badge--brand { background: var(--brand-100); color: var(--brand-900); }
-  .badge--danger { background: color-mix(in srgb, var(--danger) 15%, #fff 85%); color: var(--danger); }
-  .badge--warn   { background: color-mix(in srgb, var(--warn) 15%, #fff 85%);   color: var(--warn); }
-  .badge--success{ background: color-mix(in srgb, var(--success) 15%, #fff 85%);color: var(--success); }
+  .badge--brand {
+    background: var(--brand-100);
+    color: var(--brand-900);
+  }
+  .badge--danger {
+    background: color-mix(in srgb, var(--danger) 15%, #fff 85%);
+    color: var(--danger);
+  }
+  .badge--warn {
+    background: color-mix(in srgb, var(--warn) 15%, #fff 85%);
+    color: var(--warn);
+  }
+  .badge--success {
+    background: color-mix(in srgb, var(--success) 15%, #fff 85%);
+    color: var(--success);
+  }
 
   /* Tooltip */
   .tooltip,
@@ -394,30 +454,54 @@ body, html, #root, [data-app-root] {
     background: var(--brand-900);
     color: #fff;
     border-radius: 10px;
-    box-shadow: 0 6px 24px rgba(27,58,47,0.22);
+    box-shadow: 0 6px 24px rgba(27, 58, 47, 0.22);
   }
 
   /* Command-K / Busca Global - remoção do amarelo */
-  .commandk, .cmdk-overlay, .search-palette {
+  .commandk,
+  .cmdk-overlay,
+  .search-palette {
     background: var(--surface) !important;
     color: var(--on-surface);
     border: 1px solid color-mix(in srgb, var(--brand-700) 18%, #cfd8d5 82%);
     border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(27,58,47,0.18);
+    box-shadow: 0 12px 32px rgba(27, 58, 47, 0.18);
   }
-  .commandk .tab-active { color: var(--brand-900); border-bottom: 2px solid var(--brand-700); }
-  .commandk .item:hover, .commandk .item[aria-selected="true"] { background: var(--brand-100); }
-  .commandk .hint { color: var(--muted); }
+  .commandk .tab-active {
+    color: var(--brand-900);
+    border-bottom: 2px solid var(--brand-700);
+  }
+  .commandk .item:hover,
+  .commandk .item[aria-selected="true"] {
+    background: var(--brand-100);
+  }
+  .commandk .hint {
+    color: var(--muted);
+  }
 
   /* Tipografia e raios universais */
-  html, body {
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Open Sans", Arial, sans-serif;
+  html,
+  body {
+    font-family:
+      Inter,
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      "Open Sans",
+      Arial,
+      sans-serif;
   }
-  h1,h2,h3 {
+  h1,
+  h2,
+  h3 {
     font-family: Montserrat, Inter, sans-serif;
     line-height: 1.2;
   }
-  .card, .panel, .modal, .dropdown {
+  .card,
+  .panel,
+  .modal,
+  .dropdown {
     border-radius: 12px;
     background: var(--surface);
   }
