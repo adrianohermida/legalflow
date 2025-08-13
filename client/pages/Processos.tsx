@@ -411,8 +411,8 @@ export function Processos() {
                   processosData.data?.map((processo) => (
                     <TableRow key={processo.numero_cnj} className="hover:bg-neutral-50">
                       <TableCell className="font-mono text-sm">
-                        <Link 
-                          to={`/processos/${processo.numero_cnj}`}
+                        <Link
+                          to={`/processos-v2/${processo.numero_cnj}`}
                           className="hover:underline"
                           style={{ color: 'var(--brand-700)' }}
                         >
