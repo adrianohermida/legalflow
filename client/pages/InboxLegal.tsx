@@ -203,7 +203,7 @@ export function InboxLegal() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
+            <div className="text-2xl font-bold text-warning-600">
               {mockPublicacoes.filter(p => !p.is_processed).length}
             </div>
           </CardContent>
@@ -215,7 +215,7 @@ export function InboxLegal() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
+            <div className="text-2xl font-bold text-warning-600">
               {mockMovimentacoes.filter(m => !m.is_processed).length}
             </div>
           </CardContent>

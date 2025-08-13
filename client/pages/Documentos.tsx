@@ -208,7 +208,7 @@ export function Documentos() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
+            <div className="text-2xl font-bold text-warning-600">
               {[...mockDocuments, ...mockPeticoes].filter(item => 
                 item.status === 'validando' || item.status === 'revisao'
               ).length}
