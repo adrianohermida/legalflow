@@ -492,7 +492,7 @@ export default function ProcessoDetailV2() {
                   
                   {monitoringSettings?.last_sync && (
                     <div className="text-sm text-neutral-500">
-                      Última sync: {formatDate(monitoringSettings.last_sync)}
+                      ��ltima sync: {formatDate(monitoringSettings.last_sync)}
                     </div>
                   )}
                 </div>
@@ -1242,6 +1242,14 @@ export default function ProcessoDetailV2() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Chat Drawer */}
+      <ProcessoChatDrawer
+        numero_cnj={numero_cnj}
+        isOpen={showChatDrawer}
+        onClose={() => setShowChatDrawer(false)}
+        onNovaConversa={() => setIsNovaConversaOpen(true)}
+      />
     </div>
   );
 }
