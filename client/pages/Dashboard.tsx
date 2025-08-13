@@ -88,7 +88,7 @@ const quickActions = [
     description: 'Ver compromissos',
     href: '/agenda',
     icon: Calendar,
-    color: 'bg-warning'
+    color: 'bg-brand-100'
   },
 ];
 
@@ -168,13 +168,13 @@ export function Dashboard() {
                   {mockStats.prazosEstaSemanana}
                 </p>
               </div>
-              <div className="bg-warning-100 p-2 rounded-lg">
-                <Calendar className="w-5 h-5 text-warning-600" />
+              <div className="bg-neutral-100 p-2 rounded-lg">
+                <Calendar className="w-5 h-5 text-neutral-600" />
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
-              <Clock className="w-3 h-3 text-warning mr-1" />
-              <span className="text-warning">3 urgentes</span>
+              <Clock className="w-3 h-3 text-neutral-600 mr-1" />
+              <span className="text-neutral-600">3 urgentes</span>
             </div>
           </CardContent>
         </Card>
