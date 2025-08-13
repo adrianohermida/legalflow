@@ -488,7 +488,7 @@ export default function ProcessosV2() {
                   <TableHead>CNJ</TableHead>
                   <TableHead>Cliente / Partes</TableHead>
                   <TableHead>Resumo</TableHead>
-                  <TableHead>Tribunal</TableHead>
+                  <TableHead>Tribunal / Valor</TableHead>
                   <TableHead>Responsável</TableHead>
                   <TableHead>Último Evento</TableHead>
                   <TableHead>Ações</TableHead>
@@ -545,11 +545,23 @@ export default function ProcessosV2() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Building className="w-4 h-4 text-neutral-400" />
-                          <span className="text-sm">
-                            {processo.tribunal_sigla || "Não informado"}
-                          </span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Building className="w-4 h-4 text-neutral-400" />
+                            <span className="text-sm font-medium">
+                              {processo.tribunal_sigla || "Não informado"}
+                            </span>
+                          </div>
+                          {processo.valor_causa && (
+                            <div className="text-xs text-neutral-600">
+                              {processo.valor_causa}
+                            </div>
+                          )}
+                          {processo.situacao && (
+                            <Badge variant="outline" className="text-xs h-5">
+                              {processo.situacao}
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
