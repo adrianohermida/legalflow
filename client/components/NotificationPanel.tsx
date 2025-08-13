@@ -21,7 +21,7 @@ const mockNotifications = [
     time: '2h atrás',
     read: false,
     icon: AlertTriangle,
-    color: 'text-orange-500'
+    color: 'text-warning'
   },
   {
     id: '2',
@@ -31,7 +31,7 @@ const mockNotifications = [
     time: '4h atrás',
     read: false,
     icon: Bell,
-    color: 'text-blue-500'
+    color: 'text-brand-700'
   },
   {
     id: '3',
@@ -41,7 +41,7 @@ const mockNotifications = [
     time: '1d atrás',
     read: true,
     icon: DollarSign,
-    color: 'text-green-500'
+    color: 'text-success'
   },
 ];
 
