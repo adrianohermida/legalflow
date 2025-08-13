@@ -112,7 +112,7 @@ export function IniciarJornada() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold text-neutral-900">Iniciar Nova Jornada</h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-neutral-600 mt-1">
             Matricule um cliente em uma jornada automatizada
           </p>
         </div>
@@ -321,7 +321,7 @@ export function IniciarJornada() {
             <CardContent className="space-y-4">
               {selectedTemplate && (
                 <div>
-                  <h4 className="font-medium text-sm text-gray-600">Template</h4>
+                  <h4 className="font-medium text-sm text-neutral-600">Template</h4>
                   <p className="font-medium">{selectedTemplate.name}</p>
                   <p className="text-sm text-gray-500">{selectedTemplate.nicho}</p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -332,7 +332,7 @@ export function IniciarJornada() {
 
               {selectedCliente && (
                 <div>
-                  <h4 className="font-medium text-sm text-gray-600">Cliente</h4>
+                  <h4 className="font-medium text-sm text-neutral-600">Cliente</h4>
                   <p className="font-medium">{selectedCliente.nome}</p>
                   <p className="text-sm text-gray-500">{selectedCliente.cpfcnpj}</p>
                 </div>
@@ -340,7 +340,7 @@ export function IniciarJornada() {
 
               {selectedProcesso && (
                 <div>
-                  <h4 className="font-medium text-sm text-gray-600">Processo</h4>
+                  <h4 className="font-medium text-sm text-neutral-600">Processo</h4>
                   <p className="font-mono text-sm">{selectedProcesso.numero_cnj}</p>
                   <p className="text-sm text-gray-500">{selectedProcesso.titulo}</p>
                 </div>
@@ -348,14 +348,14 @@ export function IniciarJornada() {
 
               {selectedAdvogado && (
                 <div>
-                  <h4 className="font-medium text-sm text-gray-600">Responsável</h4>
+                  <h4 className="font-medium text-sm text-neutral-600">Responsável</h4>
                   <p className="font-medium">{selectedAdvogado.nome}</p>
                   <p className="text-sm text-gray-500">OAB: {selectedAdvogado.oab}</p>
                 </div>
               )}
 
               <div>
-                <h4 className="font-medium text-sm text-gray-600">Data de Início</h4>
+                <h4 className="font-medium text-sm text-neutral-600">Data de Início</h4>
                 <p className="font-medium">
                   {format(formData.data_inicio, "PPP", { locale: ptBR })}
                 </p>
@@ -363,7 +363,7 @@ export function IniciarJornada() {
 
               {formData.observacoes && (
                 <div>
-                  <h4 className="font-medium text-sm text-gray-600">Observações</h4>
+                  <h4 className="font-medium text-sm text-neutral-600">Observações</h4>
                   <p className="text-sm">{formData.observacoes}</p>
                 </div>
               )}
