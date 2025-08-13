@@ -22,27 +22,6 @@ import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
 import { runEnumConsistencyCheck } from "./lib/enum-validator";
 
-function ErrorFallback({ error, resetErrorBoundary }: any) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-surface">
-      <div className="text-center p-8">
-        <h1 className="text-2xl font-bold text-danger mb-4">
-          Erro na Aplicação
-        </h1>
-        <p className="text-danger mb-4">Algo deu errado. Detalhes do erro:</p>
-        <pre className="bg-danger/10 p-4 rounded text-sm text-left overflow-auto">
-          {error.message}
-        </pre>
-        <button
-          onClick={resetErrorBoundary}
-          className="mt-4 px-4 py-2 bg-danger text-white rounded hover:bg-danger/90"
-        >
-          Tentar Novamente
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // Initialize development data only when Supabase is configured
 if (supabaseConfigured) {
