@@ -47,7 +47,7 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                 <div className="bg-success text-white p-2 rounded-lg">
                   <Scale className="h-6 w-6" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">LegalFlow</span>
+                <span className="text-xl font-bold text-neutral-900">LegalFlow</span>
                 <span className="bg-success-100 text-success-700 text-xs px-2 py-1 rounded-full ml-2">
                   DEMO
                 </span>
@@ -65,7 +65,7 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.href)
                         ? 'bg-success text-white'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
