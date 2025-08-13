@@ -202,22 +202,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setIsLoading(true);
 
-    // Add timeout to prevent hanging
-    const loginTimeout = setTimeout(() => {
-      setIsLoading(false);
-      throw new Error("Login timeout - verifique sua conexão de internet");
-    }, 15000);
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Create timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error("Timeout: Login demorou mais que 15 segundos. Verifique sua conexão."));
+        }, 15000);
+      });
+
+      // Create login promise
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      clearTimeout(loginTimeout);
-      if (error) throw error;
+      // Race between login and timeout
+      const result = await Promise.race([loginPromise, timeoutPromise]);
+
+      if (result.error) throw result.error;
     } catch (error: any) {
-      clearTimeout(loginTimeout);
       console.error("Login failed:", error);
 
       // Handle specific error types
