@@ -207,7 +207,7 @@ const getStageDetails = (stage: any) => {
             <h5 className="font-medium mb-2">Documentos Necessários</h5>
             <ul className="text-sm space-y-2">
               <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-success" />
                 Carteira de Trabalho (frente e verso)
               </li>
               <li className="flex items-center gap-2">
@@ -348,7 +348,7 @@ export function PortalCliente() {
 
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-success">
                     {
                       journeyInstance.stages.filter(
                         (s) => s.status === "completed",
@@ -358,7 +358,7 @@ export function PortalCliente() {
                   <div className="text-sm text-gray-600">Concluídas</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-brand-700">
                     {
                       journeyInstance.stages.filter(
                         (s) => s.status === "in_progress",
@@ -402,7 +402,7 @@ export function PortalCliente() {
               {currentStage.description}
               {currentStage.due_date && (
                 <span
-                  className={`block mt-1 text-sm ${isOverdue ? "text-red-600" : "text-blue-600"}`}
+                  className={`block mt-1 text-sm ${isOverdue ? "text-danger" : "text-brand-700"}`}
                 >
                   Prazo:{" "}
                   {new Date(currentStage.due_date).toLocaleDateString("pt-BR")}
