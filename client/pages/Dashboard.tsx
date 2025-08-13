@@ -39,7 +39,7 @@ const mockRecentActivity = [
     description: '1000123-45.2024.8.26.0001 - João Silva',
     time: '2h atrás',
     icon: FileText,
-    color: 'text-blue-500'
+    color: 'text-brand-700'
   },
   {
     id: '2',
@@ -48,7 +48,7 @@ const mockRecentActivity = [
     description: 'Contestação - Processo 2000456-78.2024',
     time: '4h atrás',
     icon: AlertTriangle,
-    color: 'text-orange-500'
+    color: 'text-warning'
   },
   {
     id: '3',
@@ -57,7 +57,7 @@ const mockRecentActivity = [
     description: 'Empresa ABC Ltda - CNPJ 12.345.678/0001-90',
     time: '6h atrás',
     icon: Users,
-    color: 'text-green-500'
+    color: 'text-success'
   },
 ];
 
