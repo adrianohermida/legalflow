@@ -175,14 +175,14 @@ export function Relatorios() {
   };
 
   const getTrendIcon = (value: number) => {
-    if (value > 0) return <TrendingUp className="h-3 w-3 text-green-600" />;
-    if (value < 0) return <TrendingDown className="h-3 w-3 text-red-600" />;
+    if (value > 0) return <TrendingUp className="h-3 w-3 text-success" />;
+    if (value < 0) return <TrendingDown className="h-3 w-3 text-danger" />;
     return null;
   };
 
   const getTrendColor = (value: number) => {
-    if (value > 0) return "text-green-600";
-    if (value < 0) return "text-red-600";
+    if (value > 0) return "text-success";
+    if (value < 0) return "text-danger";
     return "text-neutral-600";
   };
 
@@ -415,12 +415,12 @@ export function Relatorios() {
                 <IconComponent
                   className={`h-4 w-4 ${
                     card.status === "success"
-                      ? "text-green-600"
+                      ? "text-success"
                       : card.status === "warning"
                         ? "text-warning-600"
                         : card.status === "danger"
-                          ? "text-red-600"
-                          : "text-blue-600"
+                          ? "text-danger"
+                          : "text-brand-700"
                   }`}
                 />
               </CardHeader>
