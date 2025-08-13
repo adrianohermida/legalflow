@@ -304,7 +304,7 @@ export function Clientes() {
                         <div className="flex items-center gap-2">
                           {cliente.whatsapp ? (
                             <>
-                              <Phone className="w-4 h-4 text-green-500" />
+                              <Phone className="w-4 h-4 text-success" />
                               <span className="text-sm">{formatWhatsApp(cliente.whatsapp)}</span>
                             </>
                           ) : (
