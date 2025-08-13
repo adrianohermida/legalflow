@@ -160,7 +160,7 @@ export function Header({
                       variant="outline"
                       className={cn(
                         'text-xs',
-                        userType === 'advogado' ? 'border-brand-200 text-brand-700' : 'border-blue-200 text-blue-700'
+                        userType === 'advogado' ? 'border-brand-200 text-brand-700' : 'border-brand-200 text-brand-700'
                       )}
                     >
                       {userType === 'advogado' ? 'Advogado' : 'Cliente'}
