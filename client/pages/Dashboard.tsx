@@ -133,8 +133,8 @@ export function Dashboard() {
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
-              <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
-              <span className="text-green-600">+8 este mês</span>
+              <TrendingUp className="w-3 h-3 text-success mr-1" />
+              <span className="text-success">+8 este mês</span>
             </div>
           </CardContent>
         </Card>
@@ -153,8 +153,8 @@ export function Dashboard() {
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
-              <CheckCircle className="w-3 h-3 text-green-500 mr-1" />
-              <span className="text-green-600">90% taxa de atividade</span>
+              <CheckCircle className="w-3 h-3 text-success mr-1" />
+              <span className="text-success">90% taxa de atividade</span>
             </div>
           </CardContent>
         </Card>
@@ -173,8 +173,8 @@ export function Dashboard() {
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
-              <Clock className="w-3 h-3 text-orange-500 mr-1" />
-              <span className="text-orange-600">3 urgentes</span>
+              <Clock className="w-3 h-3 text-warning mr-1" />
+              <span className="text-warning">3 urgentes</span>
             </div>
           </CardContent>
         </Card>
@@ -193,8 +193,8 @@ export function Dashboard() {
               </div>
             </div>
             <div className="flex items-center mt-2 text-xs">
-              <AlertTriangle className="w-3 h-3 text-red-500 mr-1" />
-              <span className="text-red-600">Requer atenção</span>
+              <AlertTriangle className="w-3 h-3 text-danger mr-1" />
+              <span className="text-danger">Requer atenção</span>
             </div>
           </CardContent>
         </Card>
