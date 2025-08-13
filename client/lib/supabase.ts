@@ -475,8 +475,8 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           title: string;
-          status: string;
-          priority: string;
+          status: Database['legalflow']['Enums']['activity_status'];
+          priority: Database['legalflow']['Enums']['priority'];
           due_at: string | null;
           assigned_oab: number | null;
           cliente_cpfcnpj: string | null;
@@ -490,8 +490,8 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           title: string;
-          status?: string;
-          priority?: string;
+          status?: Database['legalflow']['Enums']['activity_status'];
+          priority?: Database['legalflow']['Enums']['priority'];
           due_at?: string | null;
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
@@ -503,8 +503,8 @@ export interface LegalFlowDatabase {
         };
         Update: {
           title?: string;
-          status?: string;
-          priority?: string;
+          status?: Database['legalflow']['Enums']['activity_status'];
+          priority?: Database['legalflow']['Enums']['priority'];
           due_at?: string | null;
           assigned_oab?: number | null;
           cliente_cpfcnpj?: string | null;
