@@ -61,7 +61,8 @@ export function Header({
       {/* Skip to main content link for keyboard users */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-700 text-white px-4 py-2 rounded-lg z-50"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 text-white px-4 py-2 rounded-lg z-50"
+        style={{ backgroundColor: 'var(--brand-700)' }}
       >
         Pular para o conteúdo principal
       </a>
@@ -102,15 +103,14 @@ export function Header({
             variant="ghost"
             size="sm"
             onClick={onChatToggle}
-            className={cn(
-              "relative text-neutral-600 hover:text-neutral-900",
-              hasUnreadMessages && "text-brand-700",
-            )}
+            className="relative text-gray-600 hover:text-gray-900"
+            style={hasUnreadMessages ? { color: 'var(--brand-700)' } : {}}
             title="Chat"
           >
             <MessageSquare className="w-5 h-5" />
             {hasUnreadMessages && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-brand-700 rounded-full" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
+                   style={{ backgroundColor: 'var(--brand-700)' }} />
             )}
           </Button>
 
@@ -142,7 +142,8 @@ export function Header({
               >
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user?.avatar} alt={user?.email || ""} />
-                  <AvatarFallback className="bg-brand-100 text-brand-700 font-medium">
+                  <AvatarFallback className="font-medium"
+                                  style={{ backgroundColor: 'var(--brand-100)', color: 'var(--brand-700)' }}>
                     {user?.email?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -162,12 +163,8 @@ export function Header({
                   <div className="flex items-center space-x-2">
                     <Badge
                       variant="outline"
-                      className={cn(
-                        "text-xs",
-                        userType === "advogado"
-                          ? "border-brand-200 text-brand-700"
-                          : "border-brand-200 text-brand-700",
-                      )}
+                      className="text-xs"
+                      style={{ borderColor: 'var(--brand-200)', color: 'var(--brand-700)' }}
                     >
                       {userType === "advogado" ? "Advogado" : "Cliente"}
                     </Badge>
