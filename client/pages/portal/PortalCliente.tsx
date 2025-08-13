@@ -193,11 +193,11 @@ const getStageDetails = (stage: any) => {
                 Carteira de Trabalho (frente e verso)
               </li>
               <li className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-yellow-600" />
+                <Clock className="h-4 w-4 text-warning-600" />
                 RG e CPF
               </li>
               <li className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-yellow-600" />
+                <Clock className="h-4 w-4 text-warning-600" />
                 Comprovante de residência
               </li>
             </ul>

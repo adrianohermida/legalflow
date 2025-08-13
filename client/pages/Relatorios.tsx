@@ -249,7 +249,7 @@ export function Relatorios() {
     // AI Activity
     {
       id: 'ai-generations',
-      title: 'Gerações IA',
+      title: 'Gera��ões IA',
       value: mockAIActivityMetrics.total_generations,
       subtitle: 'Este mês',
       trend: 15.6,
@@ -387,7 +387,7 @@ export function Relatorios() {
                 <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
                 <IconComponent className={`h-4 w-4 ${
                   card.status === 'success' ? 'text-green-600' :
-                  card.status === 'warning' ? 'text-yellow-600' :
+                  card.status === 'warning' ? 'text-warning-600' :
                   card.status === 'danger' ? 'text-red-600' :
                   'text-blue-600'
                 }`} />
@@ -492,7 +492,7 @@ export function Relatorios() {
               </div>
               <div className="flex justify-between items-center">
                 <span>Pendentes</span>
-                <span className="font-medium text-yellow-600">{mockPublicationsMetrics.pending}</span>
+                <span className="font-medium text-warning-600">{mockPublicationsMetrics.pending}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Vinculadas a Casos</span>
