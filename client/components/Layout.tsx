@@ -36,9 +36,9 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -47,7 +47,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="bg-primary text-primary-foreground p-2 rounded-lg">
                   <Scale className="h-6 w-6" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">LegalFlow</span>
+                <span className="text-xl font-bold text-neutral-900">LegalFlow</span>
               </Link>
             </div>
 
@@ -62,7 +62,7 @@ export function Layout({ children }: LayoutProps) {
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.href)
                         ? 'bg-primary text-primary-foreground'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        : 'text-gray-600 hover:text-neutral-900 hover:bg-gray-100'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
