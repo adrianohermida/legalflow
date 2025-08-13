@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste LegalFlow</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: red;
+            background: #fee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+            background: #efe;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 LegalFlow - Diagnóstico do Sistema</h1>
+    
+    <div class="test-section">
+        <h3>📱 Status Atual</h3>
+        <div id="current-status"></div>
+        <button onclick="checkStatus()">Verificar Status</button>
+    </div>
+
+    <div class="test-section">
+        <h3>🗄️ localStorage</h3>
+        <div id="localStorage-status"></div>
+        <button onclick="clearStorage()">Limpar localStorage</button>
+        <button onclick="setDemoMode()">Definir Modo Demo</button>
+        <button onclick="setSupabaseMode()">Definir Modo Supabase</button>
+    </div>
+
+    <div class="test-section">
+        <h3>🌐 Navegação</h3>
+        <button onclick="goToApp()">Ir para App Principal</button>
+        <button onclick="forceRefresh()">Forçar Reload</button>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Logs do Console</h3>
+        <div id="console-output"></div>
+        <button onclick="clearLogs()">Limpar Logs</button>
+    </div>
+
+    <script>
+        const logs = [];
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+
+        // Interceptar logs do console
+        console.log = function(...args) {
+            logs.push({ type: 'log', time: new Date().toLocaleTimeString(), args });
+            updateConsoleOutput();
+            originalConsoleLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            logs.push({ type: 'error', time: new Date().toLocaleTimeString(), args });
+            updateConsoleOutput();
+            originalConsoleError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            logs.push({ type: 'warn', time: new Date().toLocaleTimeString(), args });
+            updateConsoleOutput();
+            originalConsoleWarn.apply(console, args);
+        };
+
+        function updateConsoleOutput() {
+            const output = document.getElementById('console-output');
+            const lastLogs = logs.slice(-10); // Mostrar últimos 10 logs
+            output.innerHTML = lastLogs.map(log => 
+                `<div style="margin: 5px 0; font-family: monospace; font-size: 12px;">
+                    <span style="color: ${log.type === 'error' ? 'red' : log.type === 'warn' ? 'orange' : 'blue'};">
+                        [${log.time}] ${log.type.toUpperCase()}:
+                    </span>
+                    ${log.args.join(' ')}
+                </div>`
+            ).join('');
+        }
+
+        function checkStatus() {
+            const statusDiv = document.getElementById('current-status');
+            const authMode = localStorage.getItem('auth-mode');
+            const url = window.location.href;
+            
+            statusDiv.innerHTML = `
+                <div class="info">
+                    <strong>URL atual:</strong> ${url}<br>
+                    <strong>Auth Mode:</strong> ${authMode || 'null'}<br>
+                    <strong>User Agent:</strong> ${navigator.userAgent.substring(0, 80)}...<br>
+                    <strong>localStorage disponível:</strong> ${typeof Storage !== "undefined" ? '✅' : '❌'}<br>
+                    <strong>Timestamp:</strong> ${new Date().toLocaleString()}
+                </div>
+            `;
+        }
+
+        function clearStorage() {
+            try {
+                localStorage.clear();
+                document.getElementById('localStorage-status').innerHTML = '<div class="success">✅ localStorage limpo com sucesso!</div>';
+                checkStatus();
+            } catch (error) {
+                document.getElementById('localStorage-status').innerHTML = `<div class="error">❌ Erro: ${error.message}</div>`;
+            }
+        }
+
+        function setDemoMode() {
+            try {
+                localStorage.setItem('auth-mode', 'demo');
+                document.getElementById('localStorage-status').innerHTML = '<div class="success">✅ Modo Demo definido!</div>';
+                checkStatus();
+            } catch (error) {
+                document.getElementById('localStorage-status').innerHTML = `<div class="error">❌ Erro: ${error.message}</div>`;
+            }
+        }
+
+        function setSupabaseMode() {
+            try {
+                localStorage.setItem('auth-mode', 'supabase');
+                document.getElementById('localStorage-status').innerHTML = '<div class="success">✅ Modo Supabase definido!</div>';
+                checkStatus();
+            } catch (error) {
+                document.getElementById('localStorage-status').innerHTML = `<div class="error">❌ Erro: ${error.message}</div>`;
+            }
+        }
+
+        function goToApp() {
+            window.location.href = '/';
+        }
+
+        function forceRefresh() {
+            window.location.reload(true);
+        }
+
+        function clearLogs() {
+            logs.length = 0;
+            updateConsoleOutput();
+        }
+
+        // Verificar status inicial
+        checkStatus();
+        
+        console.log('🔧 Página de diagnóstico carregada');
+    </script>
+</body>
+</html>
