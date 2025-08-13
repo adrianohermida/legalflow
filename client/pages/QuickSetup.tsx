@@ -72,8 +72,8 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
               <Database className="h-8 w-8" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Configuração Rápida</h1>
-          <p className="text-gray-600 mt-2">Configure sua conta em 3 passos simples</p>
+          <h1 className="text-3xl font-bold text-neutral-900">Configuração Rápida</h1>
+          <p className="text-neutral-600 mt-2">Configure sua conta em 3 passos simples</p>
         </div>
 
         <Card>
@@ -188,7 +188,7 @@ export function QuickSetup({ onComplete }: QuickSetupProps) {
                 <div
                   key={step}
                   className={`w-3 h-3 rounded-full ${
-                    step <= currentStep ? 'bg-primary' : 'bg-gray-300'
+                    step <= currentStep ? 'bg-primary' : 'bg-neutral-300'
                   }`}
                 />
               ))}
