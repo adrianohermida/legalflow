@@ -48,9 +48,6 @@ export function LoginPage() {
     };
   }
 
-  const user = authMode === "demo" ? demoUser : supabaseUser;
-  const login = authMode === "demo" ? demoLogin : supabaseLogin;
-
   if (user) {
     return <Navigate to="/" replace />;
   }
