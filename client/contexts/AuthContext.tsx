@@ -2,10 +2,17 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase, supabaseConfigured } from '../lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
+interface OABSupplementar {
+  numero: string;
+  uf: string;
+}
+
 interface Advogado {
   oab: number;
   nome: string;
   uf: string;
+  sociedade?: string;
+  oab_suplementares?: OABSupplementar[];
 }
 
 interface User {
