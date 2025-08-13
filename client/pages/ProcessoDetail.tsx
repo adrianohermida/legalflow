@@ -285,71 +285,70 @@ export function ProcessoDetail() {
     }
   }, [monitoringSettings]);
 
-  // Mutation para atualizar dados do processo
-  const updateProcessoMutation = useMutation({
-    mutationFn: async () => {
-      setIsUpdating(true);
-      const fonte = premiumEnabled ? 'escavador' : 'advise';
-      
-      try {
-        const result = await processAPIService.fetchProcessData(numero_cnj, fonte);
-        
-        // Update processo data
-        if (result.capa) {
-          const { error: processoError } = await supabase
-            .from('processos')
-            .upsert({
-              numero_cnj,
-              tribunal_sigla: result.capa.fontes?.[0]?.tribunal || null,
-              titulo_polo_ativo: result.capa.assunto || null,
-              titulo_polo_passivo: null,
-              data: { capa: result.capa }
-            });
-          
-          if (processoError) throw processoError;
-        }
+  // Mutation para configurar monitoramento
+  const updateMonitoringMutation = useMutation({
+    mutationFn: async ({ premium }: { premium: boolean }) => {
+      const provider = premium ? 'escavador' : 'advise';
 
-        // Update partes
-        if (result.partes && result.partes.length > 0) {
-          const { error: partesError } = await lf
-            .from('partes_processo')
-            .upsert(result.partes);
-          
-          if (partesError) throw partesError;
-        }
+      const { error } = await lf.rpc('lf_set_monitoring', {
+        p_numero_cnj: numero_cnj,
+        p_provider: provider,
+        p_active: true,
+        p_premium: premium
+      });
 
-        // Update monitoring settings
-        const { error: settingsError } = await lf
-          .from('monitoring_settings')
-          .upsert({
-            numero_cnj,
-            fonte,
-            premium_on: premiumEnabled
-          });
-        
-        if (settingsError) throw settingsError;
-
-        return result;
-      } finally {
-        setIsUpdating(false);
-      }
+      if (error) throw error;
+      setPremiumEnabled(premium);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['processo', numero_cnj] });
-      queryClient.invalidateQueries({ queryKey: ['partes-processo', numero_cnj] });
-      queryClient.invalidateQueries({ queryKey: ['monitoring-settings', numero_cnj] });
-      refetchMovimentacoes();
-      refetchPublicacoes();
-      
+      refetchMonitoring();
       toast({
-        title: "Dados atualizados",
-        description: `Processo atualizado via ${premiumEnabled ? 'Escavador' : 'Advise'}`,
+        title: "Monitoramento atualizado",
+        description: "Configurações de monitoramento salvas com sucesso"
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Erro na atualização",
-        description: error.message || "Erro ao atualizar dados do processo",
+        title: "Erro",
+        description: error.message || "Erro ao atualizar monitoramento",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Mutation para executar sync
+  const runSyncMutation = useMutation({
+    mutationFn: async () => {
+      setIsUpdating(true);
+
+      const { data: jobId, error } = await lf.rpc('lf_run_sync', {
+        p_numero_cnj: numero_cnj
+      });
+
+      if (error) throw error;
+      return jobId;
+    },
+    onSuccess: (jobId) => {
+      setIsUpdating(false);
+      toast({
+        title: "Sync enfileirado",
+        description: `Sync iniciado (#${jobId}). Aguarde a conclusão...`,
+      });
+
+      // Invalidar queries após sync
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['processo', numero_cnj] });
+        queryClient.invalidateQueries({ queryKey: ['partes-processo', numero_cnj] });
+        queryClient.invalidateQueries({ queryKey: ['monitoring-settings', numero_cnj] });
+        refetchMovimentacoes();
+        refetchPublicacoes();
+      }, 2000);
+    },
+    onError: (error: any) => {
+      setIsUpdating(false);
+      toast({
+        title: "Erro no sync",
+        description: error.message || "Erro ao executar sincronização",
         variant: "destructive",
       });
     },
