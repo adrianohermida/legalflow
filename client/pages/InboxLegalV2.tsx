@@ -57,6 +57,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate, formatCNJ } from "../lib/utils";
+import { useInboxRealtimeUpdates } from "../hooks/useRealtimeUpdates";
 
 interface PublicacaoUnificada {
   source: 'publicacoes' | 'movimentacoes';
