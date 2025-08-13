@@ -103,7 +103,7 @@ export function DemoLayout({ children }: DemoLayoutProps) {
                           OAB: {user.oab}
                         </p>
                       )}
-                      <p className="text-xs text-green-600 font-medium">Modo Demo</p>
+                      <p className="text-xs text-success font-medium">Modo Demo</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
