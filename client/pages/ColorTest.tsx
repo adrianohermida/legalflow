@@ -56,7 +56,7 @@ export function ColorTest() {
             <div className="bg-warning text-white p-4 rounded text-center">
               Warning
               <br />
-              #f59e0b
+              #d97706
             </div>
             <div className="bg-danger text-white p-4 rounded text-center">
               Danger
