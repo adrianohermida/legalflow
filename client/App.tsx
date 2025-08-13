@@ -53,8 +53,7 @@ import { PortalServicos } from "./pages/portal/PortalServicos";
 import { PortalCliente } from "./pages/portal/PortalCliente";
 
 import { SupabaseSetup } from "./components/SupabaseSetup";
-import { DemoOABSelectionModal } from "./components/DemoOABSelectionModal";
-import { OABSelectionModal } from "./components/OABSelectionModal";
+import { UnifiedOABSelectionModal } from "./components/UnifiedOABSelectionModal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -90,9 +89,10 @@ function DemoProtectedRoute({ children, userType }: { children: React.ReactNode;
         {children}
       </AppShell>
       {userType === 'advogado' && (
-        <DemoOABSelectionModal
+        <UnifiedOABSelectionModal
           open={showOABModal}
           onOpenChange={setShowOABModal}
+          mode="demo"
         />
       )}
     </>
@@ -130,9 +130,10 @@ function ProtectedRoute({ children, userType }: { children: React.ReactNode; use
         {children}
       </AppShell>
       {userType === 'advogado' && (
-        <OABSelectionModal
+        <UnifiedOABSelectionModal
           open={showOABModal}
           onOpenChange={setShowOABModal}
+          mode="production"
         />
       )}
     </>
