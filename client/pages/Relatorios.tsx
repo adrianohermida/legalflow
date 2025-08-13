@@ -183,7 +183,7 @@ export function Relatorios() {
   const getTrendColor = (value: number) => {
     if (value > 0) return "text-green-600";
     if (value < 0) return "text-red-600";
-    return "text-gray-600";
+    return "text-neutral-600";
   };
 
   const reportCards: ReportCard[] = [
@@ -365,8 +365,8 @@ export function Relatorios() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Relatórios & SLA</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-neutral-900">Relatórios & SLA</h1>
+          <p className="text-neutral-600 mt-1">
             Gestão por exceção e monitoramento de performance
           </p>
         </div>
@@ -468,7 +468,7 @@ export function Relatorios() {
                     <div className="font-medium">
                       {formatPercentage(nicho.completion_rate)}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-neutral-500">
                       {nicho.avg_completion_time_days} dias médio
                     </div>
                   </div>
