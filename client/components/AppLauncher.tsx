@@ -49,7 +49,7 @@ const advogadoApps = [
     description: 'Base de clientes e relacionamento',
     href: '/clientes',
     icon: Users,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'jornadas',
@@ -57,7 +57,7 @@ const advogadoApps = [
     description: 'Jornadas do cliente e automação',
     href: '/jornadas',
     icon: Target,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'inbox',
@@ -81,7 +81,7 @@ const advogadoApps = [
     description: 'Biblioteca e gestão de documentos',
     href: '/documentos',
     icon: FolderOpen,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'financeiro',
@@ -105,7 +105,7 @@ const advogadoApps = [
     description: 'Análises e relatórios gerenciais',
     href: '/relatorios',
     icon: BarChart3,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'helpdesk',
@@ -113,7 +113,7 @@ const advogadoApps = [
     description: 'Suporte e atendimento ao cliente',
     href: '/helpdesk',
     icon: HeadphonesIcon,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'servicos',
@@ -121,7 +121,7 @@ const advogadoApps = [
     description: 'Catálogo e gestão de serviços',
     href: '/servicos',
     icon: ShoppingBag,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
 ];
 
@@ -132,7 +132,7 @@ const clienteApps = [
     description: 'Converse com seu advogado',
     href: '/portal/chat',
     icon: MessageSquare,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'jornada',
@@ -140,7 +140,7 @@ const clienteApps = [
     description: 'Acompanhe o progresso do seu caso',
     href: '/portal/jornada',
     icon: Target,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'processos',
@@ -148,7 +148,7 @@ const clienteApps = [
     description: 'Visualize seus processos ativos',
     href: '/portal/processos',
     icon: FileText,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'compromissos',
@@ -172,7 +172,7 @@ const clienteApps = [
     description: 'Central de ajuda e suporte',
     href: '/portal/helpdesk',
     icon: HeadphonesIcon,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
   {
     id: 'servicos',
@@ -180,7 +180,7 @@ const clienteApps = [
     description: 'Contratar novos serviços jurídicos',
     href: '/portal/servicos',
     icon: ShoppingBag,
-    color: 'bg-brand-700',
+    color: 'primary',
   },
 ];
 
