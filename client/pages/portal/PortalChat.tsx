@@ -15,7 +15,7 @@ export function PortalChat() {
             Converse com seu advogado
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button className="bg-brand-700 hover:bg-brand-900 text-white">
           <Plus className="w-4 h-4 mr-2" />
           Nova Conversa
         </Button>
