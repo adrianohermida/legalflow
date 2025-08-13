@@ -534,6 +534,14 @@ function RegularAppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/branding"
+        element={
+          <ProtectedRoute userType="advogado">
+            <BrandingControl />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
