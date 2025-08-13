@@ -183,7 +183,7 @@ const getStageDetails = (stage: any) => {
             <ul className="text-sm space-y-1">
               <li>• Introdução aos direitos trabalhistas</li>
               <li>• Como identificar irregularidades</li>
-              <li>• Próximos passos do processo</li>
+              <li>�� Próximos passos do processo</li>
             </ul>
             <div className="mt-3">
               <Button size="sm" className="mr-2">
@@ -300,16 +300,16 @@ export function PortalCliente() {
     currentStage?.due_date && new Date(currentStage.due_date) < new Date();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-50">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-neutral-900">
                 {journeyInstance.template_name}
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-neutral-600 mt-1">
                 Portal do Cliente - {journeyInstance.cliente_nome}
               </p>
             </div>
