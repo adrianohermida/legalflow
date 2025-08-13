@@ -344,8 +344,25 @@ export function InboxLegal() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* V2 Banner */}
+      <div className="bg-green-600 text-white p-3">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
+          <div className="flex items-center gap-3">
+            <span className="font-medium">✨ Inbox Legal v2 disponível!</span>
+            <span className="text-green-100">Nova versão com view unificada, fallback de cadastro e filtros avançados</span>
+          </div>
+          <Link
+            to="/inbox-v2"
+            className="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition-colors"
+          >
+            Testar V2
+          </Link>
+        </div>
+      </div>
+
+      <div className="p-6">
+        {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-semibold">Inbox Legal</h1>
@@ -732,6 +749,7 @@ export function InboxLegal() {
           </form>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }
