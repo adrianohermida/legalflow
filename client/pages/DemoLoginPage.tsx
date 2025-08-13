@@ -47,7 +47,7 @@ export function DemoLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">
@@ -126,12 +126,12 @@ export function DemoLoginPage() {
               </div>
             </form>
 
-            <Alert className="mt-4 bg-brand-50 border-brand-300">
+            <Alert className="mt-4 bg-surface-2 border-brand-300">
               <AlertDescription className="text-brand-700">
                 <strong>Credenciais Demo:</strong>
                 <br />• Email: admin.test@gmail.com
                 <br />• Senha: 123456
-                <br />• OAB para teste: 123456
+                <br />�� OAB para teste: 123456
               </AlertDescription>
             </Alert>
           </CardContent>
