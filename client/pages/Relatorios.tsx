@@ -512,7 +512,7 @@ export function Relatorios() {
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center font-medium">
                   <span>Tempo Total Economizado</span>
-                  <span className="text-green-600">
+                  <span className="text-success">
                     {mockAIActivityMetrics.time_saved_hours}h
                   </span>
                 </div>
