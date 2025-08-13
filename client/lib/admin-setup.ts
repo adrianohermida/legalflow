@@ -24,7 +24,25 @@ export const adminSetup = {
 
       console.log('🔧 Setting up test user for development...');
       
-      // Create the test user
+      // Create the superadmin user with specific data
+      const superadmin = {
+        email: 'adrianohermida@gmail.com',
+        password: 'HermidaMaia123!',
+        role: 'superadmin',
+        profile: {
+          oab_principal: '008894',
+          uf_principal: 'AM',
+          oab_suplementares: [
+            { numero: '476963', uf: 'SP' },
+            { numero: '107048', uf: 'RS' },
+            { numero: '075394', uf: 'DF' }
+          ],
+          nome_sociedade: 'HERMIDA MAIA SOCIEDADE INDIVIDUAL DE ADVOCACIA',
+          nome_completo: 'Adriano Hermida Maia'
+        }
+      };
+
+      // Create additional test users
       const testUsers = [
         { email: 'admin@test.com', password: '123456' },
         { email: 'test@example.com', password: '123456' },
