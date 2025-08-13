@@ -17,7 +17,7 @@
   --neutral-300: #d1d5db; /* Cinza muito claro */
   --neutral-200: #e5e7eb; /* Cinza bem claro */
   --neutral-100: #f3f4f6; /* Cinza quase branco */
-  --neutral-50: #f9fafb;  /* Cinza ultra claro */
+  --neutral-50: #f9fafb; /* Cinza ultra claro */
 
   /* Sistema de cores neutro */
   --primary: var(--neutral-900);
