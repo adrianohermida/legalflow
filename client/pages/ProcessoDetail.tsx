@@ -146,6 +146,7 @@ export function ProcessoDetail() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedParte, setSelectedParte] = useState<ParteProcesso | null>(null);
   const [isClienteDialogOpen, setIsClienteDialogOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (!numero_cnj) {
     return (
