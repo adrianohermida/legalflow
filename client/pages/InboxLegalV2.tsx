@@ -34,6 +34,12 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import {
   Search,
   Filter,
   Inbox,
@@ -530,7 +536,7 @@ export default function InboxLegalV2() {
         <TabsList>
           <TabsTrigger value="publicacoes" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            Publicações ({publicacoesData.total})
+            Publica��ões ({publicacoesData.total})
           </TabsTrigger>
           <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
