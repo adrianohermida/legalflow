@@ -666,5 +666,15 @@ function App() {
 const container = document.getElementById("root");
 if (container) {
   const root = createRoot(container);
-  root.render(<App />);
+  root.render(
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error, errorInfo) => {
+        console.error("🚨 App Error:", error);
+        console.error("🚨 Error Info:", errorInfo);
+      }}
+    >
+      <App />
+    </ErrorBoundary>
+  );
 }
