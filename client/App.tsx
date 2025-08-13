@@ -653,6 +653,13 @@ export default function App() {
   // Initialize neutral theme immediately
   const neutralTheme = useNeutralTheme();
 
+  // Run schema validation on app startup
+  React.useEffect(() => {
+    validateSchemaOnStartup().catch(error => {
+      console.error('Schema validation failed on startup:', error);
+    });
+  }, []);
+
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
       return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
