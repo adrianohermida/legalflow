@@ -141,6 +141,9 @@ export default function ProcessoDetailV2() {
     return <div>CNJ não fornecido</div>;
   }
 
+  // Enable realtime updates for this processo
+  useProcessoRealtimeUpdates(numero_cnj);
+
   // Query processo
   const { data: processo, isLoading: processoLoading, refetch: refetchProcesso } = useQuery({
     queryKey: ['processo', numero_cnj],
@@ -1032,7 +1035,7 @@ export default function ProcessoDetailV2() {
                               {doc.tipo === 'documento' ? doc.metadata?.name || doc.name : doc.tipo}
                             </p>
                             <p className="text-sm text-neutral-600">
-                              {doc.tipo === 'documento' ? 'Documento' : 'Petiç��o'} • 
+                              {doc.tipo === 'documento' ? 'Documento' : 'Petição'} • 
                               {formatDate(doc.created_at)}
                             </p>
                           </div>
