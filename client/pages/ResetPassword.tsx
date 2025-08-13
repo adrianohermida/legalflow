@@ -108,8 +108,8 @@ export function ResetPassword() {
               <Scale className="h-8 w-8" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">LegalFlow</h1>
-          <p className="text-gray-600 mt-2">Redefinir Senha</p>
+          <h1 className="text-3xl font-bold text-neutral-900">LegalFlow</h1>
+          <p className="text-neutral-600 mt-2">Redefinir Senha</p>
         </div>
 
         <Card className="border-brand-200">
@@ -123,7 +123,7 @@ export function ResetPassword() {
                 <div className="space-y-2">
                   <Label htmlFor="password">Nova Senha</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
@@ -137,7 +137,7 @@ export function ResetPassword() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -146,7 +146,7 @@ export function ResetPassword() {
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-neutral-500">
                     Mínimo de 6 caracteres
                   </p>
                 </div>
@@ -154,7 +154,7 @@ export function ResetPassword() {
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
@@ -169,7 +169,7 @@ export function ResetPassword() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-4 w-4" />
