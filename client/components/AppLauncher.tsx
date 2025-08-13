@@ -92,14 +92,6 @@ const advogadoApps = [
     color: 'bg-success',
   },
   {
-    id: 'financeiro',
-    title: 'Financeiro',
-    description: 'Gestão financeira e faturamento',
-    href: '/financeiro',
-    icon: DollarSign,
-    color: 'bg-success',
-  },
-  {
     id: 'relatorios',
     title: 'Relatórios',
     description: 'Análises e relatórios gerenciais',
