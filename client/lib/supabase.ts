@@ -573,7 +573,7 @@ export interface LegalFlowDatabase {
         Row: {
           id: string;
           stage_instance_id: string | null;
-          tipo: string;
+          event_type: Database['legalflow']['Enums']['event_type'];
           title: string;
           starts_at: string;
           ends_at: string | null;
@@ -584,7 +584,7 @@ export interface LegalFlowDatabase {
         };
         Insert: {
           stage_instance_id?: string | null;
-          tipo: string;
+          event_type: Database['legalflow']['Enums']['event_type'];
           title: string;
           starts_at: string;
           ends_at?: string | null;
@@ -593,7 +593,7 @@ export interface LegalFlowDatabase {
           cliente_cpfcnpj?: string | null;
         };
         Update: {
-          tipo?: string;
+          event_type?: Database['legalflow']['Enums']['event_type'];
           title?: string;
           starts_at?: string;
           ends_at?: string | null;
