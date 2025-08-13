@@ -799,7 +799,7 @@ export interface LegalFlowDatabase {
           processo_numero_cnj: string | null;
           owner_oab: number;
           start_date: string;
-          status: string;
+          status: Database['legalflow']['Enums']['journey_status'];
           progress_pct: number;
           next_action: any;
           created_at: string;
@@ -810,12 +810,12 @@ export interface LegalFlowDatabase {
           processo_numero_cnj?: string | null;
           owner_oab: number;
           start_date?: string;
-          status?: string;
+          status?: Database['legalflow']['Enums']['journey_status'];
           progress_pct?: number;
           next_action?: any;
         };
         Update: {
-          status?: string;
+          status?: Database['legalflow']['Enums']['journey_status'];
           progress_pct?: number;
           next_action?: any;
         };
@@ -825,7 +825,7 @@ export interface LegalFlowDatabase {
           id: string;
           instance_id: string;
           template_stage_id: string;
-          status: string;
+          status: Database['legalflow']['Enums']['stage_status'];
           mandatory: boolean;
           sla_at: string | null;
           meta: any;
@@ -835,14 +835,14 @@ export interface LegalFlowDatabase {
         Insert: {
           instance_id: string;
           template_stage_id: string;
-          status?: string;
+          status?: Database['legalflow']['Enums']['stage_status'];
           mandatory?: boolean;
           sla_at?: string | null;
           meta?: any;
           completed_at?: string | null;
         };
         Update: {
-          status?: string;
+          status?: Database['legalflow']['Enums']['stage_status'];
           sla_at?: string | null;
           meta?: any;
           completed_at?: string | null;
