@@ -36,8 +36,18 @@
 }
 
 /* Reset de overlays/amarelo indevido */
-body, [data-app-root], .app-bg, .page-container {
+body, [data-app-root], .app-bg, .page-container, .main-content, .app-container {
   background: var(--surface) !important;
+}
+
+/* Força remoção de qualquer amarelo remanescente */
+* {
+  background-color: inherit;
+}
+
+*[style*="yellow"], *[style*="#ff"], *[style*="rgb(255"], *[class*="yellow"] {
+  background: var(--surface) !important;
+  color: var(--on-surface) !important;
 }
 
 /* Focus visível */
