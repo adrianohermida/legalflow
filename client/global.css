@@ -15,11 +15,35 @@
   .border-theme { border-color: var(--theme-border) !important; }
   .border-theme-hover:hover { border-color: var(--theme-border-hover) !important; }
 
+  /* FORCE ALL BRAND CLASSES TO NEUTRAL - ABSOLUTE OVERRIDE */
+  .bg-brand-50, .bg-brand-100, .bg-brand-200, .bg-brand-300, .bg-brand-400,
+  .bg-brand-500, .bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-brand-900 {
+    background-color: #ffffff !important;
+  }
+
+  .text-brand-50, .text-brand-100, .text-brand-200, .text-brand-300, .text-brand-400,
+  .text-brand-500, .text-brand-600, .text-brand-700, .text-brand-800, .text-brand-900 {
+    color: #000000 !important;
+  }
+
+  .border-brand-50, .border-brand-100, .border-brand-200, .border-brand-300, .border-brand-400,
+  .border-brand-500, .border-brand-600, .border-brand-700, .border-brand-800, .border-brand-900 {
+    border-color: #e5e7eb !important;
+  }
+
+  .hover\\:bg-brand-50:hover, .hover\\:bg-brand-100:hover, .hover\\:bg-brand-700:hover, .hover\\:bg-brand-900:hover {
+    background-color: #f9fafb !important;
+  }
+
+  .hover\\:text-brand-700:hover, .hover\\:text-brand-900:hover {
+    color: #1f2937 !important;
+  }
+
   /* Classes de bloqueio absoluto */
-  .no-yellow * { background: var(--theme-background) !important; }
-  .force-theme {
-    background: var(--theme-background) !important;
-    color: var(--theme-text) !important;
+  .no-yellow * { background: #ffffff !important; }
+  .force-theme, .force-neutral {
+    background: #ffffff !important;
+    color: #000000 !important;
   }
 }
 
@@ -130,9 +154,9 @@ body,
 
 @layer base {
   :root {
-    /* F1.0 - Hermida Maia Brand Colors (padronização site ↔ app) - Anti-Yellow */
-    --brand-50: 240 247 244;  /* #f0f7f4 - More green, less yellow */
-    --brand-100: 220 240 230; /* #dcf0e6 - Pure green light */
+    /* FORCED NEUTRAL RGB VALUES - Override Tailwind */
+    --brand-50: 255 255 255 !important;  /* White */
+    --brand-100: 249 250 251 !important; /* Gray-50 */
     --brand-200: 211 231 223;
     --brand-300: 176 212 196;
     --brand-400: 134 189 164;
