@@ -20,9 +20,9 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Demo Mode */}
-          <Card className="border-2 border-success-100 bg-success-50">
+          <Card className="border-2 border-brand-200 bg-brand-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-success-600">
+              <CardTitle className="flex items-center gap-2 text-brand-700">
                 <Play className="h-5 w-5" />
                 Modo Demo
               </CardTitle>
@@ -33,25 +33,25 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
             <CardContent className="space-y-4">
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-green-600" />
+                  <Zap className="h-4 w-4 text-brand-600" />
                   <span>Login instantâneo</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-green-600" />
+                  <Zap className="h-4 w-4 text-brand-600" />
                   <span>Dados de exemplo inclusos</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-green-600" />
+                  <Zap className="h-4 w-4 text-brand-600" />
                   <span>Não requer banco de dados</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-green-600" />
+                  <Zap className="h-4 w-4 text-brand-600" />
                   <span>Perfeito para testar</span>
                 </div>
               </div>
 
-              <Alert className="bg-success-100 border-success">
-                <AlertDescription className="text-success-700">
+              <Alert className="bg-brand-100 border-brand-300">
+                <AlertDescription className="text-brand-700">
                   <strong>Credenciais:</strong>
                   <br />• Email: <code>admin.test@gmail.com</code>
                   <br />• Senha: <code>123456</code>
@@ -61,7 +61,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
 
               <Button
                 onClick={() => onModeSelect('demo')}
-                className="w-full bg-success hover:bg-success-600"
+                className="w-full bg-brand-700 hover:bg-brand-900 text-white"
                 size="lg"
               >
                 <Play className="h-4 w-4 mr-2" />
@@ -84,19 +84,19 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
             <CardContent className="space-y-4">
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-blue-600" />
+                  <Settings className="h-4 w-4 text-brand-600" />
                   <span>Dados persistentes</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-blue-600" />
+                  <Settings className="h-4 w-4 text-brand-600" />
                   <span>Autenticação real</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-blue-600" />
+                  <Settings className="h-4 w-4 text-brand-600" />
                   <span>Múltiplos usuários</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-blue-600" />
+                  <Settings className="h-4 w-4 text-brand-600" />
                   <span>Requer configuração</span>
                 </div>
               </div>
