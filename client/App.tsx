@@ -645,11 +645,13 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>{AppContent}</BrowserRouter>
-        <Toaster />
-        <Sonner />
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <BrowserRouter>{AppContent}</BrowserRouter>
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
