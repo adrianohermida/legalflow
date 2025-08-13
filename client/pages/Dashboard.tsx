@@ -93,7 +93,7 @@ const quickActions = [
     description: "Ver compromissos",
     href: "/agenda",
     icon: Calendar,
-    color: "bg-brand-100",
+    color: "bg-neutral-100",
   },
 ];
 
