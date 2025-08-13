@@ -113,6 +113,8 @@ export default function InboxLegalV2() {
   const [novoProcessoCnj, setNovoProcessoCnj] = useState('');
   const [buscandoProcesso, setBuscandoProcesso] = useState(false);
   const [dadosProcessoAdvise, setDadosProcessoAdvise] = useState<any>(null);
+  const [isPrazoDialogOpen, setIsPrazoDialogOpen] = useState(false);
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
 
   const itemsPerPage = 20;
 
@@ -536,7 +538,7 @@ export default function InboxLegalV2() {
         <TabsList>
           <TabsTrigger value="publicacoes" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            Publica��ões ({publicacoesData.total})
+            Publicações ({publicacoesData.total})
           </TabsTrigger>
           <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
