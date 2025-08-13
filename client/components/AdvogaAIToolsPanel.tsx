@@ -88,7 +88,7 @@ export function AdvogaAIToolsPanel({ context, onToolResult }: AdvogaAIToolsPanel
       case 'analysis': return <Brain className="w-4 h-4" />;
       case 'research': return <Search className="w-4 h-4" />;
       case 'document': return <FileText className="w-4 h-4" />;
-      case 'timeline': return <Timeline className="w-4 h-4" />;
+      case 'timeline': return <TimelineIcon className="w-4 h-4" />;
       case 'calculation': return <Calculator className="w-4 h-4" />;
       default: return <Scale className="w-4 h-4" />;
     }
