@@ -49,6 +49,36 @@ export const adminSetup = {
         { email: 'dev@localhost.com', password: '123456' }
       ];
 
+      // First, create the superadmin
+      try {
+        const { data: superadminData, error: superadminError } = await supabase.auth.signUp({
+          email: superadmin.email,
+          password: superadmin.password,
+          options: {
+            data: {
+              role: superadmin.role,
+              oab_principal: superadmin.profile.oab_principal,
+              uf_principal: superadmin.profile.uf_principal,
+              oab_suplementares: JSON.stringify(superadmin.profile.oab_suplementares),
+              nome_sociedade: superadmin.profile.nome_sociedade,
+              nome_completo: superadmin.profile.nome_completo
+            }
+          }
+        });
+
+        if (superadminError && !superadminError.message.includes('User already registered')) {
+          console.warn(`Failed to create superadmin ${superadmin.email}:`, superadminError.message);
+        } else {
+          console.log(`✅ Superadmin ${superadmin.email} created or exists with complete profile`);
+          console.log(`📋 OAB Principal: ${superadmin.profile.oab_principal}/${superadmin.profile.uf_principal}`);
+          console.log(`📋 OAB Suplementares: ${superadmin.profile.oab_suplementares.map(s => `${s.numero}/${s.uf}`).join(', ')}`);
+          console.log(`🏢 Sociedade: ${superadmin.profile.nome_sociedade}`);
+        }
+      } catch (err) {
+        console.warn(`Error creating superadmin:`, err);
+      }
+
+      // Then create test users
       for (const user of testUsers) {
         try {
           const { data, error } = await supabase.auth.signUp({
