@@ -3,19 +3,6 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import {
   Table,
   TableBody,
   TableCell,
@@ -24,6 +11,22 @@ import {
   TableRow,
 } from "../components/ui/table";
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -31,529 +34,701 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../components/ui/dialog";
-import {
   Search,
   Filter,
+  Inbox,
   FileText,
-  Calendar,
-  Link as LinkIcon,
-  Plus,
-  ExternalLink,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  Target,
+  Building,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  AlertTriangle,
+  Link2,
   Bell,
+  Calendar,
+  ExternalLink,
 } from "lucide-react";
-import { Publicacao, Movimentacao } from "../types/journey";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
 
-// Mock data for publications
-const mockPublicacoes: Publicacao[] = [
-  {
-    id: "1",
-    numero_cnj: "1000123-45.2024.8.26.0001",
-    data_publicacao: "2024-02-10",
-    content:
-      "Intimação para apresentação de contestação no prazo de 15 dias...",
-    tribunal: "TJSP",
-    source: "DJE",
-    is_processed: false,
-  },
-  {
-    id: "2",
-    numero_cnj: "2000456-78.2024.8.26.0002",
-    data_publicacao: "2024-02-09",
-    content: "Sentença proferida. Julgado procedente o pedido...",
-    tribunal: "TJSP",
-    source: "DJE",
-    is_processed: true,
-    linked_journey_instance_id: "1",
-  },
-  {
-    id: "3",
-    data_publicacao: "2024-02-08",
-    content: "Alteração no regimento interno do tribunal...",
-    tribunal: "TJSP",
-    source: "DJE",
-    is_processed: false,
-  },
-];
+interface Publicacao {
+  id: number;
+  data_publicacao: string | null;
+  data: any;
+  numero_cnj: string | null;
+  created_at: string;
+}
 
-// Mock data for movements
-const mockMovimentacoes: Movimentacao[] = [
-  {
-    id: "1",
-    numero_cnj: "1000123-45.2024.8.26.0001",
-    data_movimentacao: "2024-02-10",
-    description: "Juntada de petição de contestação",
-    tribunal: "TJSP",
-    movement_type: "juntada",
-    is_processed: false,
-  },
-  {
-    id: "2",
-    numero_cnj: "3000789-01.2024.8.26.0003",
-    data_movimentacao: "2024-02-09",
-    description: "Audiência de conciliação designada para 15/03/2024",
-    tribunal: "TJSP",
-    movement_type: "audiencia",
-    is_processed: true,
-    linked_journey_instance_id: "2",
-  },
-  {
-    id: "3",
-    numero_cnj: "2000456-78.2024.8.26.0002",
-    data_movimentacao: "2024-02-08",
-    description: "Conclusão para despacho",
-    tribunal: "TJSP",
-    movement_type: "conclusao",
-    is_processed: false,
-  },
-];
+interface Movimentacao {
+  id: number;
+  data_movimentacao: string | null;
+  data: any;
+  numero_cnj: string | null;
+  created_at: string;
+}
 
 export function InboxLegal() {
+  const [activeTab, setActiveTab] = useState("publicacoes");
   const [searchTerm, setSearchTerm] = useState("");
-  const [tribunalFilter, setTribunalFilter] = useState<string>("todos");
-  const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isVincularDialogOpen, setIsVincularDialogOpen] = useState(false);
+  const [isNotificarDialogOpen, setIsNotificarDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const itemsPerPage = 20;
 
-  const filteredPublicacoes = mockPublicacoes.filter((pub) => {
-    const matchesSearch =
-      pub.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (pub.numero_cnj && pub.numero_cnj.includes(searchTerm));
-    const matchesTribunal =
-      tribunalFilter === "todos" || pub.tribunal === tribunalFilter;
-    const matchesStatus =
-      statusFilter === "todos" ||
-      (statusFilter === "processado" && pub.is_processed) ||
-      (statusFilter === "pendente" && !pub.is_processed);
+  // P2.4 - Buscar publicações
+  const {
+    data: publicacoesData = { data: [], total: 0, totalPages: 0 },
+    isLoading: publicacoesLoading,
+    error: publicacoesError,
+  } = useQuery({
+    queryKey: ["publicacoes", searchTerm, currentPage],
+    queryFn: async () => {
+      let query = supabase
+        .from("publicacoes")
+        .select("*", { count: "exact" })
+        .order("data_publicacao", { ascending: false, nullsLast: true });
 
-    return matchesSearch && matchesTribunal && matchesStatus;
+      // Aplicar filtro de busca
+      if (searchTerm) {
+        query = query.or(`numero_cnj.ilike.%${searchTerm}%`);
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const { data, error, count } = await query
+        .range(startIndex, startIndex + itemsPerPage - 1);
+
+      if (error) throw error;
+
+      return {
+        data: data || [],
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / itemsPerPage),
+      };
+    },
+    enabled: activeTab === "publicacoes",
+    staleTime: 5 * 60 * 1000,
   });
 
-  const filteredMovimentacoes = mockMovimentacoes.filter((mov) => {
-    const matchesSearch =
-      mov.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mov.numero_cnj.includes(searchTerm);
-    const matchesTribunal =
-      tribunalFilter === "todos" || mov.tribunal === tribunalFilter;
-    const matchesStatus =
-      statusFilter === "todos" ||
-      (statusFilter === "processado" && mov.is_processed) ||
-      (statusFilter === "pendente" && !mov.is_processed);
+  // P2.4 - Buscar movimentações
+  const {
+    data: movimentacoesData = { data: [], total: 0, totalPages: 0 },
+    isLoading: movimentacoesLoading,
+    error: movimentacoesError,
+  } = useQuery({
+    queryKey: ["movimentacoes", searchTerm, currentPage],
+    queryFn: async () => {
+      let query = supabase
+        .from("movimentacoes")
+        .select("*", { count: "exact" })
+        .order("data_movimentacao", { ascending: false, nullsLast: true });
 
-    return matchesSearch && matchesTribunal && matchesStatus;
+      // Aplicar filtro de busca
+      if (searchTerm) {
+        query = query.or(`numero_cnj.ilike.%${searchTerm}%`);
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const { data, error, count } = await query
+        .range(startIndex, startIndex + itemsPerPage - 1);
+
+      if (error) throw error;
+
+      return {
+        data: data || [],
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / itemsPerPage),
+      };
+    },
+    enabled: activeTab === "movimentacoes",
+    staleTime: 5 * 60 * 1000,
   });
 
-  const handleVincularCNJ = (item: any) => {
-    setSelectedItem(item);
-    setIsDialogOpen(true);
+  // Buscar processos para vincular
+  const { data: processos = [] } = useQuery({
+    queryKey: ["processos-para-vincular"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("processos")
+        .select("numero_cnj, titulo_polo_ativo, titulo_polo_passivo")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Buscar advogados para notificar
+  const { data: advogados = [] } = useQuery({
+    queryKey: ["advogados-para-notificar"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("advogados")
+        .select("oab, nome")
+        .order("nome");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // P2.4 - Mutation para vincular ao CNJ
+  const vincularMutation = useMutation({
+    mutationFn: async ({ itemId, tableName, numero_cnj }: { itemId: number; tableName: string; numero_cnj: string }) => {
+      const { data, error } = await supabase
+        .from(tableName)
+        .update({ numero_cnj })
+        .eq("id", itemId)
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["publicacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["movimentacoes"] });
+      setIsVincularDialogOpen(false);
+      setSelectedItem(null);
+      toast({
+        title: "Item vinculado",
+        description: "Item vinculado ao processo com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao vincular item",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // P2.4 - Mutation para notificar responsável
+  const notificarMutation = useMutation({
+    mutationFn: async ({ oab, message, title }: { oab: number; message: string; title: string }) => {
+      // Buscar user_id do advogado
+      const { data: userAdvogado } = await supabase
+        .from("user_advogado")
+        .select("user_id")
+        .eq("oab", oab)
+        .single();
+
+      if (!userAdvogado) {
+        throw new Error("Advogado não encontrado no sistema");
+      }
+
+      // Inserir notificação
+      const { data, error } = await supabase
+        .from("notifications")
+        .insert([{
+          user_id: userAdvogado.user_id,
+          title,
+          message,
+          read: false,
+        }])
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      setIsNotificarDialogOpen(false);
+      setSelectedItem(null);
+      toast({
+        title: "Notificação enviada",
+        description: "Responsável notificado com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao enviar notificação",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleVincular = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const numero_cnj = formData.get("numero_cnj") as string;
+    
+    vincularMutation.mutate({
+      itemId: selectedItem.id,
+      tableName: activeTab,
+      numero_cnj,
+    });
   };
 
-  const handleCriarEtapa = (item: any) => {
-    // In real app, would create new stage in active journey
-    console.log("Criar etapa para:", item);
-    alert("Etapa criada na jornada ativa!");
+  const handleNotificar = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const oab = parseInt(formData.get("oab") as string);
+    const customMessage = formData.get("message") as string;
+    
+    const isPublicacao = activeTab === "publicacoes";
+    const title = `Nova ${isPublicacao ? "Publicação" : "Movimentação"} - ${selectedItem.numero_cnj || "Sem CNJ"}`;
+    const defaultMessage = `Uma nova ${isPublicacao ? "publicação" : "movimentação"} foi registrada${selectedItem.numero_cnj ? ` para o processo ${selectedItem.numero_cnj}` : ""}.`;
+    const message = customMessage || defaultMessage;
+    
+    notificarMutation.mutate({ oab, title, message });
   };
 
-  const handleNotificar = (item: any) => {
-    // In real app, would send notification to responsible lawyer
-    console.log("Notificar responsável:", item);
-    alert("Responsável notificado!");
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Data não informada";
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
-  const getStatusBadge = (isProcessed: boolean, hasJourney?: boolean) => {
-    if (hasJourney) {
-      return (
-        <Badge className="bg-brand-100 text-brand-700">
-          <Target className="h-3 w-3 mr-1" />
-          Na Jornada
-        </Badge>
-      );
+  const formatCNJ = (cnj: string | null) => {
+    if (!cnj) return null;
+    const clean = cnj.replace(/\D/g, "");
+    if (clean.length === 20) {
+      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
     }
+    return cnj;
+  };
 
-    if (isProcessed) {
-      return (
-        <Badge className="bg-success-100 text-success-700">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Processado
-        </Badge>
-      );
+  const getResumo = (item: any) => {
+    if (item.data && typeof item.data === 'object') {
+      // Tentar extrair resumo dos dados
+      if (item.data.conteudo) return item.data.conteudo.substring(0, 100) + "...";
+      if (item.data.descricao) return item.data.descricao.substring(0, 100) + "...";
+      if (item.data.texto) return item.data.texto.substring(0, 100) + "...";
+      return "Dados disponíveis para análise";
     }
+    return "Sem resumo disponível";
+  };
 
+  const getOrigem = (item: any) => {
+    if (item.data && typeof item.data === 'object') {
+      if (item.data.tribunal) return item.data.tribunal;
+      if (item.data.origem) return item.data.origem;
+      if (item.data.fonte) return item.data.fonte;
+    }
+    return "Origem não identificada";
+  };
+
+  const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+  const currentLoading = activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
+  const currentError = activeTab === "publicacoes" ? publicacoesError : movimentacoesError;
+
+  if (currentError) {
     return (
-      <Badge className="bg-warning-100 text-warning-700">
-        <Clock className="h-3 w-3 mr-1" />
-        Pendente
-      </Badge>
-    );
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900">Inbox Legal</h1>
-          <p className="text-neutral-600 mt-1">
-            Publicações e movimentações processuais para triagem
-          </p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Fonte
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Publicações Pendentes
-            </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning-600">
-              {mockPublicacoes.filter((p) => !p.is_processed).length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Movimentações Pendentes
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning-600">
-              {mockMovimentacoes.filter((m) => !m.is_processed).length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Em Jornadas</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-700">
-              {
-                [...mockPublicacoes, ...mockMovimentacoes].filter(
-                  (item) => item.linked_journey_instance_id,
-                ).length
-              }
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Não Vinculadas
-            </CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-danger">
-              {
-                [...mockPublicacoes, ...mockMovimentacoes].filter(
-                  (item) => !item.numero_cnj,
-                ).length
-              }
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
-            <Input
-              placeholder="Buscar por CNJ ou conteúdo..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-heading font-semibold">Inbox Legal</h1>
+            <p className="text-neutral-600 mt-1">Triagem de publicações e movimentações</p>
           </div>
         </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">Erro ao carregar dados</h3>
+              <p className="text-neutral-600 mb-4">{currentError.message}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-        <div className="flex gap-2">
-          <Select value={tribunalFilter} onValueChange={setTribunalFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Tribunal" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos Tribunais</SelectItem>
-              <SelectItem value="TJSP">TJSP</SelectItem>
-              <SelectItem value="TST">TST</SelectItem>
-              <SelectItem value="TRT">TRT</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos Status</SelectItem>
-              <SelectItem value="pendente">Pendente</SelectItem>
-              <SelectItem value="processado">Processado</SelectItem>
-            </SelectContent>
-          </Select>
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-heading font-semibold">Inbox Legal</h1>
+          <p className="text-neutral-600 mt-1">Triagem de publicações e movimentações</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="publicacoes" className="space-y-6">
+      {/* P2.4 - Filtros */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <Input
+                placeholder="Buscar por CNJ..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* P2.4 - Tabs Publicações | Movimentações */}
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+        setCurrentPage(1);
+      }}>
         <TabsList>
-          <TabsTrigger value="publicacoes">
-            <FileText className="h-4 w-4 mr-2" />
-            Publicações ({filteredPublicacoes.length})
+          <TabsTrigger value="publicacoes" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Publicações ({publicacoesData.total})
           </TabsTrigger>
-          <TabsTrigger value="movimentacoes">
-            <Calendar className="h-4 w-4 mr-2" />
-            Movimentações ({filteredMovimentacoes.length})
+          <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
+            <Building className="w-4 h-4" />
+            Movimentações ({movimentacoesData.total})
           </TabsTrigger>
         </TabsList>
 
-        {/* Publications Tab */}
         <TabsContent value="publicacoes">
           <Card>
             <CardHeader>
-              <CardTitle>Publicações</CardTitle>
-              <CardDescription>
-                Publicações do Di��rio da Justiça e outros órgãos
-              </CardDescription>
+              <CardTitle>Publicações ({publicacoesData.total})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>CNJ</TableHead>
-                    <TableHead>Conteúdo</TableHead>
-                    <TableHead>Tribunal</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPublicacoes.map((pub) => (
-                    <TableRow key={pub.id}>
-                      <TableCell>
-                        {new Date(pub.data_publicacao).toLocaleDateString(
-                          "pt-BR",
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {pub.numero_cnj ? (
-                          <span className="font-mono text-sm">
-                            {pub.numero_cnj}
-                          </span>
-                        ) : (
-                          <Badge variant="destructive" className="text-xs">
-                            Não vinculado
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-md">
-                          <p className="text-sm truncate">{pub.content}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{pub.tribunal}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(
-                          pub.is_processed,
-                          !!pub.linked_journey_instance_id,
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {!pub.numero_cnj && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleVincularCNJ(pub)}
-                            >
-                              <LinkIcon className="h-3 w-3 mr-1" />
-                              Vincular
-                            </Button>
-                          )}
-
-                          {pub.numero_cnj &&
-                            !pub.linked_journey_instance_id && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleCriarEtapa(pub)}
-                              >
-                                <Plus className="h-3 w-3 mr-1" />
-                                Criar Etapa
-                              </Button>
-                            )}
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleNotificar(pub)}
-                          >
-                            <Bell className="h-3 w-3 mr-1" />
-                            Notificar
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {filteredPublicacoes.length === 0 && (
-                <div className="text-center py-8 text-neutral-500">
-                  Nenhuma publicação encontrada.
+            <CardContent className="p-0">
+              {currentLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+                  <span className="ml-2 text-neutral-600">Carregando publicações...</span>
                 </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Origem/Tribunal</TableHead>
+                      <TableHead>Resumo</TableHead>
+                      <TableHead>Processo</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentData.data?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <div className="text-neutral-500">
+                            <Inbox className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
+                            <p>Nenhuma publicação encontrada</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      currentData.data?.map((item) => (
+                        <TableRow key={item.id} className="hover:bg-neutral-50">
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-neutral-400" />
+                              <span className="text-sm">
+                                {formatDate(item.data_publicacao)}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4 text-neutral-400" />
+                              <span className="text-sm">
+                                {getOrigem(item)}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="max-w-md">
+                              <p className="text-sm text-neutral-700 line-clamp-2">
+                                {getResumo(item)}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {item.numero_cnj ? (
+                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                                {formatCNJ(item.numero_cnj)}
+                              </Badge>
+                            ) : (
+                              <Badge variant="destructive">
+                                Não vinculado
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  setIsVincularDialogOpen(true);
+                                }}
+                                style={{ color: 'var(--brand-700)' }}
+                              >
+                                <Link2 className="w-4 h-4 mr-1" />
+                                Vincular
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  setIsNotificarDialogOpen(true);
+                                }}
+                              >
+                                <Bell className="w-4 h-4 mr-1" />
+                                Notificar
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Movements Tab */}
         <TabsContent value="movimentacoes">
           <Card>
             <CardHeader>
-              <CardTitle>Movimentações</CardTitle>
-              <CardDescription>
-                Movimentações processuais dos tribunais
-              </CardDescription>
+              <CardTitle>Movimentações ({movimentacoesData.total})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>CNJ</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Tribunal</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMovimentacoes.map((mov) => (
-                    <TableRow key={mov.id}>
-                      <TableCell>
-                        {new Date(mov.data_movimentacao).toLocaleDateString(
-                          "pt-BR",
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-mono text-sm">
-                          {mov.numero_cnj}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-md">
-                          <p className="text-sm">{mov.description}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{mov.movement_type}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{mov.tribunal}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(
-                          mov.is_processed,
-                          !!mov.linked_journey_instance_id,
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {!mov.linked_journey_instance_id && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleCriarEtapa(mov)}
-                            >
-                              <Plus className="h-3 w-3 mr-1" />
-                              Criar Etapa
-                            </Button>
-                          )}
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleNotificar(mov)}
-                          >
-                            <Bell className="h-3 w-3 mr-1" />
-                            Notificar
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {filteredMovimentacoes.length === 0 && (
-                <div className="text-center py-8 text-neutral-500">
-                  Nenhuma movimentação encontrada.
+            <CardContent className="p-0">
+              {currentLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+                  <span className="ml-2 text-neutral-600">Carregando movimentações...</span>
                 </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Origem/Tribunal</TableHead>
+                      <TableHead>Resumo</TableHead>
+                      <TableHead>Processo</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentData.data?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <div className="text-neutral-500">
+                            <Inbox className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
+                            <p>Nenhuma movimentação encontrada</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      currentData.data?.map((item) => (
+                        <TableRow key={item.id} className="hover:bg-neutral-50">
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-neutral-400" />
+                              <span className="text-sm">
+                                {formatDate(item.data_movimentacao)}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4 text-neutral-400" />
+                              <span className="text-sm">
+                                {getOrigem(item)}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="max-w-md">
+                              <p className="text-sm text-neutral-700 line-clamp-2">
+                                {getResumo(item)}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {item.numero_cnj ? (
+                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                                {formatCNJ(item.numero_cnj)}
+                              </Badge>
+                            ) : (
+                              <Badge variant="destructive">
+                                Não vinculado
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  setIsVincularDialogOpen(true);
+                                }}
+                                style={{ color: 'var(--brand-700)' }}
+                              >
+                                <Link2 className="w-4 h-4 mr-1" />
+                                Vincular
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  setIsNotificarDialogOpen(true);
+                                }}
+                              >
+                                <Bell className="w-4 h-4 mr-1" />
+                                Notificar
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Vincular CNJ Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      {/* Paginação */}
+      {currentData.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-neutral-600">
+            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, currentData.total)} de {currentData.total} itens
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Anterior
+            </Button>
+            <span className="text-sm text-neutral-600">
+              Página {currentPage} de {currentData.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === currentData.totalPages}
+            >
+              Próximo
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* P2.4 - Dialog Vincular CNJ */}
+      <Dialog open={isVincularDialogOpen} onOpenChange={setIsVincularDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Vincular ao Processo CNJ</DialogTitle>
-            <DialogDescription>
-              Selecione o processo para vincular esta publicação
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Número CNJ</label>
-              <Input placeholder="0000000-00.0000.0.00.0000" />
+          <form onSubmit={handleVincular}>
+            <DialogHeader>
+              <DialogTitle>Vincular ao Processo</DialogTitle>
+              <DialogDescription>
+                Selecione o processo para vincular este item
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+              <Select name="numero_cnj" required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um processo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {processos.map((processo) => (
+                    <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                      {formatCNJ(processo.numero_cnj)} - {processo.titulo_polo_ativo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancelar
-              </Button>
+            <DialogFooter>
               <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
-                  setIsDialogOpen(false);
-                  alert("Publicação vinculada ao processo!");
+                  setIsVincularDialogOpen(false);
+                  setSelectedItem(null);
                 }}
               >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={vincularMutation.isPending}>
+                {vincularMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Vincular
               </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* P2.4 - Dialog Notificar Responsável */}
+      <Dialog open={isNotificarDialogOpen} onOpenChange={setIsNotificarDialogOpen}>
+        <DialogContent>
+          <form onSubmit={handleNotificar}>
+            <DialogHeader>
+              <DialogTitle>Notificar Responsável</DialogTitle>
+              <DialogDescription>
+                Envie uma notificação para o advogado responsável
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Advogado</label>
+                <Select name="oab" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um advogado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {advogados.map((advogado) => (
+                      <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                        {advogado.nome} (OAB {advogado.oab})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Mensagem personalizada (opcional)</label>
+                <Input
+                  name="message"
+                  placeholder="Deixe em branco para usar mensagem padrão"
+                />
+              </div>
             </div>
-          </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsNotificarDialogOpen(false);
+                  setSelectedItem(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={notificarMutation.isPending}>
+                {notificarMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Notificar
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
