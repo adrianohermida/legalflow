@@ -47,7 +47,7 @@ import { useToast } from "../hooks/use-toast";
 interface EventoAgenda {
   id: string;
   stage_instance_id: string | null;
-  tipo: string;
+  event_type: string;
   title: string;
   starts_at: string;
   ends_at: string | null;
@@ -58,7 +58,7 @@ interface EventoAgenda {
 }
 
 interface EventoFormData {
-  tipo: string;
+  event_type: string;
   title: string;
   starts_at: string;
   ends_at: string;
@@ -464,7 +464,7 @@ export function Agenda() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Tipo *</label>
-                  <Select name="tipo" defaultValue={editingEvento?.tipo} required>
+                  <Select name="event_type" defaultValue={editingEvento?.event_type} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
@@ -472,8 +472,9 @@ export function Agenda() {
                       <SelectItem value="reuniao">Reunião</SelectItem>
                       <SelectItem value="audiencia">Audiência</SelectItem>
                       <SelectItem value="prazo">Prazo</SelectItem>
+                      <SelectItem value="entrega">Entrega</SelectItem>
                       <SelectItem value="compromisso">Compromisso</SelectItem>
-                      <SelectItem value="outro">Outro</SelectItem>
+                      <SelectItem value="outros">Outros</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
