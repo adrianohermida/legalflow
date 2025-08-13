@@ -141,7 +141,7 @@ export function Processos() {
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
-              <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
               <h3 className="text-lg font-medium text-neutral-900 mb-2">
                 Erro ao carregar processos
               </h3>
@@ -181,7 +181,7 @@ export function Processos() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <FileText className="w-4 h-4 text-blue-500" />
+              <FileText className="w-4 h-4 text-brand-600" />
               <div>
                 <p className="text-2xl font-semibold">{stats.total}</p>
                 <p className="text-xs text-neutral-600">Total</p>
@@ -192,9 +192,9 @@ export function Processos() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
+              <CheckCircle className="w-4 h-4 text-success" />
               <div>
-                <p className="text-2xl font-semibold text-green-600">
+                <p className="text-2xl font-semibold text-success">
                   {stats.ativos}
                 </p>
                 <p className="text-xs text-neutral-600">Ativos</p>
@@ -205,9 +205,9 @@ export function Processos() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-orange-500" />
+              <Calendar className="w-4 h-4 text-warning" />
               <div>
-                <p className="text-2xl font-semibold text-orange-600">
+                <p className="text-2xl font-semibold text-warning">
                   {stats.prazosVencendo}
                 </p>
                 <p className="text-xs text-neutral-600">Prazos esta semana</p>
@@ -218,9 +218,9 @@ export function Processos() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <AlertTriangle className="w-4 h-4 text-danger" />
               <div>
-                <p className="text-2xl font-semibold text-red-600">
+                <p className="text-2xl font-semibold text-danger">
                   {stats.altoRisco}
                 </p>
                 <p className="text-xs text-neutral-600">Alto risco</p>
@@ -337,7 +337,7 @@ export function Processos() {
                               <span>{processoData.proxima_acao}</span>
                               {processoData.prazo && (
                                 <div className={`flex items-center gap-1 text-xs ${
-                                  isPrazoVencendo(processoData.prazo) ? 'text-red-600' : 'text-neutral-500'
+                                  isPrazoVencendo(processoData.prazo) ? 'text-danger' : 'text-neutral-500'
                                 }`}>
                                   <Calendar className="h-3 w-3" />
                                   {formatDate(processoData.prazo)}
