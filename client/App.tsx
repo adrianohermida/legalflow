@@ -600,27 +600,21 @@ function RegularAppRoutes() {
 function App() {
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
-      const stored = localStorage.getItem("auth-mode");
-      console.log("🔧 Auth mode from localStorage:", stored);
-      return stored as "demo" | "supabase" | null;
+      return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
     } catch (error) {
       console.warn("Failed to read localStorage:", error);
       return null;
     }
   });
 
-  console.log("🚀 App rendering with authMode:", authMode);
-
   // Show mode selector if no mode is selected
   if (!authMode) {
-    console.log("📱 Showing mode selector");
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <BrowserRouter>
             <ModeSelector
               onModeSelect={(mode) => {
-                console.log("🎯 Mode selected:", mode);
                 try {
                   localStorage.setItem("auth-mode", mode);
                   setAuthMode(mode);
@@ -637,8 +631,6 @@ function App() {
     );
   }
 
-  console.log("🔄 Creating AppContent for mode:", authMode);
-
   const AppContent =
     authMode === "demo" ? (
       <DemoAuthProvider>
@@ -649,8 +641,6 @@ function App() {
         <RegularAppRoutes />
       </AuthProvider>
     );
-
-  console.log("✅ Rendering main app with AppContent");
 
   return (
     <QueryClientProvider client={queryClient}>
