@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -17,137 +17,253 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
   Search,
   Plus,
   Filter,
   FileText,
-  Calendar,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
   ChevronLeft,
   ChevronRight,
   Loader2,
+  AlertTriangle,
+  Eye,
+  UserPlus,
+  Calendar,
+  Building,
 } from "lucide-react";
-import { processosApi, type Processo } from "../lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import { Link, useNavigate } from "react-router-dom";
 
-const statusConfig = {
-  ativo: { label: "Ativo", variant: "default" as const, icon: CheckCircle },
-  suspenso: { label: "Suspenso", variant: "secondary" as const, icon: Clock },
-  arquivado: {
-    label: "Arquivado",
-    variant: "outline" as const,
-    icon: FileText,
-  },
-};
+interface Processo {
+  numero_cnj: string;
+  tribunal_sigla: string | null;
+  titulo_polo_ativo: string | null;
+  titulo_polo_passivo: string | null;
+  created_at: string;
+  cliente_nome?: string;
+  cliente_cpfcnpj?: string;
+  responsavel_oab?: number;
+  responsavel_nome?: string;
+  ultimo_evento?: {
+    data: string;
+    tipo: string;
+    conteudo: string;
+  };
+}
 
-const riscoConfig = {
-  alto: { label: "Alto", variant: "destructive" as const },
-  medio: { label: "Médio", variant: "default" as const },
-  baixo: { label: "Baixo", variant: "secondary" as const },
-};
+interface AtribuirOabData {
+  numero_cnj: string;
+  oab: number;
+}
 
 export function Processos() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterOab, setFilterOab] = useState("todos");
+  const [filterTribunal, setFilterTribunal] = useState("todos");
+  const [filterStatus, setFilterStatus] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [isAtribuirDialogOpen, setIsAtribuirDialogOpen] = useState(false);
+  const [selectedProcesso, setSelectedProcesso] = useState<string | null>(null);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const itemsPerPage = 20;
 
-  // Fetch processos from Supabase
+  // P2.2 - Buscar processos com dados relacionados
   const {
-    data: processosData = [],
+    data: processosData = { data: [], total: 0, totalPages: 0 },
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["processos"],
-    queryFn: processosApi.getAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryKey: ["processos", searchTerm, filterOab, filterTribunal, filterStatus, currentPage],
+    queryFn: async () => {
+      // P2.2 - Query unificada conforme especificação
+      let query = supabase
+        .from("processos")
+        .select(`
+          numero_cnj,
+          tribunal_sigla,
+          titulo_polo_ativo,
+          titulo_polo_passivo,
+          created_at,
+          clientes_processos!inner (
+            clientes (
+              nome,
+              cpfcnpj
+            )
+          ),
+          advogados_processos (
+            advogados (
+              oab,
+              nome
+            )
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      // Aplicar filtros
+      if (searchTerm) {
+        query = query.or(`numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%,titulo_polo_passivo.ilike.%${searchTerm}%`);
+      }
+
+      if (filterTribunal !== "todos") {
+        query = query.eq("tribunal_sigla", filterTribunal);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Buscar último evento para cada processo
+      const processosComEventos = await Promise.all(
+        data.map(async (processo: any) => {
+          const { data: timelineData } = await supabase
+            .from("vw_timeline_processo")
+            .select("data, tipo, conteudo")
+            .eq("numero_cnj", processo.numero_cnj)
+            .order("data", { ascending: false })
+            .limit(1);
+
+          return {
+            ...processo,
+            cliente_nome: processo.clientes_processos[0]?.clientes?.nome,
+            cliente_cpfcnpj: processo.clientes_processos[0]?.clientes?.cpfcnpj,
+            responsavel_oab: processo.advogados_processos[0]?.advogados?.oab,
+            responsavel_nome: processo.advogados_processos[0]?.advogados?.nome,
+            ultimo_evento: timelineData?.[0] || null,
+          };
+        })
+      );
+
+      // Filtrar por OAB se especificado
+      let filteredData = processosComEventos;
+      if (filterOab !== "todos") {
+        if (filterOab === "sem-oab") {
+          filteredData = processosComEventos.filter(p => !p.responsavel_oab);
+        } else {
+          filteredData = processosComEventos.filter(p => p.responsavel_oab?.toString() === filterOab);
+        }
+      }
+
+      // Aplicar paginação
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      
+      return {
+        data: filteredData.slice(startIndex, endIndex),
+        total: filteredData.length,
+        totalPages: Math.ceil(filteredData.length / itemsPerPage),
+      };
+    },
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Filter data based on search
-  const filteredProcessos = processosData.filter(
-    (processo) =>
-      processo.numero_cnj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      processo.titulo_polo_ativo
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      processo.titulo_polo_passivo
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()),
-  );
+  // Buscar advogados para atribuição
+  const { data: advogados = [] } = useQuery({
+    queryKey: ["advogados"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("advogados")
+        .select("oab, nome")
+        .order("nome");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  const totalItems = filteredProcessos.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // Buscar tribunais únicos para filtro
+  const { data: tribunais = [] } = useQuery({
+    queryKey: ["tribunais"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("processos")
+        .select("tribunal_sigla")
+        .not("tribunal_sigla", "is", null);
+      
+      if (error) throw error;
+      
+      const uniqueTribunais = [...new Set(data.map(p => p.tribunal_sigla))];
+      return uniqueTribunais.filter(Boolean);
+    },
+  });
 
-  // Paginate filtered results
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedProcessos = filteredProcessos.slice(startIndex, endIndex);
+  // P2.2 - Mutation para atribuir OAB
+  const atribuirOabMutation = useMutation({
+    mutationFn: async ({ numero_cnj, oab }: AtribuirOabData) => {
+      // Upsert em advogados_processos
+      const { data, error } = await supabase
+        .from("advogados_processos")
+        .upsert([{ numero_cnj, oab }], { 
+          onConflict: "numero_cnj,oab",
+          ignoreDuplicates: false 
+        })
+        .select();
 
-  const handleSearch = (e: React.FormEvent) => {
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["processos"] });
+      setIsAtribuirDialogOpen(false);
+      setSelectedProcesso(null);
+      toast({
+        title: "OAB atribuída",
+        description: "Responsável atribuído ao processo com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao atribuir OAB",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAtribuirOab = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
+    if (!selectedProcesso) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const oab = parseInt(formData.get("oab") as string);
+    
+    atribuirOabMutation.mutate({ numero_cnj: selectedProcesso, oab });
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "-";
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const formatCNJ = (cnj: string) => {
+    // Formatar CNJ: 0000000-00.0000.0.00.0000
+    const clean = cnj.replace(/\D/g, "");
+    if (clean.length === 20) {
+      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+    }
+    return cnj;
   };
 
-  // Extract data from processo.data JSON field
-  const getProcessoData = (processo: Processo) => {
-    const data = processo.data || {};
-    return {
-      status: data.status || "ativo",
-      fase: data.fase || "Em andamento",
-      risco: data.risco || "medio",
-      proxima_acao: data.proxima_acao || "",
-      prazo: data.prazo || null,
-    };
-  };
-
-  // Get client name from related data
-  const getClienteName = (processo: any) => {
-    return (
-      processo.clientes_processos?.[0]?.clientes?.nome ||
-      "Cliente não identificado"
-    );
-  };
-
-  // Get lawyer name from related data
-  const getLawyerName = (processo: any) => {
-    return (
-      processo.advogados_processos?.[0]?.advogados?.nome ||
-      "Advogado não atribuído"
-    );
-  };
-
-  const isPrazoVencendo = (prazo?: string) => {
-    if (!prazo) return false;
-    const prazoDate = new Date(prazo);
-    const hoje = new Date();
-    const diasRestantes = Math.ceil(
-      (prazoDate.getTime() - hoje.getTime()) / (1000 * 3600 * 24),
-    );
-    return diasRestantes <= 3 && diasRestantes >= 0;
-  };
-
-  // Calculate stats from real data
-  const stats = {
-    total: processosData.length,
-    ativos: processosData.filter((p) => getProcessoData(p).status === "ativo")
-      .length,
-    prazosVencendo: processosData.filter((p) =>
-      isPrazoVencendo(getProcessoData(p).prazo),
-    ).length,
-    altoRisco: processosData.filter((p) => getProcessoData(p).risco === "alto")
-      .length,
+  const getStatusColor = (temResponsavel: boolean) => {
+    return temResponsavel ? "default" : "destructive";
   };
 
   if (error) {
@@ -155,25 +271,16 @@ export function Processos() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold text-neutral-900">
-              Processos
-            </h1>
-            <p className="text-neutral-600 mt-1">
-              Gestão completa de processos jurídicos
-            </p>
+            <h1 className="text-2xl font-heading font-semibold">Processos</h1>
+            <p className="text-neutral-600 mt-1">Gestão completa de processos jurídicos</p>
           </div>
         </div>
-
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-neutral-900 mb-2">
-                Erro ao carregar processos
-              </h3>
-              <p className="text-neutral-600 mb-4">
-                {error.message || "Erro desconhecido"}
-              </p>
+              <h3 className="text-lg font-medium mb-2">Erro ao carregar processos</h3>
+              <p className="text-neutral-600 mb-4">{error.message}</p>
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
           </CardContent>
@@ -187,126 +294,110 @@ export function Processos() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold text-neutral-900">
-            Processos
-          </h1>
-          <p className="text-neutral-600 mt-1">
-            Gestão completa de processos jurídicos
-          </p>
+          <h1 className="text-2xl font-heading font-semibold">Processos</h1>
+          <p className="text-neutral-600 mt-1">Gestão completa de processos jurídicos</p>
         </div>
-        <Button className="btn-brand">
+        <Button 
+          style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+          onClick={() => navigate("/processos/novo")}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Novo Processo
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <FileText className="w-4 h-4 text-brand-600" />
-              <div>
-                <p className="text-2xl font-semibold">{stats.total}</p>
-                <p className="text-xs text-neutral-600">Total</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-4 h-4 text-success" />
-              <div>
-                <p className="text-2xl font-semibold text-success">
-                  {stats.ativos}
-                </p>
-                <p className="text-xs text-neutral-600">Ativos</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-warning" />
-              <div>
-                <p className="text-2xl font-semibold text-warning">
-                  {stats.prazosVencendo}
-                </p>
-                <p className="text-xs text-neutral-600">Prazos esta semana</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-4 h-4 text-danger" />
-              <div>
-                <p className="text-2xl font-semibold text-danger">
-                  {stats.altoRisco}
-                </p>
-                <p className="text-xs text-neutral-600">Alto risco</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Search */}
+      {/* P2.2 - Filtros conforme especificação */}
       <Card>
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <Input
-                placeholder="Buscar por CNJ, parte ativa ou passiva..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <Input
+                  placeholder="Buscar por CNJ, cliente ou polo..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            <Button type="submit" variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filtrar
-            </Button>
-          </form>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Select
+                value={filterOab}
+                onValueChange={(value) => {
+                  setFilterOab(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtrar por OAB" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os responsáveis</SelectItem>
+                  <SelectItem value="sem-oab">Sem responsável</SelectItem>
+                  {advogados.map((advogado) => (
+                    <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                      {advogado.nome} (OAB {advogado.oab})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={filterTribunal}
+                onValueChange={(value) => {
+                  setFilterTribunal(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtrar por Tribunal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os tribunais</SelectItem>
+                  {tribunais.map((tribunal) => (
+                    <SelectItem key={tribunal} value={tribunal}>
+                      {tribunal}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Processes Table */}
+      {/* P2.2 - Tabela conforme especificação */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Processos ({totalItems})</CardTitle>
+          <CardTitle className="text-lg">
+            Processos ({processosData.total})
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-              <span className="ml-2 text-neutral-600">
-                Carregando processos...
-              </span>
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+              <span className="ml-2 text-neutral-600">Carregando processos...</span>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Número CNJ</TableHead>
-                  <TableHead>Partes</TableHead>
+                  <TableHead>CNJ</TableHead>
                   <TableHead>Cliente</TableHead>
-                  <TableHead>Advogado</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Fase</TableHead>
-                  <TableHead>Risco</TableHead>
-                  <TableHead>Próxima Ação</TableHead>
-                  <TableHead>Atualizado</TableHead>
+                  <TableHead>Tribunal</TableHead>
+                  <TableHead>Responsável (OAB)</TableHead>
+                  <TableHead>Último evento</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedProcessos.length === 0 ? (
+                {processosData.data?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <div className="text-neutral-500">
                         <FileText className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                         <p>Nenhum processo encontrado</p>
@@ -317,98 +408,92 @@ export function Processos() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedProcessos.map((processo) => {
-                    const processoData = getProcessoData(processo);
-                    const StatusIcon =
-                      statusConfig[
-                        processoData.status as keyof typeof statusConfig
-                      ]?.icon || FileText;
-
-                    return (
-                      <TableRow
-                        key={processo.numero_cnj}
-                        className="hover:bg-neutral-50 cursor-pointer"
-                      >
-                        <TableCell className="font-mono text-sm">
-                          {processo.numero_cnj}
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="font-medium text-sm">
-                              {processo.titulo_polo_ativo || "Não informado"}
+                  processosData.data?.map((processo) => (
+                    <TableRow key={processo.numero_cnj} className="hover:bg-neutral-50">
+                      <TableCell className="font-mono text-sm">
+                        <Link 
+                          to={`/processos/${processo.numero_cnj}`}
+                          className="hover:underline"
+                          style={{ color: 'var(--brand-700)' }}
+                        >
+                          {formatCNJ(processo.numero_cnj)}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">
+                          {processo.cliente_nome || "Cliente não informado"}
+                        </div>
+                        {processo.titulo_polo_ativo && (
+                          <div className="text-xs text-neutral-500 mt-1">
+                            {processo.titulo_polo_ativo} x {processo.titulo_polo_passivo}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Building className="w-4 h-4 text-neutral-400" />
+                          <span className="text-sm">
+                            {processo.tribunal_sigla || "Não informado"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {processo.responsavel_oab ? (
+                          <Badge
+                            variant="default"
+                            style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}
+                          >
+                            {processo.responsavel_nome || `OAB ${processo.responsavel_oab}`}
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive">
+                            Sem responsável
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {processo.ultimo_evento ? (
+                          <div className="text-sm">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Calendar className="w-3 h-3 text-neutral-400" />
+                              <span className="text-neutral-600">
+                                {formatDate(processo.ultimo_evento.data)}
+                              </span>
                             </div>
-                            <div className="text-xs text-neutral-600">
-                              vs{" "}
-                              {processo.titulo_polo_passivo || "Não informado"}
+                            <div className="text-xs text-neutral-500 truncate max-w-32">
+                              {processo.ultimo_evento.tipo}: {processo.ultimo_evento.conteudo}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {getClienteName(processo)}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {getLawyerName(processo)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              statusConfig[
-                                processoData.status as keyof typeof statusConfig
-                              ]?.variant
-                            }
-                            className="flex items-center gap-1 w-fit"
+                        ) : (
+                          <span className="text-neutral-400 text-sm">Sem eventos</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/processos/${processo.numero_cnj}`)}
                           >
-                            <StatusIcon className="w-3 h-3" />
-                            {
-                              statusConfig[
-                                processoData.status as keyof typeof statusConfig
-                              ]?.label
-                            }
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {processoData.fase}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              riscoConfig[
-                                processoData.risco as keyof typeof riscoConfig
-                              ]?.variant
-                            }
+                            <Eye className="w-4 h-4 mr-1" />
+                            Ver
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProcesso(processo.numero_cnj);
+                              setIsAtribuirDialogOpen(true);
+                            }}
+                            style={{ color: 'var(--brand-700)' }}
                           >
-                            {
-                              riscoConfig[
-                                processoData.risco as keyof typeof riscoConfig
-                              ]?.label
-                            }
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {processoData.proxima_acao && (
-                            <div className="flex items-center gap-2">
-                              <span>{processoData.proxima_acao}</span>
-                              {processoData.prazo && (
-                                <div
-                                  className={`flex items-center gap-1 text-xs ${
-                                    isPrazoVencendo(processoData.prazo)
-                                      ? "text-danger"
-                                      : "text-neutral-500"
-                                  }`}
-                                >
-                                  <Calendar className="h-3 w-3" />
-                                  {formatDate(processoData.prazo)}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm text-neutral-600">
-                          {formatDate(processo.created_at)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
+                            <UserPlus className="w-4 h-4 mr-1" />
+                            Atribuir OAB
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -416,31 +501,30 @@ export function Processos() {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
+      {/* P2.2 - Paginação 20/pg */}
+      {processosData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
-            Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de{" "}
-            {totalItems} processos
+            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, processosData.total)} de {processosData.total} processos
           </p>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
             >
               <ChevronLeft className="w-4 h-4" />
               Anterior
             </Button>
             <span className="text-sm text-neutral-600">
-              Página {currentPage} de {totalPages}
+              Página {currentPage} de {processosData.totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === processosData.totalPages}
             >
               Próximo
               <ChevronRight className="w-4 h-4" />
@@ -448,6 +532,51 @@ export function Processos() {
           </div>
         </div>
       )}
+
+      {/* P2.2 - Dialog Atribuir OAB */}
+      <Dialog open={isAtribuirDialogOpen} onOpenChange={setIsAtribuirDialogOpen}>
+        <DialogContent>
+          <form onSubmit={handleAtribuirOab}>
+            <DialogHeader>
+              <DialogTitle>Atribuir Responsável</DialogTitle>
+              <DialogDescription>
+                Selecione o advogado responsável pelo processo {selectedProcesso && formatCNJ(selectedProcesso)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <label className="block text-sm font-medium mb-2">Advogado</label>
+              <Select name="oab" required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um advogado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {advogados.map((advogado) => (
+                    <SelectItem key={advogado.oab} value={advogado.oab.toString()}>
+                      {advogado.nome} (OAB {advogado.oab})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsAtribuirDialogOpen(false);
+                  setSelectedProcesso(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={atribuirOabMutation.isPending}>
+                {atribuirOabMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Atribuir
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
