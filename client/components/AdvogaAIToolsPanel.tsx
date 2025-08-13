@@ -13,7 +13,7 @@ import {
   FileText,
   Calculator,
   Search,
-  Timeline,
+  Clock as TimelineIcon,
   Scale,
   Play,
   Loader2,
