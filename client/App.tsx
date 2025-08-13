@@ -256,6 +256,14 @@ function DemoAppRoutes() {
         }
       />
       <Route
+        path="/inbox-v2"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <InboxLegalV2 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
         path="/agenda"
         element={
           <DemoProtectedRoute userType="advogado">
