@@ -984,7 +984,7 @@ export function ProcessoDetail() {
                                     Criar Atividade
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
-                              </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </div>
                         ))}
