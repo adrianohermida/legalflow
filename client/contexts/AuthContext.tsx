@@ -115,15 +115,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role = 'advogado';
       }
 
-      const userData: User = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        oab: userAdvogado?.oab,
-        advogado: userAdvogado?.advogados?.[0] ? {
+      // Special handling for superadmin
+      let advogadoData: Advogado | undefined;
+      let oabNumber: number | undefined;
+
+      if (role === 'superadmin') {
+        oabNumber = 8894; // OAB principal do superadmin
+        advogadoData = {
+          oab: 8894,
+          nome: 'Adriano Hermida Maia',
+          uf: 'AM',
+          sociedade: 'HERMIDA MAIA SOCIEDADE INDIVIDUAL DE ADVOCACIA',
+          oab_suplementares: [
+            { numero: '476963', uf: 'SP' },
+            { numero: '107048', uf: 'RS' },
+            { numero: '075394', uf: 'DF' }
+          ]
+        };
+      } else if (userAdvogado?.advogados?.[0]) {
+        oabNumber = userAdvogado.oab;
+        advogadoData = {
           oab: userAdvogado.advogados[0].oab,
           nome: userAdvogado.advogados[0].nome || '',
           uf: userAdvogado.advogados[0].uf || ''
-        } : undefined,
+        };
+      }
+
+      const userData: User = {
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        oab: oabNumber,
+        advogado: advogadoData,
         role
       };
 
