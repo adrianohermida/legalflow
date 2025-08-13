@@ -66,6 +66,7 @@ import { Financeiro } from "./pages/Financeiro";
 import { Relatorios } from "./pages/Relatorios";
 import { Helpdesk } from "./pages/Helpdesk";
 import { Servicos } from "./pages/Servicos";
+import { Tickets } from "./pages/Tickets";
 import { PlanosPagamento } from "./pages/PlanosPagamento";
 
 // Portal do Cliente pages
