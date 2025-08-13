@@ -68,10 +68,10 @@ export function ChatDockController({ isOpen, onClose, userType }: ChatDockContro
         .from("thread_links")
         .select(`
           *,
-          clientes:public.clientes!thread_links_cliente_cpfcnpj_fkey (
+          clientes:cliente_cpfcnpj (
             nome
           ),
-          processos:public.processos!thread_links_numero_cnj_fkey (
+          processos:numero_cnj (
             titulo_polo_ativo
           )
         `)
