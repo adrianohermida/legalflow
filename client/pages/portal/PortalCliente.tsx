@@ -177,7 +177,7 @@ const getStageDetails = (stage: any) => {
     case "lesson":
       return (
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">{stage.description}</p>
+          <p className="text-sm text-neutral-600">{stage.description}</p>
           <div className="bg-brand-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Conteúdo da Aula</h5>
             <ul className="text-sm space-y-1">
@@ -202,7 +202,7 @@ const getStageDetails = (stage: any) => {
     case "upload":
       return (
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">{stage.description}</p>
+          <p className="text-sm text-neutral-600">{stage.description}</p>
           <div className="bg-brand-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Documentos Necessários</h5>
             <ul className="text-sm space-y-2">
@@ -232,7 +232,7 @@ const getStageDetails = (stage: any) => {
     case "form":
       return (
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">{stage.description}</p>
+          <p className="text-sm text-neutral-600">{stage.description}</p>
           <div className="bg-success-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Informações a Preencher</h5>
             <ul className="text-sm space-y-1">
@@ -254,7 +254,7 @@ const getStageDetails = (stage: any) => {
     case "meeting":
       return (
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">{stage.description}</p>
+          <p className="text-sm text-neutral-600">{stage.description}</p>
           <div className="bg-warning-50 p-4 rounded-lg">
             <h5 className="font-medium mb-2">Agendar Reunião</h5>
             <p className="text-sm mb-3">
@@ -278,7 +278,7 @@ const getStageDetails = (stage: any) => {
     default:
       return (
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">{stage.description}</p>
+          <p className="text-sm text-neutral-600">{stage.description}</p>
         </div>
       );
   }
@@ -355,7 +355,7 @@ export function PortalCliente() {
                       ).length
                     }
                   </div>
-                  <div className="text-sm text-gray-600">Concluídas</div>
+                  <div className="text-sm text-neutral-600">Concluídas</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-brand-700">
@@ -365,17 +365,17 @@ export function PortalCliente() {
                       ).length
                     }
                   </div>
-                  <div className="text-sm text-gray-600">Em Andamento</div>
+                  <div className="text-sm text-neutral-600">Em Andamento</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-gray-600">
+                  <div className="text-2xl font-bold text-neutral-600">
                     {
                       journeyInstance.stages.filter(
                         (s) => s.status === "pending",
                       ).length
                     }
                   </div>
-                  <div className="text-sm text-gray-600">Pendentes</div>
+                  <div className="text-sm text-neutral-600">Pendentes</div>
                 </div>
               </div>
             </div>
@@ -467,7 +467,7 @@ export function PortalCliente() {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-sm text-neutral-600 mt-1">
                               {stage.description}
                             </p>
                           </div>
