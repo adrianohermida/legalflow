@@ -51,7 +51,7 @@ export function SupabaseLoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">
-            <div className="bg-brand-700 text-white p-3 rounded-lg">
+            <div className="bg-black text-white p-3 rounded-lg">
               <Scale className="h-8 w-8" />
             </div>
           </div>
@@ -62,9 +62,9 @@ export function SupabaseLoginPage() {
           </p>
         </div>
 
-        <Card className="border-brand-200">
+        <Card className="border-gray-200">
           <CardHeader>
-            <CardTitle className="text-brand-800">Fazer Login</CardTitle>
+            <CardTitle className="text-black">Fazer Login</CardTitle>
             <CardDescription>
               Entre com suas credenciais da conta
             </CardDescription>
@@ -112,7 +112,7 @@ export function SupabaseLoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-brand-700 hover:bg-brand-900 text-white"
+                className="w-full bg-black hover:bg-gray-800 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? "Entrando..." : "Fazer Login"}
