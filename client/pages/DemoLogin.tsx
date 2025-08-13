@@ -45,25 +45,25 @@ export function DemoLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">
-            <div className="bg-success text-white p-3 rounded-lg">
+            <div className="bg-brand-700 text-white p-3 rounded-lg">
               <Scale className="h-8 w-8" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">LegalFlow</h1>
           <p className="text-gray-600 mt-2">Sistema de Gestão Jurídica</p>
           <div className="flex items-center justify-center gap-2 mt-2">
-            <Play className="h-4 w-4 text-green-600" />
-            <span className="text-sm text-green-700 font-medium">Modo Demo</span>
+            <Play className="h-4 w-4 text-brand-600" />
+            <span className="text-sm text-brand-700 font-medium">Modo Demo</span>
           </div>
         </div>
 
-        <Card className="border-green-200">
+        <Card className="border-brand-200">
           <CardHeader>
-            <CardTitle className="text-green-800">Entrar no Demo</CardTitle>
+            <CardTitle className="text-brand-800">Entrar no Demo</CardTitle>
             <CardDescription>
               Use as credenciais de teste para explorar o sistema
             </CardDescription>
@@ -108,8 +108,8 @@ export function DemoLogin() {
                 </Alert>
               )}
 
-              <Alert className="bg-success-50 border-success">
-                <AlertDescription className="text-success-700">
+              <Alert className="bg-brand-50 border-brand-300">
+                <AlertDescription className="text-brand-700">
                   <strong>Credenciais de teste:</strong>
                   <br />• Email: <code>admin.test@gmail.com</code>
                   <br />• Senha: <code>123456</code>
@@ -117,7 +117,7 @@ export function DemoLogin() {
                 </AlertDescription>
               </Alert>
 
-              <Button type="submit" className="w-full bg-success hover:bg-success-600" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-brand-700 hover:bg-brand-900 text-white" disabled={isLoading}>
                 {isLoading ? 'Entrando...' : 'Entrar no Demo'}
               </Button>
 
@@ -125,13 +125,13 @@ export function DemoLogin() {
                 type="button"
                 variant="outline"
                 onClick={fillDemoCredentials}
-                className="w-full border-success text-success hover:bg-success-50"
+                className="w-full border-brand-300 text-brand-700 hover:bg-brand-50"
               >
                 Preencher credenciais de teste
               </Button>
             </form>
 
-            <div className="mt-6 pt-4 border-t border-green-200 space-y-2">
+            <div className="mt-6 pt-4 border-t border-brand-200 space-y-2">
               <Button
                 variant="ghost"
                 size="sm"
