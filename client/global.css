@@ -4,44 +4,56 @@
 @tailwind utilities;
 
 /* ============================
-   F1.0 - BRANDING TOKENS CONFORME ESPECIFICAÇÃO
+   NEUTRAL THEME - GRAYSCALE ONLY
 ============================ */
 :root {
-  /* Cores principais - F1.0 Specification */
-  --brand-900: #1b3a2f; /* Brand dark */
-  --brand-700: #285245; /* Brand primary */
-  --brand-100: #e9f3ef; /* Brand light */
-  --danger: #ef4444; /* Danger red */
-  --warn: #f59e0b; /* Warning amber */
-  --success: #16a34a; /* Success green */
+  /* Tons neutros principais */
+  --neutral-900: #111827; /* Cinza muito escuro */
+  --neutral-800: #1f2937; /* Cinza escuro */
+  --neutral-700: #374151; /* Cinza médio escuro */
+  --neutral-600: #4b5563; /* Cinza médio */
+  --neutral-500: #6b7280; /* Cinza */
+  --neutral-400: #9ca3af; /* Cinza claro */
+  --neutral-300: #d1d5db; /* Cinza muito claro */
+  --neutral-200: #e5e7eb; /* Cinza bem claro */
+  --neutral-100: #f3f4f6; /* Cinza quase branco */
+  --neutral-50: #f9fafb;  /* Cinza ultra claro */
 
-  /* Estados e superfícies */
-  --muted: #6b7280; /* Texto muted */
-  --surface: #ffffff; /* Superfície primária */
-  --on-surface: #111827; /* Texto sobre superfície */
-  --disabled: #d1d5db; /* Estado desabilitado */
+  /* Sistema de cores neutro */
+  --primary: var(--neutral-900);
+  --primary-hover: var(--neutral-800);
+  --primary-light: var(--neutral-100);
+  --secondary: var(--neutral-600);
+  --muted: var(--neutral-500);
+  --surface: #ffffff;
+  --on-surface: var(--neutral-900);
+  --disabled: var(--neutral-300);
 
-  /* Borders e sombras */
-  --border: #e5e7eb;
-  --border-hover: #d3e7df;
-  --focus-ring: 2px solid var(--brand-700);
-  --radius: 12px; /* Bordas 10-12px */
+  /* Borders e estados */
+  --border: var(--neutral-200);
+  --border-hover: var(--neutral-300);
+  --focus-ring: 2px solid var(--neutral-700);
+  --radius: 12px;
 
   /* Aliases para compatibilidade */
-  --theme-primary: var(--brand-700);
-  --theme-primary-hover: var(--brand-900);
-  --theme-primary-light: var(--brand-100);
+  --theme-primary: var(--primary);
+  --theme-primary-hover: var(--primary-hover);
+  --theme-primary-light: var(--primary-light);
   --theme-background: var(--surface);
-  --theme-background-secondary: #f9fafb;
+  --theme-background-secondary: var(--neutral-50);
   --theme-text: var(--on-surface);
-  --theme-text-secondary: #374151;
+  --theme-text-secondary: var(--neutral-700);
   --theme-text-muted: var(--muted);
   --theme-border: var(--border);
   --theme-border-hover: var(--border-hover);
-  --theme-success: var(--success);
-  --theme-warning: var(--warn);
-  --theme-danger: var(--danger);
-  --theme-info: var(--brand-700);
+
+  /* Manter apenas para compatibilidade - usando tons neutros */
+  --brand-900: var(--neutral-900);
+  --brand-700: var(--neutral-800);
+  --brand-100: var(--neutral-100);
+  --success: var(--neutral-600);
+  --warn: var(--neutral-500);
+  --danger: var(--neutral-700);
 }
 
 /* ============================
@@ -91,11 +103,11 @@ h6 {
 /* ============================
    COMPONENTES BASE
 ============================ */
-/* F1.0 - Componentes com tokens padronizados */
+/* Componentes com tokens neutros */
 button {
-  background: var(--brand-700);
+  background: var(--primary);
   color: #ffffff;
-  border-radius: var(--radius); /* 12px */
+  border-radius: var(--radius);
   padding: 0.5rem 1rem;
   border: none;
   transition: all 0.2s ease-out;
