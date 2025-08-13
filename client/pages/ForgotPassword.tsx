@@ -82,8 +82,8 @@ export function ForgotPassword() {
               <Scale className="h-8 w-8" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">LegalFlow</h1>
-          <p className="text-gray-600 mt-2">Recuperação de Senha</p>
+          <h1 className="text-3xl font-bold text-neutral-900">LegalFlow</h1>
+          <p className="text-neutral-600 mt-2">Recuperação de Senha</p>
         </div>
 
         <Card className="border-brand-200">
@@ -101,7 +101,7 @@ export function ForgotPassword() {
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
                     <Input
                       id="email"
                       type="email"
@@ -133,7 +133,7 @@ export function ForgotPassword() {
                   className="w-full bg-brand-700 hover:bg-brand-900 text-white"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Enviando..." : "Enviar link de recuperação"}
+                  {isLoading ? "Enviando..." : "Enviar link de recuperaç��o"}
                 </Button>
 
                 <div className="text-center">
@@ -155,7 +155,7 @@ export function ForgotPassword() {
                   </AlertDescription>
                 </Alert>
 
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-neutral-600">
                   <p>Instruções:</p>
                   <ul className="list-disc list-inside space-y-1 ml-2">
                     <li>Verifique sua caixa de entrada</li>
