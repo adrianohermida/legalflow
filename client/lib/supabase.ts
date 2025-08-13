@@ -360,7 +360,15 @@ export interface PublicDatabase {
       };
     };
     Views: {
-      [_ in never]: never;
+      vw_timeline_processo: {
+        Row: {
+          numero_cnj: string;
+          data: string;
+          tipo: string;
+          conteudo: string;
+          created_at: string;
+        };
+      };
     };
     Functions: {
       [_ in never]: never;
