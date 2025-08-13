@@ -37,8 +37,8 @@ const advogadoApps = [
   },
   {
     id: 'processos',
-    title: 'Processos',
-    description: 'Gestão completa de processos jurídicos',
+    title: 'Processos v2',
+    description: 'Gestão completa de processos com resumo e IA',
     href: '/processos',
     icon: FileText,
     color: 'primary',
