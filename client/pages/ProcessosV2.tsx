@@ -171,9 +171,12 @@ export default function ProcessosV2() {
 
           // Extrair dados completos da capa e resumo
           const capa = processo.data?.capa || {};
-          const resumo = processo.data?.resumo || capa?.assunto || '';
-          const valorCausa = capa?.valor_formatado ||
-                           (capa?.valor_causa ? `R$ ${Number(capa.valor_causa).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : null);
+          const resumo = processo.data?.resumo || capa?.assunto || "";
+          const valorCausa =
+            capa?.valor_formatado ||
+            (capa?.valor_causa
+              ? `R$ ${Number(capa.valor_causa).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+              : null);
 
           return {
             ...processo,

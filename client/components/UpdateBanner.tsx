@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Alert, AlertDescription } from './ui/alert';
-import { Button } from './ui/button';
-import { CheckCircle2, X, ArrowRight, Sparkles } from 'lucide-react';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Button } from "./ui/button";
+import { CheckCircle2, X, ArrowRight, Sparkles } from "lucide-react";
 
 interface UpdateBannerProps {
   onDismiss?: () => void;
@@ -29,7 +29,9 @@ export function UpdateBanner({ onDismiss }: UpdateBannerProps) {
               <strong>Novas funcionalidades implementadas!</strong>
             </div>
             <div className="mt-2 space-y-1 text-sm">
-              <div>• Dados completos da capa: tribunal, valor da causa, situação</div>
+              <div>
+                • Dados completos da capa: tribunal, valor da causa, situação
+              </div>
               <div>• Campo resumo com geração por IA</div>
               <div>• Gerenciamento financeiro integrado</div>
               <div>• Monitoramento avançado de processos</div>

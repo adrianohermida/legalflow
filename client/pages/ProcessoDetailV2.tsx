@@ -693,8 +693,14 @@ export default function ProcessoDetailV2() {
                           Tribunal
                         </Label>
                         <div className="space-y-1">
-                          <p className="text-sm font-medium">{processo?.tribunal_sigla || capa.tribunal_sigla || "-"}</p>
-                          <p className="text-xs text-neutral-500">{capa.tribunal_nome || "-"}</p>
+                          <p className="text-sm font-medium">
+                            {processo?.tribunal_sigla ||
+                              capa.tribunal_sigla ||
+                              "-"}
+                          </p>
+                          <p className="text-xs text-neutral-500">
+                            {capa.tribunal_nome || "-"}
+                          </p>
                         </div>
                       </div>
                       <div>
@@ -720,8 +726,12 @@ export default function ProcessoDetailV2() {
                           Instância/Grau
                         </Label>
                         <div className="flex gap-2">
-                          <Badge variant="outline">{capa.instancia || "1ª Instância"}</Badge>
-                          {capa.grau && <Badge variant="outline">Grau {capa.grau}</Badge>}
+                          <Badge variant="outline">
+                            {capa.instancia || "1ª Instância"}
+                          </Badge>
+                          {capa.grau && (
+                            <Badge variant="outline">Grau {capa.grau}</Badge>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -732,9 +742,9 @@ export default function ProcessoDetailV2() {
                         </Label>
                         <p className="text-sm font-medium">
                           {capa.valor_formatado ||
-                           (capa.valor_causa
-                            ? `R$ ${Number(capa.valor_causa).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
-                            : "-")}
+                            (capa.valor_causa
+                              ? `R$ ${Number(capa.valor_causa).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                              : "-")}
                         </p>
                       </div>
                       <div>
@@ -742,9 +752,15 @@ export default function ProcessoDetailV2() {
                           Situação/Status
                         </Label>
                         <div className="flex gap-2">
-                          {capa.situacao && <Badge variant="secondary">{capa.situacao}</Badge>}
-                          {capa.status && <Badge variant="outline">{capa.status}</Badge>}
-                          {!capa.situacao && !capa.status && <span className="text-sm">-</span>}
+                          {capa.situacao && (
+                            <Badge variant="secondary">{capa.situacao}</Badge>
+                          )}
+                          {capa.status && (
+                            <Badge variant="outline">{capa.status}</Badge>
+                          )}
+                          {!capa.situacao && !capa.status && (
+                            <span className="text-sm">-</span>
+                          )}
                         </div>
                       </div>
                       <div>
