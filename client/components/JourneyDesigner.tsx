@@ -85,7 +85,7 @@ const stageTypes: StageTypeConfig[] = [
     icon: <Clipboard className="h-4 w-4" />,
     label: 'Tarefa',
     description: 'Tarefa geral/checklist',
-    color: 'bg-gray-100 text-gray-800 border-gray-200'
+    color: 'bg-neutral-100 text-neutral-800 border-neutral-200'
   }
 ];
 
@@ -300,8 +300,8 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
         </CardHeader>
         <CardContent>
           {templateData.stages.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <Clipboard className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-12 text-neutral-500">
+              <Clipboard className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
               <p>Adicione etapas ao template usando os botões acima.</p>
             </div>
           ) : (
@@ -321,7 +321,7 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                     >
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-gray-400" />
+                          <GripVertical className="h-4 w-4 text-neutral-400" />
                           <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                             {stage.sequence_order}
                           </div>
@@ -342,10 +342,10 @@ export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
                           
                           <h4 className="font-medium">{stage.name}</h4>
                           {stage.description && (
-                            <p className="text-sm text-gray-600 mt-1">{stage.description}</p>
+                            <p className="text-sm text-neutral-600 mt-1">{stage.description}</p>
                           )}
                           
-                          <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                          <div className="flex gap-4 mt-2 text-xs text-neutral-500">
                             <span>SLA: {stage.sla_hours}h</span>
                             <span>Duração: {stage.estimated_days} dias</span>
                           </div>
