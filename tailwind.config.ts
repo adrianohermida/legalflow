@@ -22,8 +22,8 @@ const config: Config = {
       colors: {
         // F1.0 - Hermida Maia Brand Colors (site ↔ app consistency)
         brand: {
-          50: "#f5faf8",
-          100: "#e9f3ef", // Light brand
+          50: "#f0f7f4",   // Anti-yellow: More green
+          100: "#dcf0e6",  // Anti-yellow: Pure green light
           200: "#d3e7df",
           300: "#b0d4c4",
           400: "#86bda4",
