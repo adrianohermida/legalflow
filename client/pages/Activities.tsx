@@ -493,15 +493,15 @@ export function Activities() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Prioridade</label>
-                    <Select name="priority" defaultValue="normal">
+                    <Select name="priority" defaultValue="media">
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">Baixa</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="high">Alta</SelectItem>
-                        <SelectItem value="urgent">Urgente</SelectItem>
+                        <SelectItem value="baixa">Baixa</SelectItem>
+                        <SelectItem value="media">Média</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                        <SelectItem value="urgente">Urgente</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
