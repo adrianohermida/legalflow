@@ -17,7 +17,7 @@ import { QuickSetup } from "./pages/QuickSetup";
 import { ModeSelector } from "./pages/ModeSelector";
 import { supabaseConfigured } from "./lib/supabase";
 import { useState, useEffect } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { AppErrorBoundary, PageErrorBoundary } from "./components/ErrorBoundary";
 import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
 import { runEnumConsistencyCheck } from "./lib/enum-validator";
