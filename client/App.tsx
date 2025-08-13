@@ -34,6 +34,7 @@ if (supabaseConfigured) {
 
 // Import all page components
 import { Dashboard } from "./pages/Dashboard";
+import { DashboardV2 } from "./pages/DashboardV2";
 import { Processos } from "./pages/Processos";
 import { ProcessoOverview } from "./pages/ProcessoOverview";
 import { ProcessoDetail } from "./pages/ProcessoDetail";
