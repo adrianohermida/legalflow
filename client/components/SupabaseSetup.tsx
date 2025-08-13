@@ -174,7 +174,7 @@ export function SupabaseSetup() {
               href="https://supabase.com/docs/guides/getting-started"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+              className="flex items-center gap-2 text-sm text-brand-700 hover:text-brand-900"
             >
               <ExternalLink className="h-3 w-3" />
               Guia de Início Rápido do Supabase
@@ -183,7 +183,7 @@ export function SupabaseSetup() {
               href="https://supabase.com/docs/guides/database/tables"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+              className="flex items-center gap-2 text-sm text-brand-700 hover:text-brand-900"
             >
               <ExternalLink className="h-3 w-3" />
               Como Criar Tabelas no Supabase
