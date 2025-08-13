@@ -249,7 +249,7 @@ export function InboxLegal() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-brand-700">
               {
                 [...mockPublicacoes, ...mockMovimentacoes].filter(
                   (item) => item.linked_journey_instance_id,
@@ -267,7 +267,7 @@ export function InboxLegal() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-danger">
               {
                 [...mockPublicacoes, ...mockMovimentacoes].filter(
                   (item) => !item.numero_cnj,
@@ -337,7 +337,7 @@ export function InboxLegal() {
             <CardHeader>
               <CardTitle>Publicações</CardTitle>
               <CardDescription>
-                Publicações do Diário da Justiça e outros órgãos
+                Publicações do Di��rio da Justiça e outros órgãos
               </CardDescription>
             </CardHeader>
             <CardContent>
