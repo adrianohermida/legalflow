@@ -1,4 +1,4 @@
-/* Cache-busting: v9.0 - NEUTRAL SYSTEM ABSOLUTE - BLACK/WHITE ONLY */
+/* Cache-busting: v10.0 - NUCLEAR OVERRIDE - DRASTIC BRAND ELIMINATION */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
@@ -15,29 +15,43 @@
   .border-theme { border-color: var(--theme-border) !important; }
   .border-theme-hover:hover { border-color: var(--theme-border-hover) !important; }
 
-  /* FORCE ALL BRAND CLASSES TO NEUTRAL - ABSOLUTE OVERRIDE */
-  .bg-brand-50, .bg-brand-100, .bg-brand-200, .bg-brand-300, .bg-brand-400,
-  .bg-brand-500, .bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-brand-900 {
+  /* NUCLEAR CSS OVERRIDE - MAXIMUM SPECIFICITY */
+  html body * .bg-brand-50, html body * .bg-brand-100, html body * .bg-brand-200,
+  html body * .bg-brand-300, html body * .bg-brand-400, html body * .bg-brand-500,
+  html body * .bg-brand-600, html body * .bg-brand-700, html body * .bg-brand-800,
+  html body * .bg-brand-900 {
     background-color: #ffffff !important;
+    background: #ffffff !important;
   }
 
-  .text-brand-50, .text-brand-100, .text-brand-200, .text-brand-300, .text-brand-400,
-  .text-brand-500, .text-brand-600, .text-brand-700, .text-brand-800, .text-brand-900 {
+  html body * .text-brand-50, html body * .text-brand-100, html body * .text-brand-200,
+  html body * .text-brand-300, html body * .text-brand-400, html body * .text-brand-500,
+  html body * .text-brand-600, html body * .text-brand-700, html body * .text-brand-800,
+  html body * .text-brand-900 {
     color: #000000 !important;
   }
 
-  .border-brand-50, .border-brand-100, .border-brand-200, .border-brand-300, .border-brand-400,
-  .border-brand-500, .border-brand-600, .border-brand-700, .border-brand-800, .border-brand-900 {
+  html body * .border-brand-50, html body * .border-brand-100, html body * .border-brand-200,
+  html body * .border-brand-300, html body * .border-brand-400, html body * .border-brand-500,
+  html body * .border-brand-600, html body * .border-brand-700, html body * .border-brand-800,
+  html body * .border-brand-900 {
     border-color: #e5e7eb !important;
   }
 
-  .hover\\:bg-brand-50:hover, .hover\\:bg-brand-100:hover, .hover\\:bg-brand-700:hover, .hover\\:bg-brand-900:hover {
+  html body * .hover\\:bg-brand-50:hover, html body * .hover\\:bg-brand-100:hover,
+  html body * .hover\\:bg-brand-700:hover, html body * .hover\\:bg-brand-900:hover {
     background-color: #f9fafb !important;
+    background: #f9fafb !important;
   }
 
-  .hover\\:text-brand-700:hover, .hover\\:text-brand-900:hover {
+  html body * .hover\\:text-brand-700:hover, html body * .hover\\:text-brand-900:hover {
     color: #1f2937 !important;
   }
+
+  /* TARGET SPECIFIC PROBLEMATIC CLASSES */
+  [class*="bg-brand-"] { background: #ffffff !important; }
+  [class*="text-brand-"] { color: #000000 !important; }
+  [class*="border-brand-"] { border-color: #e5e7eb !important; }
 
   /* Classes de bloqueio absoluto */
   .no-yellow * { background: #ffffff !important; }
