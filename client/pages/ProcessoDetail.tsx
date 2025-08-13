@@ -1087,7 +1087,10 @@ export function ProcessoDetail() {
                   <Switch
                     id="premium-toggle"
                     checked={premiumEnabled}
-                    onCheckedChange={setPremiumEnabled}
+                    onCheckedChange={(checked) => {
+                      updateMonitoringMutation.mutate({ premium: checked });
+                    }}
+                    disabled={updateMonitoringMutation.isPending}
                   />
                 </div>
                 
@@ -1110,13 +1113,13 @@ export function ProcessoDetail() {
                   )}
                 </div>
 
-                <Button 
-                  onClick={() => updateProcessoMutation.mutate()}
-                  disabled={isUpdating}
+                <Button
+                  onClick={() => runSyncMutation.mutate()}
+                  disabled={isUpdating || runSyncMutation.isPending}
                   className="w-full"
                   size="sm"
                 >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isUpdating || runSyncMutation.isPending ? 'animate-spin' : ''}`} />
                   Aplicar e Atualizar
                 </Button>
               </CardContent>
