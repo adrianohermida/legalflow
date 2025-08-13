@@ -252,7 +252,7 @@ export function Documentos() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-danger">
               {
                 [...mockDocuments, ...mockPeticoes].filter(
                   (item) =>
@@ -424,7 +424,7 @@ export function Documentos() {
                     <TableRow key={peca.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Wand2 className="h-4 w-4 text-blue-600" />
+                          <Wand2 className="h-4 w-4 text-brand-700" />
                           <span className="font-medium">{peca.name}</span>
                         </div>
                       </TableCell>
