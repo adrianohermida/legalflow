@@ -975,7 +975,7 @@ export interface LegalFlowDatabase {
           amount_total: number;
           installments: number;
           paid_amount: number;
-          status: string;
+          status: Database['legalflow']['Enums']['payment_status'];
           created_at: string;
         };
         Insert: {
@@ -984,13 +984,13 @@ export interface LegalFlowDatabase {
           amount_total: number;
           installments: number;
           paid_amount?: number;
-          status?: string;
+          status?: Database['legalflow']['Enums']['payment_status'];
         };
         Update: {
           amount_total?: number;
           installments?: number;
           paid_amount?: number;
-          status?: string;
+          status?: Database['legalflow']['Enums']['payment_status'];
         };
       };
       parcelas_pagamento: {
@@ -1000,7 +1000,7 @@ export interface LegalFlowDatabase {
           n_parcela: number;
           due_date: string;
           amount: number;
-          status: string;
+          status: Database['legalflow']['Enums']['payment_status'];
           paid_at: string | null;
           created_at: string;
         };
@@ -1009,12 +1009,12 @@ export interface LegalFlowDatabase {
           n_parcela: number;
           due_date: string;
           amount: number;
-          status?: string;
+          status?: Database['legalflow']['Enums']['payment_status'];
           paid_at?: string | null;
         };
         Update: {
           amount?: number;
-          status?: string;
+          status?: Database['legalflow']['Enums']['payment_status'];
           paid_at?: string | null;
         };
       };
