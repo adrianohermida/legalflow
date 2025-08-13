@@ -79,7 +79,7 @@ export function SupabaseSetup() {
     return (
       <Alert className="border-success bg-success-50">
         <CheckCircle className="h-4 w-4 text-success" />
-        <AlertDescription className="text-green-800">
+        <AlertDescription className="text-success">
           ✅ Conectado ao Supabase com sucesso! O sistema está pronto para uso.
         </AlertDescription>
       </Alert>
@@ -104,14 +104,14 @@ export function SupabaseSetup() {
           <h4 className="font-medium text-brand-900 mb-2">
             Como obter as credenciais:
           </h4>
-          <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+          <ol className="text-sm text-brand-700 space-y-1 list-decimal list-inside">
             <li>
               Acesse{" "}
               <a
                 href="https://supabase.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-blue-600"
+                className="underline hover:text-brand-600"
               >
                 supabase.com
               </a>
