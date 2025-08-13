@@ -705,15 +705,9 @@ if (container) {
     const root = createRoot(container);
     container._reactRoot = root;
     root.render(
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onError={(error, errorInfo) => {
-          console.error("🚨 App Error:", error);
-          console.error("🚨 Error Info:", errorInfo);
-        }}
-      >
+      <AppErrorBoundary>
         <App />
-      </ErrorBoundary>,
+      </AppErrorBoundary>,
     );
   } else {
     // Re-render on existing root
