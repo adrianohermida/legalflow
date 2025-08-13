@@ -139,7 +139,7 @@ export function PlanosPagamento() {
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
-              <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
               <h3 className="text-lg font-medium text-neutral-900 mb-2">
                 Erro ao carregar planos de pagamento
               </h3>
@@ -179,7 +179,7 @@ export function PlanosPagamento() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="w-4 h-4 text-blue-500" />
+              <DollarSign className="w-4 h-4 text-brand-700" />
               <div>
                 <p className="text-2xl font-semibold">{stats.total}</p>
                 <p className="text-xs text-neutral-600">Total de Planos</p>
@@ -190,9 +190,9 @@ export function PlanosPagamento() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
+              <CheckCircle className="w-4 h-4 text-success" />
               <div>
-                <p className="text-2xl font-semibold text-green-600">
+                <p className="text-2xl font-semibold text-success">
                   {stats.ativos}
                 </p>
                 <p className="text-xs text-neutral-600">Ativos</p>
@@ -203,9 +203,9 @@ export function PlanosPagamento() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-purple-500" />
+              <TrendingUp className="w-4 h-4 text-brand-700" />
               <div>
-                <p className="text-lg font-semibold text-purple-600">
+                <p className="text-lg font-semibold text-brand-700">
                   {formatCurrency(stats.valorTotal)}
                 </p>
                 <p className="text-xs text-neutral-600">Valor Total</p>
@@ -216,9 +216,9 @@ export function PlanosPagamento() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-orange-500" />
+              <Calendar className="w-4 h-4 text-warning" />
               <div>
-                <p className="text-lg font-semibold text-orange-600">
+                <p className="text-lg font-semibold text-warning">
                   {formatCurrency(stats.valorPago)}
                 </p>
                 <p className="text-xs text-neutral-600">Valor Pago</p>
