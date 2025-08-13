@@ -215,6 +215,14 @@ function DemoAppRoutes() {
         }
       />
       <Route
+        path="/processos/:cnj"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <ProcessoOverview />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
         path="/clientes"
         element={
           <DemoProtectedRoute userType="advogado">
