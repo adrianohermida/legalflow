@@ -448,6 +448,14 @@ function RegularAppRoutes() {
         }
       />
       <Route
+        path="/processos/:cnj"
+        element={
+          <ProtectedRoute userType="advogado">
+            <ProcessoOverview />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/clientes"
         element={
           <ProtectedRoute userType="advogado">
