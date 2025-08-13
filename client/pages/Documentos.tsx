@@ -5,16 +5,19 @@ import { Badge } from "../components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -42,449 +45,712 @@ import {
   Clock,
   AlertCircle,
   Filter,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  AlertTriangle,
+  Trash2,
+  File,
 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
 
-// Mock data for documents
-const mockDocuments = [
-  {
-    id: "1",
-    name: "Carteira de Trabalho - João Silva.pdf",
-    type: "upload",
-    size: "2.3 MB",
-    uploaded_at: "2024-02-01",
-    uploaded_by: "João Silva",
-    processo_numero_cnj: "1000123-45.2024.8.26.0001",
-    status: "aprovado",
-  },
-  {
-    id: "2",
-    name: "Contrato de Trabalho - Empresa ABC.pdf",
-    type: "upload",
-    size: "1.8 MB",
-    uploaded_at: "2024-02-02",
-    uploaded_by: "Dr. Maria Santos",
-    processo_numero_cnj: "2000456-78.2024.8.26.0002",
-    status: "validando",
-  },
-  {
-    id: "3",
-    name: "Comprovante de Residência.pdf",
-    type: "requirement",
-    size: "0.5 MB",
-    uploaded_at: "2024-02-03",
-    uploaded_by: "Maria Oliveira",
-    processo_numero_cnj: "3000789-01.2024.8.26.0003",
-    status: "faltando",
-  },
-];
+interface Documento {
+  id: string;
+  numero_cnj: string | null;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  metadata: any | null;
+  created_at: string;
+}
 
-// Mock data for legal pieces (petições)
-const mockPeticoes = [
-  {
-    id: "1",
-    name: "Petição Inicial - Ação Trabalhista",
-    tipo: "peticao_inicial",
-    processo_numero_cnj: "1000123-45.2024.8.26.0001",
-    generated_at: "2024-01-15",
-    generated_by: "Dr. Maria Santos",
-    status: "protocolado",
-    template_used: "Trabalhista - Horas Extras",
-  },
-  {
-    id: "2",
-    name: "Contestação - Defesa Empresarial",
-    tipo: "contestacao",
-    processo_numero_cnj: "2000456-78.2024.8.26.0002",
-    generated_at: "2024-01-20",
-    generated_by: "Dr. João Silva",
-    status: "rascunho",
-    template_used: "Empresarial - Contestação Padrão",
-  },
-  {
-    id: "3",
-    name: "Recurso de Apelação",
-    tipo: "recurso",
-    processo_numero_cnj: "3000789-01.2024.8.26.0003",
-    generated_at: "2024-01-25",
-    generated_by: "Dra. Ana Costa",
-    status: "revisao",
-    template_used: "Família - Recurso de Apelação",
-  },
-];
+interface Peticao {
+  id: string;
+  numero_cnj: string | null;
+  tipo: string | null;
+  conteudo: string | null;
+  created_at: string;
+}
 
 export function Documentos() {
+  const [activeTab, setActiveTab] = useState("biblioteca");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("todos");
-  const [processoFilter, setProcessoFilter] = useState<string>("todos");
+  const [filterCNJ, setFilterCNJ] = useState("todos");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isPeticaoDialogOpen, setIsPeticaoDialogOpen] = useState(false);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const itemsPerPage = 20;
 
-  const filteredDocuments = mockDocuments.filter((doc) => {
-    const matchesSearch =
-      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.processo_numero_cnj.includes(searchTerm);
-    const matchesStatus =
-      statusFilter === "todos" || doc.status === statusFilter;
-    const matchesProcesso =
-      processoFilter === "todos" || doc.processo_numero_cnj === processoFilter;
+  // P2.6 - Buscar documentos (uploads livres)
+  const {
+    data: documentosData = { data: [], total: 0, totalPages: 0 },
+    isLoading: documentosLoading,
+    error: documentosError,
+  } = useQuery({
+    queryKey: ["documentos", searchTerm, filterCNJ, currentPage],
+    queryFn: async () => {
+      let query = supabase
+        .from("documents")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false });
 
-    return matchesSearch && matchesStatus && matchesProcesso;
+      // Aplicar filtros
+      if (searchTerm) {
+        query = query.or(`file_name.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+      }
+
+      if (filterCNJ !== "todos") {
+        if (filterCNJ === "com-cnj") {
+          query = query.not("numero_cnj", "is", null);
+        } else if (filterCNJ === "sem-cnj") {
+          query = query.is("numero_cnj", null);
+        } else {
+          query = query.eq("numero_cnj", filterCNJ);
+        }
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const { data, error, count } = await query
+        .range(startIndex, startIndex + itemsPerPage - 1);
+
+      if (error) throw error;
+
+      return {
+        data: data || [],
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / itemsPerPage),
+      };
+    },
+    enabled: activeTab === "biblioteca",
+    staleTime: 5 * 60 * 1000,
   });
 
-  const filteredPeticoes = mockPeticoes.filter((pet) => {
-    const matchesSearch =
-      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.processo_numero_cnj.includes(searchTerm);
-    const matchesStatus =
-      statusFilter === "todos" || pet.status === statusFilter;
-    const matchesProcesso =
-      processoFilter === "todos" || pet.processo_numero_cnj === processoFilter;
+  // P2.6 - Buscar peções (IA)
+  const {
+    data: peticoesData = { data: [], total: 0, totalPages: 0 },
+    isLoading: peticoesLoading,
+    error: peticoesError,
+  } = useQuery({
+    queryKey: ["peticoes", searchTerm, filterCNJ, currentPage],
+    queryFn: async () => {
+      let query = supabase
+        .from("peticoes")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false });
 
-    return matchesSearch && matchesStatus && matchesProcesso;
+      // Aplicar filtros
+      if (searchTerm) {
+        query = query.or(`tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+      }
+
+      if (filterCNJ !== "todos") {
+        if (filterCNJ === "com-cnj") {
+          query = query.not("numero_cnj", "is", null);
+        } else if (filterCNJ === "sem-cnj") {
+          query = query.is("numero_cnj", null);
+        } else {
+          query = query.eq("numero_cnj", filterCNJ);
+        }
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const { data, error, count } = await query
+        .range(startIndex, startIndex + itemsPerPage - 1);
+
+      if (error) throw error;
+
+      return {
+        data: data || [],
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / itemsPerPage),
+      };
+    },
+    enabled: activeTab === "pecas",
+    staleTime: 5 * 60 * 1000,
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "aprovado":
-      case "protocolado":
-        return "bg-success-100 text-success-700";
-      case "validando":
-      case "revisao":
-        return "bg-warning-100 text-warning-700";
-      case "faltando":
-      case "rascunho":
-        return "bg-danger-100 text-danger-700";
-      default:
-        return "bg-neutral-100 text-neutral-800";
-    }
+  // Buscar processos para filtro
+  const { data: processos = [] } = useQuery({
+    queryKey: ["processos-para-filtro"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("processos")
+        .select("numero_cnj")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // P2.6 - Mutation para upload de documento
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const file = formData.get("file") as File;
+      const numero_cnj = formData.get("numero_cnj") as string;
+      const metadata = {
+        originalName: file.name,
+        size: file.size,
+        type: file.type,
+        uploadedAt: new Date().toISOString(),
+      };
+
+      // Simular upload (na implementação real, usar Supabase Storage)
+      const file_path = `documents/${Date.now()}-${file.name}`;
+      
+      const { data, error } = await supabase
+        .from("documents")
+        .insert([{
+          numero_cnj: numero_cnj || null,
+          file_name: file.name,
+          file_path,
+          file_size: file.size,
+          metadata,
+        }])
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documentos"] });
+      setIsUploadDialogOpen(false);
+      toast({
+        title: "Documento enviado",
+        description: "Documento adicionado à biblioteca",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao enviar documento",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // P2.6 - Mutation para criar petição
+  const peticaoMutation = useMutation({
+    mutationFn: async (data: { tipo: string; numero_cnj: string; conteudo: string }) => {
+      const { data: result, error } = await supabase
+        .from("peticoes")
+        .insert([{
+          tipo: data.tipo,
+          numero_cnj: data.numero_cnj || null,
+          conteudo: data.conteudo,
+        }])
+        .select();
+
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["peticoes"] });
+      setIsPeticaoDialogOpen(false);
+      toast({
+        title: "Petição criada",
+        description: "Nova petição adicionada com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao criar petição",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpload = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    uploadMutation.mutate(formData);
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "aprovado":
-      case "protocolado":
-        return <CheckCircle className="h-3 w-3" />;
-      case "validando":
-      case "revisao":
-        return <Clock className="h-3 w-3" />;
-      case "faltando":
-      case "rascunho":
-        return <AlertCircle className="h-3 w-3" />;
-      default:
-        return <Clock className="h-3 w-3" />;
-    }
+  const handleCreatePeticao = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    
+    peticaoMutation.mutate({
+      tipo: formData.get("tipo") as string,
+      numero_cnj: formData.get("numero_cnj") as string,
+      conteudo: formData.get("conteudo") as string,
+    });
   };
 
-  const uniqueProcessos = [
-    ...new Set(
-      [...mockDocuments, ...mockPeticoes].map(
-        (item) => item.processo_numero_cnj,
-      ),
-    ),
-  ];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900">
-            Documentos & Peças
-          </h1>
-          <p className="text-neutral-600 mt-1">
-            Gerencie documentos e peças processuais
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Upload className="h-4 w-4 mr-2" />
-            Upload
-          </Button>
-          <Button>
-            <Wand2 className="h-4 w-4 mr-2" />
-            Gerar Petição (IA)
-          </Button>
-        </div>
-      </div>
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Documentos
-            </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockDocuments.length}</div>
-          </CardContent>
-        </Card>
+  const formatCNJ = (cnj: string | null) => {
+    if (!cnj) return null;
+    const clean = cnj.replace(/\D/g, "");
+    if (clean.length === 20) {
+      return clean.replace(/(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/, "$1-$2.$3.$4.$5.$6");
+    }
+    return cnj;
+  };
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Peças Geradas</CardTitle>
-            <Wand2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockPeticoes.length}</div>
-          </CardContent>
-        </Card>
+  const currentData = activeTab === "biblioteca" ? documentosData : peticoesData;
+  const currentLoading = activeTab === "biblioteca" ? documentosLoading : peticoesLoading;
+  const currentError = activeTab === "biblioteca" ? documentosError : peticoesError;
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Em Validação</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning-600">
-              {
-                [...mockDocuments, ...mockPeticoes].filter(
-                  (item) =>
-                    item.status === "validando" || item.status === "revisao",
-                ).length
-              }
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faltando</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-danger">
-              {
-                [...mockDocuments, ...mockPeticoes].filter(
-                  (item) =>
-                    item.status === "faltando" || item.status === "rascunho",
-                ).length
-              }
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
-            <Input
-              placeholder="Buscar documentos ou CNJ..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+  if (currentError) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-heading font-semibold">Documentos & Peças</h1>
+            <p className="text-neutral-600 mt-1">Centralizar entregáveis e preparar jornada</p>
           </div>
         </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">Erro ao carregar dados</h3>
+              <p className="text-neutral-600 mb-4">{currentError.message}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-        <div className="flex gap-2">
-          <Select value={processoFilter} onValueChange={setProcessoFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Processo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos os Processos</SelectItem>
-              {uniqueProcessos.map((cnj) => (
-                <SelectItem key={cnj} value={cnj}>
-                  <span className="font-mono text-sm">{cnj}</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos Status</SelectItem>
-              <SelectItem value="aprovado">Aprovado</SelectItem>
-              <SelectItem value="validando">Validando</SelectItem>
-              <SelectItem value="faltando">Faltando</SelectItem>
-              <SelectItem value="protocolado">Protocolado</SelectItem>
-              <SelectItem value="revisao">Em Revisão</SelectItem>
-              <SelectItem value="rascunho">Rascunho</SelectItem>
-            </SelectContent>
-          </Select>
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-heading font-semibold">Documentos & Peças</h1>
+          <p className="text-neutral-600 mt-1">Centralizar entregáveis e preparar jornada</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handleUpload}>
+                <DialogHeader>
+                  <DialogTitle>Upload de Documento</DialogTitle>
+                  <DialogDescription>
+                    Adicione um documento à biblioteca
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Arquivo *</label>
+                    <Input name="file" type="file" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                    <Select name="numero_cnj">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um processo (opcional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Nenhum processo</SelectItem>
+                        {processos.map((processo) => (
+                          <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                            {formatCNJ(processo.numero_cnj)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsUploadDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={uploadMutation.isPending}>
+                    {uploadMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Upload
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={isPeticaoDialogOpen} onOpenChange={setIsPeticaoDialogOpen}>
+            <DialogTrigger asChild>
+              <Button style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                <Wand2 className="w-4 h-4 mr-2" />
+                Nova Petição
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <form onSubmit={handleCreatePeticao}>
+                <DialogHeader>
+                  <DialogTitle>Nova Petição (IA)</DialogTitle>
+                  <DialogDescription>
+                    Crie uma nova petição com assistência de IA
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Tipo *</label>
+                    <Select name="tipo" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inicial">Petição Inicial</SelectItem>
+                        <SelectItem value="contestacao">Contestação</SelectItem>
+                        <SelectItem value="recurso">Recurso</SelectItem>
+                        <SelectItem value="manifestacao">Manifestação</SelectItem>
+                        <SelectItem value="alegacoes">Alegações Finais</SelectItem>
+                        <SelectItem value="outro">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Processo (CNJ)</label>
+                    <Select name="numero_cnj">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um processo (opcional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Nenhum processo</SelectItem>
+                        {processos.map((processo) => (
+                          <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                            {formatCNJ(processo.numero_cnj)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Conteúdo *</label>
+                    <textarea
+                      name="conteudo"
+                      className="w-full min-h-48 p-3 border rounded-lg"
+                      placeholder="Digite o conteúdo da petição ou solicite ajuda da IA..."
+                      required
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsPeticaoDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={peticaoMutation.isPending}>
+                    {peticaoMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Criar Petição
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="documentos" className="space-y-6">
+      {/* Filtros */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <Input
+                placeholder={activeTab === "biblioteca" ? "Buscar documentos..." : "Buscar petições..."}
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10"
+              />
+            </div>
+            <Select
+              value={filterCNJ}
+              onValueChange={(value) => {
+                setFilterCNJ(value);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os itens</SelectItem>
+                <SelectItem value="com-cnj">Com CNJ</SelectItem>
+                <SelectItem value="sem-cnj">Sem CNJ</SelectItem>
+                {processos.slice(0, 10).map((processo) => (
+                  <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                    {formatCNJ(processo.numero_cnj)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* P2.6 - Abas Biblioteca e Peças */}
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+        setCurrentPage(1);
+      }}>
         <TabsList>
-          <TabsTrigger value="documentos">
-            <FileText className="h-4 w-4 mr-2" />
-            Documentos ({filteredDocuments.length})
+          <TabsTrigger value="biblioteca" className="flex items-center gap-2">
+            <Upload className="w-4 h-4" />
+            Biblioteca ({documentosData.total})
           </TabsTrigger>
-          <TabsTrigger value="peticoes">
-            <Wand2 className="h-4 w-4 mr-2" />
-            Peças Processuais ({filteredPeticoes.length})
+          <TabsTrigger value="pecas" className="flex items-center gap-2">
+            <Wand2 className="w-4 h-4" />
+            Peças (IA) ({peticoesData.total})
+          </TabsTrigger>
+          {/* P2.6 - "Entregáveis da Etapa" só aparece quando houver Jornada (F3) */}
+          <TabsTrigger value="entregaveis" className="flex items-center gap-2" disabled>
+            <CheckCircle className="w-4 h-4" />
+            Entregáveis (F3)
           </TabsTrigger>
         </TabsList>
 
-        {/* Documents Tab */}
-        <TabsContent value="documentos">
+        <TabsContent value="biblioteca">
           <Card>
             <CardHeader>
-              <CardTitle>Documentos</CardTitle>
-              <CardDescription>
-                Documentos enviados pelos clientes e exigidos nas jornadas
-              </CardDescription>
+              <CardTitle>Biblioteca de Documentos ({documentosData.total})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome do Arquivo</TableHead>
-                    <TableHead>Processo CNJ</TableHead>
-                    <TableHead>Enviado Por</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Tamanho</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredDocuments.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-neutral-400" />
-                          <span className="font-medium">{doc.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-mono text-sm">
-                          {doc.processo_numero_cnj}
-                        </span>
-                      </TableCell>
-                      <TableCell>{doc.uploaded_by}</TableCell>
-                      <TableCell>
-                        {new Date(doc.uploaded_at).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                      <TableCell>{doc.size}</TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(doc.status)}>
-                          {getStatusIcon(doc.status)}
-                          <span className="ml-1 capitalize">{doc.status}</span>
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-3 w-3 mr-1" />
-                            Ver
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Download className="h-3 w-3 mr-1" />
-                            Download
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {filteredDocuments.length === 0 && (
-                <div className="text-center py-8 text-neutral-500">
-                  Nenhum documento encontrado.
+            <CardContent className="p-0">
+              {currentLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+                  <span className="ml-2 text-neutral-600">Carregando documentos...</span>
                 </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Arquivo</TableHead>
+                      <TableHead>Processo</TableHead>
+                      <TableHead>Tamanho</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentData.data?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <div className="text-neutral-500">
+                            <FileText className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
+                            <p>Nenhum documento encontrado</p>
+                            <p className="text-sm">Faça upload do primeiro documento</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      currentData.data?.map((item: Documento) => (
+                        <TableRow key={item.id} className="hover:bg-neutral-50">
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <File className="w-4 h-4 text-neutral-400" />
+                              <span className="font-medium">{item.file_name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {item.numero_cnj ? (
+                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                                {formatCNJ(item.numero_cnj)}
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">
+                                Geral
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm text-neutral-600">
+                            {formatFileSize(item.file_size)}
+                          </TableCell>
+                          <TableCell className="text-sm text-neutral-600">
+                            {formatDate(item.created_at)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm">
+                                <Eye className="w-4 h-4 mr-1" />
+                                Ver
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Download className="w-4 h-4 mr-1" />
+                                Download
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Peças Tab */}
-        <TabsContent value="peticoes">
+        <TabsContent value="pecas">
           <Card>
             <CardHeader>
-              <CardTitle>Peças Processuais</CardTitle>
-              <CardDescription>
-                Peças geradas automaticamente e templates utilizados
-              </CardDescription>
+              <CardTitle>Peças Jurídicas (IA) ({peticoesData.total})</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {currentLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-700)' }} />
+                  <span className="ml-2 text-neutral-600">Carregando peças...</span>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Processo</TableHead>
+                      <TableHead>Conteúdo</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentData.data?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <div className="text-neutral-500">
+                            <Wand2 className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
+                            <p>Nenhuma petição criada</p>
+                            <p className="text-sm">Crie sua primeira petição com IA</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      currentData.data?.map((item: Peticao) => (
+                        <TableRow key={item.id} className="hover:bg-neutral-50">
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Wand2 className="w-4 h-4 text-neutral-400" />
+                              <span className="font-medium">{item.tipo || "Não especificado"}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {item.numero_cnj ? (
+                              <Badge style={{ backgroundColor: 'var(--brand-700)', color: 'white' }}>
+                                {formatCNJ(item.numero_cnj)}
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">
+                                Geral
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="max-w-md">
+                              <p className="text-sm text-neutral-700 line-clamp-2">
+                                {item.conteudo ? item.conteudo.substring(0, 100) + "..." : "Sem conteúdo"}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm text-neutral-600">
+                            {formatDate(item.created_at)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm">
+                                <Eye className="w-4 h-4 mr-1" />
+                                Ver
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Download className="w-4 h-4 mr-1" />
+                                Baixar
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="entregaveis">
+          <Card>
+            <CardHeader>
+              <CardTitle>Entregáveis da Etapa</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome da Peça</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Processo CNJ</TableHead>
-                    <TableHead>Gerado Por</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Template</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPeticoes.map((peca) => (
-                    <TableRow key={peca.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Wand2 className="h-4 w-4 text-brand-700" />
-                          <span className="font-medium">{peca.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{peca.tipo}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-mono text-sm">
-                          {peca.processo_numero_cnj}
-                        </span>
-                      </TableCell>
-                      <TableCell>{peca.generated_by}</TableCell>
-                      <TableCell>
-                        {new Date(peca.generated_at).toLocaleDateString(
-                          "pt-BR",
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-neutral-600">
-                          {peca.template_used}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(peca.status)}>
-                          {getStatusIcon(peca.status)}
-                          <span className="ml-1 capitalize">{peca.status}</span>
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-3 w-3 mr-1" />
-                            Ver
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Download className="h-3 w-3 mr-1" />
-                            Download
-                          </Button>
-                          {peca.status === "rascunho" && (
-                            <Button size="sm">
-                              <Wand2 className="h-3 w-3 mr-1" />
-                              Editar IA
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {filteredPeticoes.length === 0 && (
-                <div className="text-center py-8 text-neutral-500">
-                  Nenhuma peça processual encontrada.
-                </div>
-              )}
+              <div className="text-center py-12">
+                <CheckCircle className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                  Disponível na Fase 3
+                </h3>
+                <p className="text-neutral-600 max-w-md mx-auto">
+                  Os entregáveis da etapa estarão disponíveis quando uma jornada estiver ativa.
+                  Esta funcionalidade será implementada na Fase 3 - Jornadas.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Paginação */}
+      {currentData.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-neutral-600">
+            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, currentData.total)} de {currentData.total} itens
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Anterior
+            </Button>
+            <span className="text-sm text-neutral-600">
+              Página {currentPage} de {currentData.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === currentData.totalPages}
+            >
+              Próximo
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
