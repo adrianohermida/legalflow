@@ -21,7 +21,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+    <div className="min-h-screen flex items-center justify-center bg-surface">
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold text-red-900 mb-4">
           Erro na Aplicação
