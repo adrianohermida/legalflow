@@ -199,6 +199,14 @@ function DemoAppRoutes() {
         path="/processos"
         element={
           <DemoProtectedRoute userType="advogado">
+            <Processos />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/processos-v2"
+        element={
+          <DemoProtectedRoute userType="advogado">
             <ProcessosV2 />
           </DemoProtectedRoute>
         }
