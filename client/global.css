@@ -45,58 +45,19 @@ body,
   background: var(--surface) !important;
 }
 
-/* FORÇA ELIMINAÇÃO TOTAL DE AMARELO - Sistema anti-yellow */
-* {
-  background-color: inherit;
-}
-
-/* Elimina qualquer amarelo/orange não-brand */
-*[style*="yellow"],
-*[style*="#ff0"],
-*[style*="#ffa"],
-*[style*="#ffb"],
-*[style*="#ffc"],
-*[style*="#ffd"],
-*[style*="#ffe"],
-*[style*="#fff0"],
-*[style*="rgb(255,255"],
-*[style*="rgb(255, 255"],
-*[class*="yellow"],
-*[class*="amber"],
-*[class*="orange-4"],
-*[class*="orange-5"],
-.bg-yellow-50,
-.bg-yellow-100,
-.bg-yellow-200,
-.bg-yellow-300,
+/* Sistema preciso de prevenção de amarelo - preserva brand colors */
+/* Remove apenas amarelos específicos que não sejam da marca */
+*[style*="background-color: yellow"],
+*[style*="background: yellow"],
+*[style*="color: yellow"],
 .bg-yellow-400,
 .bg-yellow-500,
+.bg-yellow-600,
+.text-yellow-400,
 .text-yellow-500,
-.text-yellow-600,
-.text-orange-400,
-.text-orange-500,
-*[style*="background-color: yellow"],
-*[style*="background: yellow"] {
+.text-yellow-600 {
   background: var(--surface) !important;
   color: var(--on-surface) !important;
-}
-
-/* Força aplicação de brand em override de qualquer amarelo */
-body,
-html,
-#root,
-[data-app-root] {
-  background: var(--surface) !important;
-  color: var(--on-surface) !important;
-}
-
-/* Elimina amarelo específico de componentes */
-.app-bg,
-.page-bg,
-.main-bg,
-.dashboard-bg,
-.container-bg {
-  background: var(--surface) !important;
 }
 
 /* Focus visível */
