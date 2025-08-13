@@ -67,9 +67,20 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Email ou senha incorretos');
       }
 
+      // Determine role
+      let role: User['role'] = 'cliente'; // Default role
+
+      // Check for superadmin
+      if (demoUser.email === 'adrianohermida@gmail.com') {
+        role = 'superadmin';
+      } else if (demoUser.email === 'admin.test@gmail.com') {
+        role = 'advogado'; // Demo admin is also an advogado
+      }
+
       const userData: User = {
         id: demoUser.id,
-        email: demoUser.email
+        email: demoUser.email,
+        role
       };
 
       setUser(userData);
