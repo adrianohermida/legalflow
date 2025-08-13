@@ -223,7 +223,7 @@ export function Dashboard() {
                   <Link
                     key={action.title}
                     to={action.href}
-                    className="group p-4 rounded-lg border border-border hover:border-brand-200 hover:shadow-soft transition-all duration-200 bg-white hover:bg-brand-50/30"
+                    className="group p-4 rounded-lg border border-border hover:border-brand-200 hover:shadow-soft transition-all duration-200 bg-white hover:bg-neutral-50"
                   >
                     <div className="flex items-center space-x-3">
                       <div
