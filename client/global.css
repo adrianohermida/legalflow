@@ -316,6 +316,70 @@ body, [data-app-root], .app-bg, .page-container {
   .shadow-strong {
     box-shadow: 0 8px 24px 0 rgba(27, 58, 47, 0.16);
   }
+
+  /* Componentes base - eliminar amarelo e aplicar brand tokens */
+
+  /* Button (primário) */
+  .btn-primary,
+  button[data-variant="primary"] {
+    background: var(--brand-700);
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(27,58,47,0.15);
+  }
+  .btn-primary:hover { background: var(--brand-900); }
+  .btn-outline { border: 1px solid var(--brand-700); color: var(--brand-700); }
+  .btn-outline:hover { background: var(--brand-100); }
+
+  /* Input */
+  input, textarea, select {
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--brand-700) 20%, #cfd8d5 80%);
+    color: var(--on-surface);
+    border-radius: 10px;
+  }
+  input:focus, textarea:focus, select:focus { outline: var(--focus-ring); }
+
+  /* Table */
+  .table thead th {
+    background: var(--brand-100);
+    color: var(--brand-900);
+  }
+  .table tbody tr { background: var(--surface); }
+  .table tbody tr:nth-child(even) { background: var(--surface-2); }
+
+  /* Badge */
+  .badge,
+  [data-ui="badge"] {
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-weight: 600;
+  }
+  .badge--brand { background: var(--brand-100); color: var(--brand-900); }
+  .badge--danger { background: color-mix(in srgb, var(--danger) 15%, #fff 85%); color: var(--danger); }
+  .badge--warn   { background: color-mix(in srgb, var(--warn) 15%, #fff 85%);   color: var(--warn); }
+  .badge--success{ background: color-mix(in srgb, var(--success) 15%, #fff 85%);color: var(--success); }
+
+  /* Tooltip */
+  .tooltip,
+  [data-ui="tooltip"] {
+    background: var(--brand-900);
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(27,58,47,0.22);
+  }
+
+  /* Command-K / Busca Global - remoção do amarelo */
+  .commandk, .cmdk-overlay, .search-palette {
+    background: var(--surface) !important;
+    color: var(--on-surface);
+    border: 1px solid color-mix(in srgb, var(--brand-700) 18%, #cfd8d5 82%);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(27,58,47,0.18);
+  }
+  .commandk .tab-active { color: var(--brand-900); border-bottom: 2px solid var(--brand-700); }
+  .commandk .item:hover, .commandk .item[aria-selected="true"] { background: var(--brand-100); }
+  .commandk .hint { color: var(--muted); }
 }
 
 /* Print styles */
