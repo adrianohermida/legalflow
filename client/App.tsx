@@ -23,16 +23,16 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface">
       <div className="text-center p-8">
-        <h1 className="text-2xl font-bold text-red-900 mb-4">
+        <h1 className="text-2xl font-bold text-danger mb-4">
           Erro na Aplicação
         </h1>
-        <p className="text-red-700 mb-4">Algo deu errado. Detalhes do erro:</p>
-        <pre className="bg-red-100 p-4 rounded text-sm text-left overflow-auto">
+        <p className="text-danger mb-4">Algo deu errado. Detalhes do erro:</p>
+        <pre className="bg-danger/10 p-4 rounded text-sm text-left overflow-auto">
           {error.message}
         </pre>
         <button
           onClick={resetErrorBoundary}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          className="mt-4 px-4 py-2 bg-danger text-white rounded hover:bg-danger/90"
         >
           Tentar Novamente
         </button>
