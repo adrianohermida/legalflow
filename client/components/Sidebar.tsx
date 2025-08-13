@@ -92,6 +92,12 @@ const advogadoNavItems = [
     icon: ShoppingBag,
     description: 'Catálogo de serviços'
   },
+  {
+    title: 'Tickets',
+    href: '/tickets',
+    icon: Ticket,
+    description: 'Sistema de atendimento'
+  },
 ];
 
 const clienteNavItems = [
