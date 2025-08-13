@@ -266,10 +266,230 @@ export interface PublicDatabase {
   };
 }
 
-// Database types - LEGALFLOW SCHEMA (new tables)
+// Database types - LEGALFLOW SCHEMA (P2.0 - FASE 2 tables)
 export interface LegalFlowDatabase {
   legalflow: {
     Tables: {
+      // P2.7 - Tickets (Freshdesk-like)
+      tickets: {
+        Row: {
+          id: string;
+          subject: string;
+          status: string;
+          priority: string;
+          group_key: string | null;
+          channel: string;
+          assigned_oab: number | null;
+          cliente_cpfcnpj: string | null;
+          numero_cnj: string | null;
+          frt_due_at: string | null;
+          ttr_due_at: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          subject: string;
+          status?: string;
+          priority?: string;
+          group_key?: string | null;
+          channel?: string;
+          assigned_oab?: number | null;
+          cliente_cpfcnpj?: string | null;
+          numero_cnj?: string | null;
+          frt_due_at?: string | null;
+          ttr_due_at?: string | null;
+          created_by: string;
+        };
+        Update: {
+          subject?: string;
+          status?: string;
+          priority?: string;
+          group_key?: string | null;
+          assigned_oab?: number | null;
+          cliente_cpfcnpj?: string | null;
+          numero_cnj?: string | null;
+          frt_due_at?: string | null;
+          ttr_due_at?: string | null;
+        };
+      };
+      // P2.7 - Ticket Threads (link with public.thread_links)
+      ticket_threads: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          thread_link_id: string;
+          created_at: string;
+        };
+        Insert: {
+          ticket_id: string;
+          thread_link_id: string;
+        };
+        Update: {
+          thread_link_id?: string;
+        };
+      };
+      // P2.11 - Conversation Properties
+      conversation_properties: {
+        Row: {
+          id: string;
+          thread_link_id: string;
+          status: string | null;
+          priority: string | null;
+          group_key: string | null;
+          tags: string[] | null;
+          custom: any | null;
+          updated_at: string;
+        };
+        Insert: {
+          thread_link_id: string;
+          status?: string | null;
+          priority?: string | null;
+          group_key?: string | null;
+          tags?: string[] | null;
+          custom?: any | null;
+        };
+        Update: {
+          status?: string | null;
+          priority?: string | null;
+          group_key?: string | null;
+          tags?: string[] | null;
+          custom?: any | null;
+        };
+      };
+      // P2.8 - Activities (substitui ClickUp)
+      activities: {
+        Row: {
+          id: string;
+          title: string;
+          status: string;
+          priority: string;
+          due_at: string | null;
+          assigned_oab: number | null;
+          cliente_cpfcnpj: string | null;
+          numero_cnj: string | null;
+          ticket_id: string | null;
+          deal_id: string | null;
+          stage_instance_id: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          title: string;
+          status?: string;
+          priority?: string;
+          due_at?: string | null;
+          assigned_oab?: number | null;
+          cliente_cpfcnpj?: string | null;
+          numero_cnj?: string | null;
+          ticket_id?: string | null;
+          deal_id?: string | null;
+          stage_instance_id?: string | null;
+          created_by: string;
+        };
+        Update: {
+          title?: string;
+          status?: string;
+          priority?: string;
+          due_at?: string | null;
+          assigned_oab?: number | null;
+          cliente_cpfcnpj?: string | null;
+          numero_cnj?: string | null;
+          ticket_id?: string | null;
+          deal_id?: string | null;
+          stage_instance_id?: string | null;
+        };
+      };
+      // P2.8 - Activity Comments
+      activity_comments: {
+        Row: {
+          id: string;
+          activity_id: string;
+          author_id: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          activity_id: string;
+          author_id: string;
+          body: string;
+        };
+        Update: {
+          body?: string;
+        };
+      };
+      // P2.9 - Deals (Freshsales-like)
+      deals: {
+        Row: {
+          id: string;
+          title: string;
+          value: number;
+          currency: string;
+          stage: string;
+          probability: number;
+          cliente_cpfcnpj: string | null;
+          numero_cnj: string | null;
+          owner_oab: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          title: string;
+          value: number;
+          currency?: string;
+          stage?: string;
+          probability?: number;
+          cliente_cpfcnpj?: string | null;
+          numero_cnj?: string | null;
+          owner_oab?: number | null;
+        };
+        Update: {
+          title?: string;
+          value?: number;
+          currency?: string;
+          stage?: string;
+          probability?: number;
+          cliente_cpfcnpj?: string | null;
+          numero_cnj?: string | null;
+          owner_oab?: number | null;
+        };
+      };
+      // P2.5 - Eventos Agenda (schema legalflow)
+      eventos_agenda: {
+        Row: {
+          id: string;
+          stage_instance_id: string | null;
+          tipo: string;
+          title: string;
+          starts_at: string;
+          ends_at: string | null;
+          location: string | null;
+          external_ref: string | null;
+          cliente_cpfcnpj: string | null;
+          created_at: string;
+        };
+        Insert: {
+          stage_instance_id?: string | null;
+          tipo: string;
+          title: string;
+          starts_at: string;
+          ends_at?: string | null;
+          location?: string | null;
+          external_ref?: string | null;
+          cliente_cpfcnpj?: string | null;
+        };
+        Update: {
+          tipo?: string;
+          title?: string;
+          starts_at?: string;
+          ends_at?: string | null;
+          location?: string | null;
+          external_ref?: string | null;
+          cliente_cpfcnpj?: string | null;
+        };
+      };
+      // FASE 3 tables - keeping existing structure
       stage_types: {
         Row: {
           id: number;
