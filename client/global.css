@@ -185,7 +185,7 @@
   }
 
   .badge-warning {
-    @apply bg-amber-50 text-amber-800 border-amber-200;
+    @apply bg-warning-100 text-warning-700 border-warning-200;
   }
 
   .badge-danger {
