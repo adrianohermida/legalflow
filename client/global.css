@@ -4,6 +4,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Utilitários temáticos - Classes que respeitam o tema */
+@layer utilities {
+  .bg-theme-primary { background-color: var(--theme-primary) !important; }
+  .bg-theme-background { background-color: var(--theme-background) !important; }
+  .bg-theme-secondary { background-color: var(--theme-background-secondary) !important; }
+  .text-theme-text { color: var(--theme-text) !important; }
+  .text-theme-secondary { color: var(--theme-text-secondary) !important; }
+  .text-theme-muted { color: var(--theme-text-muted) !important; }
+  .border-theme { border-color: var(--theme-border) !important; }
+  .border-theme-hover:hover { border-color: var(--theme-border-hover) !important; }
+
+  /* Classes de bloqueio absoluto */
+  .no-yellow * { background: var(--theme-background) !important; }
+  .force-theme {
+    background: var(--theme-background) !important;
+    color: var(--theme-text) !important;
+  }
+}
+
 /* SISTEMA TEMÁTICO CENTRALIZADO - Controle total de cores */
 :root {
   /* Theme CSS Variables - Dinamicamente aplicadas pelo ThemeProvider */
