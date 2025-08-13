@@ -61,9 +61,9 @@ const advogadoApps = [
   },
   {
     id: 'inbox',
-    title: 'Inbox Legal',
-    description: 'Triagem de publicações e movimentações',
-    href: '/inbox',
+    title: 'Inbox Legal v2',
+    description: 'Triagem unificada de publicações e movimentações',
+    href: '/inbox-v2',
     icon: Inbox,
     color: 'bg-danger',
   },
