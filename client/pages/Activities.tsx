@@ -357,6 +357,37 @@ export function Activities() {
     },
   });
 
+  // P2.8 - Mutation para alterar status (kanban drag-and-drop)
+  const statusMutation = useMutation({
+    mutationFn: async ({ activityId, newStatus }: { activityId: string; newStatus: string }) => {
+      const { data, error } = await lf
+        .from("activities")
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", activityId)
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      toast({
+        title: "Status atualizado",
+        description: "Status da activity atualizado com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao atualizar status",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmitActivity = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
