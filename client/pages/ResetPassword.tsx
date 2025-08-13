@@ -1,18 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { Scale, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { supabase, supabaseConfigured } from '../lib/supabase';
+import React, { useState, useEffect } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import {
+  Scale,
+  Lock,
+  CheckCircle,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { supabase, supabaseConfigured } from "../lib/supabase";
 
 export function ResetPassword() {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -20,48 +33,50 @@ export function ResetPassword() {
 
   useEffect(() => {
     // Check if we have the necessary tokens from email link
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    const type = searchParams.get('type');
+    const accessToken = searchParams.get("access_token");
+    const refreshToken = searchParams.get("refresh_token");
+    const type = searchParams.get("type");
 
-    if (type === 'recovery' && accessToken && refreshToken) {
+    if (type === "recovery" && accessToken && refreshToken) {
       // Set the session with the tokens from URL
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
-    } else if (!accessToken || type !== 'recovery') {
-      setError('Link inválido ou expirado. Solicite uma nova recuperação de senha.');
+    } else if (!accessToken || type !== "recovery") {
+      setError(
+        "Link inválido ou expirado. Solicite uma nova recuperação de senha.",
+      );
     }
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     // Validation
     if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
+      setError("A senha deve ter pelo menos 6 caracteres.");
       setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem.');
+      setError("As senhas não coincidem.");
       setIsLoading(false);
       return;
     }
 
     if (!supabaseConfigured) {
-      setError('Supabase não está configurado.');
+      setError("Supabase não está configurado.");
       setIsLoading(false);
       return;
     }
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password: password,
       });
 
       if (error) {
@@ -70,8 +85,8 @@ export function ResetPassword() {
 
       setIsSuccess(true);
     } catch (err: any) {
-      console.error('Password update error:', err);
-      setError(err.message || 'Erro ao redefinir senha. Tente novamente.');
+      console.error("Password update error:", err);
+      setError(err.message || "Erro ao redefinir senha. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +95,7 @@ export function ResetPassword() {
   // Redirect to login after successful password reset
   if (isSuccess) {
     setTimeout(() => {
-      window.location.href = '/login';
+      window.location.href = "/login";
     }, 3000);
   }
 
@@ -100,9 +115,7 @@ export function ResetPassword() {
         <Card className="border-brand-200">
           <CardHeader>
             <CardTitle className="text-brand-800">Nova Senha</CardTitle>
-            <CardDescription>
-              Digite sua nova senha abaixo
-            </CardDescription>
+            <CardDescription>Digite sua nova senha abaixo</CardDescription>
           </CardHeader>
           <CardContent>
             {!isSuccess ? (
@@ -113,7 +126,7 @@ export function ResetPassword() {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       placeholder="Digite sua nova senha"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -126,10 +139,16 @@ export function ResetPassword() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">Mínimo de 6 caracteres</p>
+                  <p className="text-xs text-gray-500">
+                    Mínimo de 6 caracteres
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -138,7 +157,7 @@ export function ResetPassword() {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirme sua nova senha"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -147,10 +166,16 @@ export function ResetPassword() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -162,12 +187,12 @@ export function ResetPassword() {
                   </Alert>
                 )}
 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-brand-700 hover:bg-brand-900 text-white" 
+                <Button
+                  type="submit"
+                  className="w-full bg-brand-700 hover:bg-brand-900 text-white"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Redefinindo...' : 'Redefinir Senha'}
+                  {isLoading ? "Redefinindo..." : "Redefinir Senha"}
                 </Button>
               </form>
             ) : (
@@ -179,8 +204,8 @@ export function ResetPassword() {
                   </AlertDescription>
                 </Alert>
 
-                <Button 
-                  onClick={() => window.location.href = '/login'}
+                <Button
+                  onClick={() => (window.location.href = "/login")}
                   className="w-full bg-brand-700 hover:bg-brand-900 text-white"
                 >
                   Ir para login

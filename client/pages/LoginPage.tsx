@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useDemoAuth } from '../contexts/DemoAuthContext';
-import { Navigate, Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { Scale, Mail, Lock, AlertCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useDemoAuth } from "../contexts/DemoAuthContext";
+import { Navigate, Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { Scale, Mail, Lock, AlertCircle } from "lucide-react";
 
 export function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Check which auth mode is active
-  const authMode = localStorage.getItem('auth-mode') as 'demo' | 'supabase' | null;
+  const authMode = localStorage.getItem("auth-mode") as
+    | "demo"
+    | "supabase"
+    | null;
   const { user: supabaseUser, login: supabaseLogin } = useAuth();
   const { user: demoUser, login: demoLogin } = useDemoAuth();
-  
-  const user = authMode === 'demo' ? demoUser : supabaseUser;
-  const login = authMode === 'demo' ? demoLogin : supabaseLogin;
+
+  const user = authMode === "demo" ? demoUser : supabaseUser;
+  const login = authMode === "demo" ? demoLogin : supabaseLogin;
 
   if (user) {
     return <Navigate to="/" replace />;
@@ -29,21 +38,21 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
       await login(email, password);
     } catch (err: any) {
-      console.error('Auth error:', err);
-      setError(err.message || 'Falha no login. Verifique suas credenciais.');
+      console.error("Auth error:", err);
+      setError(err.message || "Falha no login. Verifique suas credenciais.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const resetAuthMode = () => {
-    localStorage.removeItem('auth-mode');
+    localStorage.removeItem("auth-mode");
     window.location.reload();
   };
 
@@ -61,7 +70,7 @@ export function LoginPage() {
           {authMode && (
             <div className="mt-2">
               <span className="text-sm text-brand-700 font-medium">
-                Modo: {authMode === 'demo' ? 'Demonstração' : 'Produção'}
+                Modo: {authMode === "demo" ? "Demonstração" : "Produção"}
               </span>
             </div>
           )}
@@ -69,7 +78,9 @@ export function LoginPage() {
 
         <Card className="border-brand-200">
           <CardHeader>
-            <CardTitle className="text-brand-800">Entrar na sua conta</CardTitle>
+            <CardTitle className="text-brand-800">
+              Entrar na sua conta
+            </CardTitle>
             <CardDescription>
               Acesse o sistema com suas credenciais
             </CardDescription>
@@ -115,18 +126,22 @@ export function LoginPage() {
                 </Alert>
               )}
 
-              <Button type="submit" className="w-full bg-brand-700 hover:bg-brand-900 text-white" disabled={isLoading}>
-                {isLoading ? 'Entrando...' : 'Entrar'}
+              <Button
+                type="submit"
+                className="w-full bg-brand-700 hover:bg-brand-900 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? "Entrando..." : "Entrar"}
               </Button>
 
               <div className="text-center space-y-2">
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-brand-700 hover:text-brand-900 hover:underline"
                 >
                   Esqueceu sua senha?
                 </Link>
-                
+
                 <div className="text-sm text-gray-600">
                   <button
                     type="button"
@@ -141,7 +156,7 @@ export function LoginPage() {
           </CardContent>
         </Card>
 
-        {authMode === 'demo' && (
+        {authMode === "demo" && (
           <div className="text-center mt-6">
             <Alert className="bg-brand-50 border-brand-300">
               <AlertDescription className="text-brand-700 text-sm">

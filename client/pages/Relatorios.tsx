@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Progress } from '../components/ui/progress';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Progress } from "../components/ui/progress";
 import {
   Table,
   TableBody,
@@ -11,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -19,8 +25,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
-import { 
+} from "../components/ui/dialog";
+import {
   Clock,
   TrendingUp,
   TrendingDown,
@@ -35,17 +41,17 @@ import {
   BarChart3,
   ExternalLink,
   Filter,
-  Download
-} from 'lucide-react';
-import { 
-  ReportCard, 
-  SLAMetrics, 
-  NichoCompletion, 
-  PublicationsMetrics, 
-  PaymentMetrics, 
+  Download,
+} from "lucide-react";
+import {
+  ReportCard,
+  SLAMetrics,
+  NichoCompletion,
+  PublicationsMetrics,
+  PaymentMetrics,
   AIActivityMetrics,
-  DrillThroughFilters
-} from '../types/financial';
+  DrillThroughFilters,
+} from "../types/financial";
 
 // Mock analytics data
 const mockSLAMetrics: SLAMetrics = {
@@ -53,38 +59,38 @@ const mockSLAMetrics: SLAMetrics = {
   within_sla: 112,
   overdue: 32,
   critical_overdue: 12,
-  avg_completion_time_hours: 28.5
+  avg_completion_time_hours: 28.5,
 };
 
 const mockNichoCompletion: NichoCompletion[] = [
   {
-    nicho: 'Trabalhista',
+    nicho: "Trabalhista",
     total_journeys: 45,
     completed_journeys: 32,
     avg_completion_time_days: 35,
-    completion_rate: 71.1
+    completion_rate: 71.1,
   },
   {
-    nicho: 'Família',
+    nicho: "Família",
     total_journeys: 28,
     completed_journeys: 22,
     avg_completion_time_days: 42,
-    completion_rate: 78.6
+    completion_rate: 78.6,
   },
   {
-    nicho: 'Empresarial',
+    nicho: "Empresarial",
     total_journeys: 18,
     completed_journeys: 12,
     avg_completion_time_days: 65,
-    completion_rate: 66.7
+    completion_rate: 66.7,
   },
   {
-    nicho: 'Criminal',
+    nicho: "Criminal",
     total_journeys: 12,
     completed_journeys: 8,
     avg_completion_time_days: 28,
-    completion_rate: 66.7
-  }
+    completion_rate: 66.7,
+  },
 ];
 
 const mockPublicationsMetrics: PublicationsMetrics = {
@@ -93,7 +99,7 @@ const mockPublicationsMetrics: PublicationsMetrics = {
   pending: 50,
   linked_to_cases: 156,
   in_journeys: 89,
-  processing_rate: 79.8
+  processing_rate: 79.8,
 };
 
 const mockPaymentMetrics: PaymentMetrics = {
@@ -102,7 +108,7 @@ const mockPaymentMetrics: PaymentMetrics = {
   total_revenue: 245000,
   overdue_amount: 23500,
   overdue_installments: 8,
-  collection_rate: 91.2
+  collection_rate: 91.2,
 };
 
 const mockAIActivityMetrics: AIActivityMetrics = {
@@ -110,48 +116,49 @@ const mockAIActivityMetrics: AIActivityMetrics = {
   petitions_generated: 89,
   responses_generated: 45,
   documents_analyzed: 234,
-  time_saved_hours: 124
+  time_saved_hours: 124,
 };
 
 // Mock drill-through data
 const mockOverdueStages = [
   {
-    id: '1',
-    journey_instance: 'Onboarding Trabalhista - João Silva',
-    stage_name: 'Upload de Documentos',
-    due_date: '2024-02-05',
+    id: "1",
+    journey_instance: "Onboarding Trabalhista - João Silva",
+    stage_name: "Upload de Documentos",
+    due_date: "2024-02-05",
     days_overdue: 8,
-    responsible: 'Dr. Maria Santos'
+    responsible: "Dr. Maria Santos",
   },
   {
-    id: '2',
-    journey_instance: 'Divórcio Consensual - Maria Oliveira',
-    stage_name: 'Análise de Documentos',
-    due_date: '2024-02-10',
+    id: "2",
+    journey_instance: "Divórcio Consensual - Maria Oliveira",
+    stage_name: "Análise de Documentos",
+    due_date: "2024-02-10",
     days_overdue: 3,
-    responsible: 'Dr. João Silva'
-  }
+    responsible: "Dr. João Silva",
+  },
 ];
 
 const mockOverduePayments = [
   {
-    id: '1',
-    client_name: 'Maria Oliveira',
+    id: "1",
+    client_name: "Maria Oliveira",
     amount: 2500,
-    due_date: '2024-03-20',
+    due_date: "2024-03-20",
     days_overdue: 15,
-    plan_type: 'Divórcio Consensual'
-  }
+    plan_type: "Divórcio Consensual",
+  },
 ];
 
 export function Relatorios() {
-  const [selectedDrillThrough, setSelectedDrillThrough] = useState<DrillThroughFilters | null>(null);
+  const [selectedDrillThrough, setSelectedDrillThrough] =
+    useState<DrillThroughFilters | null>(null);
   const [isDrillThroughOpen, setIsDrillThroughOpen] = useState(false);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(amount);
   };
 
@@ -159,7 +166,10 @@ export function Relatorios() {
     return `${Math.round(value * 10) / 10}%`;
   };
 
-  const handleDrillThrough = (type: DrillThroughFilters['type'], criteria?: any) => {
+  const handleDrillThrough = (
+    type: DrillThroughFilters["type"],
+    criteria?: any,
+  ) => {
     setSelectedDrillThrough({ type, criteria });
     setIsDrillThroughOpen(true);
   };
@@ -171,107 +181,107 @@ export function Relatorios() {
   };
 
   const getTrendColor = (value: number) => {
-    if (value > 0) return 'text-green-600';
-    if (value < 0) return 'text-red-600';
-    return 'text-gray-600';
+    if (value > 0) return "text-green-600";
+    if (value < 0) return "text-red-600";
+    return "text-gray-600";
   };
 
   const reportCards: ReportCard[] = [
     // SLA Metrics
     {
-      id: 'sla-within',
-      title: 'Etapas no Prazo',
+      id: "sla-within",
+      title: "Etapas no Prazo",
       value: mockSLAMetrics.within_sla,
       subtitle: `${formatPercentage((mockSLAMetrics.within_sla / mockSLAMetrics.total_stages) * 100)} do total`,
       trend: 2.5,
-      status: 'success',
-      icon: 'CheckCircle'
+      status: "success",
+      icon: "CheckCircle",
     },
     {
-      id: 'sla-overdue',
-      title: 'Etapas Atrasadas',
+      id: "sla-overdue",
+      title: "Etapas Atrasadas",
       value: mockSLAMetrics.overdue,
       subtitle: `${mockSLAMetrics.critical_overdue} críticas`,
       trend: -1.2,
-      status: 'danger',
-      icon: 'AlertTriangle'
+      status: "danger",
+      icon: "AlertTriangle",
     },
     {
-      id: 'sla-avg-time',
-      title: 'Tempo Médio Conclusão',
+      id: "sla-avg-time",
+      title: "Tempo Médio Conclusão",
       value: `${mockSLAMetrics.avg_completion_time_hours}h`,
-      subtitle: 'Por etapa',
+      subtitle: "Por etapa",
       trend: -3.1,
-      status: 'success',
-      icon: 'Clock'
+      status: "success",
+      icon: "Clock",
     },
-    
+
     // Publications
     {
-      id: 'pub-processed',
-      title: 'Publicações Processadas',
+      id: "pub-processed",
+      title: "Publicações Processadas",
       value: `${formatPercentage(mockPublicationsMetrics.processing_rate)}`,
       subtitle: `${mockPublicationsMetrics.processed}/${mockPublicationsMetrics.total_received}`,
       trend: 5.2,
-      status: 'success',
-      icon: 'FileText'
+      status: "success",
+      icon: "FileText",
     },
     {
-      id: 'pub-pending',
-      title: 'Publicações Pendentes',
+      id: "pub-pending",
+      title: "Publicações Pendentes",
       value: mockPublicationsMetrics.pending,
-      subtitle: 'Aguardando triagem',
+      subtitle: "Aguardando triagem",
       trend: -8.1,
-      status: 'warning',
-      icon: 'Clock'
+      status: "warning",
+      icon: "Clock",
     },
-    
+
     // Payment Metrics
     {
-      id: 'payment-collection',
-      title: 'Taxa de Cobrança',
+      id: "payment-collection",
+      title: "Taxa de Cobrança",
       value: `${formatPercentage(mockPaymentMetrics.collection_rate)}`,
       subtitle: formatCurrency(mockPaymentMetrics.total_revenue),
       trend: 1.8,
-      status: 'success',
-      icon: 'DollarSign'
+      status: "success",
+      icon: "DollarSign",
     },
     {
-      id: 'payment-overdue',
-      title: 'Valores Vencidos',
+      id: "payment-overdue",
+      title: "Valores Vencidos",
       value: formatCurrency(mockPaymentMetrics.overdue_amount),
       subtitle: `${mockPaymentMetrics.overdue_installments} parcelas`,
       trend: 12.3,
-      status: 'danger',
-      icon: 'AlertTriangle'
+      status: "danger",
+      icon: "AlertTriangle",
     },
-    
+
     // AI Activity
     {
-      id: 'ai-generations',
-      title: 'Gera��ões IA',
+      id: "ai-generations",
+      title: "Gera��ões IA",
       value: mockAIActivityMetrics.total_generations,
-      subtitle: 'Este mês',
+      subtitle: "Este mês",
       trend: 15.6,
-      status: 'info',
-      icon: 'Activity'
+      status: "info",
+      icon: "Activity",
     },
     {
-      id: 'ai-time-saved',
-      title: 'Tempo Economizado',
+      id: "ai-time-saved",
+      title: "Tempo Economizado",
       value: `${mockAIActivityMetrics.time_saved_hours}h`,
-      subtitle: 'Com automação IA',
+      subtitle: "Com automação IA",
       trend: 22.1,
-      status: 'info',
-      icon: 'TrendingUp'
-    }
+      status: "info",
+      icon: "TrendingUp",
+    },
   ];
 
   const renderDrillThroughContent = () => {
     if (!selectedDrillThrough) return null;
 
     switch (selectedDrillThrough.type) {
-      case 'sla':
+      case "sla":
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Etapas com SLA Vencido</h3>
@@ -288,11 +298,17 @@ export function Relatorios() {
               <TableBody>
                 {mockOverdueStages.map((stage) => (
                   <TableRow key={stage.id}>
-                    <TableCell className="font-medium">{stage.journey_instance}</TableCell>
+                    <TableCell className="font-medium">
+                      {stage.journey_instance}
+                    </TableCell>
                     <TableCell>{stage.stage_name}</TableCell>
-                    <TableCell>{new Date(stage.due_date).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>
-                      <Badge variant="destructive">{stage.days_overdue} dias</Badge>
+                      {new Date(stage.due_date).toLocaleDateString("pt-BR")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="destructive">
+                        {stage.days_overdue} dias
+                      </Badge>
                     </TableCell>
                     <TableCell>{stage.responsible}</TableCell>
                   </TableRow>
@@ -302,7 +318,7 @@ export function Relatorios() {
           </div>
         );
 
-      case 'payments':
+      case "payments":
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Pagamentos em Atraso</h3>
@@ -319,11 +335,17 @@ export function Relatorios() {
               <TableBody>
                 {mockOverduePayments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell className="font-medium">{payment.client_name}</TableCell>
+                    <TableCell className="font-medium">
+                      {payment.client_name}
+                    </TableCell>
                     <TableCell>{formatCurrency(payment.amount)}</TableCell>
-                    <TableCell>{new Date(payment.due_date).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>
-                      <Badge variant="destructive">{payment.days_overdue} dias</Badge>
+                      {new Date(payment.due_date).toLocaleDateString("pt-BR")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="destructive">
+                        {payment.days_overdue} dias
+                      </Badge>
                     </TableCell>
                     <TableCell>{payment.plan_type}</TableCell>
                   </TableRow>
@@ -363,41 +385,55 @@ export function Relatorios() {
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {reportCards.map((card) => {
-          const IconComponent = {
-            CheckCircle,
-            AlertTriangle,
-            Clock,
-            FileText,
-            DollarSign,
-            Activity,
-            TrendingUp
-          }[card.icon] || Activity;
+          const IconComponent =
+            {
+              CheckCircle,
+              AlertTriangle,
+              Clock,
+              FileText,
+              DollarSign,
+              Activity,
+              TrendingUp,
+            }[card.icon] || Activity;
 
           return (
-            <Card 
-              key={card.id} 
+            <Card
+              key={card.id}
               className="hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => {
-                if (card.id.includes('sla') || card.id.includes('overdue')) {
-                  handleDrillThrough(card.id.includes('payment') ? 'payments' : 'sla');
+                if (card.id.includes("sla") || card.id.includes("overdue")) {
+                  handleDrillThrough(
+                    card.id.includes("payment") ? "payments" : "sla",
+                  );
                 }
               }}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                <IconComponent className={`h-4 w-4 ${
-                  card.status === 'success' ? 'text-green-600' :
-                  card.status === 'warning' ? 'text-warning-600' :
-                  card.status === 'danger' ? 'text-red-600' :
-                  'text-blue-600'
-                }`} />
+                <CardTitle className="text-sm font-medium">
+                  {card.title}
+                </CardTitle>
+                <IconComponent
+                  className={`h-4 w-4 ${
+                    card.status === "success"
+                      ? "text-green-600"
+                      : card.status === "warning"
+                        ? "text-warning-600"
+                        : card.status === "danger"
+                          ? "text-red-600"
+                          : "text-blue-600"
+                  }`}
+                />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{card.value}</div>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {card.subtitle}
+                  </p>
                   {card.trend && (
-                    <div className={`flex items-center gap-1 text-xs ${getTrendColor(card.trend)}`}>
+                    <div
+                      className={`flex items-center gap-1 text-xs ${getTrendColor(card.trend)}`}
+                    >
                       {getTrendIcon(card.trend)}
                       {Math.abs(card.trend)}%
                     </div>
@@ -429,8 +465,12 @@ export function Relatorios() {
                     </Badge>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">{formatPercentage(nicho.completion_rate)}</div>
-                    <div className="text-sm text-gray-500">{nicho.avg_completion_time_days} dias médio</div>
+                    <div className="font-medium">
+                      {formatPercentage(nicho.completion_rate)}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {nicho.avg_completion_time_days} dias médio
+                    </div>
                   </div>
                 </div>
                 <Progress value={nicho.completion_rate} className="h-2" />
@@ -453,20 +493,28 @@ export function Relatorios() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span>Petições Geradas</span>
-                <span className="font-medium">{mockAIActivityMetrics.petitions_generated}</span>
+                <span className="font-medium">
+                  {mockAIActivityMetrics.petitions_generated}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Respostas Automatizadas</span>
-                <span className="font-medium">{mockAIActivityMetrics.responses_generated}</span>
+                <span className="font-medium">
+                  {mockAIActivityMetrics.responses_generated}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Documentos Analisados</span>
-                <span className="font-medium">{mockAIActivityMetrics.documents_analyzed}</span>
+                <span className="font-medium">
+                  {mockAIActivityMetrics.documents_analyzed}
+                </span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center font-medium">
                   <span>Tempo Total Economizado</span>
-                  <span className="text-green-600">{mockAIActivityMetrics.time_saved_hours}h</span>
+                  <span className="text-green-600">
+                    {mockAIActivityMetrics.time_saved_hours}h
+                  </span>
                 </div>
               </div>
             </div>
@@ -484,28 +532,40 @@ export function Relatorios() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span>Total Recebidas</span>
-                <span className="font-medium">{mockPublicationsMetrics.total_received}</span>
+                <span className="font-medium">
+                  {mockPublicationsMetrics.total_received}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Processadas</span>
-                <span className="font-medium text-green-600">{mockPublicationsMetrics.processed}</span>
+                <span className="font-medium text-green-600">
+                  {mockPublicationsMetrics.processed}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Pendentes</span>
-                <span className="font-medium text-warning-600">{mockPublicationsMetrics.pending}</span>
+                <span className="font-medium text-warning-600">
+                  {mockPublicationsMetrics.pending}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Vinculadas a Casos</span>
-                <span className="font-medium">{mockPublicationsMetrics.linked_to_cases}</span>
+                <span className="font-medium">
+                  {mockPublicationsMetrics.linked_to_cases}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Em Jornadas</span>
-                <span className="font-medium text-blue-600">{mockPublicationsMetrics.in_journeys}</span>
+                <span className="font-medium text-blue-600">
+                  {mockPublicationsMetrics.in_journeys}
+                </span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center font-medium">
                   <span>Taxa de Processamento</span>
-                  <span className="text-green-600">{formatPercentage(mockPublicationsMetrics.processing_rate)}</span>
+                  <span className="text-green-600">
+                    {formatPercentage(mockPublicationsMetrics.processing_rate)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -523,25 +583,41 @@ export function Relatorios() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col gap-2"
+              asChild
+            >
               <Link to="/jornadas">
                 <Target className="h-6 w-6" />
                 <span>Jornadas</span>
               </Link>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col gap-2"
+              asChild
+            >
               <Link to="/inbox">
                 <FileText className="h-6 w-6" />
                 <span>Inbox Legal</span>
               </Link>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col gap-2"
+              asChild
+            >
               <Link to="/planos-pagamento">
                 <DollarSign className="h-6 w-6" />
                 <span>Pagamentos</span>
               </Link>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
+            <Button
+              variant="outline"
+              className="h-auto p-4 flex flex-col gap-2"
+              asChild
+            >
               <Link to="/clientes">
                 <Users className="h-6 w-6" />
                 <span>Clientes</span>

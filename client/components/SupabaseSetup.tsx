@@ -1,27 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Alert, AlertDescription } from './ui/alert';
-import { CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import React, { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Alert, AlertDescription } from "./ui/alert";
+import { CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export function SupabaseSetup() {
   const [config, setConfig] = useState({
-    url: '',
-    anonKey: ''
+    url: "",
+    anonKey: "",
   });
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Check if already configured
     const url = import.meta.env.VITE_SUPABASE_URL;
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (url && key && url !== 'your-supabase-url' && key !== 'your-supabase-anon-key') {
+
+    if (
+      url &&
+      key &&
+      url !== "your-supabase-url" &&
+      key !== "your-supabase-anon-key"
+    ) {
       setConfig({ url, anonKey: key });
       testConnection(url, key);
     }
@@ -29,13 +40,13 @@ export function SupabaseSetup() {
 
   const testConnection = async (url?: string, key?: string) => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Test connection
       const { data, error } = await supabase
-        .from('clientes')
-        .select('count(*)')
+        .from("clientes")
+        .select("count(*)")
         .limit(1);
 
       if (error) {
@@ -54,13 +65,13 @@ export function SupabaseSetup() {
 
   const handleSave = () => {
     if (!config.url || !config.anonKey) {
-      setError('Preencha a URL e a chave anônima');
+      setError("Preencha a URL e a chave anônima");
       return;
     }
 
     // In a real deployment, these would be set via environment variables
     // This is just for development/demo purposes
-    localStorage.setItem('supabase_config', JSON.stringify(config));
+    localStorage.setItem("supabase_config", JSON.stringify(config));
     testConnection();
   };
 
@@ -83,15 +94,28 @@ export function SupabaseSetup() {
           Configuração do Supabase
         </CardTitle>
         <CardDescription>
-          Configure a conexão com seu banco de dados Supabase para começar a usar o sistema.
+          Configure a conexão com seu banco de dados Supabase para começar a
+          usar o sistema.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Instructions */}
         <div className="bg-brand-50 p-4 rounded-lg">
-          <h4 className="font-medium text-brand-900 mb-2">Como obter as credenciais:</h4>
+          <h4 className="font-medium text-brand-900 mb-2">
+            Como obter as credenciais:
+          </h4>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-            <li>Acesse <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">supabase.com</a></li>
+            <li>
+              Acesse{" "}
+              <a
+                href="https://supabase.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-blue-600"
+              >
+                supabase.com
+              </a>
+            </li>
             <li>Crie um novo projeto ou acesse um existente</li>
             <li>Vá em Settings → API</li>
             <li>Copie a "Project URL" e a "anon public" key</li>
@@ -108,7 +132,9 @@ export function SupabaseSetup() {
               type="url"
               placeholder="https://seu-projeto.supabase.co"
               value={config.url}
-              onChange={(e) => setConfig(prev => ({ ...prev, url: e.target.value }))}
+              onChange={(e) =>
+                setConfig((prev) => ({ ...prev, url: e.target.value }))
+              }
             />
           </div>
 
@@ -119,7 +145,9 @@ export function SupabaseSetup() {
               type="password"
               placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
               value={config.anonKey}
-              onChange={(e) => setConfig(prev => ({ ...prev, anonKey: e.target.value }))}
+              onChange={(e) =>
+                setConfig((prev) => ({ ...prev, anonKey: e.target.value }))
+              }
             />
           </div>
 
@@ -129,12 +157,12 @@ export function SupabaseSetup() {
             </Alert>
           )}
 
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={isLoading || !config.url || !config.anonKey}
             className="w-full"
           >
-            {isLoading ? 'Testando conexão...' : 'Conectar ao Supabase'}
+            {isLoading ? "Testando conexão..." : "Conectar ao Supabase"}
           </Button>
         </div>
 
@@ -142,18 +170,18 @@ export function SupabaseSetup() {
         <div className="border-t pt-4">
           <h4 className="font-medium mb-2">Recursos Úteis:</h4>
           <div className="space-y-1">
-            <a 
-              href="https://supabase.com/docs/guides/getting-started" 
-              target="_blank" 
+            <a
+              href="https://supabase.com/docs/guides/getting-started"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
             >
               <ExternalLink className="h-3 w-3" />
               Guia de Início Rápido do Supabase
             </a>
-            <a 
-              href="https://supabase.com/docs/guides/database/tables" 
-              target="_blank" 
+            <a
+              href="https://supabase.com/docs/guides/database/tables"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
             >
@@ -166,8 +194,9 @@ export function SupabaseSetup() {
         {/* Development Note */}
         <Alert>
           <AlertDescription>
-            <strong>Nota:</strong> Em produção, configure as variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY 
-            em vez de usar este formulário.
+            <strong>Nota:</strong> Em produção, configure as variáveis de
+            ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY em vez de usar
+            este formulário.
           </AlertDescription>
         </Alert>
       </CardContent>

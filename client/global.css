@@ -1,5 +1,5 @@
 /* Cache-busting: v2.2 - Final color normalization and brand consistency */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,14 +14,14 @@
     --brand-400: 134 189 164;
     --brand-500: 98 162 133;
     --brand-600: 77 129 105;
-    --brand-700: 40 82 69;   /* #285245 - Primary medium */
+    --brand-700: 40 82 69; /* #285245 - Primary medium */
     --brand-800: 33 66 57;
-    --brand-900: 27 58 47;   /* #1b3a2f - Primary dark */
+    --brand-900: 27 58 47; /* #1b3a2f - Primary dark */
 
     /* State colors - brand-aligned */
-    --danger: 239 68 68;     /* #ef4444 */
-    --warn: 217 119 6;       /* #d97706 - More muted amber */
-    --success: 22 163 74;    /* #16a34a */
+    --danger: 239 68 68; /* #ef4444 */
+    --warn: 217 119 6; /* #d97706 - More muted amber */
+    --success: 22 163 74; /* #16a34a */
 
     /* Neutral scale baseada no branding */
     --neutral-50: 249 250 251;
@@ -83,19 +83,26 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground font-sans;
     /* F1.0 - Line-height confortável */
     line-height: 1.7;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* F1.0 - Títulos com fonte heading e line-height apropriado */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading;
     line-height: 1.4;
   }

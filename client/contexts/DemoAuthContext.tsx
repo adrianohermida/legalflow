@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface Advogado {
   oab: number;
@@ -11,7 +17,7 @@ interface User {
   email: string;
   oab?: number;
   advogado?: Advogado;
-  role?: 'superadmin' | 'admin' | 'advogado' | 'cliente';
+  role?: "superadmin" | "admin" | "advogado" | "cliente";
 }
 
 interface DemoAuthContextType {
@@ -24,7 +30,9 @@ interface DemoAuthContextType {
   isDemoMode: boolean;
 }
 
-const DemoAuthContext = createContext<DemoAuthContextType | undefined>(undefined);
+const DemoAuthContext = createContext<DemoAuthContextType | undefined>(
+  undefined,
+);
 
 export function DemoAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -33,21 +41,21 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
 
   // Demo users database
   const demoUsers = [
-    { email: 'admin.test@gmail.com', password: '123456', id: 'demo-1' },
-    { email: 'user.test@gmail.com', password: '123456', id: 'demo-2' },
-    { email: 'demo@test.com', password: '123456', id: 'demo-3' }
+    { email: "admin.test@gmail.com", password: "123456", id: "demo-1" },
+    { email: "user.test@gmail.com", password: "123456", id: "demo-2" },
+    { email: "demo@test.com", password: "123456", id: "demo-3" },
   ];
 
   // Demo lawyers database
   const demoAdvogados = [
-    { oab: 123456, nome: 'Dr. Adriano Hermida Maia', uf: 'SP' },
-    { oab: 654321, nome: 'Dra. Maria Santos', uf: 'SP' },
-    { oab: 789012, nome: 'Dr. João Silva', uf: 'RJ' }
+    { oab: 123456, nome: "Dr. Adriano Hermida Maia", uf: "SP" },
+    { oab: 654321, nome: "Dra. Maria Santos", uf: "SP" },
+    { oab: 789012, nome: "Dr. João Silva", uf: "RJ" },
   ];
 
   useEffect(() => {
     // Check for saved demo session
-    const savedUser = localStorage.getItem('demo-user');
+    const savedUser = localStorage.getItem("demo-user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -56,36 +64,37 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    
+
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     try {
-      const demoUser = demoUsers.find(u => u.email === email && u.password === password);
-      
+      const demoUser = demoUsers.find(
+        (u) => u.email === email && u.password === password,
+      );
+
       if (!demoUser) {
-        throw new Error('Email ou senha incorretos');
+        throw new Error("Email ou senha incorretos");
       }
 
       // Determine role
-      let role: User['role'] = 'cliente'; // Default role
+      let role: User["role"] = "cliente"; // Default role
 
       // Check for superadmin
-      if (demoUser.email === 'adrianohermida@gmail.com') {
-        role = 'superadmin';
-      } else if (demoUser.email === 'admin.test@gmail.com') {
-        role = 'advogado'; // Demo admin is also an advogado
+      if (demoUser.email === "adrianohermida@gmail.com") {
+        role = "superadmin";
+      } else if (demoUser.email === "admin.test@gmail.com") {
+        role = "advogado"; // Demo admin is also an advogado
       }
 
       const userData: User = {
         id: demoUser.id,
         email: demoUser.email,
-        role
+        role,
       };
 
       setUser(userData);
-      localStorage.setItem('demo-user', JSON.stringify(userData));
-      
+      localStorage.setItem("demo-user", JSON.stringify(userData));
     } catch (error) {
       throw error;
     } finally {
@@ -95,24 +104,23 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (email: string, password: string) => {
     setIsLoading(true);
-    
+
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     try {
-      const existingUser = demoUsers.find(u => u.email === email);
-      
+      const existingUser = demoUsers.find((u) => u.email === email);
+
       if (existingUser) {
-        throw new Error('Usuário já cadastrado com este email');
+        throw new Error("Usuário já cadastrado com este email");
       }
 
       // In demo mode, just add to our demo users array (temporarily)
       const newUser = { email, password, id: `demo-${Date.now()}` };
       demoUsers.push(newUser);
-      
+
       // Don't auto-login, let them login manually
-      console.log('Demo user created:', email);
-      
+      console.log("Demo user created:", email);
     } catch (error) {
       throw error;
     } finally {
@@ -122,33 +130,32 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('demo-user');
+    localStorage.removeItem("demo-user");
   };
 
   const selectOAB = async (oab: number) => {
     if (!user) return;
 
     setIsLoading(true);
-    
+
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     try {
-      const advogado = demoAdvogados.find(a => a.oab === oab);
-      
+      const advogado = demoAdvogados.find((a) => a.oab === oab);
+
       if (!advogado) {
-        throw new Error('Advogado não encontrado com este número OAB');
+        throw new Error("Advogado não encontrado com este número OAB");
       }
 
       const updatedUser = {
         ...user,
         oab: oab,
-        advogado: advogado
+        advogado: advogado,
       };
 
       setUser(updatedUser);
-      localStorage.setItem('demo-user', JSON.stringify(updatedUser));
-      
+      localStorage.setItem("demo-user", JSON.stringify(updatedUser));
     } catch (error) {
       throw error;
     } finally {
@@ -157,15 +164,17 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DemoAuthContext.Provider value={{
-      user,
-      isLoading,
-      login,
-      signup,
-      logout,
-      selectOAB,
-      isDemoMode
-    }}>
+    <DemoAuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        login,
+        signup,
+        logout,
+        selectOAB,
+        isDemoMode,
+      }}
+    >
       {children}
     </DemoAuthContext.Provider>
   );
@@ -174,7 +183,7 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
 export function useDemoAuth() {
   const context = useContext(DemoAuthContext);
   if (context === undefined) {
-    throw new Error('useDemoAuth must be used within a DemoAuthProvider');
+    throw new Error("useDemoAuth must be used within a DemoAuthProvider");
   }
   return context;
 }

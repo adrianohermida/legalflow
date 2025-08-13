@@ -1,11 +1,17 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { Zap, Database, Play, Settings } from 'lucide-react';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { Zap, Database, Play, Settings } from "lucide-react";
 
 interface ModeSelectorProps {
-  onModeSelect: (mode: 'demo' | 'supabase') => void;
+  onModeSelect: (mode: "demo" | "supabase") => void;
 }
 
 export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
@@ -15,7 +21,9 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">LegalFlow</h1>
           <p className="text-gray-600">Sistema de Gestão Jurídica</p>
-          <p className="text-sm text-gray-500 mt-2">Escolha como deseja acessar o sistema</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Escolha como deseja acessar o sistema
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -60,7 +68,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
               </Alert>
 
               <Button
-                onClick={() => onModeSelect('demo')}
+                onClick={() => onModeSelect("demo")}
                 className="w-full bg-brand-700 hover:bg-brand-900 text-white"
                 size="lg"
               >
@@ -111,7 +119,7 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
               </Alert>
 
               <Button
-                onClick={() => onModeSelect('supabase')}
+                onClick={() => onModeSelect("supabase")}
                 variant="outline"
                 className="w-full border-brand-300 text-brand-700 hover:bg-brand-100"
                 size="lg"
@@ -125,7 +133,8 @@ export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
 
         <div className="text-center mt-6">
           <p className="text-xs text-gray-500">
-            💡 Recomendamos começar com o <strong>Modo Demo</strong> para explorar o sistema
+            💡 Recomendamos começar com o <strong>Modo Demo</strong> para
+            explorar o sistema
           </p>
         </div>
       </div>

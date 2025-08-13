@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useState } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -11,159 +22,173 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { 
-  Search, 
-  Upload, 
-  FileText, 
-  Download, 
+} from "../components/ui/select";
+import {
+  Search,
+  Upload,
+  FileText,
+  Download,
   Eye,
   Plus,
   Wand2,
   CheckCircle,
   Clock,
   AlertCircle,
-  Filter
-} from 'lucide-react';
+  Filter,
+} from "lucide-react";
 
 // Mock data for documents
 const mockDocuments = [
   {
-    id: '1',
-    name: 'Carteira de Trabalho - João Silva.pdf',
-    type: 'upload',
-    size: '2.3 MB',
-    uploaded_at: '2024-02-01',
-    uploaded_by: 'João Silva',
-    processo_numero_cnj: '1000123-45.2024.8.26.0001',
-    status: 'aprovado'
+    id: "1",
+    name: "Carteira de Trabalho - João Silva.pdf",
+    type: "upload",
+    size: "2.3 MB",
+    uploaded_at: "2024-02-01",
+    uploaded_by: "João Silva",
+    processo_numero_cnj: "1000123-45.2024.8.26.0001",
+    status: "aprovado",
   },
   {
-    id: '2',
-    name: 'Contrato de Trabalho - Empresa ABC.pdf',
-    type: 'upload',
-    size: '1.8 MB',
-    uploaded_at: '2024-02-02',
-    uploaded_by: 'Dr. Maria Santos',
-    processo_numero_cnj: '2000456-78.2024.8.26.0002',
-    status: 'validando'
+    id: "2",
+    name: "Contrato de Trabalho - Empresa ABC.pdf",
+    type: "upload",
+    size: "1.8 MB",
+    uploaded_at: "2024-02-02",
+    uploaded_by: "Dr. Maria Santos",
+    processo_numero_cnj: "2000456-78.2024.8.26.0002",
+    status: "validando",
   },
   {
-    id: '3',
-    name: 'Comprovante de Residência.pdf',
-    type: 'requirement',
-    size: '0.5 MB',
-    uploaded_at: '2024-02-03',
-    uploaded_by: 'Maria Oliveira',
-    processo_numero_cnj: '3000789-01.2024.8.26.0003',
-    status: 'faltando'
-  }
+    id: "3",
+    name: "Comprovante de Residência.pdf",
+    type: "requirement",
+    size: "0.5 MB",
+    uploaded_at: "2024-02-03",
+    uploaded_by: "Maria Oliveira",
+    processo_numero_cnj: "3000789-01.2024.8.26.0003",
+    status: "faltando",
+  },
 ];
 
 // Mock data for legal pieces (petições)
 const mockPeticoes = [
   {
-    id: '1',
-    name: 'Petição Inicial - Ação Trabalhista',
-    tipo: 'peticao_inicial',
-    processo_numero_cnj: '1000123-45.2024.8.26.0001',
-    generated_at: '2024-01-15',
-    generated_by: 'Dr. Maria Santos',
-    status: 'protocolado',
-    template_used: 'Trabalhista - Horas Extras'
+    id: "1",
+    name: "Petição Inicial - Ação Trabalhista",
+    tipo: "peticao_inicial",
+    processo_numero_cnj: "1000123-45.2024.8.26.0001",
+    generated_at: "2024-01-15",
+    generated_by: "Dr. Maria Santos",
+    status: "protocolado",
+    template_used: "Trabalhista - Horas Extras",
   },
   {
-    id: '2',
-    name: 'Contestação - Defesa Empresarial',
-    tipo: 'contestacao',
-    processo_numero_cnj: '2000456-78.2024.8.26.0002',
-    generated_at: '2024-01-20',
-    generated_by: 'Dr. João Silva',
-    status: 'rascunho',
-    template_used: 'Empresarial - Contestação Padrão'
+    id: "2",
+    name: "Contestação - Defesa Empresarial",
+    tipo: "contestacao",
+    processo_numero_cnj: "2000456-78.2024.8.26.0002",
+    generated_at: "2024-01-20",
+    generated_by: "Dr. João Silva",
+    status: "rascunho",
+    template_used: "Empresarial - Contestação Padrão",
   },
   {
-    id: '3',
-    name: 'Recurso de Apelação',
-    tipo: 'recurso',
-    processo_numero_cnj: '3000789-01.2024.8.26.0003',
-    generated_at: '2024-01-25',
-    generated_by: 'Dra. Ana Costa',
-    status: 'revisao',
-    template_used: 'Família - Recurso de Apelação'
-  }
+    id: "3",
+    name: "Recurso de Apelação",
+    tipo: "recurso",
+    processo_numero_cnj: "3000789-01.2024.8.26.0003",
+    generated_at: "2024-01-25",
+    generated_by: "Dra. Ana Costa",
+    status: "revisao",
+    template_used: "Família - Recurso de Apelação",
+  },
 ];
 
 export function Documentos() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('todos');
-  const [processoFilter, setProcessoFilter] = useState<string>('todos');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [processoFilter, setProcessoFilter] = useState<string>("todos");
 
-  const filteredDocuments = mockDocuments.filter(doc => {
-    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.processo_numero_cnj.includes(searchTerm);
-    const matchesStatus = statusFilter === 'todos' || doc.status === statusFilter;
-    const matchesProcesso = processoFilter === 'todos' || doc.processo_numero_cnj === processoFilter;
-    
+  const filteredDocuments = mockDocuments.filter((doc) => {
+    const matchesSearch =
+      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.processo_numero_cnj.includes(searchTerm);
+    const matchesStatus =
+      statusFilter === "todos" || doc.status === statusFilter;
+    const matchesProcesso =
+      processoFilter === "todos" || doc.processo_numero_cnj === processoFilter;
+
     return matchesSearch && matchesStatus && matchesProcesso;
   });
 
-  const filteredPeticoes = mockPeticoes.filter(pet => {
-    const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pet.processo_numero_cnj.includes(searchTerm);
-    const matchesStatus = statusFilter === 'todos' || pet.status === statusFilter;
-    const matchesProcesso = processoFilter === 'todos' || pet.processo_numero_cnj === processoFilter;
-    
+  const filteredPeticoes = mockPeticoes.filter((pet) => {
+    const matchesSearch =
+      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.processo_numero_cnj.includes(searchTerm);
+    const matchesStatus =
+      statusFilter === "todos" || pet.status === statusFilter;
+    const matchesProcesso =
+      processoFilter === "todos" || pet.processo_numero_cnj === processoFilter;
+
     return matchesSearch && matchesStatus && matchesProcesso;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'aprovado':
-      case 'protocolado':
-        return 'bg-success-100 text-success-700';
-      case 'validando':
-      case 'revisao':
-        return 'bg-warning-100 text-warning-700';
-      case 'faltando':
-      case 'rascunho':
-        return 'bg-danger-100 text-danger-700';
+      case "aprovado":
+      case "protocolado":
+        return "bg-success-100 text-success-700";
+      case "validando":
+      case "revisao":
+        return "bg-warning-100 text-warning-700";
+      case "faltando":
+      case "rascunho":
+        return "bg-danger-100 text-danger-700";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'aprovado':
-      case 'protocolado':
+      case "aprovado":
+      case "protocolado":
         return <CheckCircle className="h-3 w-3" />;
-      case 'validando':
-      case 'revisao':
+      case "validando":
+      case "revisao":
         return <Clock className="h-3 w-3" />;
-      case 'faltando':
-      case 'rascunho':
+      case "faltando":
+      case "rascunho":
         return <AlertCircle className="h-3 w-3" />;
       default:
         return <Clock className="h-3 w-3" />;
     }
   };
 
-  const uniqueProcessos = [...new Set([...mockDocuments, ...mockPeticoes].map(item => item.processo_numero_cnj))];
+  const uniqueProcessos = [
+    ...new Set(
+      [...mockDocuments, ...mockPeticoes].map(
+        (item) => item.processo_numero_cnj,
+      ),
+    ),
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Documentos & Peças</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Documentos & Peças
+          </h1>
           <p className="text-gray-600 mt-1">
             Gerencie documentos e peças processuais
           </p>
@@ -184,7 +209,9 @@ export function Documentos() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Documentos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Documentos
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -209,9 +236,12 @@ export function Documentos() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning-600">
-              {[...mockDocuments, ...mockPeticoes].filter(item => 
-                item.status === 'validando' || item.status === 'revisao'
-              ).length}
+              {
+                [...mockDocuments, ...mockPeticoes].filter(
+                  (item) =>
+                    item.status === "validando" || item.status === "revisao",
+                ).length
+              }
             </div>
           </CardContent>
         </Card>
@@ -223,9 +253,12 @@ export function Documentos() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {[...mockDocuments, ...mockPeticoes].filter(item => 
-                item.status === 'faltando' || item.status === 'rascunho'
-              ).length}
+              {
+                [...mockDocuments, ...mockPeticoes].filter(
+                  (item) =>
+                    item.status === "faltando" || item.status === "rascunho",
+                ).length
+              }
             </div>
           </CardContent>
         </Card>
@@ -244,7 +277,7 @@ export function Documentos() {
             />
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <Select value={processoFilter} onValueChange={setProcessoFilter}>
             <SelectTrigger className="w-48">
@@ -322,11 +355,13 @@ export function Documentos() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="font-mono text-sm">{doc.processo_numero_cnj}</span>
+                        <span className="font-mono text-sm">
+                          {doc.processo_numero_cnj}
+                        </span>
                       </TableCell>
                       <TableCell>{doc.uploaded_by}</TableCell>
                       <TableCell>
-                        {new Date(doc.uploaded_at).toLocaleDateString('pt-BR')}
+                        {new Date(doc.uploaded_at).toLocaleDateString("pt-BR")}
                       </TableCell>
                       <TableCell>{doc.size}</TableCell>
                       <TableCell>
@@ -397,14 +432,20 @@ export function Documentos() {
                         <Badge variant="secondary">{peca.tipo}</Badge>
                       </TableCell>
                       <TableCell>
-                        <span className="font-mono text-sm">{peca.processo_numero_cnj}</span>
+                        <span className="font-mono text-sm">
+                          {peca.processo_numero_cnj}
+                        </span>
                       </TableCell>
                       <TableCell>{peca.generated_by}</TableCell>
                       <TableCell>
-                        {new Date(peca.generated_at).toLocaleDateString('pt-BR')}
+                        {new Date(peca.generated_at).toLocaleDateString(
+                          "pt-BR",
+                        )}
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-gray-600">{peca.template_used}</span>
+                        <span className="text-sm text-gray-600">
+                          {peca.template_used}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(peca.status)}>
@@ -422,7 +463,7 @@ export function Documentos() {
                             <Download className="h-3 w-3 mr-1" />
                             Download
                           </Button>
-                          {peca.status === 'rascunho' && (
+                          {peca.status === "rascunho" && (
                             <Button size="sm">
                               <Wand2 className="h-3 w-3 mr-1" />
                               Editar IA

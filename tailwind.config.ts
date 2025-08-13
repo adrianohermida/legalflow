@@ -129,10 +129,12 @@ const config: Config = {
       boxShadow: {
         // F1.0 - Sombras suaves baseadas no branding
         soft: "0 1px 3px 0 rgba(27, 58, 47, 0.06), 0 1px 2px 0 rgba(27, 58, 47, 0.04)",
-        medium: "0 4px 6px -1px rgba(27, 58, 47, 0.08), 0 2px 4px -1px rgba(27, 58, 47, 0.04)",
-        strong: "0 10px 15px -3px rgba(27, 58, 47, 0.08), 0 4px 6px -2px rgba(27, 58, 47, 0.04)",
+        medium:
+          "0 4px 6px -1px rgba(27, 58, 47, 0.08), 0 2px 4px -1px rgba(27, 58, 47, 0.04)",
+        strong:
+          "0 10px 15px -3px rgba(27, 58, 47, 0.08), 0 4px 6px -2px rgba(27, 58, 47, 0.04)",
         // Focus ring visível para acessibilidade
-        "focus": "0 0 0 3px rgba(40, 82, 69, 0.1)",
+        focus: "0 0 0 3px rgba(40, 82, 69, 0.1)",
       },
       keyframes: {
         "accordion-down": {
@@ -168,8 +170,8 @@ const config: Config = {
         header: "64px",
       },
       screens: {
-        'xs': '475px',
-        ...require('tailwindcss/defaultTheme').screens,
+        xs: "475px",
+        ...require("tailwindcss/defaultTheme").screens,
       },
     },
   },
