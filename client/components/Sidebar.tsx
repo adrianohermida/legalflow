@@ -149,17 +149,17 @@ export function Sidebar({ userType }: SidebarProps) {
 
   return (
     <div className="app-sidebar">
-      {/* Logo */}
-      <div className="flex items-center justify-center h-header border-b border-border bg-brand-700">
+      {/* Logo - F1.0 Branding */}
+      <div className="flex items-center justify-center h-16 border-b border-gray-200" style={{ backgroundColor: 'var(--brand-700)' }}>
         <Link to="/" className="flex items-center space-x-3">
           <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg">
-            <Scale className="w-5 h-5 text-brand-700" />
+            <Scale className="w-5 h-5" style={{ color: 'var(--brand-700)' }} />
           </div>
           <div className="text-white">
-            <div className="text-lg font-heading font-semibold leading-none">
+            <div className="text-lg font-semibold leading-none">
               Hermida Maia
             </div>
-            <div className="text-xs text-brand-100 font-medium">
+            <div className="text-xs font-medium" style={{ color: 'var(--brand-100)' }}>
               Advocacia
             </div>
           </div>
@@ -177,11 +177,12 @@ export function Sidebar({ userType }: SidebarProps) {
               key={item.href}
               to={item.href}
               className={cn(
-                'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors interactive',
+                'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-out',
                 active
-                  ? 'bg-brand-700 text-white shadow-soft'
-                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+                  ? 'text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               )}
+              style={active ? { backgroundColor: 'var(--brand-700)' } : {}}
               title={item.description}
               aria-current={active ? 'page' : undefined}
             >
@@ -203,13 +204,9 @@ export function Sidebar({ userType }: SidebarProps) {
       </nav>
 
       {/* Footer - User Type Indicator */}
-      <div className="px-3 py-4 border-t border-border">
-        <div className={cn(
-          'flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg',
-          userType === 'advogado' 
-            ? 'bg-brand-100 text-brand-700'
-            : 'bg-brand-100 text-brand-700'
-        )}>
+      <div className="px-3 py-4 border-t border-gray-200">
+        <div className="flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg"
+             style={{ backgroundColor: 'var(--brand-100)', color: 'var(--brand-700)' }}>
           <UserCheck className="w-4 h-4 mr-2" />
           {userType === 'advogado' ? 'Área do Advogado' : 'Portal do Cliente'}
         </div>

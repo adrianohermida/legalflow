@@ -157,6 +157,47 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================
+   F1.1 - APP SHELL LAYOUT
+============================ */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  background: var(--surface);
+}
+
+.app-sidebar {
+  width: 280px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-header {
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+}
+
+.app-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem;
+}
+
+/* ============================
    UTILITÁRIOS ADICIONAIS
 ============================ */
 :focus-visible {
