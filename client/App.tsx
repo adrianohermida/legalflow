@@ -36,6 +36,7 @@ if (supabaseConfigured) {
 import { Dashboard } from "./pages/Dashboard";
 import { DashboardV2 } from "./pages/DashboardV2";
 import { Processos } from "./pages/Processos";
+import ProcessosV2 from "./pages/ProcessosV2";
 import { ProcessoOverview } from "./pages/ProcessoOverview";
 import { ProcessoDetail } from "./pages/ProcessoDetail";
 import ProcessoDetailV2 from "./pages/ProcessoDetailV2";
