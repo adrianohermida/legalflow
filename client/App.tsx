@@ -54,6 +54,7 @@ if (supabaseConfigured) {
 // Import all page components
 import { Dashboard } from "./pages/Dashboard";
 import { Processos } from "./pages/Processos";
+import { ProcessoOverview } from "./pages/ProcessoOverview";
 import { Clientes } from "./pages/Clientes";
 import { Jornadas } from "./pages/Jornadas";
 import { NovaJornada } from "./pages/NovaJornada";
