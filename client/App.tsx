@@ -309,6 +309,14 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      <Route
+        path="/branding"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <BrandingControl />
+          </DemoProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
