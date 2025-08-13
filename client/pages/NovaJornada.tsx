@@ -28,8 +28,8 @@ export function NovaJornada() {
           Voltar
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Novo Template de Jornada</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-neutral-900">Novo Template de Jornada</h1>
+          <p className="text-neutral-600 mt-1">
             Crie um novo template customizável para automatizar processos
           </p>
         </div>
