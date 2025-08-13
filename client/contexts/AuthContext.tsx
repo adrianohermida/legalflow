@@ -154,14 +154,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Failed to load user data:', error.message || error);
       // Determine role for fallback case too
       let fallbackRole: User['role'] = 'cliente';
+      let fallbackData: Partial<User> = {};
+
       if (supabaseUser.email === 'adrianohermida@gmail.com') {
         fallbackRole = 'superadmin';
+        fallbackData = {
+          oab: 8894,
+          advogado: {
+            oab: 8894,
+            nome: 'Adriano Hermida Maia',
+            uf: 'AM',
+            sociedade: 'HERMIDA MAIA SOCIEDADE INDIVIDUAL DE ADVOCACIA',
+            oab_suplementares: [
+              { numero: '476963', uf: 'SP' },
+              { numero: '107048', uf: 'RS' },
+              { numero: '075394', uf: 'DF' }
+            ]
+          }
+        };
       }
 
       setUser({
         id: supabaseUser.id,
         email: supabaseUser.email || '',
-        role: fallbackRole
+        role: fallbackRole,
+        ...fallbackData
       });
     }
   };
