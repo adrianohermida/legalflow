@@ -538,7 +538,7 @@ export function Relatorios() {
               </div>
               <div className="flex justify-between items-center">
                 <span>Processadas</span>
-                <span className="font-medium text-green-600">
+                <span className="font-medium text-success">
                   {mockPublicationsMetrics.processed}
                 </span>
               </div>
