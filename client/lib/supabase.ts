@@ -532,6 +532,93 @@ export interface LegalFlowDatabase {
           body?: string;
         };
       };
+      // P2.8 - Time Entries (ClickUp replacement)
+      time_entries: {
+        Row: {
+          id: string;
+          activity_id: string | null;
+          ticket_id: string | null;
+          deal_id: string | null;
+          user_id: string;
+          start_time: string;
+          end_time: string | null;
+          duration_seconds: number | null;
+          description: string | null;
+          billable: boolean;
+          created_at: string;
+        };
+        Insert: {
+          activity_id?: string | null;
+          ticket_id?: string | null;
+          deal_id?: string | null;
+          user_id: string;
+          start_time: string;
+          end_time?: string | null;
+          duration_seconds?: number | null;
+          description?: string | null;
+          billable?: boolean;
+        };
+        Update: {
+          end_time?: string | null;
+          duration_seconds?: number | null;
+          description?: string | null;
+          billable?: boolean;
+        };
+      };
+      // P2.7 - CSAT Ratings
+      csat_ratings: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          rating: number;
+          feedback: string | null;
+          cliente_cpfcnpj: string | null;
+          created_at: string;
+        };
+        Insert: {
+          ticket_id: string;
+          rating: number;
+          feedback?: string | null;
+          cliente_cpfcnpj?: string | null;
+        };
+        Update: {
+          rating?: number;
+          feedback?: string | null;
+        };
+      };
+      // P2.8 - Saved Views (ClickUp replacement)
+      saved_views: {
+        Row: {
+          id: string;
+          name: string;
+          user_id: string;
+          view_type: string;
+          filters: any;
+          columns: string[] | null;
+          sort_by: string | null;
+          sort_order: string | null;
+          is_default: boolean;
+          created_at: string;
+        };
+        Insert: {
+          name: string;
+          user_id: string;
+          view_type: string;
+          filters: any;
+          columns?: string[] | null;
+          sort_by?: string | null;
+          sort_order?: string | null;
+          is_default?: boolean;
+        };
+        Update: {
+          name?: string;
+          filters?: any;
+          columns?: string[] | null;
+          sort_by?: string | null;
+          sort_order?: string | null;
+          is_default?: boolean;
+        };
+      };
       // P2.9 - Deals (Freshsales-like)
       deals: {
         Row: {
