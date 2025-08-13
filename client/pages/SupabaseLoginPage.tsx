@@ -121,14 +121,14 @@ export function SupabaseLoginPage() {
               <div className="flex items-center justify-between text-sm">
                 <Link
                   to="/forgot-password"
-                  className="text-brand-700 hover:text-brand-900 hover:underline"
+                  className="text-black hover:text-gray-800 hover:underline"
                 >
                   Esqueceu a senha?
                 </Link>
                 <button
                   type="button"
                   onClick={resetAuthMode}
-                  className="text-brand-700 hover:text-brand-900 hover:underline"
+                  className="text-black hover:text-gray-800 hover:underline"
                 >
                   Trocar modo
                 </button>

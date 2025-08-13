@@ -201,14 +201,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setIsLoading(true);
+
+    // Add timeout to prevent hanging
+    const loginTimeout = setTimeout(() => {
+      setIsLoading(false);
+      throw new Error("Login timeout - verifique sua conexão de internet");
+    }, 15000);
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      clearTimeout(loginTimeout);
       if (error) throw error;
     } catch (error: any) {
+      clearTimeout(loginTimeout);
       console.error("Login failed:", error);
 
       // Handle specific error types
