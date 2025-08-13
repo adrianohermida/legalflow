@@ -107,6 +107,9 @@ export default function InboxLegalV2() {
 
   const itemsPerPage = 20;
 
+  // Enable realtime updates for inbox
+  useInboxRealtimeUpdates();
+
   // Buscar publicações unificadas (publicações + movimentações que são publicações)
   const {
     data: publicacoesData = { data: [], total: 0, totalPages: 0 },
