@@ -659,6 +659,9 @@ export default function App() {
     validateSchemaOnStartup().catch(error => {
       console.error('Schema validation failed on startup:', error);
     });
+
+    // Run enum consistency check
+    runEnumConsistencyCheck();
   }, []);
 
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
