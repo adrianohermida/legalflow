@@ -79,7 +79,7 @@ export function SupabaseSetup() {
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-orange-500" />
+          <AlertCircle className="h-5 w-5 text-warning" />
           Configuração do Supabase
         </CardTitle>
         <CardDescription>
