@@ -154,7 +154,7 @@ VITE_DEV_MODE=true`;
         /* Configuration Instructions */
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-700">
+            <CardTitle className="flex items-center gap-2 text-brand-700">
               <CheckCircle className="h-5 w-5" />
               Configuração Validada
             </CardTitle>
