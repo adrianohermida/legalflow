@@ -445,28 +445,34 @@ export interface LegalFlowDatabase {
       // P2.11 - Conversation Properties
       conversation_properties: {
         Row: {
-          id: string;
           thread_link_id: string;
-          status: string | null;
-          priority: string | null;
+          status: Database['legalflow']['Enums']['conversation_status'] | null;
+          priority: Database['legalflow']['Enums']['priority'] | null;
           group_key: string | null;
           tags: string[] | null;
+          assignee_id: string | null;
+          sla_due_at: string | null;
           custom: any | null;
+          created_at: string;
           updated_at: string;
         };
         Insert: {
           thread_link_id: string;
-          status?: string | null;
-          priority?: string | null;
+          status?: Database['legalflow']['Enums']['conversation_status'] | null;
+          priority?: Database['legalflow']['Enums']['priority'] | null;
           group_key?: string | null;
           tags?: string[] | null;
+          assignee_id?: string | null;
+          sla_due_at?: string | null;
           custom?: any | null;
         };
         Update: {
-          status?: string | null;
-          priority?: string | null;
+          status?: Database['legalflow']['Enums']['conversation_status'] | null;
+          priority?: Database['legalflow']['Enums']['priority'] | null;
           group_key?: string | null;
           tags?: string[] | null;
+          assignee_id?: string | null;
+          sla_due_at?: string | null;
           custom?: any | null;
         };
       };
