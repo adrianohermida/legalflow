@@ -18,6 +18,7 @@ import {
   UserCheck,
   CalendarCheck,
   Receipt,
+  Ticket,
 } from 'lucide-react';
 
 interface SidebarProps {
