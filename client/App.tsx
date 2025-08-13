@@ -79,6 +79,7 @@ import { PortalCliente } from "./pages/portal/PortalCliente";
 
 import { SupabaseSetup } from "./components/SupabaseSetup";
 import { UnifiedOABSelectionModal } from "./components/UnifiedOABSelectionModal";
+import { BrandingControl } from "./components/BrandingControl";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
