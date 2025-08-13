@@ -52,6 +52,9 @@ import {
   Target,
   Activity,
   User,
+  Clock,
+  MessageSquare,
+  MoreHorizontal
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
