@@ -16,12 +16,12 @@ interface ModeSelectorProps {
 
 export function ModeSelector({ onModeSelect }: ModeSelectorProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">LegalFlow</h1>
-          <p className="text-gray-600">Sistema de Gestão Jurídica</p>
-          <p className="text-sm text-gray-500 mt-2">
+          <h1 className="text-3xl font-bold text-neutral-900 mb-2">LegalFlow</h1>
+          <p className="text-neutral-600">Sistema de Gestão Jurídica</p>
+          <p className="text-sm text-neutral-500 mt-2">
             Escolha como deseja acessar o sistema
           </p>
         </div>
