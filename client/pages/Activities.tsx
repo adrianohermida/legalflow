@@ -104,6 +104,7 @@ export function Activities() {
   const [filterPriority, setFilterPriority] = useState("todos");
   const [filterAssigned, setFilterAssigned] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
