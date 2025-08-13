@@ -426,7 +426,7 @@ export function InboxLegal() {
               </Table>
 
               {filteredPublicacoes.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-neutral-500">
                   Nenhuma publicação encontrada.
                 </div>
               )}
@@ -515,7 +515,7 @@ export function InboxLegal() {
               </Table>
 
               {filteredMovimentacoes.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-neutral-500">
                   Nenhuma movimentação encontrada.
                 </div>
               )}
