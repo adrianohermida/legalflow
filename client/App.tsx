@@ -654,7 +654,7 @@ export default function App() {
   const neutralTheme = useNeutralTheme();
 
   // Run schema validation on app startup
-  React.useEffect(() => {
+  useEffect(() => {
     validateSchemaOnStartup().catch(error => {
       console.error('Schema validation failed on startup:', error);
     });
