@@ -556,7 +556,7 @@ export function Relatorios() {
               </div>
               <div className="flex justify-between items-center">
                 <span>Em Jornadas</span>
-                <span className="font-medium text-blue-600">
+                <span className="font-medium text-brand-700">
                   {mockPublicationsMetrics.in_journeys}
                 </span>
               </div>
