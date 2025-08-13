@@ -26,8 +26,27 @@ export function LoginPage() {
     | "demo"
     | "supabase"
     | null;
-  const { user: supabaseUser, login: supabaseLogin } = useAuth();
-  const { user: demoUser, login: demoLogin } = useDemoAuth();
+
+  // Use hooks conditionally based on auth mode
+  let user, login;
+  try {
+    if (authMode === "demo") {
+      const demoAuth = useDemoAuth();
+      user = demoAuth.user;
+      login = demoAuth.login;
+    } else {
+      const supabaseAuth = useAuth();
+      user = supabaseAuth.user;
+      login = supabaseAuth.login;
+    }
+  } catch (error) {
+    // If we get an error, it means we're not in the right context
+    console.error("Auth context error:", error);
+    user = null;
+    login = async () => {
+      throw new Error("Contexto de autenticação não disponível");
+    };
+  }
 
   const user = authMode === "demo" ? demoUser : supabaseUser;
   const login = authMode === "demo" ? demoLogin : supabaseLogin;
