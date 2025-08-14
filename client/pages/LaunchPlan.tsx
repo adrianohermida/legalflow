@@ -253,7 +253,7 @@ const LaunchPlan: React.FC = () => {
         description: 'Backup completo antes do go-live',
         status: 'pending',
         required: true,
-        icon: <Backup className="h-4 w-4" />
+        icon: <Database className="h-4 w-4" />
       }
     ];
 
