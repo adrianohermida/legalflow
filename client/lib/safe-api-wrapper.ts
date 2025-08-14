@@ -19,17 +19,29 @@ export class SafeAPIWrapper {
   ): Promise<SafeAPIResult<T>> {
     try {
       console.log(`🔒 Safe API: Starting ${operationName}...`);
-      
-      // Create timeout protection
+
+      // Create timeout protection with multiple layers
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error(`${operationName} timed out after 8 seconds`));
-        }, 8000);
+          reject(new Error(`${operationName} timed out after 6 seconds`));
+        }, 6000); // Shorter timeout for better responsiveness
       });
+
+      // Wrap API call in additional try-catch
+      const safeApiCall = async (): Promise<T> => {
+        try {
+          return await apiCall();
+        } catch (innerError) {
+          // Log but don't throw - let outer handler deal with it
+          const message = innerError instanceof Error ? innerError.message : String(innerError);
+          console.log(`🔍 Inner API call failed: ${message}`);
+          throw innerError;
+        }
+      };
 
       // Race between API call and timeout
       const result = await Promise.race([
-        apiCall(),
+        safeApiCall(),
         timeoutPromise
       ]);
 
@@ -44,7 +56,7 @@ export class SafeAPIWrapper {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.log(`🔄 Safe API: ${operationName} failed, using fallback:`, errorMessage);
-      
+
       return {
         success: true, // Still report success since we have fallback
         data: fallbackData,
