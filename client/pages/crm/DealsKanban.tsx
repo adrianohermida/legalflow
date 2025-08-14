@@ -273,16 +273,16 @@ const DealsKanban = () => {
     if (stage.is_lost) return 'bg-red-100 border-red-300';
     
     switch (stage.code) {
-      case 'novo': return 'bg-blue-100 border-blue-300';
-      case 'qualificado': return 'bg-yellow-100 border-yellow-300';
-      case 'proposta': return 'bg-purple-100 border-purple-300';
+      case 'novo': return 'bg-gray-50 border-gray-200';
+      case 'qualificado': return 'bg-gray-100 border-gray-300';
+      case 'proposta': return 'bg-gray-200 border-gray-400';
       default: return 'bg-gray-100 border-gray-300';
     }
   };
 
   const getDealCardClass = (deal: Deal) => {
     const baseClass = "p-4 bg-white border rounded-lg shadow-sm cursor-move hover:shadow-md transition-shadow";
-    const highlightClass = highlightDealId === deal.id ? " ring-2 ring-blue-500 ring-opacity-50" : "";
+    const highlightClass = highlightDealId === deal.id ? " ring-2 ring-gray-500 ring-opacity-50" : "";
     return baseClass + highlightClass;
   };
 
