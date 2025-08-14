@@ -58,6 +58,12 @@ const advogadoNavItems = [
     icon: Calendar,
     description: "Compromissos e prazos",
   },
+  {
+    title: "Autofix Testing",
+    href: "/autofix-testing",
+    icon: TestTube,
+    description: "Sistema de testes do autofix",
+  },
 ];
 
 const clienteNavItems = [
