@@ -667,10 +667,59 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             </div>
             
             <div className="flex items-center gap-2">
+              {/* Saved Views Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Visualizações
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Visualizações Salvas</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {savedViews.length > 0 ? (
+                    savedViews.map((view) => (
+                      <DropdownMenuItem
+                        key={view.id}
+                        onClick={() => {
+                          setFilters(prev => ({
+                            ...prev,
+                            ...view.filters,
+                            page: 1,
+                          }));
+                        }}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        {view.name}
+                        {view.is_default && (
+                          <Badge className="ml-auto text-xs">Padrão</Badge>
+                        )}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem disabled>
+                      Nenhuma visualização salva
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setShowSaveViewDialog(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Salvar visualização atual
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button variant="outline" size="sm" onClick={clearAllFilters}>
                 <X className="w-4 h-4 mr-2" />
                 Limpar filtros
               </Button>
+
+              <Button variant="outline" size="sm" onClick={showKeyboardShortcutsHelp}>
+                <Command className="w-4 h-4 mr-2" />
+                Atalhos
+              </Button>
+
               <Button variant="outline" size="sm">
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
@@ -787,7 +836,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                           <TableHead>Resumo</TableHead>
                           <TableHead>Processo (CNJ)</TableHead>
                           <TableHead>Tribunal</TableHead>
-                          <TableHead className="w-20">Aç��es</TableHead>
+                          <TableHead className="w-20">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
