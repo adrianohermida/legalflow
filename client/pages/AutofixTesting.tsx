@@ -13,6 +13,7 @@ import { autofixHistory, BuilderPromptRequest } from "../lib/autofix-history";
 import { createAutofixTables, insertSampleData, validateDatabaseSetup, getSetupInstructions, checkTablesExist } from "../lib/supabase-setup-helper";
 import { quickDiagnostic, autofixDiagnostics } from "../lib/autofix-diagnostics";
 import { useToast } from "../hooks/use-toast";
+import SQLFileDownloader from "../components/SQLFileDownloader";
 
 interface TestResult {
   name: string;
