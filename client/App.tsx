@@ -43,7 +43,7 @@ import { ProcessoOverview } from "./pages/ProcessoOverview";
 import { ProcessoDetail } from "./pages/ProcessoDetail";
 import ProcessoDetailV2 from "./pages/ProcessoDetailV2";
 import { Clientes } from "./pages/Clientes";
-import { Jornadas } from "./pages/Jornadas";
+import Jornadas from "./pages/Jornadas";
 import { NovaJornada } from "./pages/NovaJornada";
 import { IniciarJornada } from "./pages/IniciarJornada";
 import { InboxLegal } from "./pages/InboxLegal";
