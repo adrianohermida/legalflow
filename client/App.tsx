@@ -674,6 +674,14 @@ function RegularAppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/launch"
+        element={
+          <ProtectedRoute userType="advogado">
+            <LaunchPlan />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
