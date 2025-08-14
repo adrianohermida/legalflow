@@ -88,20 +88,22 @@ const LinkStageToPaymentDialog: React.FC<{
   const { data: paymentPlans } = useQuery({
     queryKey: ["payment-plans", journeyInstance.cliente_cpfcnpj],
     queryFn: async () => {
-      // Mock data - in real implementation, fetch from legalflow.planos_pagamento
-      return [
-        {
-          id: "plan-1",
-          cliente_cpfcnpj: journeyInstance.cliente_cpfcnpj,
-          descricao: "Consultoria Trabalhista - 3x",
-          valor_total: 3000,
-          parcelas: [
-            { numero: 1, valor: 1000, vencimento: "2024-02-15", status: "pago" },
-            { numero: 2, valor: 1000, vencimento: "2024-03-15", status: "pendente" },
-            { numero: 3, valor: 1000, vencimento: "2024-04-15", status: "pendente" }
-          ]
-        }
-      ] as PaymentPlan[];
+      // Fetch real payment plans from database
+      const { data, error } = await lf
+        .from('planos_pagamento')
+        .select(`
+          id,
+          cliente_cpfcnpj,
+          amount_total,
+          installments,
+          paid_amount,
+          status,
+          parcelas_pagamento(*)
+        `)
+        .eq('cliente_cpfcnpj', journeyInstance.cliente_cpfcnpj);
+
+      if (error) throw error;
+      return data || [];
     },
     enabled: open,
   });
