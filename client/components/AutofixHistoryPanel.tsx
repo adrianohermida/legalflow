@@ -126,6 +126,10 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
       setStats(systemStats);
     } catch (error) {
       console.error("Failed to load stats:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes("relation") && errorMessage.includes("does not exist")) {
+        console.warn("Autofix tables don't exist. Stats will be unavailable.");
+      }
     }
   };
 
