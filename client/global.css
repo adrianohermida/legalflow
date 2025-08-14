@@ -4,72 +4,121 @@
 @tailwind utilities;
 
 /* ============================
-   NEUTRAL THEME - GRAYSCALE ONLY
+   MONOCHROMATIC THEME - GRAYSCALE ONLY
+   ZERO COLOR POLICY - DESENVOLVIMENTO FOCADO
 ============================ */
 :root {
-  /* Tons neutros principais */
-  --neutral-900: #111827; /* Cinza muito escuro */
-  --neutral-800: #1f2937; /* Cinza escuro */
-  --neutral-700: #374151; /* Cinza médio escuro */
-  --neutral-600: #4b5563; /* Cinza médio */
-  --neutral-500: #6b7280; /* Cinza */
-  --neutral-400: #9ca3af; /* Cinza claro */
-  --neutral-300: #d1d5db; /* Cinza muito claro */
-  --neutral-200: #e5e7eb; /* Cinza bem claro */
-  --neutral-100: #f3f4f6; /* Cinza quase branco */
-  --neutral-50: #f9fafb; /* Cinza ultra claro */
+  /* Base monocromática - Tons puros de cinza */
+  --mono-black: #000000;
+  --mono-gray-900: #111827; /* Quase preto */
+  --mono-gray-800: #1f2937; /* Cinza muito escuro */
+  --mono-gray-700: #374151; /* Cinza escuro */
+  --mono-gray-600: #4b5563; /* Cinza médio */
+  --mono-gray-500: #6b7280; /* Cinza neutro */
+  --mono-gray-400: #9ca3af; /* Cinza claro */
+  --mono-gray-300: #d1d5db; /* Cinza bem claro */
+  --mono-gray-200: #e5e7eb; /* Cinza ultra claro */
+  --mono-gray-100: #f3f4f6; /* Quase branco */
+  --mono-gray-50: #f9fafb; /* Branco acinzentado */
+  --mono-white: #ffffff;
 
-  /* Sistema de cores neutro */
-  --primary: var(--neutral-900);
-  --primary-hover: var(--neutral-800);
-  --primary-light: var(--neutral-100);
-  --secondary: var(--neutral-600);
-  --muted: var(--neutral-500);
-  --surface: #ffffff;
-  --on-surface: var(--neutral-900);
-  --disabled: var(--neutral-300);
+  /* Tons neutros - MAPEAMENTO LEGADO */
+  --neutral-900: var(--mono-gray-900);
+  --neutral-800: var(--mono-gray-800);
+  --neutral-700: var(--mono-gray-700);
+  --neutral-600: var(--mono-gray-600);
+  --neutral-500: var(--mono-gray-500);
+  --neutral-400: var(--mono-gray-400);
+  --neutral-300: var(--mono-gray-300);
+  --neutral-200: var(--mono-gray-200);
+  --neutral-100: var(--mono-gray-100);
+  --neutral-50: var(--mono-gray-50);
 
-  /* Borders e estados */
-  --border: var(--neutral-200);
-  --border-hover: var(--neutral-300);
-  --focus-ring: 2px solid var(--neutral-700);
+  /* Sistema de cores monocromático */
+  --primary: var(--mono-gray-900);
+  --primary-hover: var(--mono-gray-800);
+  --primary-light: var(--mono-gray-100);
+  --secondary: var(--mono-gray-600);
+  --muted: var(--mono-gray-500);
+  --surface: var(--mono-white);
+  --on-surface: var(--mono-gray-900);
+  --disabled: var(--mono-gray-300);
+
+  /* Estados monocromáticos */
+  --success: var(--mono-gray-700); /* Sucesso em cinza escuro */
+  --warning: var(--mono-gray-600); /* Aviso em cinza médio */
+  --error: var(--mono-gray-800); /* Erro em cinza muito escuro */
+  --info: var(--mono-gray-500); /* Info em cinza neutro */
+
+  /* Borders e interações monocromáticas */
+  --border: var(--mono-gray-200);
+  --border-hover: var(--mono-gray-300);
+  --border-focus: var(--mono-gray-700);
+  --focus-ring: 2px solid var(--mono-gray-700);
   --radius: 12px;
 
-  /* Sobrescrever TODAS as variáveis de marca para tons neutros */
-  --brand-900: var(--neutral-900);
-  --brand-800: var(--neutral-800);
-  --brand-700: var(--neutral-800);
-  --brand-600: var(--neutral-600);
-  --brand-500: var(--neutral-500);
-  --brand-400: var(--neutral-400);
-  --brand-300: var(--neutral-300);
-  --brand-200: var(--neutral-200);
-  --brand-100: var(--neutral-100);
-  --brand-50: var(--neutral-50);
+  /* Sombras monocromáticas */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 
-  /* Accessibility focus ring for Phase 5 */
-  --focus-ring: 2px solid #374151;
+  /* ZERO COLOR OVERRIDE - Todas as cores de marca = monocromático */
+  --brand-900: var(--mono-gray-900);
+  --brand-800: var(--mono-gray-800);
+  --brand-700: var(--mono-gray-700);
+  --brand-600: var(--mono-gray-600);
+  --brand-500: var(--mono-gray-500);
+  --brand-400: var(--mono-gray-400);
+  --brand-300: var(--mono-gray-300);
+  --brand-200: var(--mono-gray-200);
+  --brand-100: var(--mono-gray-100);
+  --brand-50: var(--mono-gray-50);
+
+  /* OVERRIDE DE CORES COLORIDAS - Força monocromático */
+  --blue-500: var(--mono-gray-600);
+  --blue-600: var(--mono-gray-700);
+  --blue-700: var(--mono-gray-800);
+  --green-500: var(--mono-gray-600);
+  --green-600: var(--mono-gray-700);
+  --red-500: var(--mono-gray-700);
+  --red-600: var(--mono-gray-800);
+  --yellow-500: var(--mono-gray-500);
+  --orange-500: var(--mono-gray-600);
+  --purple-500: var(--mono-gray-600);
+  --indigo-500: var(--mono-gray-600);
+  --pink-500: var(--mono-gray-600);
+  --amber-500: var(--mono-gray-500);
+  --lime-500: var(--mono-gray-500);
+  --emerald-500: var(--mono-gray-600);
+  --teal-500: var(--mono-gray-600);
+  --cyan-500: var(--mono-gray-600);
+  --sky-500: var(--mono-gray-600);
+  --violet-500: var(--mono-gray-600);
+  --fuchsia-500: var(--mono-gray-600);
+  --rose-500: var(--mono-gray-600);
+
+  /* Accessibility monocromático */
+  --focus-ring: 2px solid var(--mono-gray-700);
   --focus-offset: 2px;
+  --focus-shadow: 0 0 0 2px var(--mono-gray-300);
 
-  /* Mapear cores específicas para compatibilidade */
-  color: var(--on-surface);
-  background-color: var(--surface);
+  /* Base monocromática */
+  color: var(--mono-gray-900);
+  background-color: var(--mono-white);
 
-  /* Aliases para compatibilidade total */
-  --theme-primary: var(--neutral-900);
-  --theme-primary-hover: var(--neutral-800);
-  --theme-primary-light: var(--neutral-100);
-  --theme-background: var(--surface);
-  --theme-background-secondary: var(--neutral-50);
-  --theme-text: var(--on-surface);
-  --theme-text-secondary: var(--neutral-700);
-  --theme-text-muted: var(--muted);
-  --theme-border: var(--border);
-  --theme-border-hover: var(--border-hover);
-  --success: var(--neutral-600);
-  --warn: var(--neutral-500);
-  --danger: var(--neutral-700);
-  --info: var(--neutral-600);
+  /* Compatibilidade monocromática */
+  --theme-primary: var(--mono-gray-900);
+  --theme-primary-hover: var(--mono-gray-800);
+  --theme-primary-light: var(--mono-gray-100);
+  --theme-background: var(--mono-white);
+  --theme-background-secondary: var(--mono-gray-50);
+  --theme-text: var(--mono-gray-900);
+  --theme-text-secondary: var(--mono-gray-700);
+  --theme-text-muted: var(--mono-gray-500);
+  --theme-border: var(--mono-gray-200);
+  --theme-border-hover: var(--mono-gray-300);
+  --warn: var(--mono-gray-600);
+  --danger: var(--mono-gray-800);
 }
 
 /* ============================
