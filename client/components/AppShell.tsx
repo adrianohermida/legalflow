@@ -36,8 +36,8 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
     },
   });
 
-  const handleAppLauncherToggle = () => {
-    setIsAppLauncherOpen(!isAppLauncherOpen);
+  const handleOfficeModulesToggle = () => {
+    setIsOfficeModulesOpen(!isOfficeModulesOpen);
     if (isNotificationPanelOpen) setIsNotificationPanelOpen(false);
   };
 
