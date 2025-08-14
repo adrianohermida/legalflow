@@ -41,7 +41,7 @@ import {
   ModificationEntry,
   BuilderPromptRequest,
 } from "../lib/autofix-history";
-import { initializeAutofixDatabase } from "../lib/autofix-database-setup";
+// import { initializeAutofixDatabase } from "../lib/autofix-database-setup";
 import {
   History,
   GitBranch,
