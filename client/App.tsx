@@ -310,6 +310,14 @@ function DemoAppRoutes() {
         }
       />
       <Route
+        path="/inbox-sf4"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <InboxLegalSF4 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
         path="/agenda"
         element={
           <DemoProtectedRoute userType="advogado">
