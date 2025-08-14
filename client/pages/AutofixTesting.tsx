@@ -596,33 +596,85 @@ const AutofixTesting: React.FC = () => {
                 Manual Database Setup
               </CardTitle>
               <CardDescription>
-                Instructions for manual database configuration
+                Instruções detalhadas para configuração manual do banco de dados
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <Alert>
                 <Settings className="h-4 w-4" />
                 <AlertDescription>
-                  If automatic setup fails, execute the following SQL script in your Supabase SQL Editor:
+                  Se o setup automático falhar, siga as instruções abaixo para configurar manualmente:
                 </AlertDescription>
               </Alert>
-              
-              <div className="mt-4">
-                <Label>SQL Script Location</Label>
-                <Input value="/AUTOFIX_DATABASE_SETUP.sql" readOnly className="mt-1" />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Copy the contents of this file and execute it in the Supabase SQL Editor.
-                </p>
+
+              <div className="space-y-3">
+                <div className="border rounded-lg p-4 space-y-2">
+                  <h4 className="font-semibold text-sm">📋 Passo a Passo</h4>
+                  <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>Abra o <strong>Supabase Dashboard</strong> e acesse o <strong>SQL Editor</strong></li>
+                    <li>Copie todo o conteúdo do arquivo <code>AUTOFIX_DATABASE_SETUP.sql</code></li>
+                    <li>Execute o script completo no SQL Editor</li>
+                    <li>Volte aqui e clique em <strong>"Run All Tests"</strong> para verificar</li>
+                  </ol>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>📄 Arquivo SQL</Label>
+                  <Input value="AUTOFIX_DATABASE_SETUP.sql" readOnly />
+                  <p className="text-xs text-muted-foreground">
+                    Localizado na raiz do projeto. Contém todas as tabelas, índices e funções necessárias.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Card className="p-3">
+                    <h5 className="font-medium text-sm mb-2">🗄️ Tabelas Criadas</h5>
+                    <ul className="text-xs space-y-1 text-muted-foreground">
+                      <li>• autofix_history</li>
+                      <li>• builder_prompts</li>
+                    </ul>
+                  </Card>
+                  <Card className="p-3">
+                    <h5 className="font-medium text-sm mb-2">⚙️ Recursos Incluídos</h5>
+                    <ul className="text-xs space-y-1 text-muted-foreground">
+                      <li>• Índices de performance</li>
+                      <li>• Funções de estatísticas</li>
+                      <li>�� Triggers de atualização</li>
+                      <li>• Dados de exemplo</li>
+                    </ul>
+                  </Card>
+                </div>
               </div>
 
               {databaseSetup && !databaseSetup.success && (
                 <Alert className="mt-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Setup Error:</strong> {databaseSetup.error}
+                    <strong>Erro no Setup Automático:</strong> {databaseSetup.error}
+                    <br />
+                    <span className="text-xs mt-1 block">
+                      Configure manualmente seguindo as instruções acima.
+                    </span>
                   </AlertDescription>
                 </Alert>
               )}
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+                  className="text-xs"
+                >
+                  🔗 Abrir Supabase Dashboard
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={testDatabaseSetup}
+                  className="text-xs"
+                >
+                  🔄 Verificar Setup
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
