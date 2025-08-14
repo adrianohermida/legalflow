@@ -274,11 +274,18 @@ const DevAuditoria: React.FC = () => {
   useEffect(() => {
     const initialModules = initializeModules();
     setModules(initialModules);
-    
-    // Auto-run audit on page load
-    setTimeout(() => {
-      runAudit(initialModules);
-    }, 500);
+
+    // Auto-run audit on page load with welcome message
+    const runInitialAudit = async () => {
+      toast({
+        title: "🔍 Iniciando Auditoria Automática",
+        description: "Verificando integridade de todos os módulos...",
+      });
+
+      await runAudit(initialModules);
+    };
+
+    setTimeout(runInitialAudit, 800);
   }, []);
 
   const runAudit = async (modulesToAudit?: AuditModule[]) => {
