@@ -1273,50 +1273,135 @@ export default function ProcessoDetailV2() {
         </Tabs>
       </div>
 
-      {/* Dialog Monitoramento */}
+      {/* Dialog Configurações */}
       <Dialog
         open={isMonitoringDialogOpen}
         onOpenChange={setIsMonitoringDialogOpen}
       >
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Configurar Monitoramento</DialogTitle>
+            <DialogTitle>Configurações de Monitoramento</DialogTitle>
             <DialogDescription>
-              Configure as opções de monitoramento para este processo
+              Configure o provedor e atualize os dados do processo
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="premium">Monitoramento Premium (Escavador)</Label>
-              <Switch
-                id="premium"
-                checked={premiumEnabled}
-                onCheckedChange={setPremiumEnabled}
-              />
+          <div className="space-y-6 py-4">
+            {/* Status atual */}
+            <div className="p-3 bg-neutral-50 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Fonte Ativa:</span>
+                <Badge variant="outline">
+                  {monitoringSettings?.provider === 'escavador' ? 'Escavador Premium' : 'Advise'}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-neutral-600">Status:</span>
+                <div className="flex items-center gap-2">
+                  <Radio className={`w-3 h-3 ${monitoringSettings?.active ? 'text-green-500' : 'text-gray-400'}`} />
+                  <span className="text-xs">
+                    {monitoringSettings?.active ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-neutral-600">
-              {premiumEnabled
-                ? "Usando Escavador Premium - dados mais completos e atualizações em tempo real"
-                : "Usando Advise - dados básicos com atualizações manuais"}
-            </p>
+
+            {/* Toggle Premium */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="premium" className="font-medium">Monitoramento Premium</Label>
+                  <p className="text-xs text-neutral-600">Usar Escavador para dados mais completos</p>
+                </div>
+                <Switch
+                  id="premium"
+                  checked={premiumEnabled}
+                  onCheckedChange={async (checked) => {
+                    setPremiumEnabled(checked);
+                    // Chamar RPC imediatamente
+                    try {
+                      await lf.rpc('lf_set_monitoring', {
+                        p_numero_cnj: numero_cnj,
+                        p_provider: checked ? 'escavador' : 'advise',
+                        p_active: true,
+                        p_premium: checked
+                      });
+
+                      // Atualizar estado local
+                      queryClient.invalidateQueries({
+                        queryKey: ['monitoring-settings', numero_cnj]
+                      });
+
+                      toast({
+                        title: "Configuração atualizada",
+                        description: `Fonte alterada para ${checked ? 'Escavador Premium' : 'Advise'}`
+                      });
+                    } catch (error) {
+                      console.error('Erro ao atualizar monitoramento:', error);
+                      toast({
+                        title: "Erro",
+                        description: "Falha ao atualizar configuração",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                />
+              </div>
+              <p className="text-sm text-neutral-600">
+                {premiumEnabled
+                  ? "✅ Escavador Premium - dados completos e atualizações em tempo real"
+                  : "📋 Advise - dados básicos com atualizações manuais"}
+              </p>
+            </div>
+
+            {/* Botão Aplicar e Atualizar */}
+            <div className="pt-2 border-t">
+              <Button
+                onClick={async () => {
+                  try {
+                    const { data: jobId } = await lf.rpc('lf_run_sync', {
+                      p_numero_cnj: numero_cnj
+                    });
+
+                    toast({
+                      title: "Sync enfileirado",
+                      description: `Job #${jobId} iniciado. Dados serão atualizados em breve.`
+                    });
+
+                    // Fechar dialog
+                    setIsMonitoringDialogOpen(false);
+
+                    // Invalidar queries para refresh
+                    queryClient.invalidateQueries({
+                      queryKey: ['processo', numero_cnj]
+                    });
+
+                  } catch (error) {
+                    console.error('Erro ao executar sync:', error);
+                    toast({
+                      title: "Erro",
+                      description: "Falha ao iniciar sincronização",
+                      variant: "destructive"
+                    });
+                  }
+                }}
+                className="w-full"
+                disabled={syncProcessoMutation.isPending}
+              >
+                {syncProcessoMutation.isPending ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                Aplicar e Atualizar
+              </Button>
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="pt-0">
             <Button
               variant="outline"
               onClick={() => setIsMonitoringDialogOpen(false)}
             >
-              Cancelar
-            </Button>
-            <Button
-              onClick={() => {
-                updateMonitoringMutation.mutate({
-                  premium: premiumEnabled,
-                  active: true,
-                });
-                setIsMonitoringDialogOpen(false);
-              }}
-            >
-              Salvar
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>
