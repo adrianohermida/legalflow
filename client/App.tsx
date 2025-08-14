@@ -606,6 +606,14 @@ function RegularAppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/qa"
+        element={
+          <ProtectedRoute userType="advogado">
+            <QAConsole />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
