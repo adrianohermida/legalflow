@@ -165,7 +165,7 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
     subscriptions.push(eventosChannel);
 
     // 6. Sync Jobs (para feedback de sincronização)
-    const syncJobsChannel = lf
+    const syncJobsChannel = supabase
       .channel('sync_jobs_processo')
       .on(
         'postgres_changes',
@@ -177,16 +177,16 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
         },
         (payload) => {
           console.log('Sync job update:', payload);
-          
+
           if (payload.eventType === 'UPDATE') {
             const job = payload.new as any;
-            
+
             if (job.status === 'ok') {
               toast({
                 title: "Sincronização concluída",
                 description: `Dados do processo atualizados (Job #${job.id.slice(0, 8)})`
               });
-              
+
               // Invalidar todas as queries do processo
               queryClient.invalidateQueries({
                 queryKey: ['processo', numero_cnj]
@@ -204,7 +204,7 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
                 queryKey: ['documentos', numero_cnj]
               });
             }
-            
+
             if (job.status === 'error') {
               toast({
                 title: "Erro na sincronização",
