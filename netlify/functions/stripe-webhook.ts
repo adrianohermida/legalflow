@@ -202,14 +202,17 @@ async function handleSubscriptionLifecycle(stripeEvent: any) {
     if (subscription.status === 'active') {
       // Move related deals to "won" stage if subscription becomes active
       await supabase
-        .from('legalflow.deals')
+        .schema('legalflow')
+        .from('deals')
         .update({
           stage_id: (
             await supabase
-              .from('legalflow.pipeline_stages')
+              .schema('legalflow')
+              .from('pipeline_stages')
               .select('id')
               .eq('pipeline_id', (await supabase
-                .from('legalflow.pipeline_defs')
+                .schema('legalflow')
+                .from('pipeline_defs')
                 .select('id')
                 .eq('code', 'sales')
                 .single()).data?.id)
