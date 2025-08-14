@@ -70,6 +70,7 @@ const DevAuditoria: React.FC = () => {
   const [isRunningAudit, setIsRunningAudit] = useState(false);
   const [auditProgress, setAuditProgress] = useState(0);
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"audit" | "history">("audit");
   const [isRunningAutofix, setIsRunningAutofix] = useState(false);
   const [autofixPatches] = useState<AutofixPatch[]>([
     {
@@ -190,7 +191,7 @@ const DevAuditoria: React.FC = () => {
     {
       id: "processos",
       name: "Processos ↔ Movimentações",
-      description: "Sincronização entre processos e movimentações",
+      description: "Sincronização entre processos e movimentaç��es",
       icon: <GitBranch className="h-5 w-5" />,
       status: "pending",
       checks: [
@@ -361,7 +362,7 @@ const DevAuditoria: React.FC = () => {
           ? "✅ Sistema Íntegro"
           : hasCriticalIssues
             ? "⚠️ Pendências Detectadas"
-            : "��� Verificação Parcial",
+            : "🔄 Verificação Parcial",
         description: `${okModules} OK • ${errorModules} pendências • ${pendingModules} aguardando${
           hasCriticalIssues ? " - Use Autofix para corrigir" : ""
         }`,
