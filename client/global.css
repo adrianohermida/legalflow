@@ -102,7 +102,7 @@
   --focus-offset: 2px;
   --focus-shadow: 0 0 0 2px var(--mono-gray-300);
 
-  /* Base monocromática */
+  /* Base monocrom��tica */
   color: var(--mono-gray-900);
   background-color: var(--mono-white);
 
@@ -119,6 +119,28 @@
   --theme-border-hover: var(--mono-gray-300);
   --warn: var(--mono-gray-600);
   --danger: var(--mono-gray-800);
+
+  /* Toast variables */
+  --background: var(--mono-white);
+  --foreground: var(--mono-gray-900);
+  --muted: var(--mono-gray-100);
+  --muted-foreground: var(--mono-gray-500);
+  --popover: var(--mono-white);
+  --popover-foreground: var(--mono-gray-900);
+  --card: var(--mono-white);
+  --card-foreground: var(--mono-gray-900);
+  --border: var(--mono-gray-200);
+  --input: var(--mono-gray-200);
+  --primary: var(--mono-gray-900);
+  --primary-foreground: var(--mono-white);
+  --secondary: var(--mono-gray-100);
+  --secondary-foreground: var(--mono-gray-900);
+  --accent: var(--mono-gray-100);
+  --accent-foreground: var(--mono-gray-900);
+  --destructive: var(--mono-gray-800);
+  --destructive-foreground: var(--mono-white);
+  --ring: var(--mono-gray-200);
+  --radius: 0.5rem;
 }
 
 /* ============================
