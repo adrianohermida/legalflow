@@ -70,6 +70,8 @@ import { Skeleton } from '../components/ui/skeleton';
 import { Checkbox } from '../components/ui/checkbox';
 import { supabase, lf } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
+import { sf4Telemetry, sf4SavedViews, sf4Utils, SF4SavedView } from '../lib/sf4-telemetry';
+import { useSF4KeyboardShortcuts, sf4A11yUtils } from '../hooks/useSF4KeyboardShortcuts';
 import { format, subDays, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
