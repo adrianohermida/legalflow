@@ -1,0 +1,614 @@
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { 
+  CheckCircle, 
+  XCircle, 
+  AlertCircle, 
+  Clock,
+  Play, 
+  ExternalLink, 
+  Copy, 
+  RotateCcw,
+  Globe,
+  Users,
+  Building,
+  Settings,
+  Key,
+  RefreshCw
+} from "lucide-react";
+import { useToast } from "../hooks/use-toast";
+import { routeCoverageSystem, RouteTest, RouteCoverageStats } from "../lib/route-coverage-system";
+
+interface RouteCoveragePanelProps {
+  className?: string;
+}
+
+const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) => {
+  const [routes, setRoutes] = useState<RouteTest[]>([]);
+  const [stats, setStats] = useState<RouteCoverageStats | null>(null);
+  const [isRunningTests, setIsRunningTests] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchFilter, setSearchFilter] = useState('');
+  const [currentTestProgress, setCurrentTestProgress] = useState({ current: 0, total: 0 });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    refreshData();
+  }, []);
+
+  const refreshData = () => {
+    const allRoutes = routeCoverageSystem.getRoutes();
+    const currentStats = routeCoverageSystem.getStats();
+    setRoutes(allRoutes);
+    setStats(currentStats);
+  };
+
+  const runAllTests = async () => {
+    setIsRunningTests(true);
+    setCurrentTestProgress({ current: 0, total: routes.length });
+
+    try {
+      await routeCoverageSystem.testAllRoutes((route, index, total) => {
+        setCurrentTestProgress({ current: index, total });
+        // Update routes in real-time
+        refreshData();
+      });
+
+      toast({
+        title: "Teste de Rotas Conclu��do",
+        description: "Todos os testes de rota foram executados com sucesso",
+        variant: "default",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro no Teste",
+        description: `Falha ao executar testes: ${error instanceof Error ? error.message : String(error)}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningTests(false);
+      setCurrentTestProgress({ current: 0, total: 0 });
+      refreshData();
+    }
+  };
+
+  const runCategoryTests = async (category: RouteTest['category']) => {
+    setIsRunningTests(true);
+    const categoryRoutes = routes.filter(route => route.category === category);
+    setCurrentTestProgress({ current: 0, total: categoryRoutes.length });
+
+    try {
+      await routeCoverageSystem.testRoutesByCategory(category, (route, index, total) => {
+        setCurrentTestProgress({ current: index, total });
+        refreshData();
+      });
+
+      toast({
+        title: `Teste ${category} Concluído`,
+        description: `Testes da categoria ${category} executados com sucesso`,
+        variant: "default",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro no Teste",
+        description: `Falha ao testar categoria: ${error instanceof Error ? error.message : String(error)}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningTests(false);
+      setCurrentTestProgress({ current: 0, total: 0 });
+      refreshData();
+    }
+  };
+
+  const testSingleRoute = async (index: number) => {
+    try {
+      await routeCoverageSystem.testRoute(index);
+      refreshData();
+      toast({
+        title: "Rota Testada",
+        description: "Teste individual concluído",
+        variant: "default",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro no Teste",
+        description: `Falha ao testar rota: ${error instanceof Error ? error.message : String(error)}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openRoute = (index: number) => {
+    routeCoverageSystem.openRoute(index);
+    toast({
+      title: "Rota Aberta",
+      description: "Nova aba aberta com a rota selecionada",
+      variant: "default",
+    });
+  };
+
+  const copyDeeplink = (index: number) => {
+    routeCoverageSystem.copyDeeplink(index);
+    toast({
+      title: "Deeplink Copiado",
+      description: "Link da rota copiado para área de transferência",
+      variant: "default",
+    });
+  };
+
+  const resetTests = () => {
+    routeCoverageSystem.resetTestResults();
+    refreshData();
+    toast({
+      title: "Testes Resetados",
+      description: "Todos os resultados de teste foram limpos",
+      variant: "default",
+    });
+  };
+
+  const getStatusIcon = (status: RouteTest['status']) => {
+    switch (status) {
+      case 'ok':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case '404':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'timeout':
+        return <Clock className="h-4 w-4 text-orange-500" />;
+      case 'pending':
+        return <RefreshCw className="h-4 w-4 text-gray-400" />;
+      default:
+        return <RefreshCw className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const getStatusBadge = (status: RouteTest['status']) => {
+    const variants = {
+      ok: 'default',
+      '404': 'destructive',
+      error: 'destructive',
+      timeout: 'secondary',
+      pending: 'outline',
+    } as const;
+
+    const labels = {
+      ok: 'OK',
+      '404': '404',
+      error: 'ERROR',
+      timeout: 'TIMEOUT',
+      pending: 'PENDING',
+    };
+
+    return (
+      <Badge variant={variants[status] || 'outline'}>
+        {labels[status] || status.toUpperCase()}
+      </Badge>
+    );
+  };
+
+  const getCategoryIcon = (category: RouteTest['category']) => {
+    const icons = {
+      escritorio: <Building className="h-4 w-4" />,
+      portal: <Users className="h-4 w-4" />,
+      crm: <Globe className="h-4 w-4" />,
+      admin: <Settings className="h-4 w-4" />,
+      auth: <Key className="h-4 w-4" />,
+      setup: <Settings className="h-4 w-4" />,
+    };
+    return icons[category] || <Globe className="h-4 w-4" />;
+  };
+
+  const filteredRoutes = routes.filter(route => {
+    const matchesCategory = selectedCategory === 'all' || route.category === selectedCategory;
+    const matchesSearch = searchFilter === '' || 
+      route.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+      route.path.toLowerCase().includes(searchFilter.toLowerCase()) ||
+      route.description.toLowerCase().includes(searchFilter.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const categories = Array.from(new Set(routes.map(route => route.category)));
+
+  return (
+    <div className={`space-y-6 ${className}`}>
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            🛣️ SF-1: Cobertura de Rotas & Navegação
+          </h2>
+          <p className="text-muted-foreground">
+            QA visual completo com health check, tempo de render e deeplinks de teste
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={resetTests}
+            disabled={isRunningTests}
+          >
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Reset
+          </Button>
+          <Button
+            onClick={runAllTests}
+            disabled={isRunningTests}
+            className="min-w-[140px]"
+          >
+            {isRunningTests ? (
+              <>
+                <Play className="mr-2 h-4 w-4 animate-spin" />
+                Testando... ({currentTestProgress.current}/{currentTestProgress.total})
+              </>
+            ) : (
+              <>
+                <Play className="mr-2 h-4 w-4" />
+                Testar Todas
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      {stats && (
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="pt-4">
+            <div className="grid gap-4 md:grid-cols-5">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+                <p className="text-sm font-medium">Total de Rotas</p>
+                <p className="text-xs text-muted-foreground">Mapeadas</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{stats.ok}</div>
+                <p className="text-sm font-medium">OK</p>
+                <p className="text-xs text-muted-foreground">Funcionando</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">{stats.errors}</div>
+                <p className="text-sm font-medium">Errors</p>
+                <p className="text-xs text-muted-foreground">Com problemas</p>
+              </div>
+              <div className="text-2xl font-bold text-orange-600">{stats.avg_render_time}ms</div>
+              <p className="text-sm font-medium">Tempo Médio</p>
+              <p className="text-xs text-muted-foreground">Render</p>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{stats.coverage_percentage}%</div>
+                <p className="text-sm font-medium">Cobertura</p>
+                <p className="text-xs text-muted-foreground">Testada</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Tabs defaultValue="all-routes" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all-routes">Todas as Rotas</TabsTrigger>
+          <TabsTrigger value="by-category">Por Categoria</TabsTrigger>
+          <TabsTrigger value="health-report">Health Report</TabsTrigger>
+          <TabsTrigger value="deeplinks">Deeplinks</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all-routes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Lista Completa de Rotas</CardTitle>
+              <CardDescription>
+                Todas as rotas mapeadas (Escritório + Portal + CRM) com status de health
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Filters */}
+              <div className="flex gap-4 mb-4">
+                <div className="flex-1">
+                  <Label>Buscar</Label>
+                  <Input
+                    placeholder="Filtrar por nome, path ou descrição..."
+                    value={searchFilter}
+                    onChange={(e) => setSearchFilter(e.target.value)}
+                  />
+                </div>
+                <div className="w-48">
+                  <Label>Categoria</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {categories.map(cat => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Routes Table */}
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">Status</TableHead>
+                      <TableHead>Rota</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead>User Type</TableHead>
+                      <TableHead>Render Time</TableHead>
+                      <TableHead>Última Tested</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRoutes.map((route, index) => {
+                      const originalIndex = routes.findIndex(r => r.path === route.path);
+                      return (
+                        <TableRow key={route.path}>
+                          <TableCell>
+                            {getStatusIcon(route.status)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{route.name}</div>
+                              <div className="text-sm text-muted-foreground">{route.path}</div>
+                              <div className="text-xs text-muted-foreground">{route.description}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {getCategoryIcon(route.category)}
+                              <span className="capitalize">{route.category}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">
+                              {route.userType}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className={`text-sm ${route.renderTime > 500 ? 'text-red-600' : 'text-green-600'}`}>
+                                {route.renderTime > 0 ? `${route.renderTime}ms` : '-'}
+                              </span>
+                              {route.renderTime > 500 && (
+                                <span className="text-xs text-red-500">⚠️ Slow</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm">
+                              {route.lastTested !== 'never' 
+                                ? new Date(route.lastTested).toLocaleString()
+                                : 'Never'
+                              }
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-1 justify-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => testSingleRoute(originalIndex)}
+                                disabled={isRunningTests}
+                              >
+                                <Play className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openRoute(originalIndex)}
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => copyDeeplink(originalIndex)}
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="by-category" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {categories.map(category => {
+              const categoryRoutes = routes.filter(route => route.category === category);
+              const okCount = categoryRoutes.filter(route => route.status === 'ok').length;
+              const errorCount = categoryRoutes.filter(route => ['404', 'error', 'timeout'].includes(route.status)).length;
+              
+              return (
+                <Card key={category}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      {getCategoryIcon(category)}
+                      <span className="capitalize">{category}</span>
+                      <Badge variant="outline">{categoryRoutes.length} rotas</Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      {okCount} OK, {errorCount} com problemas
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 mb-4">
+                      {categoryRoutes.slice(0, 5).map(route => (
+                        <div key={route.path} className="flex items-center gap-2 text-sm">
+                          {getStatusIcon(route.status)}
+                          <span className="flex-1 truncate">{route.name}</span>
+                          {getStatusBadge(route.status)}
+                        </div>
+                      ))}
+                      {categoryRoutes.length > 5 && (
+                        <div className="text-xs text-muted-foreground">
+                          +{categoryRoutes.length - 5} mais rotas...
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => runCategoryTests(category)}
+                      disabled={isRunningTests}
+                      className="w-full"
+                    >
+                      <Play className="mr-2 h-3 w-3" />
+                      Testar {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="health-report" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Report Detalhado</CardTitle>
+              <CardDescription>
+                Relatório de saúde das rotas com métricas de performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {stats && (
+                <div className="space-y-6">
+                  {/* Performance Alert */}
+                  {stats.avg_render_time > 500 && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        ⚠️ Tempo de render acima do esperado (&gt;500ms). Algumas rotas podem estar lentas.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Error Summary */}
+                  {stats.errors > 0 && (
+                    <Alert className="border-red-200">
+                      <XCircle className="h-4 w-4 text-red-500" />
+                      <AlertDescription>
+                        🚨 {stats.errors} rotas com problemas detectados. Verifique rotas com status 404 ou erro.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Success Summary */}
+                  {stats.coverage_percentage >= 90 && stats.errors === 0 && (
+                    <Alert className="border-green-200">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <AlertDescription>
+                        ✅ Excelente! {stats.coverage_percentage}% de cobertura sem erros críticos.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Detailed Metrics */}
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2">📊 Cobertura</h4>
+                      <div className="text-2xl font-bold">{stats.coverage_percentage}%</div>
+                      <div className="text-sm text-muted-foreground">
+                        {stats.ok + stats.errors} de {stats.total} testadas
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2">⚡ Performance</h4>
+                      <div className="text-2xl font-bold">{stats.avg_render_time}ms</div>
+                      <div className="text-sm text-muted-foreground">
+                        Tempo médio de render
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2">🎯 Confiabilidade</h4>
+                      <div className="text-2xl font-bold">
+                        {stats.total > 0 ? Math.round((stats.ok / (stats.ok + stats.errors)) * 100) : 0}%
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Rotas funcionais
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="deeplinks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Deeplinks de Teste</CardTitle>
+              <CardDescription>
+                Links diretos para todas as rotas com query params de teste
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {routes.map((route, index) => (
+                  <div key={route.path} className="border rounded-lg p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium">{route.name}</span>
+                          {getStatusBadge(route.status)}
+                          <Badge variant="outline" className="capitalize">
+                            {route.category}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground break-all">
+                          {route.deeplink}
+                        </div>
+                      </div>
+                      <div className="flex gap-1 ml-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openRoute(index)}
+                          title="Abrir rota"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyDeeplink(index)}
+                          title="Copiar deeplink"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default RouteCoveragePanel;
