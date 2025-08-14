@@ -54,11 +54,35 @@ const AutofixTesting: React.FC = () => {
     addTestResult({
       name: "Credentials Check",
       status: credStatus.public_key_configured && credStatus.private_key_configured ? "success" : "warning",
-      message: credStatus.public_key_configured && credStatus.private_key_configured 
-        ? "Builder.io API credentials configured successfully" 
-        : "Some API credentials are missing",
+      message: credStatus.public_key_configured && credStatus.private_key_configured
+        ? "✅ Credenciais Builder.io configuradas corretamente"
+        : "⚠️ Algumas credenciais de API estão faltando",
       details: credStatus,
     });
+
+    // Quick database status check
+    try {
+      const tablesStatus = await checkTablesExist();
+      const dbSetupStatus = {
+        success: tablesStatus.both_exist,
+        details: {
+          tables_exist: tablesStatus.both_exist,
+          tables_found: tablesStatus.both_exist ? ["autofix_history", "builder_prompts"] : [],
+        },
+      };
+      setDatabaseSetup(dbSetupStatus);
+
+      addTestResult({
+        name: "Database Status",
+        status: tablesStatus.both_exist ? "success" : "warning",
+        message: tablesStatus.both_exist
+          ? "✅ Tabelas do banco de dados encontradas"
+          : "⚠️ Tabelas do banco não encontradas - Configure manualmente",
+        details: dbSetupStatus.details,
+      });
+    } catch (error) {
+      console.warn("Could not check database status on init:", error);
+    }
   };
 
   const runAllTests = async () => {
