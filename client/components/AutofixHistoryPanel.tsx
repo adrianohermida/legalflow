@@ -247,6 +247,60 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
     }
   };
 
+  const handleAutoSetup = async () => {
+    try {
+      setIsAutoSetup(true);
+
+      toast({
+        title: "Configurando tabelas",
+        description: "Tentando criar tabelas automaticamente...",
+      });
+
+      const setupResult = await createAutofixTables();
+
+      if (setupResult.success) {
+        toast({
+          title: "Tabelas criadas",
+          description: "Inserindo dados de exemplo...",
+        });
+
+        const sampleResult = await insertSampleData();
+
+        if (sampleResult.success) {
+          toast({
+            title: "✅ Setup concluído",
+            description: "Tabelas criadas e dados de exemplo inseridos com sucesso!",
+          });
+
+          setTablesExist(true);
+          loadHistory();
+          loadStats();
+        } else {
+          toast({
+            title: "⚠️ Setup parcial",
+            description: "Tabelas criadas, mas erro ao inserir dados de exemplo",
+            variant: "destructive",
+          });
+          setTablesExist(true);
+        }
+      } else {
+        toast({
+          title: "❌ Falha no setup automático",
+          description: setupResult.error || "Use o SQL Editor do Supabase",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro no setup",
+        description: error instanceof Error ? error.message : String(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsAutoSetup(false);
+    }
+  };
+
   const exportHistory = () => {
     const dataStr = JSON.stringify(modifications, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
