@@ -279,7 +279,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     keepPreviousData: true
   });
 
-  // Movimentações query - using public.movimentacoes excluding publicações
+  // Movimentaç��es query - using public.movimentacoes excluding publicações
   const {
     data: movimentacoesData,
     isLoading: isLoadingMovimentacoes,
@@ -423,6 +423,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       toast({ title: "Sucesso", description: "Item vinculado ao processo com sucesso!" });
       queryClient.invalidateQueries({ queryKey: ['sf4-publicacoes'] });
       queryClient.invalidateQueries({ queryKey: ['sf4-movimentacoes'] });
+      sf4A11yUtils.announce('Item vinculado ao processo com sucesso');
       setShowVincularDialog(false);
       setVincularCnj('');
       setSelectedItem(null);
