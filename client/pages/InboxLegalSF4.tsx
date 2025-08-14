@@ -551,10 +551,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       }
       
       // Track telemetry
-      await supabase.from('telemetry_events').insert({
-        event_name: 'sf4_buscar_cadastrar',
-        properties: { item_id: itemId, source, tab: filters.tab }
-      });
+      await sf4Telemetry.trackBuscarCadastrar(itemId, source, filters.tab);
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Busca e cadastro iniciados!" });
