@@ -51,10 +51,10 @@ export async function checkTablesExist(): Promise<{
 export async function createAutofixTables(): Promise<DatabaseSetupResult> {
   try {
     console.log("🔍 Verificando se as tabelas do autofix já existem...");
-    
+
     // First, check if tables already exist
     const tablesStatus = await checkTablesExist();
-    
+
     if (tablesStatus.both_exist) {
       return {
         success: true,
@@ -62,18 +62,43 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
           tables_exist: true,
           tables_found: ["autofix_history", "builder_prompts"],
           setup_method: "automatic",
-          sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+          sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
         },
       };
     }
 
     console.log("📋 Tabelas não encontradas. Tentando setup automático...");
 
-    // Try to create tables using individual insert operations to test permissions
+    // Try admin setup first if service role key is available
+    if (isAdminConfigured) {
+      console.log("🔧 Tentando criar tabelas com privilégios administrativos...");
+
+      try {
+        const adminResult = await createTablesWithAdmin();
+
+        if (adminResult.success) {
+          console.log("✅ Tabelas criadas com sucesso usando service role");
+
+          return {
+            success: true,
+            details: {
+              tables_exist: true,
+              tables_found: ["autofix_history", "builder_prompts"],
+              setup_method: "automatic",
+              sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
+              admin_setup: true,
+            },
+          };
+        } else {
+          console.warn("⚠️ Setup administrativo falhou:", adminResult.error);
+        }
+      } catch (adminError) {
+        console.warn("⚠️ Erro no setup administrativo:", adminError);
+      }
+    }
+
+    // Fallback: Try to test table existence using insert operation
     try {
-      // Test if we can create a simple entry in a potential table
-      // This will fail if tables don't exist, which is what we want to detect
-      
       const testData = {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
@@ -96,22 +121,25 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
       if (insertError) {
         // Tables don't exist or we don't have permission
         console.log("⚠️ Não foi possível criar dados nas tabelas automaticamente");
-        
+
         return {
           success: false,
-          error: "As tabelas do autofix não existem. Execute o script SQL manualmente.",
+          error: isAdminConfigured
+            ? "As tabelas do autofix não existem. Execute o script SQL manualmente no Supabase SQL Editor."
+            : "As tabelas do autofix não existem. Configure a service role key ou execute o script SQL manualmente.",
           details: {
             tables_exist: false,
             tables_found: [],
             setup_method: "manual_required",
-            sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+            sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
+            admin_configured: isAdminConfigured,
           },
         };
       }
 
       // If we got here, the table exists and we have permissions
       console.log("✅ Tabelas já existem e estão acessíveis");
-      
+
       // Clean up test data
       await supabase
         .from("autofix_history")
@@ -124,13 +152,13 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
           tables_exist: true,
           tables_found: ["autofix_history"],
           setup_method: "automatic",
-          sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+          sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
         },
       };
 
     } catch (setupError) {
       console.error("Erro durante setup automático:", setupError);
-      
+
       return {
         success: false,
         error: "Setup automático falhou. Use o SQL Editor do Supabase para executar o script.",
@@ -138,7 +166,8 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
           tables_exist: false,
           tables_found: [],
           setup_method: "manual_required",
-          sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+          sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
+          admin_configured: isAdminConfigured,
         },
       };
     }
@@ -151,7 +180,8 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
         tables_exist: false,
         tables_found: [],
         setup_method: "manual_required",
-        sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+        sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
+        admin_configured: isAdminConfigured,
       },
     };
   }
