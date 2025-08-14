@@ -25,6 +25,7 @@ interface SidebarProps {
   userType: "advogado" | "cliente";
 }
 
+// Apps principais aprovados para sidebar
 const advogadoNavItems = [
   {
     title: "Dashboard",
@@ -45,12 +46,6 @@ const advogadoNavItems = [
     description: "Base de clientes",
   },
   {
-    title: "Jornadas",
-    href: "/jornadas",
-    icon: Target,
-    description: "Jornadas do cliente",
-  },
-  {
     title: "Inbox Legal",
     href: "/inbox-v2",
     icon: Inbox,
@@ -61,42 +56,6 @@ const advogadoNavItems = [
     href: "/agenda",
     icon: Calendar,
     description: "Compromissos e prazos",
-  },
-  {
-    title: "Documentos",
-    href: "/documentos",
-    icon: FolderOpen,
-    description: "Biblioteca de documentos",
-  },
-  {
-    title: "Financeiro",
-    href: "/financeiro",
-    icon: DollarSign,
-    description: "Gestão financeira",
-  },
-  {
-    title: "Relatórios",
-    href: "/relatorios",
-    icon: BarChart3,
-    description: "Análises e relatórios",
-  },
-  {
-    title: "Helpdesk",
-    href: "/helpdesk",
-    icon: HeadphonesIcon,
-    description: "Suporte ao cliente",
-  },
-  {
-    title: "Serviços",
-    href: "/servicos",
-    icon: ShoppingBag,
-    description: "Catálogo de serviços",
-  },
-  {
-    title: "Tickets",
-    href: "/tickets",
-    icon: Ticket,
-    description: "Sistema de atendimento",
   },
 ];
 
