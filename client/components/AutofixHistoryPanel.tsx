@@ -448,7 +448,24 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
 
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
+      <Tabs defaultValue="enhanced-autofix" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="enhanced-autofix" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Enhanced Autofix
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            History & Management
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="enhanced-autofix">
+          <EnhancedAutofixPanel />
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-6">
+          {/* Stats Overview */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
@@ -685,6 +702,8 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
