@@ -24,4 +24,13 @@ dist-ssr
 *.sw?
 
 .config/
-!.env
+
+# Environment files with credentials - NEVER COMMIT
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+
+# But allow the example file
+!.env.example
