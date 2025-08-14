@@ -35,10 +35,22 @@
   --focus-ring: 2px solid var(--neutral-700);
   --radius: 12px;
 
-  /* Aliases para compatibilidade */
-  --theme-primary: var(--primary);
-  --theme-primary-hover: var(--primary-hover);
-  --theme-primary-light: var(--primary-light);
+  /* Sobrescrever TODAS as variáveis de marca para tons neutros */
+  --brand-900: var(--neutral-900);
+  --brand-800: var(--neutral-800);
+  --brand-700: var(--neutral-800);
+  --brand-600: var(--neutral-600);
+  --brand-500: var(--neutral-500);
+  --brand-400: var(--neutral-400);
+  --brand-300: var(--neutral-300);
+  --brand-200: var(--neutral-200);
+  --brand-100: var(--neutral-100);
+  --brand-50: var(--neutral-50);
+
+  /* Aliases para compatibilidade total */
+  --theme-primary: var(--neutral-900);
+  --theme-primary-hover: var(--neutral-800);
+  --theme-primary-light: var(--neutral-100);
   --theme-background: var(--surface);
   --theme-background-secondary: var(--neutral-50);
   --theme-text: var(--on-surface);
@@ -46,14 +58,10 @@
   --theme-text-muted: var(--muted);
   --theme-border: var(--border);
   --theme-border-hover: var(--border-hover);
-
-  /* Manter apenas para compatibilidade - usando tons neutros */
-  --brand-900: var(--neutral-900);
-  --brand-700: var(--neutral-800);
-  --brand-100: var(--neutral-100);
   --success: var(--neutral-600);
   --warn: var(--neutral-500);
   --danger: var(--neutral-700);
+  --info: var(--neutral-600);
 }
 
 /* ============================
