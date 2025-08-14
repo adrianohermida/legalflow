@@ -358,11 +358,38 @@ export default function ProcessoTimelineUnificada({ numeroCnj }: ProcessoTimelin
               {/* Pagination */}
               {completeTimelineData && completeTimelineData.totalPages > 1 && (
                 <div className="border-t pt-4">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={completeTimelineData.totalPages}
-                    onPageChange={setCurrentPage}
-                  />
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+
+                      {Array.from({ length: Math.min(5, completeTimelineData.totalPages) }, (_, i) => {
+                        const page = i + 1;
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(Math.min(completeTimelineData.totalPages, currentPage + 1))}
+                          className={currentPage === completeTimelineData.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               )}
             </DialogContent>
