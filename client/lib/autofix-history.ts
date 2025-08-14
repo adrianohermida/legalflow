@@ -90,8 +90,8 @@ class AutofixHistoryManager {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Failed to fetch modification history:", error);
-      throw error;
+      console.error("Failed to fetch modification history:", error.message || error);
+      throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
     }
 
     return data || [];
