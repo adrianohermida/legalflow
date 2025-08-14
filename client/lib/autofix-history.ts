@@ -452,12 +452,13 @@ class AutofixHistoryManager {
 
   private async mockBuilderAPI(
     request: BuilderPromptRequest,
-    promptId: string
+    promptId: string,
+    fallbackReason: string = "Real Builder.io API unavailable"
   ): Promise<BuilderPromptResponse> {
-    console.log("🎭 Using mock Builder.io API implementation...");
+    console.log("🎭 Using mock Builder.io API implementation due to:", fallbackReason);
 
     // Simulate API delay (shorter than real API)
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     // Mock successful response with clear indication it's a fallback
     const mockModifications: ModificationEntry[] = [
@@ -471,7 +472,7 @@ class AutofixHistoryManager {
           "🎭 Mock: Enhanced autofix system with history tracking",
           "🎭 Mock: Added Builder.io integration (fallback mode)",
           "🎭 Mock: Implemented modification logging",
-          "🎭 Mock: System working correctly despite API unavailability",
+          "🎭 Mock: System working correctly despite API issues",
         ],
         success: true,
         context: {
@@ -479,13 +480,15 @@ class AutofixHistoryManager {
           files_modified: request.expected_files || [],
           mock_api_used: true,
           api_response: false,
-          fallback_reason: "Real Builder.io API unavailable or returned error",
+          real_api_used: false,
+          fallback_reason: fallbackReason,
         },
         metadata: {
           mock_execution: true,
           original_prompt: request.prompt,
           original_category: request.category,
           original_priority: request.priority,
+          api_fallback_reason: fallbackReason,
         },
       },
     ];
@@ -496,7 +499,7 @@ class AutofixHistoryManager {
       result: {
         modifications: mockModifications,
         files_changed: request.expected_files || [],
-        summary: `🎭 Mock API: Successfully processed ${request.category} modifications. (Real Builder.io API was unavailable)`,
+        summary: `🎭 Mock API: Successfully processed ${request.category} modifications. (Fallback: ${fallbackReason})`,
       },
     };
   }
