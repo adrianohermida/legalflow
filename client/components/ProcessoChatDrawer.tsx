@@ -39,7 +39,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { supabase } from "../lib/supabase";
+import { supabase, lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate } from "../lib/utils";
 
@@ -79,6 +79,7 @@ export default function ProcessoChatDrawer({
 
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [isNovaConversaOpen, setIsNovaConversaOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
