@@ -572,12 +572,34 @@ const DevAuditoria: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          🔹 Painel de Auditoria & Autofix
-        </h1>
-        <p className="text-gray-600">
-          Veja rapidamente o que falta e corrija em 1 clique
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              🔹 Painel de Auditoria & Autofix
+            </h1>
+            <p className="text-gray-600">
+              Sistema integrado com histórico completo e integração Builder.io
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={activeTab === "audit" ? "default" : "outline"}
+              onClick={() => setActiveTab("audit")}
+              className="flex items-center gap-2"
+            >
+              <Shield className="w-4 h-4" />
+              Auditoria
+            </Button>
+            <Button
+              variant={activeTab === "history" ? "default" : "outline"}
+              onClick={() => setActiveTab("history")}
+              className="flex items-center gap-2"
+            >
+              <Inbox className="w-4 h-4" />
+              Histórico
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Status Summary */}
