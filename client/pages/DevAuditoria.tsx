@@ -293,6 +293,11 @@ const DevAuditoria: React.FC = () => {
     setAuditProgress(0);
 
     const currentModules = modulesToAudit || modules;
+
+    // Show progress updates during audit
+    const progressInterval = setInterval(() => {
+      setAuditProgress(prev => Math.min(prev + 15, 90));
+    }, 200);
     
     try {
       // Try to call real RPC function first
