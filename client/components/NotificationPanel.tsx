@@ -20,38 +20,8 @@ interface NotificationPanelProps {
 
 type FilterType = "todos" | "prazos" | "publicacoes" | "financeiro" | "chat";
 
-const mockNotifications = [
-  {
-    id: "1",
-    type: "prazos" as FilterType,
-    title: "Prazo de contestação",
-    message: "Processo 1000123-45.2024.8.26.0001 - Prazo em 3 dias",
-    time: "2h atrás",
-    read: false,
-    icon: AlertTriangle,
-    color: "text-warning",
-  },
-  {
-    id: "2",
-    type: "publicacoes" as FilterType,
-    title: "Nova publicação",
-    message: "Despacho publicado no processo 2000456-78.2024.8.26.0002",
-    time: "4h atrás",
-    read: false,
-    icon: Bell,
-    color: "text-brand-700",
-  },
-  {
-    id: "3",
-    type: "financeiro" as FilterType,
-    title: "Pagamento recebido",
-    message: "Cliente João Silva - R$ 2.500,00",
-    time: "1d atrás",
-    read: true,
-    icon: DollarSign,
-    color: "text-success",
-  },
-];
+// Mock data removed - implement real notifications from database
+const mockNotifications: any[] = [];
 
 const filterConfig = {
   todos: { label: "Todos", count: 3 },
