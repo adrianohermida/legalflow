@@ -549,7 +549,7 @@ const AutofixTesting: React.FC = () => {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">🧪 Autofix System Testing</h1>
           <p className="text-muted-foreground">
-            Suite completa de testes para o módulo autofix com integra��ão Builder.io
+            Suite completa de testes para o módulo autofix com integração Builder.io
           </p>
           <div className="flex gap-2 items-center text-sm">
             <Badge variant={credentials?.public_key_configured && credentials?.private_key_configured ? "default" : "secondary"}>
@@ -634,8 +634,9 @@ const AutofixTesting: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="results" className="space-y-4">
+      <Tabs defaultValue="routes" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="routes">🛣️ SF-1: Route Coverage</TabsTrigger>
           <TabsTrigger value="results">Test Results</TabsTrigger>
           <TabsTrigger value="credentials">Credentials Status</TabsTrigger>
           <TabsTrigger value="custom">Custom Testing</TabsTrigger>
