@@ -285,6 +285,18 @@ export const implAutofix = async (
     errors: [],
   };
 
+  // Record autofix start
+  const historyStartPromise = autofixHistory.recordModification({
+    type: "autofix",
+    module: "autofix_system",
+    description: `Iniciando autofix: ${patchCode}`,
+    changes: [],
+    success: true,
+    context: {
+      patch_code: patchCode,
+    },
+  }).catch(err => console.warn("Failed to record autofix start:", err));
+
   try {
     switch (patchCode) {
       case "api_library_seed":
