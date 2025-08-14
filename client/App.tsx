@@ -375,6 +375,14 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      <Route
+        path="/config/flags"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <FeatureFlags />
+          </DemoProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
