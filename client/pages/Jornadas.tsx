@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Plus, Search, Filter, Edit, Copy, Play, MoreHorizontal, Calendar, Users, Target, Tag } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -172,6 +173,7 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
 
 const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void }> = ({ template, onRefresh }) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const duplicateTemplateMutation = useMutation({
     mutationFn: async () => {
@@ -252,7 +254,7 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/jornadas/designer/${template.id}`)}>
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
               </DropdownMenuItem>
@@ -296,7 +298,7 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate(`/jornadas/designer/${template.id}`)}>
             <Edit className="w-4 h-4 mr-2" />
             Editar
           </Button>
@@ -367,6 +369,7 @@ const InstanceCard: React.FC<{ instance: JourneyInstance }> = ({ instance }) => 
 };
 
 export default function Jornadas() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedNiche, setSelectedNiche] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("modelos");
@@ -421,7 +424,7 @@ export default function Jornadas() {
           <h1 className="text-2xl font-semibold text-neutral-900">Jornadas</h1>
           <p className="text-neutral-600">Gerencie templates e instâncias de jornada</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => navigate("/jornadas/designer")}>
           <Plus className="w-4 h-4" />
           Novo Template
         </Button>
@@ -496,7 +499,7 @@ export default function Jornadas() {
                   : "Comece criando seu primeiro template de jornada."
                 }
               </p>
-              <Button>
+              <Button onClick={() => navigate("/jornadas/designer")}>
                 <Plus className="w-4 h-4 mr-2" />
                 Criar Template
               </Button>
