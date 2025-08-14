@@ -98,7 +98,7 @@ import {
 import { supabase, lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
-import ProcessoChatDrawer from "../components/ProcessoChatDrawer";
+import ProcessoChatMultiThread from "../components/ProcessoChatMultiThread";
 import ProcessJourneyCard from "../components/ProcessJourneyCard";
 import { useProcessoRealtimeComplete } from "../hooks/useProcessoRealtimeComplete";
 
