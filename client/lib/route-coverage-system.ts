@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { routePerformanceMonitor, RoutePerformanceMetrics } from './route-performance-monitor';
 
 export interface RouteTest {
   path: string;
