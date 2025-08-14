@@ -393,6 +393,14 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      <Route
+        path="/launch"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <LaunchPlan />
+          </DemoProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
