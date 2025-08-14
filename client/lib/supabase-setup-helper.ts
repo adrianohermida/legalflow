@@ -1,98 +1,186 @@
 import { supabase } from "./supabase";
 
-export async function createAutofixTables(): Promise<{ success: boolean; error?: string }> {
+export interface DatabaseSetupResult {
+  success: boolean;
+  error?: string;
+  details?: {
+    tables_exist: boolean;
+    tables_found: string[];
+    setup_method: "automatic" | "manual_required";
+    sql_script_location: string;
+  };
+}
+
+export async function checkTablesExist(): Promise<{
+  autofix_history: boolean;
+  builder_prompts: boolean;
+  both_exist: boolean;
+}> {
   try {
-    // SQL para criar as tabelas diretamente
-    const createHistoryTable = `
-      CREATE TABLE IF NOT EXISTS autofix_history (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        type TEXT NOT NULL CHECK (type IN ('autofix', 'manual', 'builder_prompt', 'git_import')),
-        module TEXT NOT NULL,
-        description TEXT NOT NULL,
-        changes JSONB NOT NULL DEFAULT '[]'::jsonb,
-        success BOOLEAN NOT NULL DEFAULT false,
-        context JSONB DEFAULT '{}'::jsonb,
-        metadata JSONB DEFAULT '{}'::jsonb,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `;
-
-    const createBuilderPromptsTable = `
-      CREATE TABLE IF NOT EXISTS builder_prompts (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        prompt TEXT NOT NULL,
-        context TEXT,
-        priority TEXT NOT NULL CHECK (priority IN ('low', 'medium', 'high')),
-        category TEXT NOT NULL CHECK (category IN ('bug_fix', 'feature', 'improvement', 'refactor')),
-        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
-        result JSONB DEFAULT '{}'::jsonb,
-        error_message TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW(),
-        completed_at TIMESTAMPTZ
-      );
-    `;
-
-    const createIndexes = `
-      CREATE INDEX IF NOT EXISTS idx_autofix_history_timestamp ON autofix_history(timestamp DESC);
-      CREATE INDEX IF NOT EXISTS idx_autofix_history_type ON autofix_history(type);
-      CREATE INDEX IF NOT EXISTS idx_autofix_history_module ON autofix_history(module);
-      CREATE INDEX IF NOT EXISTS idx_autofix_history_success ON autofix_history(success);
-      CREATE INDEX IF NOT EXISTS idx_builder_prompts_status ON builder_prompts(status);
-      CREATE INDEX IF NOT EXISTS idx_builder_prompts_created_at ON builder_prompts(created_at DESC);
-    `;
-
-    // Tentar executar os SQLs via RPC
-    const { error: historyError } = await supabase.rpc('sql', { 
-      query: createHistoryTable 
-    });
-
-    if (historyError) {
-      console.warn("Could not create autofix_history table via RPC:", historyError);
-    }
-
-    const { error: promptsError } = await supabase.rpc('sql', { 
-      query: createBuilderPromptsTable 
-    });
-
-    if (promptsError) {
-      console.warn("Could not create builder_prompts table via RPC:", promptsError);
-    }
-
-    const { error: indexError } = await supabase.rpc('sql', { 
-      query: createIndexes 
-    });
-
-    if (indexError) {
-      console.warn("Could not create indexes via RPC:", indexError);
-    }
-
-    // Verificar se as tabelas existem agora
-    const { error: verifyError } = await supabase
+    // Test autofix_history table
+    const { error: historyError } = await supabase
       .from("autofix_history")
       .select("id")
       .limit(1);
 
-    if (verifyError && verifyError.message.includes("relation") && verifyError.message.includes("does not exist")) {
-      return {
-        success: false,
-        error: "Não foi possível criar as tabelas via interface. Use o SQL Editor do Supabase.",
-      };
-    }
+    // Test builder_prompts table  
+    const { error: promptsError } = await supabase
+      .from("builder_prompts")
+      .select("id")
+      .limit(1);
 
-    return { success: true };
-  } catch (error) {
+    const historyExists = !historyError || !historyError.message.includes("does not exist");
+    const promptsExists = !promptsError || !promptsError.message.includes("does not exist");
+
     return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
+      autofix_history: historyExists,
+      builder_prompts: promptsExists,
+      both_exist: historyExists && promptsExists,
+    };
+  } catch (error) {
+    console.error("Error checking tables:", error);
+    return {
+      autofix_history: false,
+      builder_prompts: false,
+      both_exist: false,
     };
   }
 }
 
-export async function insertSampleData(): Promise<{ success: boolean; error?: string }> {
+export async function createAutofixTables(): Promise<DatabaseSetupResult> {
   try {
+    console.log("🔍 Verificando se as tabelas do autofix já existem...");
+    
+    // First, check if tables already exist
+    const tablesStatus = await checkTablesExist();
+    
+    if (tablesStatus.both_exist) {
+      return {
+        success: true,
+        details: {
+          tables_exist: true,
+          tables_found: ["autofix_history", "builder_prompts"],
+          setup_method: "automatic",
+          sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+        },
+      };
+    }
+
+    console.log("📋 Tabelas não encontradas. Tentando setup automático...");
+
+    // Try to create tables using individual insert operations to test permissions
+    try {
+      // Test if we can create a simple entry in a potential table
+      // This will fail if tables don't exist, which is what we want to detect
+      
+      const testData = {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        type: "autofix",
+        module: "setup_test",
+        description: "Test entry to verify table setup",
+        changes: ["Setup verification"],
+        success: true,
+        context: { setup_test: true },
+        metadata: { created_by: "autofix_setup" },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Try to insert test data - this will tell us if tables exist and are accessible
+      const { error: insertError } = await supabase
+        .from("autofix_history")
+        .insert([testData]);
+
+      if (insertError) {
+        // Tables don't exist or we don't have permission
+        console.log("⚠️ Não foi possível criar dados nas tabelas automaticamente");
+        
+        return {
+          success: false,
+          error: "As tabelas do autofix não existem. Execute o script SQL manualmente.",
+          details: {
+            tables_exist: false,
+            tables_found: [],
+            setup_method: "manual_required",
+            sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+          },
+        };
+      }
+
+      // If we got here, the table exists and we have permissions
+      console.log("✅ Tabelas já existem e estão acessíveis");
+      
+      // Clean up test data
+      await supabase
+        .from("autofix_history")
+        .delete()
+        .eq("id", testData.id);
+
+      return {
+        success: true,
+        details: {
+          tables_exist: true,
+          tables_found: ["autofix_history"],
+          setup_method: "automatic",
+          sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+        },
+      };
+
+    } catch (setupError) {
+      console.error("Erro durante setup automático:", setupError);
+      
+      return {
+        success: false,
+        error: "Setup automático falhou. Use o SQL Editor do Supabase para executar o script.",
+        details: {
+          tables_exist: false,
+          tables_found: [],
+          setup_method: "manual_required",
+          sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+        },
+      };
+    }
+
+  } catch (error) {
+    return {
+      success: false,
+      error: `Erro na verificação do banco: ${error instanceof Error ? error.message : String(error)}`,
+      details: {
+        tables_exist: false,
+        tables_found: [],
+        setup_method: "manual_required",
+        sql_script_location: "/AUTOFIX_DATABASE_SETUP.sql",
+      },
+    };
+  }
+}
+
+export async function insertSampleData(): Promise<{ success: boolean; error?: string; inserted_count?: number }> {
+  try {
+    console.log("📊 Inserindo dados de exemplo...");
+
+    // Check if we already have data
+    const { data: existingData, error: checkError } = await supabase
+      .from("autofix_history")
+      .select("id")
+      .limit(5);
+
+    if (checkError) {
+      return {
+        success: false,
+        error: `Erro ao verificar dados existentes: ${checkError.message}`,
+      };
+    }
+
+    if (existingData && existingData.length > 0) {
+      return {
+        success: true,
+        error: "Dados de exemplo já existem no banco",
+        inserted_count: 0,
+      };
+    }
+
     const sampleData = [
       {
         type: "git_import",
@@ -105,7 +193,7 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
         ],
         success: true,
         context: {
-          git_commit: "abc123",
+          git_commit: "abc123def",
           files_modified: [
             "client/components/Sidebar.tsx",
             "client/components/OfficeModulesWindow.tsx",
@@ -126,7 +214,7 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
         changes: ["Modified client/pages/InboxLegalV2.tsx"],
         success: true,
         context: {
-          git_commit: "def456",
+          git_commit: "def456ghi",
           files_modified: ["client/pages/InboxLegalV2.tsx"]
         },
         metadata: {
@@ -153,25 +241,162 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
           execution_time_ms: 1250,
           affected_modules: ["autofix-history", "AutofixHistoryPanel"]
         }
+      },
+      {
+        type: "builder_prompt",
+        module: "setup_validation",
+        description: "Teste inicial do sistema autofix com Builder.io",
+        changes: [
+          "Configurou credenciais da API",
+          "Validou conexão com Builder.io",
+          "Criou entrada de teste no histórico"
+        ],
+        success: true,
+        context: {
+          builder_prompt_id: crypto.randomUUID(),
+        },
+        metadata: {
+          prompt: "Validate autofix system setup",
+          category: "improvement",
+          priority: "medium",
+          api_keys_configured: true
+        }
       }
     ];
 
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from("autofix_history")
-      .insert(sampleData);
+      .insert(sampleData)
+      .select();
 
     if (error) {
       return {
         success: false,
-        error: error.message,
+        error: `Erro ao inserir dados de exemplo: ${error.message}`,
       };
     }
 
-    return { success: true };
+    return {
+      success: true,
+      inserted_count: data?.length || sampleData.length,
+    };
+
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : String(error),
+      error: `Erro inesperado ao inserir dados: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
+}
+
+export async function validateDatabaseSetup(): Promise<{
+  success: boolean;
+  message: string;
+  details: {
+    tables_accessible: boolean;
+    sample_data_exists: boolean;
+    can_insert: boolean;
+    can_query: boolean;
+    total_records?: number;
+  };
+}> {
+  try {
+    console.log("🔍 Validando setup completo do banco de dados...");
+
+    const tablesStatus = await checkTablesExist();
+    
+    if (!tablesStatus.both_exist) {
+      return {
+        success: false,
+        message: "Tabelas do autofix não encontradas no banco de dados",
+        details: {
+          tables_accessible: false,
+          sample_data_exists: false,
+          can_insert: false,
+          can_query: false,
+        },
+      };
+    }
+
+    // Test querying
+    const { data: queryData, error: queryError } = await supabase
+      .from("autofix_history")
+      .select("*")
+      .limit(10);
+
+    const canQuery = !queryError;
+    const totalRecords = queryData?.length || 0;
+    const sampleDataExists = totalRecords > 0;
+
+    // Test inserting
+    const testEntry = {
+      type: "manual",
+      module: "validation",
+      description: "Teste de validação do sistema",
+      changes: ["Teste de inserção"],
+      success: true,
+      context: { validation: true },
+      metadata: { test_timestamp: new Date().toISOString() },
+    };
+
+    const { error: insertError, data: insertData } = await supabase
+      .from("autofix_history")
+      .insert([testEntry])
+      .select();
+
+    const canInsert = !insertError;
+
+    // Clean up test entry
+    if (canInsert && insertData && insertData[0]) {
+      await supabase
+        .from("autofix_history")
+        .delete()
+        .eq("id", insertData[0].id);
+    }
+
+    const allWorking = canQuery && canInsert;
+
+    return {
+      success: allWorking,
+      message: allWorking 
+        ? "Sistema de banco de dados totalmente funcional"
+        : "Problemas detectados no acesso ao banco de dados",
+      details: {
+        tables_accessible: tablesStatus.both_exist,
+        sample_data_exists: sampleDataExists,
+        can_insert: canInsert,
+        can_query: canQuery,
+        total_records: totalRecords,
+      },
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      message: `Erro na validação: ${error instanceof Error ? error.message : String(error)}`,
+      details: {
+        tables_accessible: false,
+        sample_data_exists: false,
+        can_insert: false,
+        can_query: false,
+      },
+    };
+  }
+}
+
+// Helper function to generate setup instructions
+export function getSetupInstructions(): {
+  step1: string;
+  step2: string;
+  step3: string;
+  sql_file: string;
+  verification: string;
+} {
+  return {
+    step1: "1. Abra o Supabase Dashboard e acesse o SQL Editor",
+    step2: "2. Copie todo o conteúdo do arquivo /AUTOFIX_DATABASE_SETUP.sql",
+    step3: "3. Execute o script completo no SQL Editor",
+    sql_file: "AUTOFIX_DATABASE_SETUP.sql",
+    verification: "4. Volte aqui e clique em 'Run All Tests' para verificar",
+  };
 }
