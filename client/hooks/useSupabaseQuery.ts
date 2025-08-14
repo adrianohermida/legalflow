@@ -97,7 +97,7 @@ export function useSupabaseQuery<T>(
   });
 }
 
-// Overloaded version for SQL queries with parameters
+// Legacy SQL query helper (deprecated)
 export function useSupabaseQuerySQL<T>(
   queryKey: (string | number)[],
   sql: string,
@@ -108,9 +108,9 @@ export function useSupabaseQuerySQL<T>(
     refetchInterval?: number;
   }
 ) {
-  return useSupabaseQuery<T>(
+  return useSupabaseQuery<T[]>(
     queryKey,
-    createSupabaseQueryFunction<T>(sql, params),
+    createSupabaseQueryFunction<T>(sql, params) as () => Promise<T[]>,
     options
   );
 }
