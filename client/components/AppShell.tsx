@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { AppLauncher } from './AppLauncher';
+import { OfficeModulesWindow } from './OfficeModulesWindow';
 import { NotificationPanel } from './NotificationPanel';
 import { ChatDock } from './ChatDock';
 import { CommandPalette } from './CommandPalette';
