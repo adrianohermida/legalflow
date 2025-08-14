@@ -530,6 +530,8 @@ class AutofixHistoryManager {
 
   async testBuilderConnection(): Promise<{ success: boolean; message: string; details?: any }> {
     try {
+      console.log("🧪 Testing Builder.io connection...");
+
       const testRequest: BuilderPromptRequest = {
         prompt: "Test connection to Builder.io API",
         context: "Testing API connectivity and authentication",
@@ -538,25 +540,54 @@ class AutofixHistoryManager {
       };
 
       const response = await this.executeBuilderPrompt(testRequest);
-      
+
+      // Determine if this used real API or mock
+      const usedMockAPI = response.result?.modifications?.[0]?.context?.mock_api_used || false;
+      const apiResponse = response.result?.modifications?.[0]?.context?.api_response || false;
+
       return {
         success: true,
-        message: "Builder.io integration test completed successfully",
+        message: usedMockAPI
+          ? "✅ Builder.io integration test completed (using mock API - real API not available)"
+          : apiResponse
+            ? "✅ Builder.io real API integration test completed successfully"
+            : "✅ Builder.io integration test completed successfully",
         details: {
           prompt_id: response.id,
           status: response.status,
-          api_keys_configured: true,
+          api_type: usedMockAPI ? "mock" : apiResponse ? "real" : "unknown",
+          api_keys_configured: !!(this.builderPublicKey && this.builderPrivateKey),
           public_key: this.builderPublicKey.substring(0, 8) + "...",
           private_key: this.builderPrivateKey.substring(0, 8) + "...",
+          credentials_valid: this.builderPrivateKey.length > 20,
         },
       };
     } catch (error) {
+      console.error("❌ Builder.io connection test failed:", error);
+
+      let errorMessage = "Unknown error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+
       return {
         success: false,
-        message: `Builder.io connection test failed: ${error instanceof Error ? error.message : String(error)}`,
+        message: `❌ Builder.io connection test failed: ${errorMessage}`,
         details: {
-          error: error,
+          error_type: error instanceof Error ? error.name : typeof error,
+          error_message: errorMessage,
           api_keys_configured: !!(this.builderPublicKey && this.builderPrivateKey),
+          public_key: this.builderPublicKey ? this.builderPublicKey.substring(0, 8) + "..." : "Not configured",
+          private_key: this.builderPrivateKey ? this.builderPrivateKey.substring(0, 8) + "..." : "Not configured",
+          credentials_valid: this.builderPrivateKey && this.builderPrivateKey.length > 20,
+          troubleshooting: {
+            network_issue: errorMessage.includes("Failed to fetch") || errorMessage.includes("Network"),
+            timeout_issue: errorMessage.includes("timeout") || errorMessage.includes("AbortError"),
+            cors_issue: errorMessage.includes("CORS") || errorMessage.includes("blocked"),
+            auth_issue: errorMessage.includes("401") || errorMessage.includes("403"),
+          }
         },
       };
     }
