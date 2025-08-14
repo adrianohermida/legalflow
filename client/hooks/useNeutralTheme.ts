@@ -18,9 +18,9 @@ type AdminBrandConfig = {
 // Default admin config for monocromatic theme
 const DEFAULT_ADMIN_BRAND: AdminBrandConfig = {
   enabled: false, // Disabled by default for pure monocromatic
-  primaryColor: "#111827",  // Gray-900
+  primaryColor: "#111827", // Gray-900
   secondaryColor: "#6b7280", // Gray-500
-  accentColor: "#1f2937",   // Gray-800
+  accentColor: "#1f2937", // Gray-800
 };
 
 /**

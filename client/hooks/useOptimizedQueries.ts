@@ -16,19 +16,19 @@ export const useContactSearch = (searchTerm: string) => {
     ["contact-search", searchTerm],
     async () => {
       if (searchTerm.length < 2) return [];
-      
+
       try {
         const { data, error } = await lf
-          .from('contacts' as any)
-          .select('id, name, email, phone, kind, cpf_cnpj, created_at')
+          .from("contacts" as any)
+          .select("id, name, email, phone, kind, cpf_cnpj, created_at")
           .or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
-          .order('name')
+          .order("name")
           .limit(20);
-        
+
         if (error) throw error;
         return data || [];
       } catch (error) {
-        console.warn('Contact search not available yet:', error);
+        console.warn("Contact search not available yet:", error);
         return [];
       }
     },
@@ -47,27 +47,29 @@ export const useDashboardStats = () => {
       try {
         // Get counts from different tables
         const [processos, clientes] = await Promise.all([
-          supabase.from('processos').select('*', { count: 'exact', head: true }),
-          supabase.from('clientes').select('*', { count: 'exact', head: true })
+          supabase
+            .from("processos")
+            .select("*", { count: "exact", head: true }),
+          supabase.from("clientes").select("*", { count: "exact", head: true }),
         ]);
-        
+
         return {
           total_processos: processos.count || 0,
           total_clientes: clientes.count || 0,
           tickets_abertos: 0, // Placeholder
           tarefas_pendentes: 0, // Placeholder
           deals_abertas: 0, // Placeholder
-          jornadas_ativas: 0 // Placeholder
+          jornadas_ativas: 0, // Placeholder
         };
       } catch (error) {
-        console.warn('Dashboard stats not fully available yet:', error);
+        console.warn("Dashboard stats not fully available yet:", error);
         return {
           total_processos: 0,
           total_clientes: 0,
           tickets_abertos: 0,
           tarefas_pendentes: 0,
           deals_abertas: 0,
-          jornadas_ativas: 0
+          jornadas_ativas: 0,
         };
       }
     },
@@ -82,7 +84,7 @@ export const useDashboardStats = () => {
 export const useRecentActivities = (limit: number = 10) => {
   return useSupabaseQuery(
     ["recent-activities", limit],
-    createQueryFunction('Recent activities query'),
+    createQueryFunction("Recent activities query"),
     {
       staleTime: 30000,
     },
@@ -93,7 +95,7 @@ export const useRecentActivities = (limit: number = 10) => {
 export const useDealsByPipeline = (pipelineId?: string) => {
   return useSupabaseQuery(
     ["deals-by-pipeline", pipelineId],
-    createQueryFunction('Deals by pipeline query'),
+    createQueryFunction("Deals by pipeline query"),
     {
       staleTime: 30000,
     },
@@ -104,7 +106,7 @@ export const useDealsByPipeline = (pipelineId?: string) => {
 export const useTicketsByClient = (clienteCpfCnpj?: string) => {
   return useSupabaseQuery(
     ["tickets-by-client", clienteCpfCnpj],
-    createQueryFunction('Tickets by client query'),
+    createQueryFunction("Tickets by client query"),
     {
       staleTime: 30000,
     },
@@ -119,7 +121,7 @@ export const useTimeEntriesByUser = (
 ) => {
   return useSupabaseQuery(
     ["time-entries-user", userId, startDate, endDate],
-    createQueryFunction('Time entries by user query'),
+    createQueryFunction("Time entries by user query"),
     {
       staleTime: 60000,
       enabled: Boolean(userId),
@@ -131,7 +133,7 @@ export const useTimeEntriesByUser = (
 export const useStageInstancesSLA = () => {
   return useSupabaseQuery(
     ["stage-instances-sla"],
-    createQueryFunction('Stage instances SLA query'),
+    createQueryFunction("Stage instances SLA query"),
     {
       staleTime: 300000, // Cache por 5 minutos
       refetchInterval: 600000, // Refetch a cada 10 minutos
@@ -143,7 +145,7 @@ export const useStageInstancesSLA = () => {
 export const useGlobalSearch = (query: string) => {
   return useSupabaseQuery(
     ["global-search", query],
-    createQueryFunction('Global search query'),
+    createQueryFunction("Global search query"),
     {
       enabled: query.length >= 2,
       staleTime: 30000,
@@ -155,7 +157,7 @@ export const useGlobalSearch = (query: string) => {
 export const useQueryPerformanceStats = () => {
   return useSupabaseQuery(
     ["query-performance-stats"],
-    createQueryFunction('Query performance stats'),
+    createQueryFunction("Query performance stats"),
     {
       staleTime: 600000, // Cache por 10 minutos
     },

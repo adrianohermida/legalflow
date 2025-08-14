@@ -445,9 +445,7 @@ export function Tickets() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button
-              className="bg-gray-800 text-white hover:bg-gray-900"
-            >
+            <Button className="bg-gray-800 text-white hover:bg-gray-900">
               <Plus className="w-4 h-4 mr-2" />
               Novo Ticket
             </Button>

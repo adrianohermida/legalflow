@@ -3,32 +3,86 @@
  * Página para validar que apenas tons de preto/branco/cinza estão sendo usados
  */
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Alert, AlertDescription } from '../components/ui/alert';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Alert, AlertDescription } from "../components/ui/alert";
 
 const MonochromaticTest = () => {
   const grayScale = [
-    { name: 'Black', value: '#000000', bg: 'bg-black', text: 'text-white' },
-    { name: 'Gray 900', value: '#111827', bg: 'bg-gray-900', text: 'text-white' },
-    { name: 'Gray 800', value: '#1f2937', bg: 'bg-gray-800', text: 'text-white' },
-    { name: 'Gray 700', value: '#374151', bg: 'bg-gray-700', text: 'text-white' },
-    { name: 'Gray 600', value: '#4b5563', bg: 'bg-gray-600', text: 'text-white' },
-    { name: 'Gray 500', value: '#6b7280', bg: 'bg-gray-500', text: 'text-white' },
-    { name: 'Gray 400', value: '#9ca3af', bg: 'bg-gray-400', text: 'text-black' },
-    { name: 'Gray 300', value: '#d1d5db', bg: 'bg-gray-300', text: 'text-black' },
-    { name: 'Gray 200', value: '#e5e7eb', bg: 'bg-gray-200', text: 'text-black' },
-    { name: 'Gray 100', value: '#f3f4f6', bg: 'bg-gray-100', text: 'text-black' },
-    { name: 'Gray 50', value: '#f9fafb', bg: 'bg-gray-50', text: 'text-black' },
-    { name: 'White', value: '#ffffff', bg: 'bg-white border', text: 'text-black' },
+    { name: "Black", value: "#000000", bg: "bg-black", text: "text-white" },
+    {
+      name: "Gray 900",
+      value: "#111827",
+      bg: "bg-gray-900",
+      text: "text-white",
+    },
+    {
+      name: "Gray 800",
+      value: "#1f2937",
+      bg: "bg-gray-800",
+      text: "text-white",
+    },
+    {
+      name: "Gray 700",
+      value: "#374151",
+      bg: "bg-gray-700",
+      text: "text-white",
+    },
+    {
+      name: "Gray 600",
+      value: "#4b5563",
+      bg: "bg-gray-600",
+      text: "text-white",
+    },
+    {
+      name: "Gray 500",
+      value: "#6b7280",
+      bg: "bg-gray-500",
+      text: "text-white",
+    },
+    {
+      name: "Gray 400",
+      value: "#9ca3af",
+      bg: "bg-gray-400",
+      text: "text-black",
+    },
+    {
+      name: "Gray 300",
+      value: "#d1d5db",
+      bg: "bg-gray-300",
+      text: "text-black",
+    },
+    {
+      name: "Gray 200",
+      value: "#e5e7eb",
+      bg: "bg-gray-200",
+      text: "text-black",
+    },
+    {
+      name: "Gray 100",
+      value: "#f3f4f6",
+      bg: "bg-gray-100",
+      text: "text-black",
+    },
+    { name: "Gray 50", value: "#f9fafb", bg: "bg-gray-50", text: "text-black" },
+    {
+      name: "White",
+      value: "#ffffff",
+      bg: "bg-white border",
+      text: "text-black",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-white p-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-gray-900">
@@ -39,7 +93,8 @@ const MonochromaticTest = () => {
           </p>
           <Alert className="max-w-2xl mx-auto">
             <AlertDescription className="text-gray-700">
-              ✅ <strong>ZERO COLOR POLICY ATIVO</strong> - Apenas tons de preto, branco e cinza são permitidos
+              ✅ <strong>ZERO COLOR POLICY ATIVO</strong> - Apenas tons de
+              preto, branco e cinza são permitidos
             </AlertDescription>
           </Alert>
         </div>
@@ -47,18 +102,18 @@ const MonochromaticTest = () => {
         {/* Escala de Cinza */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-gray-900">Escala de Cinza Autorizada</CardTitle>
+            <CardTitle className="text-gray-900">
+              Escala de Cinza Autorizada
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {grayScale.map((color) => (
                 <div key={color.name} className="space-y-2">
-                  <div 
+                  <div
                     className={`h-20 rounded-lg flex items-center justify-center ${color.bg} ${color.text}`}
                   >
-                    <span className="font-medium text-sm">
-                      {color.name}
-                    </span>
+                    <span className="font-medium text-sm">{color.name}</span>
                   </div>
                   <div className="text-center">
                     <div className="text-xs font-mono text-gray-600">
@@ -73,21 +128,28 @@ const MonochromaticTest = () => {
 
         {/* Componentes de Teste */}
         <div className="grid md:grid-cols-2 gap-6">
-          
           {/* Botões */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-gray-900">Botões Monocromáticos</CardTitle>
+              <CardTitle className="text-gray-900">
+                Botões Monocromáticos
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
                   Primário
                 </Button>
-                <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+                <Button
+                  variant="outline"
+                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
                   Secundário
                 </Button>
-                <Button variant="ghost" className="w-full text-gray-600 hover:bg-gray-100">
+                <Button
+                  variant="ghost"
+                  className="w-full text-gray-600 hover:bg-gray-100"
+                >
                   Ghost
                 </Button>
               </div>
@@ -113,7 +175,9 @@ const MonochromaticTest = () => {
         {/* Inputs */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-gray-900">Formulários Monocromáticos</CardTitle>
+            <CardTitle className="text-gray-900">
+              Formulários Monocromáticos
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
@@ -182,15 +246,21 @@ const MonochromaticTest = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full bg-gray-700"></div>
-                  <span className="text-gray-700">Sistema Monocromático: ATIVO</span>
+                  <span className="text-gray-700">
+                    Sistema Monocromático: ATIVO
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full bg-gray-700"></div>
-                  <span className="text-gray-700">Zero Color Policy: APLICADA</span>
+                  <span className="text-gray-700">
+                    Zero Color Policy: APLICADA
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full bg-gray-700"></div>
-                  <span className="text-gray-700">Foco no Desenvolvimento: MÁXIMO</span>
+                  <span className="text-gray-700">
+                    Foco no Desenvolvimento: MÁXIMO
+                  </span>
                 </div>
               </div>
               <div className="space-y-2">
@@ -204,13 +274,14 @@ const MonochromaticTest = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-                  <span className="text-gray-700">Distrações Visuais: ELIMINADAS</span>
+                  <span className="text-gray-700">
+                    Distrações Visuais: ELIMINADAS
+                  </span>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
-
       </div>
     </div>
   );

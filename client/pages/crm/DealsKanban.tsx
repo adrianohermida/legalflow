@@ -1,27 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Target, 
-  Plus, 
-  DollarSign, 
-  User, 
-  Calendar, 
+import React, { useState, useEffect } from "react";
+import {
+  Target,
+  Plus,
+  DollarSign,
+  User,
+  Calendar,
   TrendingUp,
   Filter,
   Search,
   Percent,
   Clock,
-  ArrowRight
-} from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { Label } from '../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { useSupabaseQuery } from '../../hooks/useSupabaseQuery';
-import { supabase, lf } from '../../lib/supabase';
-import { useToast } from '../../hooks/use-toast';
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
+import { Label } from "../../components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { useSupabaseQuery } from "../../hooks/useSupabaseQuery";
+import { supabase, lf } from "../../lib/supabase";
+import { useToast } from "../../hooks/use-toast";
 
 interface Deal {
   id: string;
@@ -58,23 +74,23 @@ interface NewDealData {
 
 const DealsKanban = () => {
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isNewDealOpen, setIsNewDealOpen] = useState(false);
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null);
   const [highlightDealId, setHighlightDealId] = useState<string | null>(null);
 
   const [newDealData, setNewDealData] = useState<NewDealData>({
-    title: '',
-    value: '',
-    currency: 'BRL',
-    contact_id: '',
-    probability: '50'
+    title: "",
+    value: "",
+    currency: "BRL",
+    contact_id: "",
+    probability: "50",
   });
 
   // Pegar deal destacado da URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const highlight = params.get('highlight');
+    const highlight = params.get("highlight");
     if (highlight) {
       setHighlightDealId(highlight);
       // Remover highlight após 3 segundos
@@ -84,7 +100,7 @@ const DealsKanban = () => {
 
   // Query para pipeline stages (sales)
   const { data: stages = [] } = useSupabaseQuery(
-    'pipeline-stages-sales',
+    "pipeline-stages-sales",
     `
       SELECT ps.id, ps.code, ps.name, ps.order_index, ps.is_won, ps.is_lost
       FROM legalflow.pipeline_stages ps
@@ -92,12 +108,16 @@ const DealsKanban = () => {
       WHERE pd.code = 'sales'
       ORDER BY ps.order_index
     `,
-    []
+    [],
   );
 
   // Query para deals por stage
-  const { data: deals = [], isLoading, refetch } = useSupabaseQuery(
-    ['deals-kanban', searchTerm],
+  const {
+    data: deals = [],
+    isLoading,
+    refetch,
+  } = useSupabaseQuery(
+    ["deals-kanban", searchTerm],
     `
       SELECT 
         d.id, d.title, d.value, d.currency, d.stage, d.probability,
@@ -110,24 +130,24 @@ const DealsKanban = () => {
         AND ($1 = '' OR d.title ILIKE '%' || $1 || '%' OR c.name ILIKE '%' || $1 || '%')
       ORDER BY d.updated_at DESC
     `,
-    [searchTerm]
+    [searchTerm],
   );
 
   // Query para contatos (para novo deal)
   const { data: contacts = [] } = useSupabaseQuery(
-    'contacts-for-deals',
+    "contacts-for-deals",
     `
       SELECT id, name, email, phone
       FROM legalflow.contacts
       ORDER BY name
       LIMIT 100
     `,
-    []
+    [],
   );
 
   // Query para estatísticas
   const { data: stats } = useSupabaseQuery(
-    'deals-stats',
+    "deals-stats",
     `
       SELECT 
         COUNT(*) as total,
@@ -147,28 +167,31 @@ const DealsKanban = () => {
       JOIN legalflow.pipeline_defs pd ON pd.id = d.pipeline_id
       WHERE pd.code = 'sales'
     `,
-    []
+    [],
   );
 
   // Agrupar deals por stage
-  const dealsByStage = stages.reduce((acc, stage) => {
-    acc[stage.id] = deals.filter(deal => deal.stage_id === stage.id);
-    return acc;
-  }, {} as Record<number, Deal[]>);
+  const dealsByStage = stages.reduce(
+    (acc, stage) => {
+      acc[stage.id] = deals.filter((deal) => deal.stage_id === stage.id);
+      return acc;
+    },
+    {} as Record<number, Deal[]>,
+  );
 
   // Criar novo deal
   const handleCreateDeal = async () => {
     try {
       const salesPipeline = await lf
-        .from('pipeline_defs')
-        .select('id')
-        .eq('code', 'sales')
+        .from("pipeline_defs")
+        .select("id")
+        .eq("code", "sales")
         .single();
 
-      const firstStage = stages.find(s => s.order_index === 1);
+      const firstStage = stages.find((s) => s.order_index === 1);
 
       const { data, error } = await lf
-        .from('deals')
+        .from("deals")
         .insert({
           title: newDealData.title,
           value: parseFloat(newDealData.value) || 0,
@@ -177,7 +200,7 @@ const DealsKanban = () => {
           probability: parseInt(newDealData.probability) || 50,
           pipeline_id: salesPipeline.data?.id,
           stage_id: firstStage?.id,
-          stage: firstStage?.code || 'novo'
+          stage: firstStage?.code || "novo",
         })
         .select()
         .single();
@@ -185,26 +208,25 @@ const DealsKanban = () => {
       if (error) throw error;
 
       toast({
-        title: 'Deal criado com sucesso',
-        description: `${newDealData.title} foi adicionado ao pipeline.`
+        title: "Deal criado com sucesso",
+        description: `${newDealData.title} foi adicionado ao pipeline.`,
       });
 
       setIsNewDealOpen(false);
       setNewDealData({
-        title: '',
-        value: '',
-        currency: 'BRL',
-        contact_id: '',
-        probability: '50'
+        title: "",
+        value: "",
+        currency: "BRL",
+        contact_id: "",
+        probability: "50",
       });
       refetch();
-
     } catch (error) {
-      console.error('Erro ao criar deal:', error);
+      console.error("Erro ao criar deal:", error);
       toast({
-        title: 'Erro ao criar deal',
-        description: 'Não foi possível criar o deal.',
-        variant: 'destructive'
+        title: "Erro ao criar deal",
+        description: "Não foi possível criar o deal.",
+        variant: "destructive",
       });
     }
   };
@@ -212,32 +234,31 @@ const DealsKanban = () => {
   // Mover deal para stage (drag & drop)
   const handleMoveDeal = async (dealId: string, newStageId: number) => {
     try {
-      const newStage = stages.find(s => s.id === newStageId);
-      
+      const newStage = stages.find((s) => s.id === newStageId);
+
       const { error } = await lf
-        .from('deals')
-        .update({ 
+        .from("deals")
+        .update({
           stage_id: newStageId,
-          stage: newStage?.code || 'novo',
-          updated_at: new Date().toISOString()
+          stage: newStage?.code || "novo",
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', dealId);
+        .eq("id", dealId);
 
       if (error) throw error;
 
       toast({
-        title: 'Deal movido',
-        description: `Deal movido para ${newStage?.name}.`
+        title: "Deal movido",
+        description: `Deal movido para ${newStage?.name}.`,
       });
 
       refetch();
-
     } catch (error) {
-      console.error('Erro ao mover deal:', error);
+      console.error("Erro ao mover deal:", error);
       toast({
-        title: 'Erro ao mover deal',
-        description: 'Não foi possível mover o deal.',
-        variant: 'destructive'
+        title: "Erro ao mover deal",
+        description: "Não foi possível mover o deal.",
+        variant: "destructive",
       });
     }
   };
@@ -245,12 +266,12 @@ const DealsKanban = () => {
   // Drag & Drop handlers
   const handleDragStart = (e: React.DragEvent, deal: Deal) => {
     setDraggedDeal(deal);
-    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.dropEffect = "move";
   };
 
   const handleDrop = (e: React.DragEvent, stageId: number) => {
@@ -261,28 +282,36 @@ const DealsKanban = () => {
     setDraggedDeal(null);
   };
 
-  const formatCurrency = (value: number, currency: string = 'BRL') => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: currency
+  const formatCurrency = (value: number, currency: string = "BRL") => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: currency,
     }).format(value);
   };
 
   const getStageColor = (stage: PipelineStage) => {
-    if (stage.is_won) return 'bg-green-100 border-green-300';
-    if (stage.is_lost) return 'bg-red-100 border-red-300';
-    
+    if (stage.is_won) return "bg-green-100 border-green-300";
+    if (stage.is_lost) return "bg-red-100 border-red-300";
+
     switch (stage.code) {
-      case 'novo': return 'bg-gray-50 border-gray-200';
-      case 'qualificado': return 'bg-gray-100 border-gray-300';
-      case 'proposta': return 'bg-gray-200 border-gray-400';
-      default: return 'bg-gray-100 border-gray-300';
+      case "novo":
+        return "bg-gray-50 border-gray-200";
+      case "qualificado":
+        return "bg-gray-100 border-gray-300";
+      case "proposta":
+        return "bg-gray-200 border-gray-400";
+      default:
+        return "bg-gray-100 border-gray-300";
     }
   };
 
   const getDealCardClass = (deal: Deal) => {
-    const baseClass = "p-4 bg-white border rounded-lg shadow-sm cursor-move hover:shadow-md transition-shadow";
-    const highlightClass = highlightDealId === deal.id ? " ring-2 ring-gray-500 ring-opacity-50" : "";
+    const baseClass =
+      "p-4 bg-white border rounded-lg shadow-sm cursor-move hover:shadow-md transition-shadow";
+    const highlightClass =
+      highlightDealId === deal.id
+        ? " ring-2 ring-gray-500 ring-opacity-50"
+        : "";
     return baseClass + highlightClass;
   };
 
@@ -299,7 +328,7 @@ const DealsKanban = () => {
             Acompanhe suas oportunidades até o fechamento
           </p>
         </div>
-        
+
         <Button onClick={() => setIsNewDealOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Deal
@@ -314,7 +343,9 @@ const DealsKanban = () => {
               <div className="flex items-center">
                 <Target className="h-8 w-8 text-blue-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-600">Total Deals</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Deals
+                  </p>
                   <p className="text-2xl font-bold">{stats.total || 0}</p>
                 </div>
               </div>
@@ -326,7 +357,9 @@ const DealsKanban = () => {
               <div className="flex items-center">
                 <DollarSign className="h-8 w-8 text-green-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-600">Valor Total</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Valor Total
+                  </p>
                   <p className="text-2xl font-bold">
                     {formatCurrency(stats.total_value || 0)}
                   </p>
@@ -352,7 +385,9 @@ const DealsKanban = () => {
               <div className="flex items-center">
                 <Percent className="h-8 w-8 text-orange-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-600">Prob. Média</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Prob. Média
+                  </p>
                   <p className="text-2xl font-bold">
                     {Math.round(stats.avg_probability || 0)}%
                   </p>
@@ -399,12 +434,15 @@ const DealsKanban = () => {
                   {dealsByStage[stage.id]?.length || 0}
                 </Badge>
               </h3>
-              
+
               {/* Stage Value */}
               {dealsByStage[stage.id]?.length > 0 && (
                 <p className="text-sm text-gray-600 mt-1">
                   {formatCurrency(
-                    dealsByStage[stage.id].reduce((sum, deal) => sum + deal.value, 0)
+                    dealsByStage[stage.id].reduce(
+                      (sum, deal) => sum + deal.value,
+                      0,
+                    ),
                   )}
                 </p>
               )}
@@ -412,64 +450,67 @@ const DealsKanban = () => {
 
             {/* Deal Cards */}
             <div className="space-y-3">
-              {isLoading ? (
-                // Loading skeletons
-                Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="animate-pulse p-4 bg-gray-100 rounded-lg">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                ))
-              ) : (
-                dealsByStage[stage.id]?.map((deal) => (
-                  <div
-                    key={deal.id}
-                    className={getDealCardClass(deal)}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, deal)}
-                  >
-                    {/* Deal Title */}
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      {deal.title}
-                    </h4>
-
-                    {/* Deal Value */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <DollarSign className="h-4 w-4 text-green-600" />
-                      <span className="font-semibold text-green-700">
-                        {formatCurrency(deal.value, deal.currency)}
-                      </span>
+              {isLoading
+                ? // Loading skeletons
+                  Array.from({ length: 2 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse p-4 bg-gray-100 rounded-lg"
+                    >
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                     </div>
+                  ))
+                : dealsByStage[stage.id]?.map((deal) => (
+                    <div
+                      key={deal.id}
+                      className={getDealCardClass(deal)}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, deal)}
+                    >
+                      {/* Deal Title */}
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        {deal.title}
+                      </h4>
 
-                    {/* Contact */}
-                    {deal.contact_name && (
+                      {/* Deal Value */}
                       <div className="flex items-center gap-2 mb-2">
-                        <User className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">
-                          {deal.contact_name}
+                        <DollarSign className="h-4 w-4 text-green-600" />
+                        <span className="font-semibold text-green-700">
+                          {formatCurrency(deal.value, deal.currency)}
                         </span>
                       </div>
-                    )}
 
-                    {/* Probability */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Percent className="h-3 w-3 text-gray-500" />
-                        <span className="text-xs text-gray-600">
-                          {deal.probability}%
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-gray-500" />
-                        <span className="text-xs text-gray-600">
-                          {new Date(deal.updated_at).toLocaleDateString('pt-BR')}
-                        </span>
+                      {/* Contact */}
+                      {deal.contact_name && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm text-gray-600">
+                            {deal.contact_name}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Probability */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <Percent className="h-3 w-3 text-gray-500" />
+                          <span className="text-xs text-gray-600">
+                            {deal.probability}%
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-gray-500" />
+                          <span className="text-xs text-gray-600">
+                            {new Date(deal.updated_at).toLocaleDateString(
+                              "pt-BR",
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))}
             </div>
           </div>
         ))}
@@ -481,18 +522,20 @@ const DealsKanban = () => {
           <DialogHeader>
             <DialogTitle>Novo Deal</DialogTitle>
           </DialogHeader>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <Label htmlFor="title">Título do Deal *</Label>
               <Input
                 id="title"
                 value={newDealData.title}
-                onChange={(e) => setNewDealData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setNewDealData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 placeholder="Nome da oportunidade"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="value">Valor</Label>
               <Input
@@ -500,16 +543,20 @@ const DealsKanban = () => {
                 type="number"
                 step="0.01"
                 value={newDealData.value}
-                onChange={(e) => setNewDealData(prev => ({ ...prev, value: e.target.value }))}
+                onChange={(e) =>
+                  setNewDealData((prev) => ({ ...prev, value: e.target.value }))
+                }
                 placeholder="0.00"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="currency">Moeda</Label>
-              <Select 
-                value={newDealData.currency} 
-                onValueChange={(value) => setNewDealData(prev => ({ ...prev, currency: value }))}
+              <Select
+                value={newDealData.currency}
+                onValueChange={(value) =>
+                  setNewDealData((prev) => ({ ...prev, currency: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -521,12 +568,14 @@ const DealsKanban = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="contact">Contato</Label>
-              <Select 
+              <Select
                 value={newDealData.contact_id}
-                onValueChange={(value) => setNewDealData(prev => ({ ...prev, contact_id: value }))}
+                onValueChange={(value) =>
+                  setNewDealData((prev) => ({ ...prev, contact_id: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar contato..." />
@@ -541,7 +590,7 @@ const DealsKanban = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="probability">Probabilidade (%)</Label>
               <Input
@@ -550,12 +599,17 @@ const DealsKanban = () => {
                 min="0"
                 max="100"
                 value={newDealData.probability}
-                onChange={(e) => setNewDealData(prev => ({ ...prev, probability: e.target.value }))}
+                onChange={(e) =>
+                  setNewDealData((prev) => ({
+                    ...prev,
+                    probability: e.target.value,
+                  }))
+                }
                 placeholder="50"
               />
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setIsNewDealOpen(false)}>
               Cancelar

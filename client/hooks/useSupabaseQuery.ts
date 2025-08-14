@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { handleApiError } from '../lib/api';
-import { createSupabaseQueryFunction } from '../lib/supabase-queries';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { handleApiError } from "../lib/api";
+import { createSupabaseQueryFunction } from "../lib/supabase-queries";
 
 // Type definitions for overloaded function
 type QueryOptions = {
@@ -16,20 +16,20 @@ type QueryFn<T> = () => Promise<T>;
 export function useSupabaseQuery<T>(
   queryKey: QueryKey,
   queryFn: QueryFn<T>,
-  options?: QueryOptions
+  options?: QueryOptions,
 ): any;
 
 export function useSupabaseQuery<T>(
   queryKey: string,
   sql: string,
   params: any[],
-  options?: QueryOptions
+  options?: QueryOptions,
 ): any;
 
 export function useSupabaseQuery<T>(
   queryKey: string,
   sql: string,
-  options?: QueryOptions
+  options?: QueryOptions,
 ): any;
 
 // Implementation
@@ -37,24 +37,28 @@ export function useSupabaseQuery<T>(
   queryKey: QueryKey | string,
   queryFnOrSql: QueryFn<T> | string,
   paramsOrOptions?: any[] | QueryOptions,
-  options?: QueryOptions
+  options?: QueryOptions,
 ) {
   // Normalize parameters based on the call signature
   let normalizedQueryKey: QueryKey;
   let normalizedQueryFn: QueryFn<T>;
   let normalizedOptions: QueryOptions | undefined;
 
-  if (typeof queryKey === 'string') {
+  if (typeof queryKey === "string") {
     // Legacy call with string queryKey
     normalizedQueryKey = [queryKey];
 
-    if (typeof queryFnOrSql === 'string') {
+    if (typeof queryFnOrSql === "string") {
       // SQL query call
       const sqlParams = Array.isArray(paramsOrOptions) ? paramsOrOptions : [];
-      normalizedOptions = Array.isArray(paramsOrOptions) ? options : (paramsOrOptions as QueryOptions);
+      normalizedOptions = Array.isArray(paramsOrOptions)
+        ? options
+        : (paramsOrOptions as QueryOptions);
 
       normalizedQueryFn = async () => {
-        console.warn(`Legacy SQL query detected for key '${queryKey}'. Consider migrating to proper API functions.`);
+        console.warn(
+          `Legacy SQL query detected for key '${queryKey}'. Consider migrating to proper API functions.`,
+        );
         // Return empty array as placeholder
         return [] as T;
       };
@@ -78,7 +82,7 @@ export function useSupabaseQuery<T>(
       } catch (error: any) {
         // Handle and transform error to a proper Error object
         const errorMessage = error?.message || String(error);
-        console.error('Supabase query error:', errorMessage);
+        console.error("Supabase query error:", errorMessage);
         throw new Error(errorMessage);
       }
     },
@@ -87,13 +91,15 @@ export function useSupabaseQuery<T>(
     enabled: normalizedOptions?.enabled,
     retry: (failureCount, error) => {
       // Don't retry configuration errors or auth errors
-      if (error?.message?.includes('não está configurado') ||
-          error?.message?.includes('JWT') ||
-          error?.message?.includes('permission')) {
+      if (
+        error?.message?.includes("não está configurado") ||
+        error?.message?.includes("JWT") ||
+        error?.message?.includes("permission")
+      ) {
         return false;
       }
       return failureCount < 3;
-    }
+    },
   });
 }
 
@@ -106,12 +112,12 @@ export function useSupabaseQuerySQL<T>(
     enabled?: boolean;
     staleTime?: number;
     refetchInterval?: number;
-  }
+  },
 ) {
   return useSupabaseQuery<T[]>(
     queryKey,
     createSupabaseQueryFunction<T>(sql, params) as () => Promise<T[]>,
-    options
+    options,
   );
 }
 
@@ -122,7 +128,7 @@ export function useSupabaseMutation<TData, TVariables>(
     onSuccess?: (data: TData, variables: TVariables) => void;
     onError?: (error: Error, variables: TVariables) => void;
     invalidateQueries?: (string | number)[][];
-  }
+  },
 ) {
   const queryClient = useQueryClient();
 
@@ -133,14 +139,14 @@ export function useSupabaseMutation<TData, TVariables>(
       } catch (error: any) {
         // Handle and transform error to a proper Error object
         const errorMessage = error?.message || String(error);
-        console.error('Supabase mutation error:', errorMessage);
+        console.error("Supabase mutation error:", errorMessage);
         throw new Error(errorMessage);
       }
     },
     onSuccess: (data, variables) => {
       // Invalidate specified queries
       if (options?.invalidateQueries) {
-        options.invalidateQueries.forEach(queryKey => {
+        options.invalidateQueries.forEach((queryKey) => {
           queryClient.invalidateQueries({ queryKey });
         });
       }
@@ -149,16 +155,16 @@ export function useSupabaseMutation<TData, TVariables>(
     },
     onError: (error: any, variables) => {
       options?.onError?.(error, variables);
-    }
+    },
   });
 }
 
 // Helper to invalidate queries
 export function useInvalidateQueries() {
   const queryClient = useQueryClient();
-  
+
   return (queryKeys: (string | number)[][]) => {
-    queryKeys.forEach(queryKey => {
+    queryKeys.forEach((queryKey) => {
       queryClient.invalidateQueries({ queryKey });
     });
   };
@@ -167,8 +173,11 @@ export function useInvalidateQueries() {
 // Helper to update query data optimistically
 export function useUpdateQueryData() {
   const queryClient = useQueryClient();
-  
-  return <T>(queryKey: (string | number)[], updater: (oldData: T | undefined) => T) => {
+
+  return <T>(
+    queryKey: (string | number)[],
+    updater: (oldData: T | undefined) => T,
+  ) => {
     queryClient.setQueryData(queryKey, updater);
   };
 }

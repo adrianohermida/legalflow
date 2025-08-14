@@ -1,31 +1,55 @@
-import React, { useState } from 'react';
-import { 
-  Users, 
-  Plus, 
-  Search, 
-  Building, 
-  User, 
-  Mail, 
-  Phone, 
+import React, { useState } from "react";
+import {
+  Users,
+  Plus,
+  Search,
+  Building,
+  User,
+  Mail,
+  Phone,
   MessageCircle,
   ExternalLink,
   Edit,
   Link2,
   CreditCard,
-  Filter
-} from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
-import { Label } from '../../components/ui/label';
-import { Textarea } from '../../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { useSupabaseQuery } from '../../hooks/useSupabaseQuery';
-import { supabase, lf } from '../../lib/supabase';
-import { useToast } from '../../hooks/use-toast';
+  Filter,
+} from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
+import { Label } from "../../components/ui/label";
+import { Textarea } from "../../components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import { useSupabaseQuery } from "../../hooks/useSupabaseQuery";
+import { supabase, lf } from "../../lib/supabase";
+import { useToast } from "../../hooks/use-toast";
 
 interface Contact {
   id: string;
@@ -49,7 +73,7 @@ interface NewContactData {
   phone: string;
   whatsapp: string;
   cpfcnpj: string;
-  kind: 'person' | 'org';
+  kind: "person" | "org";
   public_cliente_cpfcnpj: string;
   stripe_customer_id: string;
   properties: string;
@@ -57,8 +81,8 @@ interface NewContactData {
 
 const ContatosUnificados = () => {
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterSource, setFilterSource] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterSource, setFilterSource] = useState<string>("all");
   const [isNewContactOpen, setIsNewContactOpen] = useState(false);
   const [isVinculoStripeOpen, setIsVinculoStripeOpen] = useState(false);
   const [isVinculoClienteOpen, setIsVinculoClienteOpen] = useState(false);
@@ -67,20 +91,24 @@ const ContatosUnificados = () => {
   const pageSize = 25;
 
   const [newContactData, setNewContactData] = useState<NewContactData>({
-    name: '',
-    email: '',
-    phone: '',
-    whatsapp: '',
-    cpfcnpj: '',
-    kind: 'person',
-    public_cliente_cpfcnpj: '',
-    stripe_customer_id: '',
-    properties: '{}'
+    name: "",
+    email: "",
+    phone: "",
+    whatsapp: "",
+    cpfcnpj: "",
+    kind: "person",
+    public_cliente_cpfcnpj: "",
+    stripe_customer_id: "",
+    properties: "{}",
   });
 
   // Query para lista unificada de contatos
-  const { data: contacts = [], isLoading, refetch } = useSupabaseQuery(
-    ['contacts-unified', searchTerm, filterSource, page],
+  const {
+    data: contacts = [],
+    isLoading,
+    refetch,
+  } = useSupabaseQuery(
+    ["contacts-unified", searchTerm, filterSource, page],
     `
       SELECT * FROM legalflow.vw_contacts_unified
       WHERE 
@@ -93,18 +121,18 @@ const ContatosUnificados = () => {
       ORDER BY updated_at DESC
       LIMIT $3 OFFSET $4
     `,
-    [searchTerm, filterSource, pageSize, (page - 1) * pageSize]
+    [searchTerm, filterSource, pageSize, (page - 1) * pageSize],
   );
 
   // Query para clientes públicos (para vinculação)
   const { data: publicClientes = [] } = useSupabaseQuery(
-    ['public-clientes'],
-    () => clientesApi.getAll()
+    ["public-clientes"],
+    () => clientesApi.getAll(),
   );
 
   // Query para estatísticas
   const { data: stats } = useSupabaseQuery(
-    ['contacts-stats'],
+    ["contacts-stats"],
     `
       SELECT 
         COUNT(*) as total,
@@ -113,7 +141,7 @@ const ContatosUnificados = () => {
         COUNT(*) FILTER (WHERE stripe_customer_id IS NOT NULL) as stripe_count
       FROM legalflow.vw_contacts_unified
     `,
-    []
+    [],
   );
 
   // Criar novo contato
@@ -127,7 +155,7 @@ const ContatosUnificados = () => {
       }
 
       const { data, error } = await lf
-        .from('contacts')
+        .from("contacts")
         .insert({
           name: newContactData.name,
           email: newContactData.email || null,
@@ -137,7 +165,7 @@ const ContatosUnificados = () => {
           kind: newContactData.kind,
           public_cliente_cpfcnpj: newContactData.public_cliente_cpfcnpj || null,
           stripe_customer_id: newContactData.stripe_customer_id || null,
-          properties: properties
+          properties: properties,
         })
         .select()
         .single();
@@ -145,99 +173,102 @@ const ContatosUnificados = () => {
       if (error) throw error;
 
       toast({
-        title: 'Contato criado com sucesso',
-        description: `${newContactData.name} foi adicionado aos contatos.`
+        title: "Contato criado com sucesso",
+        description: `${newContactData.name} foi adicionado aos contatos.`,
       });
 
       setIsNewContactOpen(false);
       setNewContactData({
-        name: '',
-        email: '',
-        phone: '',
-        whatsapp: '',
-        cpfcnpj: '',
-        kind: 'person',
-        public_cliente_cpfcnpj: '',
-        stripe_customer_id: '',
-        properties: '{}'
+        name: "",
+        email: "",
+        phone: "",
+        whatsapp: "",
+        cpfcnpj: "",
+        kind: "person",
+        public_cliente_cpfcnpj: "",
+        stripe_customer_id: "",
+        properties: "{}",
       });
       refetch();
-
     } catch (error) {
-      console.error('Erro ao criar contato:', error);
+      console.error("Erro ao criar contato:", error);
       toast({
-        title: 'Erro ao criar contato',
-        description: 'Não foi possível criar o contato.',
-        variant: 'destructive'
+        title: "Erro ao criar contato",
+        description: "Não foi possível criar o contato.",
+        variant: "destructive",
       });
     }
   };
 
   // Vincular a cliente público
   const handleVincularCliente = async (cpfcnpj: string) => {
-    if (!selectedContact || selectedContact.source === 'public.clientes') return;
+    if (!selectedContact || selectedContact.source === "public.clientes")
+      return;
 
     try {
       const { error } = await lf
-        .from('contacts')
+        .from("contacts")
         .update({ public_cliente_cpfcnpj: cpfcnpj })
-        .eq('id', selectedContact.id);
+        .eq("id", selectedContact.id);
 
       if (error) throw error;
 
       toast({
-        title: 'Contato vinculado',
-        description: 'Contato vinculado ao cliente público com sucesso.'
+        title: "Contato vinculado",
+        description: "Contato vinculado ao cliente público com sucesso.",
       });
 
       setIsVinculoClienteOpen(false);
       setSelectedContact(null);
       refetch();
-
     } catch (error) {
       toast({
-        title: 'Erro na vinculação',
-        description: 'Não foi possível vincular o contato.',
-        variant: 'destructive'
+        title: "Erro na vinculação",
+        description: "Não foi possível vincular o contato.",
+        variant: "destructive",
       });
     }
   };
 
   // Vincular a cliente Stripe
   const handleVincularStripe = async (stripeCustomerId: string) => {
-    if (!selectedContact || selectedContact.source === 'public.clientes') return;
+    if (!selectedContact || selectedContact.source === "public.clientes")
+      return;
 
     try {
       const { error } = await lf
-        .from('contacts')
+        .from("contacts")
         .update({ stripe_customer_id: stripeCustomerId })
-        .eq('id', selectedContact.id);
+        .eq("id", selectedContact.id);
 
       if (error) throw error;
 
       toast({
-        title: 'Contato vinculado ao Stripe',
-        description: 'Cliente Stripe vinculado com sucesso.'
+        title: "Contato vinculado ao Stripe",
+        description: "Cliente Stripe vinculado com sucesso.",
       });
 
       setIsVinculoStripeOpen(false);
       setSelectedContact(null);
       refetch();
-
     } catch (error) {
       toast({
-        title: 'Erro na vinculação Stripe',
-        description: 'Não foi possível vincular ao Stripe.',
-        variant: 'destructive'
+        title: "Erro na vinculação Stripe",
+        description: "Não foi possível vincular ao Stripe.",
+        variant: "destructive",
       });
     }
   };
 
   const getSourceBadge = (source: string) => {
     switch (source) {
-      case 'legalflow.contacts':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">CRM</Badge>;
-      case 'public.clientes':
+      case "legalflow.contacts":
+        return (
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            CRM
+          </Badge>
+        );
+      case "public.clientes":
         return <Badge variant="outline">Cliente</Badge>;
       default:
         return <Badge variant="outline">{source}</Badge>;
@@ -245,7 +276,11 @@ const ContatosUnificados = () => {
   };
 
   const getKindIcon = (kind: string) => {
-    return kind === 'org' ? <Building className="h-4 w-4" /> : <User className="h-4 w-4" />;
+    return kind === "org" ? (
+      <Building className="h-4 w-4" />
+    ) : (
+      <User className="h-4 w-4" />
+    );
   };
 
   const formatContactInfo = (contact: Contact) => {
@@ -254,7 +289,7 @@ const ContatosUnificados = () => {
     if (contact.phone) info.push(contact.phone);
     if (contact.whatsapp) info.push(`WhatsApp: ${contact.whatsapp}`);
     if (contact.cpfcnpj) info.push(`CPF/CNPJ: ${contact.cpfcnpj}`);
-    return info.join(' • ');
+    return info.join(" • ");
   };
 
   return (
@@ -270,7 +305,7 @@ const ContatosUnificados = () => {
             Centralize pessoas e empresas - clientes ou prospects
           </p>
         </div>
-        
+
         <Button onClick={() => setIsNewContactOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Contato
@@ -298,7 +333,9 @@ const ContatosUnificados = () => {
                 <Building className="h-8 w-8 text-green-600" />
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-600">CRM</p>
-                  <p className="text-2xl font-bold">{stats.legalflow_count || 0}</p>
+                  <p className="text-2xl font-bold">
+                    {stats.legalflow_count || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -310,7 +347,9 @@ const ContatosUnificados = () => {
                 <User className="h-8 w-8 text-purple-600" />
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-600">Clientes</p>
-                  <p className="text-2xl font-bold">{stats.public_count || 0}</p>
+                  <p className="text-2xl font-bold">
+                    {stats.public_count || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -322,7 +361,9 @@ const ContatosUnificados = () => {
                 <CreditCard className="h-8 w-8 text-orange-600" />
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-600">Stripe</p>
-                  <p className="text-2xl font-bold">{stats.stripe_count || 0}</p>
+                  <p className="text-2xl font-bold">
+                    {stats.stripe_count || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -345,7 +386,7 @@ const ContatosUnificados = () => {
                 />
               </div>
             </div>
-            
+
             <Select value={filterSource} onValueChange={setFilterSource}>
               <SelectTrigger className="w-48">
                 <Filter className="mr-2 h-4 w-4" />
@@ -370,7 +411,10 @@ const ContatosUnificados = () => {
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="animate-pulse flex items-center space-x-4 p-4">
+                <div
+                  key={i}
+                  className="animate-pulse flex items-center space-x-4 p-4"
+                >
                   <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
                   <div className="flex-1">
                     <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -401,23 +445,21 @@ const ContatosUnificados = () => {
                           <span className="font-medium">{contact.name}</span>
                         </div>
                       </TableCell>
-                      
+
                       <TableCell>
                         <div className="text-sm text-gray-600">
                           {formatContactInfo(contact)}
                         </div>
                       </TableCell>
-                      
+
                       <TableCell>
                         <span className="font-mono text-sm">
-                          {contact.cpfcnpj || '-'}
+                          {contact.cpfcnpj || "-"}
                         </span>
                       </TableCell>
-                      
-                      <TableCell>
-                        {getSourceBadge(contact.source)}
-                      </TableCell>
-                      
+
+                      <TableCell>{getSourceBadge(contact.source)}</TableCell>
+
                       <TableCell>
                         <div className="flex gap-1">
                           {contact.public_cliente_cpfcnpj && (
@@ -434,10 +476,10 @@ const ContatosUnificados = () => {
                           )}
                         </div>
                       </TableCell>
-                      
+
                       <TableCell>
                         <div className="flex gap-2">
-                          {contact.source === 'legalflow.contacts' && (
+                          {contact.source === "legalflow.contacts" && (
                             <>
                               <Button
                                 variant="ghost"
@@ -449,7 +491,7 @@ const ContatosUnificados = () => {
                               >
                                 <Link2 className="h-4 w-4" />
                               </Button>
-                              
+
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -462,7 +504,7 @@ const ContatosUnificados = () => {
                               </Button>
                             </>
                           )}
-                          
+
                           <Button
                             variant="ghost"
                             size="sm"
@@ -484,19 +526,19 @@ const ContatosUnificados = () => {
               <div className="flex justify-between items-center mt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
                   Anterior
                 </Button>
-                
+
                 <span className="text-sm text-gray-600">
                   Página {page} • {pageSize} por página
                 </span>
-                
+
                 <Button
                   variant="outline"
-                  onClick={() => setPage(p => p + 1)}
+                  onClick={() => setPage((p) => p + 1)}
                   disabled={contacts.length < pageSize}
                 >
                   Próxima
@@ -510,7 +552,9 @@ const ContatosUnificados = () => {
                 Nenhum contato encontrado
               </h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm ? 'Tente ajustar os filtros de busca' : 'Adicione o primeiro contato'}
+                {searchTerm
+                  ? "Tente ajustar os filtros de busca"
+                  : "Adicione o primeiro contato"}
               </p>
               <Button onClick={() => setIsNewContactOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -527,23 +571,30 @@ const ContatosUnificados = () => {
           <DialogHeader>
             <DialogTitle>Novo Contato</DialogTitle>
           </DialogHeader>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">Nome *</Label>
               <Input
                 id="name"
                 value={newContactData.name}
-                onChange={(e) => setNewContactData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
                 placeholder="Nome completo"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="kind">Tipo</Label>
-              <Select 
-                value={newContactData.kind} 
-                onValueChange={(value: 'person' | 'org') => setNewContactData(prev => ({ ...prev, kind: value }))}
+              <Select
+                value={newContactData.kind}
+                onValueChange={(value: "person" | "org") =>
+                  setNewContactData((prev) => ({ ...prev, kind: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -554,63 +605,93 @@ const ContatosUnificados = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={newContactData.email}
-                onChange={(e) => setNewContactData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
                 placeholder="email@exemplo.com"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="phone">Telefone</Label>
               <Input
                 id="phone"
                 value={newContactData.phone}
-                onChange={(e) => setNewContactData(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    phone: e.target.value,
+                  }))
+                }
                 placeholder="(11) 99999-9999"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="whatsapp">WhatsApp</Label>
               <Input
                 id="whatsapp"
                 value={newContactData.whatsapp}
-                onChange={(e) => setNewContactData(prev => ({ ...prev, whatsapp: e.target.value }))}
+                onChange={(e) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    whatsapp: e.target.value,
+                  }))
+                }
                 placeholder="(11) 99999-9999"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="cpfcnpj">CPF/CNPJ</Label>
               <Input
                 id="cpfcnpj"
                 value={newContactData.cpfcnpj}
-                onChange={(e) => setNewContactData(prev => ({ ...prev, cpfcnpj: e.target.value }))}
+                onChange={(e) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    cpfcnpj: e.target.value,
+                  }))
+                }
                 placeholder="000.000.000-00"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="stripe_customer_id">ID Cliente Stripe</Label>
               <Input
                 id="stripe_customer_id"
                 value={newContactData.stripe_customer_id}
-                onChange={(e) => setNewContactData(prev => ({ ...prev, stripe_customer_id: e.target.value }))}
+                onChange={(e) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    stripe_customer_id: e.target.value,
+                  }))
+                }
                 placeholder="cus_..."
               />
             </div>
-            
+
             <div>
               <Label htmlFor="public_cliente_cpfcnpj">Vincular a Cliente</Label>
-              <Select 
+              <Select
                 value={newContactData.public_cliente_cpfcnpj}
-                onValueChange={(value) => setNewContactData(prev => ({ ...prev, public_cliente_cpfcnpj: value }))}
+                onValueChange={(value) =>
+                  setNewContactData((prev) => ({
+                    ...prev,
+                    public_cliente_cpfcnpj: value,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar cliente..." />
@@ -626,12 +707,18 @@ const ContatosUnificados = () => {
               </Select>
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsNewContactOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsNewContactOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button onClick={handleCreateContact} disabled={!newContactData.name}>
+            <Button
+              onClick={handleCreateContact}
+              disabled={!newContactData.name}
+            >
               Criar Contato
             </Button>
           </div>
@@ -639,17 +726,21 @@ const ContatosUnificados = () => {
       </Dialog>
 
       {/* Dialog: Vincular Cliente */}
-      <Dialog open={isVinculoClienteOpen} onOpenChange={setIsVinculoClienteOpen}>
+      <Dialog
+        open={isVinculoClienteOpen}
+        onOpenChange={setIsVinculoClienteOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Vincular a Cliente Público</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              Selecione um cliente público para vincular ao contato "{selectedContact?.name}":
+              Selecione um cliente público para vincular ao contato "
+              {selectedContact?.name}":
             </p>
-            
+
             <div className="max-h-64 overflow-y-auto space-y-2">
               {publicClientes.map((cliente) => (
                 <div
@@ -672,24 +763,25 @@ const ContatosUnificados = () => {
           <DialogHeader>
             <DialogTitle>Vincular Cliente Stripe</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              Digite o ID do cliente no Stripe para vincular ao contato "{selectedContact?.name}":
+              Digite o ID do cliente no Stripe para vincular ao contato "
+              {selectedContact?.name}":
             </p>
-            
+
             <Input
               placeholder="cus_..."
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   const value = (e.target as HTMLInputElement).value;
-                  if (value.startsWith('cus_')) {
+                  if (value.startsWith("cus_")) {
                     handleVincularStripe(value);
                   }
                 }
               }}
             />
-            
+
             <p className="text-xs text-gray-500">
               O ID deve começar com "cus_" (ex: cus_1234567890)
             </p>
