@@ -52,7 +52,7 @@ import InboxLegalV2 from "./pages/InboxLegalV2";
 import { Agenda } from "./pages/Agenda";
 import { Documentos } from "./pages/Documentos";
 import { Financeiro } from "./pages/Financeiro";
-import { Relatorios } from "./pages/Relatorios";
+import Relatorios from "./pages/Relatorios";
 import { Helpdesk } from "./pages/Helpdesk";
 import { Servicos } from "./pages/Servicos";
 import { Tickets } from "./pages/Tickets";
