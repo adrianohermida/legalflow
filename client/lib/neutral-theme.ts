@@ -212,4 +212,21 @@ export function applyMonochromaticTheme(theme: 'light' | 'dark' = 'light') {
   console.log(`✅ Tema monocromático ${theme} aplicado - ZERO cores detectadas`);
 }
 
+// Compatibility exports for existing code
+export const NEUTRAL_THEME = MONOCHROMATIC_THEME;
+export type NeutralThemeMode = 'light' | 'dark';
+export type AdminBrandConfig = {
+  enabled: boolean;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+};
+
+export const DEFAULT_ADMIN_BRAND: AdminBrandConfig = {
+  enabled: false,
+  primaryColor: "#111827",
+  secondaryColor: "#6b7280",
+  accentColor: "#1f2937",
+};
+
 export default MONOCHROMATIC_THEME;
