@@ -76,6 +76,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
   const [builderPriority, setBuilderPriority] = useState<"low" | "medium" | "high">("medium");
   const [builderCategory, setBuilderCategory] = useState<"bug_fix" | "feature" | "improvement" | "refactor">("improvement");
   const [processingPrompt, setProcessingPrompt] = useState(false);
+  const [isAutoSetup, setIsAutoSetup] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
