@@ -93,6 +93,7 @@ import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
 import ProcessoChatDrawer from "../components/ProcessoChatDrawer";
 import { useProcessoRealtimeUpdates } from "../hooks/useRealtimeUpdates";
+import { useSyncJobsRealtime } from "../hooks/useSyncJobsRealtime";
 
 interface Processo {
   numero_cnj: string;
