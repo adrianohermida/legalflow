@@ -418,35 +418,58 @@ class AutofixHistoryManager {
     modifications_by_type: Record<ModificationEntry["type"], number>;
     recent_activity: ModificationEntry[];
   }> {
-    const { data: allMods, error } = await supabase
-      .from("autofix_history")
-      .select("*");
+    try {
+      const { data: allMods, error } = await supabase
+        .from("autofix_history")
+        .select("*");
 
-    if (error) {
-      console.error("Failed to fetch system stats:", error.message || error);
-      throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
+      if (error) {
+        console.error("Failed to fetch system stats - Detailed error:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+
+        if (error.message && error.message.includes("relation") && error.message.includes("does not exist")) {
+          throw new Error("Database tables not found. Please run the setup SQL script in Supabase SQL Editor.");
+        }
+
+        const errorMessage = error.message || error.code || JSON.stringify(error) || "Unknown database error";
+        throw new Error(`Database error: ${errorMessage}`);
+      }
+
+      const modifications = allMods || [];
+      const successful = modifications.filter(m => m.success);
+      const failed = modifications.filter(m => !m.success);
+
+      const byType = modifications.reduce((acc, mod) => {
+        acc[mod.type] = (acc[mod.type] || 0) + 1;
+        return acc;
+      }, {} as Record<ModificationEntry["type"], number>);
+
+      const recent = modifications
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 10);
+
+      return {
+        total_modifications: modifications.length,
+        successful_modifications: successful.length,
+        failed_modifications: failed.length,
+        modifications_by_type: byType,
+        recent_activity: recent,
+      };
+
+    } catch (error) {
+      console.error("Unexpected error in getSystemStats:", error);
+
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      const errorString = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      throw new Error(`Unexpected error: ${errorString}`);
     }
-
-    const modifications = allMods || [];
-    const successful = modifications.filter(m => m.success);
-    const failed = modifications.filter(m => !m.success);
-
-    const byType = modifications.reduce((acc, mod) => {
-      acc[mod.type] = (acc[mod.type] || 0) + 1;
-      return acc;
-    }, {} as Record<ModificationEntry["type"], number>);
-
-    const recent = modifications
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 10);
-
-    return {
-      total_modifications: modifications.length,
-      successful_modifications: successful.length,
-      failed_modifications: failed.length,
-      modifications_by_type: byType,
-      recent_activity: recent,
-    };
   }
 
   async testBuilderConnection(): Promise<{ success: boolean; message: string; details?: any }> {
