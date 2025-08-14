@@ -73,7 +73,7 @@ export async function createTableDirectly(tableName: string, tableSQL: string): 
   }
 }
 
-// Function to create tables with admin privileges
+// Function to verify tables with admin privileges
 export async function createTablesWithAdmin(): Promise<{ success: boolean; error?: string; details?: any }> {
   if (!isAdminConfigured) {
     return {
@@ -83,79 +83,43 @@ export async function createTablesWithAdmin(): Promise<{ success: boolean; error
     };
   }
 
-  const createHistoryTableSQL = `
-    CREATE TABLE IF NOT EXISTS autofix_history (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      type TEXT NOT NULL CHECK (type IN ('autofix', 'manual', 'builder_prompt', 'git_import')),
-      module TEXT NOT NULL,
-      description TEXT NOT NULL,
-      changes JSONB NOT NULL DEFAULT '[]'::jsonb,
-      success BOOLEAN NOT NULL DEFAULT false,
-      context JSONB DEFAULT '{}'::jsonb,
-      metadata JSONB DEFAULT '{}'::jsonb,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      updated_at TIMESTAMPTZ DEFAULT NOW()
-    );
-  `;
-
-  const createBuilderPromptsTableSQL = `
-    CREATE TABLE IF NOT EXISTS builder_prompts (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      prompt TEXT NOT NULL,
-      context TEXT,
-      priority TEXT NOT NULL CHECK (priority IN ('low', 'medium', 'high')),
-      category TEXT NOT NULL CHECK (category IN ('bug_fix', 'feature', 'improvement', 'refactor')),
-      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
-      result JSONB DEFAULT '{}'::jsonb,
-      error_message TEXT,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      updated_at TIMESTAMPTZ DEFAULT NOW(),
-      completed_at TIMESTAMPTZ
-    );
-  `;
-
-  const createIndexesSQL = `
-    CREATE INDEX IF NOT EXISTS idx_autofix_history_timestamp ON autofix_history(timestamp DESC);
-    CREATE INDEX IF NOT EXISTS idx_autofix_history_type ON autofix_history(type);
-    CREATE INDEX IF NOT EXISTS idx_autofix_history_module ON autofix_history(module);
-    CREATE INDEX IF NOT EXISTS idx_autofix_history_success ON autofix_history(success);
-    CREATE INDEX IF NOT EXISTS idx_builder_prompts_status ON builder_prompts(status);
-    CREATE INDEX IF NOT EXISTS idx_builder_prompts_created_at ON builder_prompts(created_at DESC);
-  `;
-
   try {
-    console.log("🚀 Creating autofix tables with admin privileges...");
+    console.log("🚀 Verificando tabelas com privilégios administrativos...");
 
-    // Try to execute each SQL statement
-    const historyResult = await executeAdminSQL(createHistoryTableSQL);
-    const promptsResult = await executeAdminSQL(createBuilderPromptsTableSQL);
-    const indexesResult = await executeAdminSQL(createIndexesSQL);
+    // Check if tables exist using admin client
+    const historyResult = await createTableDirectly("autofix_history", "");
+    const promptsResult = await createTableDirectly("builder_prompts", "");
 
-    const results = { historyResult, promptsResult, indexesResult };
-    const hasErrors = !historyResult.success || !promptsResult.success || !indexesResult.success;
+    console.log("📊 Resultados da verificação:", { historyResult, promptsResult });
 
-    if (hasErrors) {
+    // If both tables exist, we're good
+    if (historyResult.success && promptsResult.success) {
       return {
-        success: false,
-        error: "Algumas operações falharam. Verifique os detalhes.",
-        details: results
+        success: true,
+        details: {
+          tables_verified: ["autofix_history", "builder_prompts"],
+          admin_access: true,
+          message: "Tabelas verificadas com sucesso usando service role"
+        }
       };
     }
 
+    // If tables don't exist, recommend manual setup
     return {
-      success: true,
-      details: { 
-        tables_created: ["autofix_history", "builder_prompts"],
-        indexes_created: true,
-        results
+      success: false,
+      error: "Tabelas não encontradas. Execute o script SQL manualmente no Supabase SQL Editor.",
+      details: {
+        admin_configured: true,
+        history_exists: historyResult.success,
+        prompts_exists: promptsResult.success,
+        recommendation: "Execute AUTOFIX_DATABASE_SETUP.sql no SQL Editor"
       }
     };
 
   } catch (error) {
     return {
       success: false,
-      error: `Erro inesperado: ${error instanceof Error ? error.message : String(error)}`,
+      error: `Erro na verificação: ${error instanceof Error ? error.message : String(error)}`,
       details: { admin_configured: isAdminConfigured }
     };
   }
