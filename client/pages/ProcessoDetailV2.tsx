@@ -851,7 +851,7 @@ export default function ProcessoDetailV2() {
               </CardHeader>
               <CardContent>
                 {/* CTA Sincronizar Partes */}
-                <div className="mt-6 p-4 bg-neutral-50 rounded-lg">
+                <div className="p-4 bg-neutral-50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium">Sincronizar Partes</h3>
