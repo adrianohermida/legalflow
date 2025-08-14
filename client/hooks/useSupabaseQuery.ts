@@ -1,47 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { handleApiError } from '../lib/api';
-import { supabase } from '../lib/supabase';
+import { createSupabaseQueryFunction } from '../lib/supabase-queries';
 
-// Generic hook for Supabase queries - supports both function and SQL string approaches
+// Generic hook for Supabase queries
 export function useSupabaseQuery<T>(
   queryKey: (string | number)[],
-  queryFnOrSql: (() => Promise<T>) | string,
-  sqlParamsOrOptions?: any[] | {
-    enabled?: boolean;
-    staleTime?: number;
-    refetchInterval?: number;
-  },
+  queryFn: () => Promise<T>,
   options?: {
     enabled?: boolean;
     staleTime?: number;
     refetchInterval?: number;
   }
 ) {
-  // Determine if this is a SQL query or function call
-  const isSqlQuery = typeof queryFnOrSql === 'string';
-  const finalOptions = isSqlQuery ? options : (sqlParamsOrOptions as any);
-  const sqlParams = isSqlQuery ? sqlParamsOrOptions as any[] : undefined;
-
   return useQuery({
     queryKey,
     queryFn: async () => {
       try {
-        if (isSqlQuery) {
-          // Execute SQL query with parameters using RPC
-          const { data, error } = await supabase.rpc('execute_query', {
-            query_text: queryFnOrSql,
-            query_params: sqlParams || []
-          });
-
-          if (error) {
-            throw new Error(error.message);
-          }
-
-          return data as T;
-        } else {
-          // Execute function directly
-          return await (queryFnOrSql as () => Promise<T>)();
-        }
+        return await queryFn();
       } catch (error: any) {
         // Handle and transform error to a proper Error object
         const errorMessage = error?.message || String(error);
@@ -49,9 +24,9 @@ export function useSupabaseQuery<T>(
         throw new Error(errorMessage);
       }
     },
-    staleTime: finalOptions?.staleTime || 5 * 60 * 1000, // 5 minutes
-    refetchInterval: finalOptions?.refetchInterval,
-    enabled: finalOptions?.enabled,
+    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
+    refetchInterval: options?.refetchInterval,
+    enabled: options?.enabled,
     retry: (failureCount, error) => {
       // Don't retry configuration errors or auth errors
       if (error?.message?.includes('não está configurado') ||
@@ -62,6 +37,24 @@ export function useSupabaseQuery<T>(
       return failureCount < 3;
     }
   });
+}
+
+// Overloaded version for SQL queries with parameters
+export function useSupabaseQuerySQL<T>(
+  queryKey: (string | number)[],
+  sql: string,
+  params: any[],
+  options?: {
+    enabled?: boolean;
+    staleTime?: number;
+    refetchInterval?: number;
+  }
+) {
+  return useSupabaseQuery<T>(
+    queryKey,
+    createSupabaseQueryFunction<T>(sql, params),
+    options
+  );
 }
 
 // Generic hook for Supabase mutations
