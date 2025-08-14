@@ -575,7 +575,13 @@ export class RouteCoverageSystem {
       .filter(time => time !== 'never')
       .sort()
       .reverse();
-    
+
+    const performanceIssues = this.routes.filter(route =>
+      route.performanceStatus && ['poor', 'acceptable'].includes(route.performanceStatus)
+    ).length;
+
+    const routesAbove500ms = this.routes.filter(route => route.renderTime > 500).length;
+
     return {
       total,
       ok: ok.length,
@@ -583,7 +589,9 @@ export class RouteCoverageSystem {
       timeout: this.routes.filter(route => route.status === 'timeout').length,
       coverage_percentage: total > 0 ? Math.round((tested.length / total) * 100) : 0,
       avg_render_time: Math.round(avgRenderTime),
-      last_full_test: lastTestedTimes[0] || 'never'
+      last_full_test: lastTestedTimes[0] || 'never',
+      performance_issues: performanceIssues,
+      routes_above_500ms: routesAbove500ms
     };
   }
 
