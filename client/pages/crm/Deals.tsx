@@ -457,9 +457,9 @@ const CRMDealsWithStripe: React.FC = () => {
   };
 
   const getStageColor = (stage: PipelineStage) => {
-    if (stage.is_won) return "bg-green-100 text-green-800 border-green-200";
-    if (stage.is_lost) return "bg-red-100 text-red-800 border-red-200";
-    return "bg-blue-100 text-blue-800 border-blue-200";
+    if (stage.is_won) return "bg-gray-100 text-gray-800 border-gray-200";
+    if (stage.is_lost) return "bg-gray-200 text-gray-900 border-gray-300";
+    return "bg-gray-50 text-gray-700 border-gray-150";
   };
 
   const getDealsByStage = (stageId: number) => {
@@ -650,7 +650,7 @@ const CRMDealsWithStripe: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Target className="h-8 w-8 text-blue-600" />
+                <Target className="h-8 w-8 text-gray-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">
                     Total de Deals
