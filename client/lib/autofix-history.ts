@@ -60,8 +60,8 @@ class AutofixHistoryManager {
       .insert([modificationEntry]);
 
     if (error) {
-      console.error("Failed to record modification:", error);
-      throw error;
+      console.error("Failed to record modification:", error.message || error);
+      throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
     }
 
     return modificationEntry.id;
