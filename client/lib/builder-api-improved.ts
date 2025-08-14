@@ -103,17 +103,18 @@ export class ImprovedBuilderAPI {
     }
 
     // Try real API call with optimized approach
-    try {
-      const response = await this.attemptRealAPICall(request);
-      if (response.success) {
-        return { success: true, data: response.data, usedMock: false };
-      }
-    } catch (error) {
-      console.log("🔄 Real API failed, using mock fallback:", error);
+    const response = await this.attemptRealAPICall(request);
+
+    if (response.success) {
+      console.log("✅ Using real Builder.io API");
+      return { success: true, data: response.data, usedMock: false };
     }
 
-    // Fallback to mock API
-    return this.useMockAPI(request, "Real API unavailable - using fallback");
+    // Real API failed, use mock fallback
+    const reason = response.error || "Real API unavailable";
+    console.log(`🔄 Real API failed (${reason}), using mock fallback`);
+
+    return this.useMockAPI(request, reason);
   }
 
   private async attemptRealAPICall(request: any): Promise<{ success: boolean; data?: any; error?: string }> {
