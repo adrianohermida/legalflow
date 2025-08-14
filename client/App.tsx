@@ -464,7 +464,7 @@ function DemoAppRoutes() {
         path="/crm/relatorios"
         element={
           <DemoProtectedRoute userType="advogado">
-            <CRMReports />
+            <RelatoriosCRM />
           </DemoProtectedRoute>
         }
       />
