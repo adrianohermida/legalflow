@@ -267,7 +267,7 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
       {stats && (
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-4">
-            <div className="grid gap-4 md:grid-cols-5">
+            <div className="grid gap-4 md:grid-cols-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
                 <p className="text-sm font-medium">Total de Rotas</p>
