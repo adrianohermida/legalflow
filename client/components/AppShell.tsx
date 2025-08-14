@@ -43,7 +43,7 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
 
   const handleNotificationToggle = () => {
     setIsNotificationPanelOpen(!isNotificationPanelOpen);
-    if (isAppLauncherOpen) setIsAppLauncherOpen(false);
+    if (isOfficeModulesOpen) setIsOfficeModulesOpen(false);
   };
 
   const handleChatToggle = () => {
