@@ -16,7 +16,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ userType, user, logout, children }: AppShellProps) {
-  const [isAppLauncherOpen, setIsAppLauncherOpen] = useState(false);
+  const [isOfficeModulesOpen, setIsOfficeModulesOpen] = useState(false);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isChatDockOpen, setIsChatDockOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
