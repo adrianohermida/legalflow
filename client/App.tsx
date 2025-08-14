@@ -785,6 +785,14 @@ function RegularAppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/autofix-testing"
+        element={
+          <ProtectedRoute userType="advogado">
+            <AutofixTesting />
+          </ProtectedRoute>
+        }
+      />
 
       {/* CRM Routes */}
       <Route
