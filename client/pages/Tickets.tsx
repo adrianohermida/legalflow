@@ -446,7 +446,7 @@ export function Tickets() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
-              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+              className="bg-gray-800 text-white hover:bg-gray-900"
             >
               <Plus className="w-4 h-4 mr-2" />
               Novo Ticket
@@ -681,7 +681,7 @@ export function Tickets() {
             <div className="flex items-center justify-center py-12">
               <Loader2
                 className="w-8 h-8 animate-spin"
-                style={{ color: "var(--brand-700)" }}
+                className="text-gray-800"
               />
               <span className="ml-2 text-neutral-600">
                 Carregando tickets...
