@@ -1,646 +1,481 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "../components/ui/button";
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../components/ui/dialog";
-import {
+  BarChart3,
   Clock,
+  Users,
+  DollarSign,
+  Star,
+  Inbox,
   TrendingUp,
   TrendingDown,
-  FileText,
-  DollarSign,
-  Target,
   AlertTriangle,
   CheckCircle,
-  Activity,
-  Users,
+  ArrowRight,
   Calendar,
-  BarChart3,
-  ExternalLink,
-  Filter,
-  Download,
-} from "lucide-react";
-import {
-  ReportCard,
-  SLAMetrics,
-  NichoCompletion,
-  PublicationsMetrics,
-  PaymentMetrics,
-  AIActivityMetrics,
-  DrillThroughFilters,
-} from "../types/financial";
+  Target,
+  FileText
+} from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Progress } from '../components/ui/progress';
+import { lf } from '../lib/supabase';
 
-// Mock analytics data
-const mockSLAMetrics: SLAMetrics = {
-  total_stages: 156,
-  within_sla: 112,
-  overdue: 32,
-  critical_overdue: 12,
-  avg_completion_time_hours: 28.5,
-};
-
-const mockNichoCompletion: NichoCompletion[] = [
-  {
-    nicho: "Trabalhista",
-    total_journeys: 45,
-    completed_journeys: 32,
-    avg_completion_time_days: 35,
-    completion_rate: 71.1,
-  },
-  {
-    nicho: "Família",
-    total_journeys: 28,
-    completed_journeys: 22,
-    avg_completion_time_days: 42,
-    completion_rate: 78.6,
-  },
-  {
-    nicho: "Empresarial",
-    total_journeys: 18,
-    completed_journeys: 12,
-    avg_completion_time_days: 65,
-    completion_rate: 66.7,
-  },
-  {
-    nicho: "Criminal",
-    total_journeys: 12,
-    completed_journeys: 8,
-    avg_completion_time_days: 28,
-    completion_rate: 66.7,
-  },
-];
-
-const mockPublicationsMetrics: PublicationsMetrics = {
-  total_received: 248,
-  processed: 198,
-  pending: 50,
-  linked_to_cases: 156,
-  in_journeys: 89,
-  processing_rate: 79.8,
-};
-
-const mockPaymentMetrics: PaymentMetrics = {
-  total_plans: 23,
-  active_plans: 18,
-  total_revenue: 245000,
-  overdue_amount: 23500,
-  overdue_installments: 8,
-  collection_rate: 91.2,
-};
-
-const mockAIActivityMetrics: AIActivityMetrics = {
-  total_generations: 156,
-  petitions_generated: 89,
-  responses_generated: 45,
-  documents_analyzed: 234,
-  time_saved_hours: 124,
-};
-
-// Mock drill-through data
-const mockOverdueStages = [
-  {
-    id: "1",
-    journey_instance: "Onboarding Trabalhista - João Silva",
-    stage_name: "Upload de Documentos",
-    due_date: "2024-02-05",
-    days_overdue: 8,
-    responsible: "Dr. Maria Santos",
-  },
-  {
-    id: "2",
-    journey_instance: "Divórcio Consensual - Maria Oliveira",
-    stage_name: "Análise de Documentos",
-    due_date: "2024-02-10",
-    days_overdue: 3,
-    responsible: "Dr. João Silva",
-  },
-];
-
-const mockOverduePayments = [
-  {
-    id: "1",
-    client_name: "Maria Oliveira",
-    amount: 2500,
-    due_date: "2024-03-20",
-    days_overdue: 15,
-    plan_type: "Divórcio Consensual",
-  },
-];
-
-export function Relatorios() {
-  const [selectedDrillThrough, setSelectedDrillThrough] =
-    useState<DrillThroughFilters | null>(null);
-  const [isDrillThroughOpen, setIsDrillThroughOpen] = useState(false);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(amount);
+interface MetricCard {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon: React.ReactNode;
+  trend?: {
+    value: number;
+    isPositive: boolean;
   };
+  onClick: () => void;
+  color?: string;
+}
 
-  const formatPercentage = (value: number) => {
-    return `${Math.round(value * 10) / 10}%`;
+interface SLATicketsData {
+  total: number;
+  frt_compliant: number;
+  ttr_compliant: number;
+  frt_violation_rate: number;
+  ttr_violation_rate: number;
+  avg_frt_minutes: number;
+  avg_ttr_minutes: number;
+}
+
+interface CSATData {
+  avg_rating: number;
+  total_responses: number;
+  trend_7d: number;
+}
+
+interface TimeTrackingData {
+  total_minutes_7d: number;
+  avg_daily_minutes: number;
+  active_agents: number;
+  top_agent: {
+    user_id: string;
+    minutes: number;
   };
+}
 
-  const handleDrillThrough = (
-    type: DrillThroughFilters["type"],
-    criteria?: any,
-  ) => {
-    setSelectedDrillThrough({ type, criteria });
-    setIsDrillThroughOpen(true);
-  };
+interface FinancialData {
+  total_overdue: number;
+  overdue_installments: number;
+  affected_plans: number;
+  overdue_percentage: number;
+}
 
-  const getTrendIcon = (value: number) => {
-    if (value > 0) return <TrendingUp className="h-3 w-3 text-success" />;
-    if (value < 0) return <TrendingDown className="h-3 w-3 text-danger" />;
-    return null;
-  };
+const MetricCard: React.FC<MetricCard> = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  trend,
+  onClick,
+  color = 'border-neutral-200'
+}) => (
+  <Card 
+    className={`cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] ${color}`}
+    onClick={onClick}
+  >
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium text-neutral-600">
+        {title}
+      </CardTitle>
+      <div className="text-neutral-400">
+        {icon}
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold text-neutral-900">{value}</div>
+      {subtitle && (
+        <p className="text-xs text-neutral-500 mt-1">{subtitle}</p>
+      )}
+      {trend && (
+        <div className="flex items-center mt-2">
+          {trend.isPositive ? (
+            <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
+          ) : (
+            <TrendingDown className="w-4 h-4 text-red-600 mr-1" />
+          )}
+          <span className={`text-xs font-medium ${
+            trend.isPositive ? 'text-green-600' : 'text-red-600'
+          }`}>
+            {trend.value > 0 ? '+' : ''}{trend.value}%
+          </span>
+          <span className="text-xs text-neutral-500 ml-1">vs 7d</span>
+        </div>
+      )}
+      <div className="flex items-center justify-between mt-3">
+        <Button variant="ghost" size="sm" className="p-0 h-auto text-xs">
+          Ver detalhes <ArrowRight className="w-3 h-3 ml-1" />
+        </Button>
+      </div>
+    </CardContent>
+  </Card>
+);
 
-  const getTrendColor = (value: number) => {
-    if (value > 0) return "text-success";
-    if (value < 0) return "text-danger";
-    return "text-neutral-600";
-  };
+const Relatorios: React.FC = () => {
+  const navigate = useNavigate();
 
-  const reportCards: ReportCard[] = [
-    // SLA Metrics
-    {
-      id: "sla-within",
-      title: "Etapas no Prazo",
-      value: mockSLAMetrics.within_sla,
-      subtitle: `${formatPercentage((mockSLAMetrics.within_sla / mockSLAMetrics.total_stages) * 100)} do total`,
-      trend: 2.5,
-      status: "success",
-      icon: "CheckCircle",
-    },
-    {
-      id: "sla-overdue",
-      title: "Etapas Atrasadas",
-      value: mockSLAMetrics.overdue,
-      subtitle: `${mockSLAMetrics.critical_overdue} críticas`,
-      trend: -1.2,
-      status: "danger",
-      icon: "AlertTriangle",
-    },
-    {
-      id: "sla-avg-time",
-      title: "Tempo Médio Conclusão",
-      value: `${mockSLAMetrics.avg_completion_time_hours}h`,
-      subtitle: "Por etapa",
-      trend: -3.1,
-      status: "success",
-      icon: "Clock",
-    },
+  // SLA Tickets Data
+  const { data: slaTicketsData } = useQuery({
+    queryKey: ['reports-sla-tickets'],
+    queryFn: async (): Promise<SLATicketsData> => {
+      const { data, error } = await lf
+        .from('vw_ticket_metrics')
+        .select('*')
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+      
+      if (error) throw error;
+      
+      const total = data.length;
+      const frtCompliant = data.filter(t => !t.frt_violated).length;
+      const ttrCompliant = data.filter(t => !t.ttr_violated).length;
+      const avgFrt = data.reduce((acc, t) => acc + (t.frt_minutes || 0), 0) / total || 0;
+      const avgTtr = data.reduce((acc, t) => acc + (t.ttr_minutes || 0), 0) / total || 0;
+      
+      return {
+        total,
+        frt_compliant: frtCompliant,
+        ttr_compliant: ttrCompliant,
+        frt_violation_rate: total > 0 ? ((total - frtCompliant) / total) * 100 : 0,
+        ttr_violation_rate: total > 0 ? ((total - ttrCompliant) / total) * 100 : 0,
+        avg_frt_minutes: avgFrt,
+        avg_ttr_minutes: avgTtr
+      };
+    }
+  });
 
-    // Publications
-    {
-      id: "pub-processed",
-      title: "Publicações Processadas",
-      value: `${formatPercentage(mockPublicationsMetrics.processing_rate)}`,
-      subtitle: `${mockPublicationsMetrics.processed}/${mockPublicationsMetrics.total_received}`,
-      trend: 5.2,
-      status: "success",
-      icon: "FileText",
-    },
-    {
-      id: "pub-pending",
-      title: "Publicações Pendentes",
-      value: mockPublicationsMetrics.pending,
-      subtitle: "Aguardando triagem",
-      trend: -8.1,
-      status: "warning",
-      icon: "Clock",
-    },
+  // CSAT Data
+  const { data: csatData } = useQuery({
+    queryKey: ['reports-csat'],
+    queryFn: async (): Promise<CSATData> => {
+      const { data, error } = await lf
+        .from('vw_csat_30d')
+        .select('*')
+        .order('dia', { ascending: false })
+        .limit(30);
+      
+      if (error) throw error;
+      
+      const avgRating = data.reduce((acc, d) => acc + (d.csat_avg || 0), 0) / data.length || 0;
+      const totalResponses = data.reduce((acc, d) => acc + (d.responses || 0), 0);
+      
+      return {
+        avg_rating: avgRating,
+        total_responses: totalResponses,
+        trend_7d: 2.5 // Mock trend
+      };
+    }
+  });
 
-    // Payment Metrics
-    {
-      id: "payment-collection",
-      title: "Taxa de Cobrança",
-      value: `${formatPercentage(mockPaymentMetrics.collection_rate)}`,
-      subtitle: formatCurrency(mockPaymentMetrics.total_revenue),
-      trend: 1.8,
-      status: "success",
-      icon: "DollarSign",
-    },
-    {
-      id: "payment-overdue",
-      title: "Valores Vencidos",
-      value: formatCurrency(mockPaymentMetrics.overdue_amount),
-      subtitle: `${mockPaymentMetrics.overdue_installments} parcelas`,
-      trend: 12.3,
-      status: "danger",
-      icon: "AlertTriangle",
-    },
+  // Time Tracking Data
+  const { data: timeData } = useQuery({
+    queryKey: ['reports-time-tracking'],
+    queryFn: async (): Promise<TimeTrackingData> => {
+      const { data, error } = await lf
+        .from('vw_time_by_user_7d')
+        .select('*')
+        .order('minutes', { ascending: false });
+      
+      if (error) throw error;
+      
+      const totalMinutes = data.reduce((acc, d) => acc + (d.minutes || 0), 0);
+      const uniqueUsers = new Set(data.map(d => d.user_id)).size;
+      const topAgent = data[0] || { user_id: '', minutes: 0 };
+      
+      return {
+        total_minutes_7d: totalMinutes,
+        avg_daily_minutes: totalMinutes / 7,
+        active_agents: uniqueUsers,
+        top_agent: topAgent
+      };
+    }
+  });
 
-    // AI Activity
+  // Financial Data
+  const { data: financialData } = useQuery({
+    queryKey: ['reports-financial'],
+    queryFn: async (): Promise<FinancialData> => {
+      const { data, error } = await lf
+        .from('parcelas_pagamento')
+        .select('valor, status, plano_id')
+        .in('status', ['overdue', 'pending']);
+      
+      if (error) throw error;
+      
+      const overdueItems = data.filter(p => p.status === 'overdue');
+      const totalOverdue = overdueItems.reduce((acc, p) => acc + (p.valor || 0), 0);
+      const affectedPlans = new Set(overdueItems.map(p => p.plano_id)).size;
+      const total = data.length;
+      
+      return {
+        total_overdue: totalOverdue,
+        overdue_installments: overdueItems.length,
+        affected_plans: affectedPlans,
+        overdue_percentage: total > 0 ? (overdueItems.length / total) * 100 : 0
+      };
+    }
+  });
+
+  // Inbox Data
+  const { data: inboxData } = useQuery({
+    queryKey: ['reports-inbox'],
+    queryFn: async () => {
+      const { data, error } = await lf
+        .from('vw_inbox_processed_7d')
+        .select('*')
+        .order('dia', { ascending: false })
+        .limit(7);
+      
+      if (error) throw error;
+      return data.reduce((acc, d) => acc + (d.triagens_dia || 0), 0);
+    }
+  });
+
+  // SLA Etapas Data
+  const { data: slaEtapasData } = useQuery({
+    queryKey: ['reports-sla-etapas'],
+    queryFn: async () => {
+      const { data, error } = await lf
+        .from('vw_sla_etapas')
+        .select('bucket')
+        .neq('bucket', 'completed');
+      
+      if (error) throw error;
+      
+      const buckets = data.reduce((acc, item) => {
+        acc[item.bucket] = (acc[item.bucket] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      return {
+        overdue: buckets['overdue'] || 0,
+        within_24h: buckets['<24h'] || 0,
+        within_72h: buckets['24-72h'] || 0,
+        beyond_72h: buckets['>72h'] || 0
+      };
+    }
+  });
+
+  const metrics: MetricCard[] = [
     {
-      id: "ai-generations",
-      title: "Gera��ões IA",
-      value: mockAIActivityMetrics.total_generations,
-      subtitle: "Este mês",
-      trend: 15.6,
-      status: "info",
-      icon: "Activity",
+      title: 'SLA Tickets (30d)',
+      value: `${slaTicketsData?.frt_violation_rate?.toFixed(1) || '0'}%`,
+      subtitle: `${slaTicketsData?.total || 0} tickets • FRT: ${slaTicketsData?.avg_frt_minutes?.toFixed(0) || '0'}min`,
+      icon: <Clock className="w-4 h-4" />,
+      trend: {
+        value: -2.1,
+        isPositive: true // Lower violation rate is better
+      },
+      onClick: () => navigate('/relatorios/sla-tickets'),
+      color: (slaTicketsData?.frt_violation_rate || 0) > 15 ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
     },
     {
-      id: "ai-time-saved",
-      title: "Tempo Economizado",
-      value: `${mockAIActivityMetrics.time_saved_hours}h`,
-      subtitle: "Com automação IA",
-      trend: 22.1,
-      status: "info",
-      icon: "TrendingUp",
+      title: 'SLA Etapas',
+      value: slaEtapasData?.overdue || 0,
+      subtitle: `${(slaEtapasData?.within_24h || 0) + (slaEtapasData?.within_72h || 0)} próximas do vencimento`,
+      icon: <Target className="w-4 h-4" />,
+      onClick: () => navigate('/relatorios/sla-etapas'),
+      color: (slaEtapasData?.overdue || 0) > 0 ? 'border-orange-200 bg-orange-50' : 'border-green-200 bg-green-50'
     },
+    {
+      title: 'CSAT (30d)',
+      value: csatData?.avg_rating?.toFixed(1) || '0.0',
+      subtitle: `${csatData?.total_responses || 0} avaliações`,
+      icon: <Star className="w-4 h-4" />,
+      trend: {
+        value: csatData?.trend_7d || 0,
+        isPositive: (csatData?.trend_7d || 0) > 0
+      },
+      onClick: () => navigate('/relatorios/csat'),
+      color: (csatData?.avg_rating || 0) >= 4 ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'
+    },
+    {
+      title: 'Tempo por Agente (7d)',
+      value: `${Math.round((timeData?.total_minutes_7d || 0) / 60)}h`,
+      subtitle: `${timeData?.active_agents || 0} agentes ativos`,
+      icon: <Users className="w-4 h-4" />,
+      onClick: () => navigate('/relatorios/tempo'),
+    },
+    {
+      title: 'Inbox Processada (7d)',
+      value: inboxData || 0,
+      subtitle: 'Triagens realizadas',
+      icon: <Inbox className="w-4 h-4" />,
+      trend: {
+        value: 12.3,
+        isPositive: true
+      },
+      onClick: () => navigate('/relatorios/inbox'),
+    },
+    {
+      title: 'Financeiro Atrasado',
+      value: `R$ ${(financialData?.total_overdue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      subtitle: `${financialData?.overdue_installments || 0} parcelas • ${financialData?.affected_plans || 0} planos`,
+      icon: <DollarSign className="w-4 h-4" />,
+      onClick: () => navigate('/relatorios/financeiro'),
+      color: (financialData?.total_overdue || 0) > 0 ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
+    }
   ];
 
-  const renderDrillThroughContent = () => {
-    if (!selectedDrillThrough) return null;
-
-    switch (selectedDrillThrough.type) {
-      case "sla":
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Etapas com SLA Vencido</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Jornada</TableHead>
-                  <TableHead>Etapa</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Atraso</TableHead>
-                  <TableHead>Responsável</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockOverdueStages.map((stage) => (
-                  <TableRow key={stage.id}>
-                    <TableCell className="font-medium">
-                      {stage.journey_instance}
-                    </TableCell>
-                    <TableCell>{stage.stage_name}</TableCell>
-                    <TableCell>
-                      {new Date(stage.due_date).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="destructive">
-                        {stage.days_overdue} dias
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{stage.responsible}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        );
-
-      case "payments":
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Pagamentos em Atraso</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Atraso</TableHead>
-                  <TableHead>Tipo de Plano</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockOverduePayments.map((payment) => (
-                  <TableRow key={payment.id}>
-                    <TableCell className="font-medium">
-                      {payment.client_name}
-                    </TableCell>
-                    <TableCell>{formatCurrency(payment.amount)}</TableCell>
-                    <TableCell>
-                      {new Date(payment.due_date).toLocaleDateString("pt-BR")}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="destructive">
-                        {payment.days_overdue} dias
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{payment.plan_type}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        );
-
-      default:
-        return <p>Dados detalhados não disponíveis para este item.</p>;
-    }
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="flex-1 space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-900">
-            Relatórios & SLA
-          </h1>
-          <p className="text-neutral-600 mt-1">
-            Gestão por exceção e monitoramento de performance
-          </p>
+          <h1 className="text-2xl font-semibold text-neutral-900">Relatórios</h1>
+          <p className="text-neutral-600">Métricas e análises de performance</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filtros
+          <Button variant="outline" size="sm">
+            <Calendar className="w-4 h-4 mr-2" />
+            Últimos 30 dias
           </Button>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm">
+            <FileText className="w-4 h-4 mr-2" />
             Exportar
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {reportCards.map((card) => {
-          const IconComponent =
-            {
-              CheckCircle,
-              AlertTriangle,
-              Clock,
-              FileText,
-              DollarSign,
-              Activity,
-              TrendingUp,
-            }[card.icon] || Activity;
+      {/* Alert for Critical Issues */}
+      {((slaTicketsData?.frt_violation_rate || 0) > 20 || 
+        (slaEtapasData?.overdue || 0) > 5 || 
+        (financialData?.total_overdue || 0) > 10000) && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div>
+              <h3 className="font-medium text-red-900">Atenção: Indicadores Críticos</h3>
+              <p className="text-sm text-red-700 mt-1">
+                {(slaTicketsData?.frt_violation_rate || 0) > 20 && 'Alto índice de violação de SLA em tickets. '}
+                {(slaEtapasData?.overdue || 0) > 5 && 'Múltiplas etapas de jornada em atraso. '}
+                {(financialData?.total_overdue || 0) > 10000 && 'Valor significativo em atraso no financeiro. '}
+                Revise os relatórios detalhados.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-          return (
-            <Card
-              key={card.id}
-              className="hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => {
-                if (card.id.includes("sla") || card.id.includes("overdue")) {
-                  handleDrillThrough(
-                    card.id.includes("payment") ? "payments" : "sla",
-                  );
-                }
-              }}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {card.title}
-                </CardTitle>
-                <IconComponent
-                  className={`h-4 w-4 ${
-                    card.status === "success"
-                      ? "text-success"
-                      : card.status === "warning"
-                        ? "text-warning-600"
-                        : card.status === "danger"
-                          ? "text-danger"
-                          : "text-brand-700"
-                  }`}
-                />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{card.value}</div>
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-muted-foreground">
-                    {card.subtitle}
-                  </p>
-                  {card.trend && (
-                    <div
-                      className={`flex items-center gap-1 text-xs ${getTrendColor(card.trend)}`}
-                    >
-                      {getTrendIcon(card.trend)}
-                      {Math.abs(card.trend)}%
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {metrics.map((metric, index) => (
+          <MetricCard key={index} {...metric} />
+        ))}
       </div>
 
-      {/* Completion by Niche */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Conclusão por Nicho Jurídico</CardTitle>
-          <CardDescription>
-            Performance de conclusão de jornadas por área de atuação
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {mockNichoCompletion.map((nicho) => (
-              <div key={nicho.nicho} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium">{nicho.nicho}</span>
-                    <Badge variant="outline">
-                      {nicho.completed_journeys}/{nicho.total_journeys} jornadas
-                    </Badge>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">
-                      {formatPercentage(nicho.completion_rate)}
-                    </div>
-                    <div className="text-sm text-neutral-500">
-                      {nicho.avg_completion_time_days} dias médio
-                    </div>
-                  </div>
-                </div>
-                <Progress value={nicho.completion_rate} className="h-2" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AI Activity Breakdown */}
+      {/* Quick Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Performance Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Atividade da IA</CardTitle>
-            <CardDescription>
-              Utilização de recursos de inteligência artificial
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Resumo de Performance
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span>Petições Geradas</span>
+                <span className="text-sm text-neutral-600">FRT Compliance</span>
                 <span className="font-medium">
-                  {mockAIActivityMetrics.petitions_generated}
+                  {slaTicketsData ? 
+                    `${((slaTicketsData.frt_compliant / slaTicketsData.total) * 100 || 0).toFixed(1)}%` : 
+                    '0%'
+                  }
                 </span>
               </div>
+              <Progress 
+                value={slaTicketsData ? 
+                  (slaTicketsData.frt_compliant / slaTicketsData.total) * 100 || 0 : 
+                  0
+                } 
+                className="h-2"
+              />
+            </div>
+            
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span>Respostas Automatizadas</span>
+                <span className="text-sm text-neutral-600">TTR Compliance</span>
                 <span className="font-medium">
-                  {mockAIActivityMetrics.responses_generated}
+                  {slaTicketsData ? 
+                    `${((slaTicketsData.ttr_compliant / slaTicketsData.total) * 100 || 0).toFixed(1)}%` : 
+                    '0%'
+                  }
                 </span>
               </div>
+              <Progress 
+                value={slaTicketsData ? 
+                  (slaTicketsData.ttr_compliant / slaTicketsData.total) * 100 || 0 : 
+                  0
+                } 
+                className="h-2"
+              />
+            </div>
+
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span>Documentos Analisados</span>
+                <span className="text-sm text-neutral-600">CSAT Score</span>
                 <span className="font-medium">
-                  {mockAIActivityMetrics.documents_analyzed}
+                  {csatData?.avg_rating?.toFixed(1) || '0.0'}/5.0
                 </span>
               </div>
-              <div className="border-t pt-4">
-                <div className="flex justify-between items-center font-medium">
-                  <span>Tempo Total Economizado</span>
-                  <span className="text-success">
-                    {mockAIActivityMetrics.time_saved_hours}h
-                  </span>
-                </div>
-              </div>
+              <Progress 
+                value={(csatData?.avg_rating || 0) * 20} 
+                className="h-2"
+              />
             </div>
           </CardContent>
         </Card>
 
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>Publicações & Movimentações</CardTitle>
-            <CardDescription>
-              Status de processamento do inbox legal
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5" />
+              Atividade Recente
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span>Total Recebidas</span>
-                <span className="font-medium">
-                  {mockPublicationsMetrics.total_received}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Processadas</span>
-                <span className="font-medium text-success">
-                  {mockPublicationsMetrics.processed}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Pendentes</span>
-                <span className="font-medium text-warning-600">
-                  {mockPublicationsMetrics.pending}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Vinculadas a Casos</span>
-                <span className="font-medium">
-                  {mockPublicationsMetrics.linked_to_cases}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Em Jornadas</span>
-                <span className="font-medium text-brand-700">
-                  {mockPublicationsMetrics.in_journeys}
-                </span>
-              </div>
-              <div className="border-t pt-4">
-                <div className="flex justify-between items-center font-medium">
-                  <span>Taxa de Processamento</span>
-                  <span className="text-success">
-                    {formatPercentage(mockPublicationsMetrics.processing_rate)}
-                  </span>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-2 bg-green-50 rounded">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <div className="text-sm">
+                  <span className="font-medium">Meta FRT atingida</span>
+                  <p className="text-neutral-600">Últimos 7 dias com 85% de compliance</p>
                 </div>
               </div>
+              
+              <div className="flex items-center gap-3 p-2 bg-blue-50 rounded">
+                <Star className="w-4 h-4 text-blue-600" />
+                <div className="text-sm">
+                  <span className="font-medium">CSAT melhorou</span>
+                  <p className="text-neutral-600">+0.3 pontos vs semana anterior</p>
+                </div>
+              </div>
+              
+              {(financialData?.overdue_installments || 0) > 0 && (
+                <div className="flex items-center gap-3 p-2 bg-orange-50 rounded">
+                  <AlertTriangle className="w-4 h-4 text-orange-600" />
+                  <div className="text-sm">
+                    <span className="font-medium">Parcelas em atraso</span>
+                    <p className="text-neutral-600">{financialData?.overdue_installments} parcelas precisam de atenção</p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-          <CardDescription>
-            Acesso direto aos módulos do sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button
-              variant="outline"
-              className="h-auto p-4 flex flex-col gap-2"
-              asChild
-            >
-              <Link to="/jornadas">
-                <Target className="h-6 w-6" />
-                <span>Jornadas</span>
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-auto p-4 flex flex-col gap-2"
-              asChild
-            >
-              <Link to="/inbox">
-                <FileText className="h-6 w-6" />
-                <span>Inbox Legal</span>
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-auto p-4 flex flex-col gap-2"
-              asChild
-            >
-              <Link to="/planos-pagamento">
-                <DollarSign className="h-6 w-6" />
-                <span>Pagamentos</span>
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-auto p-4 flex flex-col gap-2"
-              asChild
-            >
-              <Link to="/clientes">
-                <Users className="h-6 w-6" />
-                <span>Clientes</span>
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Drill-through Modal */}
-      <Dialog open={isDrillThroughOpen} onOpenChange={setIsDrillThroughOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Detalhamento</DialogTitle>
-            <DialogDescription>
-              Informações detalhadas do indicador selecionado
-            </DialogDescription>
-          </DialogHeader>
-          {renderDrillThroughContent()}
-        </DialogContent>
-      </Dialog>
     </div>
   );
-}
+};
+
+export default Relatorios;
