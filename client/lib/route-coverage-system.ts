@@ -26,6 +26,8 @@ export interface RouteCoverageStats {
   coverage_percentage: number;
   avg_render_time: number;
   last_full_test: string;
+  performance_issues: number;
+  routes_above_500ms: number;
 }
 
 export class RouteCoverageSystem {
