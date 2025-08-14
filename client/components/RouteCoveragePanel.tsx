@@ -358,6 +358,7 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                       <TableHead>Categoria</TableHead>
                       <TableHead>User Type</TableHead>
                       <TableHead>Render Time</TableHead>
+                      <TableHead>Performance</TableHead>
                       <TableHead>Última Tested</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
