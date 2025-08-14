@@ -418,6 +418,23 @@ export const implAutofix = async (
     result.message = "Falha na execução do autofix";
   }
 
+  // Record autofix completion
+  try {
+    await autofixHistory.recordModification({
+      type: "autofix",
+      module: patchCode.split("_")[0] || "unknown",
+      description: result.message,
+      changes: result.changes,
+      success: result.success,
+      context: {
+        patch_code: patchCode,
+        error_details: result.success ? undefined : result.errors.join(", "),
+      },
+    });
+  } catch (error) {
+    console.warn("Failed to record autofix completion:", error);
+  }
+
   return result;
 };
 
