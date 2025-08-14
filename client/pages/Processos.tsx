@@ -320,7 +320,7 @@ export function Processos() {
           </p>
         </div>
         <Button
-          style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+          className="bg-gray-800 text-white hover:bg-gray-900"
           onClick={() => navigate("/processos/novo")}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -406,7 +406,7 @@ export function Processos() {
             <div className="flex items-center justify-center py-12">
               <Loader2
                 className="w-8 h-8 animate-spin"
-                style={{ color: "var(--brand-700)" }}
+                className="text-gray-800"
               />
               <span className="ml-2 text-neutral-600">
                 Carregando processos...
@@ -447,7 +447,7 @@ export function Processos() {
                         <Link
                           to={`/processos-v2/${processo.numero_cnj}`}
                           className="hover:underline"
-                          style={{ color: "var(--brand-700)" }}
+                          className="text-gray-800"
                         >
                           {formatCNJ(processo.numero_cnj)}
                         </Link>
@@ -526,7 +526,7 @@ export function Processos() {
                               setSelectedProcesso(processo.numero_cnj);
                               setIsAtribuirDialogOpen(true);
                             }}
-                            style={{ color: "var(--brand-700)" }}
+                            className="text-gray-800"
                           >
                             <UserPlus className="w-4 h-4 mr-1" />
                             Atribuir OAB
