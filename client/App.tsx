@@ -623,6 +623,14 @@ function RegularAppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/status"
+        element={
+          <ProtectedRoute userType="advogado">
+            <StatusDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
