@@ -19,6 +19,7 @@ import {
   CalendarCheck,
   Receipt,
   Ticket,
+  TestTube,
 } from "lucide-react";
 
 interface SidebarProps {
