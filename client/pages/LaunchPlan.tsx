@@ -18,7 +18,6 @@ import {
   Database,
   Zap,
   Shield,
-  Backup,
   Flag,
   Clock,
   Users,
