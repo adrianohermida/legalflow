@@ -26,7 +26,7 @@ import {
   Trash2,
   Users,
   Filter,
-  Sync,
+  RefreshCw,
   Download,
   Upload,
   ExternalLink,
