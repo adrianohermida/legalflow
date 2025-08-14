@@ -952,21 +952,23 @@ export default function InboxLegalV2() {
                                 <Bell className="w-4 h-4 mr-1" />
                                 Notificar
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  // Aqui você pode adicionar lógica para criar tarefa
+                              <CreateStageDialog
+                                numeroCnj={item.numero_cnj || undefined}
+                                defaultTitle={`Analisar movimentação: ${getResumo(item)?.substring(0, 50)}...`}
+                                defaultDescription={`Movimentação processual de ${formatDate(item.data_movimentacao || item.created_at)}`}
+                                onSuccess={() => {
                                   toast({
-                                    title: "Criar Tarefa",
-                                    description:
-                                      "Funcionalidade será implementada",
+                                    title: "Etapa criada",
+                                    description: "Etapa de jornada criada a partir da movimentação.",
                                   });
                                 }}
-                              >
-                                <Target className="w-4 h-4 mr-1" />
-                                Tarefa
-                              </Button>
+                                trigger={
+                                  <Button variant="ghost" size="sm">
+                                    <Target className="w-4 h-4 mr-1" />
+                                    Criar Etapa
+                                  </Button>
+                                }
+                              />
                             </div>
                           </TableCell>
                         </TableRow>
