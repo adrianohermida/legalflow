@@ -60,6 +60,7 @@ import { PlanosPagamento } from "./pages/PlanosPagamento";
 import QAConsole from "./pages/QAConsole";
 import StatusDashboard from "./pages/StatusDashboard";
 import FeatureFlags from "./pages/FeatureFlags";
+import DevTools from "./pages/DevTools";
 
 // Portal do Cliente pages
 import { PortalChat } from "./pages/portal/PortalChat";
