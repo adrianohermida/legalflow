@@ -321,6 +321,15 @@ export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className 
               <li>Cole e execute o script completo</li>
               <li>Volte aqui e execute os testes</li>
             </ol>
+
+            <div className="mt-2 pt-2 border-t border-muted-foreground/20">
+              <strong>🔧 Versão Corrigida:</strong>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>✅ Pode ser executado múltiplas vezes sem erro</li>
+                <li>✅ Triggers são recriados corretamente</li>
+                <li>✅ Evita duplicação de dados de exemplo</li>
+              </ul>
+            </div>
           </div>
         </div>
       </CardContent>
