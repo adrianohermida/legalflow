@@ -104,44 +104,69 @@ const AutofixTesting: React.FC = () => {
     addTestResult({
       name: "Database Setup",
       status: "pending",
-      message: "Setting up database tables...",
+      message: "Verificando configuração do banco de dados...",
     });
 
     try {
-      const setupResult = await createAutofixTables();
-      setDatabaseSetup(setupResult);
+      // First check if tables exist
+      const tablesStatus = await checkTablesExist();
 
-      if (setupResult.success) {
+      if (tablesStatus.both_exist) {
         addTestResult({
           name: "Database Setup",
           status: "success",
-          message: "Database tables created successfully",
-          details: setupResult,
+          message: "✅ Tabelas do autofix já existem e estão acessíveis",
+          details: { tables_found: ["autofix_history", "builder_prompts"], method: "existing" },
         });
+      } else {
+        // Try automatic setup
+        const setupResult = await createAutofixTables();
+        setDatabaseSetup(setupResult);
 
-        // Insert sample data
+        if (setupResult.success) {
+          addTestResult({
+            name: "Database Setup",
+            status: "success",
+            message: "✅ Setup automático concluído com sucesso",
+            details: setupResult,
+          });
+        } else {
+          addTestResult({
+            name: "Database Setup",
+            status: "warning",
+            message: "⚠️ Setup automático não disponível - Configure manualmente",
+            details: setupResult,
+          });
+        }
+      }
+
+      // Validate complete setup
+      const validation = await validateDatabaseSetup();
+      addTestResult({
+        name: "Database Validation",
+        status: validation.success ? "success" : "error",
+        message: validation.message,
+        details: validation.details,
+      });
+
+      // Try to insert sample data if validation passed
+      if (validation.success) {
         const sampleResult = await insertSampleData();
         addTestResult({
           name: "Sample Data",
           status: sampleResult.success ? "success" : "warning",
-          message: sampleResult.success 
-            ? "Sample data inserted successfully" 
-            : `Sample data insertion: ${sampleResult.error}`,
+          message: sampleResult.success
+            ? `✅ Dados de exemplo: ${sampleResult.inserted_count || 0} registros`
+            : `⚠️ ${sampleResult.error}`,
           details: sampleResult,
         });
-      } else {
-        addTestResult({
-          name: "Database Setup",
-          status: "warning",
-          message: setupResult.error || "Database setup completed with warnings",
-          details: setupResult,
-        });
       }
+
     } catch (error) {
       addTestResult({
         name: "Database Setup",
         status: "error",
-        message: `Database setup failed: ${error instanceof Error ? error.message : String(error)}`,
+        message: `❌ Erro no setup do banco: ${error instanceof Error ? error.message : String(error)}`,
       });
     }
   };
