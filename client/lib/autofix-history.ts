@@ -52,22 +52,66 @@ class AutofixHistoryManager {
   private builderPrivateKey = import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY || "bpk-c334462169634b3f8157b6074848b012";
 
   async recordModification(entry: Omit<ModificationEntry, "id" | "timestamp">): Promise<string> {
-    const modificationEntry: ModificationEntry = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      ...entry,
-    };
+    try {
+      const modificationEntry: ModificationEntry = {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        ...entry,
+      };
 
-    const { error } = await supabase
-      .from("autofix_history")
-      .insert([modificationEntry]);
+      console.log("Recording modification:", {
+        type: modificationEntry.type,
+        module: modificationEntry.module,
+        description: modificationEntry.description
+      });
 
-    if (error) {
-      console.error("Failed to record modification:", error.message || error);
-      throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
+      const { error, data } = await supabase
+        .from("autofix_history")
+        .insert([modificationEntry])
+        .select();
+
+      if (error) {
+        // Enhanced error logging
+        const errorDetails = {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          full_error: error
+        };
+
+        console.error("Failed to record modification - Detailed error:", errorDetails);
+
+        // Check if it's a table not found error
+        if (error.message && error.message.includes("relation") && error.message.includes("does not exist")) {
+          throw new Error("Database tables not found. Please run the setup SQL script in Supabase SQL Editor.");
+        }
+
+        // Check if it's a permission error
+        if (error.message && error.message.includes("permission denied")) {
+          throw new Error("Database permission denied. Check RLS policies or user permissions.");
+        }
+
+        // Generic database error with detailed message
+        const errorMessage = error.message || error.code || JSON.stringify(error) || "Unknown database error";
+        throw new Error(`Database error: ${errorMessage}`);
+      }
+
+      console.log("Modification recorded successfully:", modificationEntry.id);
+      return modificationEntry.id;
+
+    } catch (error) {
+      // Catch any unexpected errors and ensure they're properly handled
+      console.error("Unexpected error in recordModification:", error);
+
+      if (error instanceof Error) {
+        throw error; // Re-throw known errors
+      }
+
+      // Handle unknown error types
+      const errorString = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      throw new Error(`Unexpected error: ${errorString}`);
     }
-
-    return modificationEntry.id;
   }
 
   async getModificationHistory(
