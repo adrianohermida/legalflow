@@ -380,6 +380,20 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
 
               <div className="flex gap-3 mt-4">
                 <Button
+                  onClick={handleAutoSetup}
+                  disabled={isAutoSetup}
+                  className="flex items-center gap-2"
+                >
+                  {isAutoSetup ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Zap className="w-4 h-4" />
+                  )}
+                  Setup Automático
+                </Button>
+
+                <Button
+                  variant="outline"
                   onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
                   className="flex items-center gap-2"
                 >
