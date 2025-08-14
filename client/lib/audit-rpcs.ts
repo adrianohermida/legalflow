@@ -23,6 +23,19 @@ interface AutofixResult {
 export const implAudit = async (): Promise<AuditResult> => {
   const auditResult: AuditResult = {};
 
+  // Record audit execution
+  try {
+    await autofixHistory.recordModification({
+      type: "manual",
+      module: "audit_system",
+      description: "Execução de auditoria do sistema",
+      changes: ["Verificação de integridade de todos os módulos"],
+      success: true,
+    });
+  } catch (error) {
+    console.warn("Failed to record audit in history:", error);
+  }
+
   try {
     // API Library audit
     const { data: apiEndpoints, error: apiError } = await supabase
