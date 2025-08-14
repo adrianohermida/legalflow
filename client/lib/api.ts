@@ -467,6 +467,52 @@ export const eventosAgendaApi = {
 };
 
 // ============================================================================
+// LEGALFLOW VIEWS AND ADVANCED QUERIES
+// ============================================================================
+
+export const contactsUnifiedApi = {
+  async getAll({
+    searchTerm = '',
+    filterSource = 'all',
+    page = 1,
+    pageSize = 50
+  }: {
+    searchTerm?: string;
+    filterSource?: string;
+    page?: number;
+    pageSize?: number;
+  } = {}) {
+    checkSupabaseConfig();
+
+    let query = lf.from('vw_contacts_unified' as any).select('*');
+
+    // Add search filters
+    if (searchTerm && searchTerm.trim() !== '') {
+      query = query.or(
+        `name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,whatsapp.ilike.%${searchTerm}%,cpfcnpj.ilike.%${searchTerm}%`
+      );
+    }
+
+    // Add source filter
+    if (filterSource && filterSource !== 'all') {
+      query = query.eq('source', filterSource);
+    }
+
+    // Add pagination
+    const offset = (page - 1) * pageSize;
+    query = query.range(offset, offset + pageSize - 1);
+
+    // Add sorting
+    query = query.order('updated_at', { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  }
+};
+
+// ============================================================================
 // CROSS-SCHEMA QUERIES (combining PUBLIC and LEGALFLOW)
 // ============================================================================
 
@@ -567,4 +613,9 @@ export type {
   FormResponse,
   DocumentRequirement,
   DocumentUpload
+};
+
+// Export all APIs for easier use
+export {
+  contactsUnifiedApi
 };
