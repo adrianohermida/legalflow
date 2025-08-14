@@ -154,6 +154,7 @@ export default function ProcessoDetailV2() {
 
   // Enable realtime updates for this processo
   useProcessoRealtimeUpdates(numero_cnj);
+  const currentSyncJob = useSyncJobsRealtime(numero_cnj);
 
   // Query processo
   const {
