@@ -578,7 +578,7 @@ export default function ProcessoDetailV2() {
                 onClick={() => setIsMonitoringDialogOpen(true)}
               >
                 <Settings className="w-4 h-4 mr-2" />
-                Monitoramento
+                Configurações
               </Button>
 
               <Button
