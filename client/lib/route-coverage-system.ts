@@ -13,6 +13,9 @@ export interface RouteTest {
   description: string;
   params?: Record<string, string>;
   queryParams?: Record<string, string>;
+  performanceMetrics?: RoutePerformanceMetrics;
+  performanceScore?: number;
+  performanceStatus?: 'excellent' | 'good' | 'acceptable' | 'poor';
 }
 
 export interface RouteCoverageStats {
