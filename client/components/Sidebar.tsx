@@ -223,14 +223,8 @@ export function Sidebar({ userType }: SidebarProps) {
       </nav>
 
       {/* Footer - User Type Indicator */}
-      <div className="px-3 py-4 border-t border-gray-200">
-        <div
-          className="flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg"
-          style={{
-            backgroundColor: "var(--brand-100)",
-            color: "var(--brand-700)",
-          }}
-        >
+      <div className="px-3 py-4 border-t border-neutral-200">
+        <div className="flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg bg-neutral-100 text-neutral-800">
           <UserCheck className="w-4 h-4 mr-2" />
           {userType === "advogado" ? "Área do Advogado" : "Portal do Cliente"}
         </div>
