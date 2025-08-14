@@ -279,7 +279,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     keepPreviousData: true
   });
 
-  // Movimentaç��es query - using public.movimentacoes excluding publicações
+  // Movimentações query - using public.movimentacoes excluding publicações
   const {
     data: movimentacoesData,
     isLoading: isLoadingMovimentacoes,
@@ -472,16 +472,13 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       }
       
       // Track telemetry
-      await supabase.from('telemetry_events').insert({
-        event_name: 'sf4_criar_etapa',
-        properties: { 
-          item_id: selectedItem?.id, 
-          journey_instance_id: journeyInstanceId,
-          template_stage_id: templateStageId,
-          created_activity: createActivityFlag,
-          tab: filters.tab 
-        }
-      });
+      await sf4Telemetry.trackCriarEtapa(
+        selectedItem?.id || 0,
+        journeyInstanceId,
+        templateStageId,
+        createActivityFlag,
+        filters.tab
+      );
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Etapa criada com sucesso!" });
