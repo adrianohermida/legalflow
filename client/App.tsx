@@ -440,7 +440,7 @@ function DemoAppRoutes() {
         path="/crm/contatos/:id"
         element={
           <DemoProtectedRoute userType="advogado">
-            <ContactProfile />
+            <ContatoPerfil360 />
           </DemoProtectedRoute>
         }
       />
