@@ -773,10 +773,7 @@ export default function InboxLegalV2() {
                           <TableCell>
                             {item.numero_cnj ? (
                               <Badge
-                                style={{
-                                  backgroundColor: "var(--brand-700)",
-                                  color: "white",
-                                }}
+                                className="bg-gray-800 text-white"
                               >
                                 {formatCNJ(item.numero_cnj)}
                               </Badge>
@@ -917,10 +914,7 @@ export default function InboxLegalV2() {
                           <TableCell>
                             {item.numero_cnj ? (
                               <Badge
-                                style={{
-                                  backgroundColor: "var(--brand-700)",
-                                  color: "white",
-                                }}
+                                className="bg-gray-800 text-white"
                               >
                                 {formatCNJ(item.numero_cnj)}
                               </Badge>
