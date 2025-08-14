@@ -182,7 +182,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     isDialogOpen: anyDialogOpen,
   });
 
-  // Update URL params when filters change
+  // Update URL params when filters change and track telemetry
   useEffect(() => {
     const params = new URLSearchParams();
     if (filters.tab !== 'publicacoes') params.set('tab', filters.tab);
@@ -191,9 +191,38 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     if (filters.tribunal !== 'all') params.set('tribunal', filters.tribunal);
     if (filters.searchText) params.set('q', filters.searchText);
     if (filters.page !== 1) params.set('page', filters.page.toString());
-    
+
     setSearchParams(params);
+
+    // Update page title for accessibility
+    sf4A11yUtils.setPageTitle(`${filters.tab === 'publicacoes' ? 'Publicações' : 'Movimentações'} - Página ${filters.page}`);
   }, [filters, setSearchParams]);
+
+  // Load saved views on component mount
+  useEffect(() => {
+    const loadSavedViews = async () => {
+      const views = await sf4SavedViews.loadViews(
+        filters.tab === 'publicacoes' ? 'inbox_publicacoes' : 'inbox_movimentacoes'
+      );
+      setSavedViews(views);
+
+      // Load default view if available and no URL params
+      const hasUrlParams = searchParams.toString().length > 0;
+      if (!hasUrlParams) {
+        const defaultView = await sf4SavedViews.getDefaultView(
+          filters.tab === 'publicacoes' ? 'inbox_publicacoes' : 'inbox_movimentacoes'
+        );
+        if (defaultView) {
+          setFilters(prev => ({
+            ...prev,
+            ...defaultView.filters,
+          }));
+        }
+      }
+    };
+
+    loadSavedViews();
+  }, [filters.tab]); // Reload when tab changes
 
   // Publicações query - using only public.movimentacoes with tipo filter
   const {
