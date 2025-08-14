@@ -44,6 +44,7 @@ import { ProcessoDetail } from "./pages/ProcessoDetail";
 import ProcessoDetailV2 from "./pages/ProcessoDetailV2";
 import { Clientes } from "./pages/Clientes";
 import Jornadas from "./pages/Jornadas";
+import JourneyDesignerPage from "./pages/JourneyDesigner";
 import { NovaJornada } from "./pages/NovaJornada";
 import { IniciarJornada } from "./pages/IniciarJornada";
 import { InboxLegal } from "./pages/InboxLegal";
@@ -240,6 +241,14 @@ function DemoAppRoutes() {
         element={
           <DemoProtectedRoute userType="advogado">
             <Jornadas />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/jornadas/designer/:templateId?"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <JourneyDesignerPage />
           </DemoProtectedRoute>
         }
       />
