@@ -75,10 +75,10 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
       </div>
 
       {/* Overlays and Modals */}
-      {isAppLauncherOpen && (
-        <AppLauncher 
-          isOpen={isAppLauncherOpen}
-          onClose={() => setIsAppLauncherOpen(false)}
+      {isOfficeModulesOpen && (
+        <OfficeModulesWindow
+          isOpen={isOfficeModulesOpen}
+          onClose={() => setIsOfficeModulesOpen(false)}
           userType={userType}
         />
       )}
