@@ -50,7 +50,6 @@ import { createAutofixTables, insertSampleData } from "../lib/supabase-setup-hel
 import {
   History,
   GitBranch,
-  Zap,
   Bot,
   User,
   CheckCircle,
@@ -227,7 +226,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
       } else {
         toast({
           title: "Erro no prompt",
-          description: response.error || "Falha na execução do prompt",
+          description: response.error || "Falha na execu��ão do prompt",
           variant: "destructive",
         });
       }
