@@ -1659,6 +1659,22 @@ export default function ProcessoDetailV2() {
         isOpen={showChatDrawer}
         onClose={() => setShowChatDrawer(false)}
       />
+
+      {/* SF-2: Floating Chat Button (when chat is closed) */}
+      {!showChatDrawer && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <Button
+            onClick={() => setShowChatDrawer(true)}
+            className="h-14 w-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 border-4 border-white"
+            size="sm"
+          >
+            <MessageSquare className="w-6 h-6" />
+          </Button>
+          <Badge className="absolute -top-2 -left-2 bg-green-500 text-white text-xs px-2 py-1">
+            SF-2
+          </Badge>
+        </div>
+      )}
     </div>
   );
 }
