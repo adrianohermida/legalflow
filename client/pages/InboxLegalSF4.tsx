@@ -585,8 +585,50 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     return data.tipo || data.fonte || 'Movimento';
   };
 
+  // Save view mutation
+  const saveViewMutation = useMutation({
+    mutationFn: async ({ name }: { name: string }) => {
+      const viewType = filters.tab === 'publicacoes' ? 'inbox_publicacoes' : 'inbox_movimentacoes';
+      const savedView = await sf4SavedViews.saveView({
+        name,
+        user_id: '', // Will be set by the manager
+        view_type: viewType,
+        filters: {
+          dateFrom: filters.dateFrom,
+          dateTo: filters.dateTo,
+          tribunal: filters.tribunal,
+          searchText: filters.searchText,
+        },
+        is_default: false,
+      });
+
+      if (!savedView) throw new Error('Failed to save view');
+
+      await sf4Telemetry.trackSaveView(name, viewType, filters);
+      return savedView;
+    },
+    onSuccess: (savedView) => {
+      toast({ title: "Sucesso", description: `Visualização "${savedView.name}" salva!` });
+      setSavedViews(prev => [savedView, ...prev]);
+      setShowSaveViewDialog(false);
+      setSaveViewName('');
+    },
+    onError: () => {
+      toast({ title: "Erro", description: "Erro ao salvar visualização", variant: "destructive" });
+    }
+  });
+
   const updateFilters = (updates: Partial<Filters>) => {
-    setFilters(prev => ({ ...prev, ...updates, page: 1 }));
+    const oldFilters = { ...filters };
+    const newFilters = { ...filters, ...updates, page: 1 };
+    setFilters(newFilters);
+
+    // Track filter changes with debouncing
+    Object.keys(updates).forEach(key => {
+      if (key !== 'page' && key !== 'tab') {
+        sf4Utils.trackFilterChangeDebounced(key, updates[key as keyof Filters], filters.tab);
+      }
+    });
   };
 
   const clearAllFilters = () => {
@@ -598,6 +640,16 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       tab: filters.tab,
       page: 1,
     });
+
+    sf4Telemetry.trackEvent({
+      event_name: 'sf4_filter_change',
+      properties: {
+        action_type: 'clear_all_filters',
+        tab: filters.tab
+      }
+    });
+
+    sf4A11yUtils.announce('Todos os filtros foram limpos');
   };
 
   return (
@@ -735,7 +787,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                           <TableHead>Resumo</TableHead>
                           <TableHead>Processo (CNJ)</TableHead>
                           <TableHead>Tribunal</TableHead>
-                          <TableHead className="w-20">Ações</TableHead>
+                          <TableHead className="w-20">Aç��es</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
