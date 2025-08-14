@@ -427,31 +427,41 @@ class AutofixHistoryManager {
   }
 
   private async mockBuilderAPI(
-    request: BuilderPromptRequest, 
+    request: BuilderPromptRequest,
     promptId: string
   ): Promise<BuilderPromptResponse> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log("🎭 Using mock Builder.io API implementation...");
 
-    // Mock successful response with real API simulation
+    // Simulate API delay (shorter than real API)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Mock successful response with clear indication it's a fallback
     const mockModifications: ModificationEntry[] = [
       {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
         type: "builder_prompt",
-        module: "autofix_enhancement",
-        description: `Applied fix for: ${request.prompt}`,
+        module: "autofix_mock_integration",
+        description: `Mock Builder.io response for: ${request.prompt}`,
         changes: [
-          "Enhanced autofix system with history tracking",
-          "Added Builder.io integration",
-          "Implemented modification logging",
-          "Configured API credentials successfully",
+          "🎭 Mock: Enhanced autofix system with history tracking",
+          "🎭 Mock: Added Builder.io integration (fallback mode)",
+          "🎭 Mock: Implemented modification logging",
+          "🎭 Mock: System working correctly despite API unavailability",
         ],
         success: true,
         context: {
           builder_prompt_id: promptId,
           files_modified: request.expected_files || [],
           mock_api_used: true,
+          api_response: false,
+          fallback_reason: "Real Builder.io API unavailable or returned error",
+        },
+        metadata: {
+          mock_execution: true,
+          original_prompt: request.prompt,
+          original_category: request.category,
+          original_priority: request.priority,
         },
       },
     ];
@@ -462,7 +472,7 @@ class AutofixHistoryManager {
       result: {
         modifications: mockModifications,
         files_changed: request.expected_files || [],
-        summary: `Successfully applied ${request.category} modifications based on prompt (Mock API)`,
+        summary: `🎭 Mock API: Successfully processed ${request.category} modifications. (Real Builder.io API was unavailable)`,
       },
     };
   }
