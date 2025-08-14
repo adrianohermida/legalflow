@@ -235,7 +235,7 @@ export const useGlobalSearch = (query: string) => {
 // Hook para analytics de performance de queries
 export const useQueryPerformanceStats = () => {
   return useSupabaseQuery(
-    "query-performance-stats",
+    ["query-performance-stats"],
     `
       SELECT 
         'contacts' as table_name,
