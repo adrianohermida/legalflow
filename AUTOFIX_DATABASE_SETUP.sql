@@ -127,25 +127,31 @@ CREATE TRIGGER update_builder_prompts_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- 7. Inserir dados de exemplo do histórico Git simulado
-INSERT INTO autofix_history (type, module, description, changes, success, context, metadata) VALUES
-('git_import', 'repository', 'Git commit: feat: Implement office modules reorganization', 
- '["Modified client/components/Sidebar.tsx", "Modified client/components/OfficeModulesWindow.tsx", "Modified client/components/AppShell.tsx"]',
- true,
- '{"git_commit": "abc123", "files_modified": ["client/components/Sidebar.tsx", "client/components/OfficeModulesWindow.tsx", "client/components/AppShell.tsx"]}',
- '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-15T10:30:00Z", "additions": 354, "deletions": 73}'
-),
-('git_import', 'repository', 'Git commit: fix: Resolve Label import error in InboxLegalV2',
- '["Modified client/pages/InboxLegalV2.tsx"]',
- true,
- '{"git_commit": "def456", "files_modified": ["client/pages/InboxLegalV2.tsx"]}',
- '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-14T15:45:00Z", "additions": 1, "deletions": 0}'
-),
-('git_import', 'repository', 'Git commit: fix: Update toast components to use Radix UI properly',
- '["Modified client/components/ui/toast.tsx", "Modified client/components/ui/toaster.tsx", "Modified client/hooks/use-toast.ts", "Modified client/global.css"]',
- true,
- '{"git_commit": "ghi789", "files_modified": ["client/components/ui/toast.tsx", "client/components/ui/toaster.tsx", "client/hooks/use-toast.ts", "client/global.css"]}',
- '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-13T09:20:00Z", "additions": 89, "deletions": 45}'
+-- 7. Inserir dados de exemplo do histórico Git simulado (apenas se não existirem)
+INSERT INTO autofix_history (type, module, description, changes, success, context, metadata)
+SELECT * FROM (VALUES
+  ('git_import'::text, 'repository'::text, 'Git commit: feat: Implement office modules reorganization'::text,
+   '["Modified client/components/Sidebar.tsx", "Modified client/components/OfficeModulesWindow.tsx", "Modified client/components/AppShell.tsx"]'::jsonb,
+   true,
+   '{"git_commit": "abc123", "files_modified": ["client/components/Sidebar.tsx", "client/components/OfficeModulesWindow.tsx", "client/components/AppShell.tsx"]}'::jsonb,
+   '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-15T10:30:00Z", "additions": 354, "deletions": 73}'::jsonb
+  ),
+  ('git_import'::text, 'repository'::text, 'Git commit: fix: Resolve Label import error in InboxLegalV2'::text,
+   '["Modified client/pages/InboxLegalV2.tsx"]'::jsonb,
+   true,
+   '{"git_commit": "def456", "files_modified": ["client/pages/InboxLegalV2.tsx"]}'::jsonb,
+   '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-14T15:45:00Z", "additions": 1, "deletions": 0}'::jsonb
+  ),
+  ('git_import'::text, 'repository'::text, 'Git commit: fix: Update toast components to use Radix UI properly'::text,
+   '["Modified client/components/ui/toast.tsx", "Modified client/components/ui/toaster.tsx", "Modified client/hooks/use-toast.ts", "Modified client/global.css"]'::jsonb,
+   true,
+   '{"git_commit": "ghi789", "files_modified": ["client/components/ui/toast.tsx", "client/components/ui/toaster.tsx", "client/hooks/use-toast.ts", "client/global.css"]}'::jsonb,
+   '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-13T09:20:00Z", "additions": 89, "deletions": 45}'::jsonb
+  )
+) AS v(type, module, description, changes, success, context, metadata)
+WHERE NOT EXISTS (
+  SELECT 1 FROM autofix_history
+  WHERE context->>'git_commit' IN ('abc123', 'def456', 'ghi789')
 );
 
 -- 8. Configurar RLS (Row Level Security) - opcional
