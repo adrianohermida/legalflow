@@ -100,6 +100,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
           description: "As tabelas de histórico não existem. Execute o script AUTOFIX_DATABASE_SETUP.sql no Supabase SQL Editor.",
           variant: "destructive",
         });
+        setTablesExist(false);
         return false;
       } else if (error) {
         console.error("Database access error:", error);
@@ -399,7 +400,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
                     <Textarea
                       value={builderContext}
                       onChange={(e) => setBuilderContext(e.target.value)}
-                      placeholder="Forneça contexto adicional sobre a modificação..."
+                      placeholder="Forneça contexto adicional sobre a modifica��ão..."
                       rows={2}
                     />
                   </div>
