@@ -92,6 +92,7 @@ import { supabase, lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
 import ProcessoChatDrawer from "../components/ProcessoChatDrawer";
+import ProcessJourneyCard from "../components/ProcessJourneyCard";
 import { useProcessoRealtimeComplete } from "../hooks/useProcessoRealtimeComplete";
 
 interface Processo {
