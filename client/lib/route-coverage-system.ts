@@ -470,6 +470,18 @@ export class RouteCoverageSystem {
       if (response.ok) {
         route.status = 'ok';
         route.renderTime = renderTime;
+
+        // Measure performance for successful routes
+        try {
+          const perfMetrics = await routePerformanceMonitor.measureRoutePerformance(route.path);
+          const evaluation = routePerformanceMonitor.evaluatePerformance(perfMetrics);
+
+          route.performanceMetrics = perfMetrics;
+          route.performanceScore = evaluation.score;
+          route.performanceStatus = evaluation.status;
+        } catch (perfError) {
+          console.warn('Performance measurement failed for', route.path, perfError);
+        }
       } else if (response.status === 404) {
         route.status = '404';
         route.renderTime = renderTime;
