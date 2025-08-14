@@ -602,8 +602,11 @@ const DevAuditoria: React.FC = () => {
         </div>
       </div>
 
-      {/* Status Summary */}
-      <Card className="mb-6">
+      {/* Conteúdo baseado na aba ativa */}
+      {activeTab === "audit" ? (
+        <>
+          {/* Status Summary */}
+          <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Resumo da Auditoria</span>
@@ -764,6 +767,20 @@ const DevAuditoria: React.FC = () => {
             para corrigir automaticamente.
           </AlertDescription>
         </Alert>
+      )}
+        </>
+      ) : (
+        /* Aba de Histórico */
+        <AutofixHistoryPanel
+          onPromptExecuted={(result) => {
+            toast({
+              title: "Prompt Builder.io executado",
+              description: result?.summary || "Modificações aplicadas com sucesso",
+            });
+            // Re-run audit after builder prompt execution
+            runAudit();
+          }}
+        />
       )}
     </div>
   );
