@@ -191,7 +191,7 @@ const DevAuditoria: React.FC = () => {
     {
       id: "processos",
       name: "Processos ↔ Movimentações",
-      description: "Sincronização entre processos e movimentaç��es",
+      description: "Sincronização entre processos e movimentações",
       icon: <GitBranch className="h-5 w-5" />,
       status: "pending",
       checks: [
@@ -469,6 +469,22 @@ const DevAuditoria: React.FC = () => {
           description: `${finalAutofixResult?.message || `Falha ao executar patch ${patchCode}`}${errorsCount > 0 ? ` (${errorsCount} erros)` : ""}`,
           variant: "destructive",
         });
+      }
+
+      // Record autofix action in history
+      try {
+        await autofixHistory.recordModification({
+          type: "autofix",
+          module: selectedModule || "unknown",
+          description: `Autofix executado: ${finalAutofixResult?.message || "Correção automática"}`,
+          changes: finalAutofixResult?.changes || [],
+          success: finalAutofixResult?.success || false,
+          context: {
+            error_details: finalAutofixResult?.success ? undefined : finalAutofixResult?.errors?.join(", "),
+          },
+        });
+      } catch (historyError) {
+        console.warn("Failed to record autofix in history:", historyError);
       }
 
       // Re-run audit after autofix with notification
