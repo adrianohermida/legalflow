@@ -25,7 +25,12 @@ import {
   Edit,
   Trash2,
   Users,
-  Filter
+  Filter,
+  Sync,
+  Download,
+  Upload,
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 
 interface Contact {
@@ -55,12 +60,24 @@ interface ContactFormData {
   kind: string;
 }
 
-const CRMContatos: React.FC = () => {
+interface StripeCustomerSearchResult {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  created: number;
+}
+
+const CRMContatosWithStripe: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [kindFilter, setKindFilter] = useState<string>('all');
   const [isNewContactOpen, setIsNewContactOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [isStripeSearchOpen, setIsStripeSearchOpen] = useState(false);
+  const [stripeSearchResults, setStripeSearchResults] = useState<StripeCustomerSearchResult[]>([]);
+  const [stripeSearchLoading, setStripeSearchLoading] = useState(false);
+  const [stripeSearchTerm, setStripeSearchTerm] = useState('');
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -218,6 +235,116 @@ const CRMContatos: React.FC = () => {
     }
   };
 
+  const searchStripeCustomers = async (query: string) => {
+    setStripeSearchLoading(true);
+    try {
+      const response = await fetch('/api/stripe/search-customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        setStripeSearchResults(result.customers);
+      } else {
+        toast({
+          title: 'Erro',
+          description: result.error || 'Falha ao buscar clientes Stripe',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error searching Stripe customers:', error);
+      toast({
+        title: 'Erro',
+        description: 'Falha ao conectar com Stripe',
+        variant: 'destructive'
+      });
+    } finally {
+      setStripeSearchLoading(false);
+    }
+  };
+
+  const linkStripeCustomer = async (customer: StripeCustomerSearchResult, contactId?: string) => {
+    try {
+      // If linking to existing contact
+      if (contactId) {
+        const { error } = await supabase
+          .from('legalflow.contacts')
+          .update({ stripe_customer_id: customer.id })
+          .eq('id', contactId);
+        
+        if (error) throw error;
+        
+        toast({
+          title: 'Cliente Stripe vinculado',
+          description: `Contato vinculado ao cliente ${customer.id}`
+        });
+      } else {
+        // Create new contact from Stripe customer
+        const { error } = await supabase
+          .from('legalflow.contacts')
+          .insert({
+            name: customer.name || customer.email,
+            email: customer.email,
+            phone: customer.phone,
+            stripe_customer_id: customer.id,
+            kind: 'person',
+            properties: { imported_from_stripe: true }
+          });
+        
+        if (error) throw error;
+        
+        toast({
+          title: 'Contato criado',
+          description: `Novo contato criado a partir do cliente Stripe ${customer.id}`
+        });
+      }
+      
+      refetch();
+      setIsStripeSearchOpen(false);
+    } catch (error) {
+      console.error('Error linking Stripe customer:', error);
+      toast({
+        title: 'Erro',
+        description: 'Falha ao vincular cliente Stripe',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const syncStripeCustomers = async () => {
+    try {
+      const response = await fetch('/api/stripe/sync-customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        toast({
+          title: 'Sincronização iniciada',
+          description: `${result.count} clientes Stripe sendo sincronizados`
+        });
+        refetch();
+      } else {
+        toast({
+          title: 'Erro',
+          description: result.error || 'Falha na sincronização',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing Stripe customers:', error);
+      toast({
+        title: 'Erro',
+        description: 'Falha ao sincronizar clientes Stripe',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const startEdit = (contact: Contact) => {
     setEditingContact(contact);
     setFormData({
@@ -255,7 +382,7 @@ const CRMContatos: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Contatos</h1>
         <p className="text-gray-600">
-          Centralize pessoas e empresas (clientes ou leads) em um só lugar
+          Centralize pessoas e empresas (clientes ou leads) com integração Stripe
         </p>
       </div>
 
@@ -297,6 +424,89 @@ const CRMContatos: React.FC = () => {
                 </SelectContent>
               </Select>
 
+              {/* Stripe Import Dialog */}
+              <Dialog open={isStripeSearchOpen} onOpenChange={setIsStripeSearchOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Importar Stripe
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl">
+                  <DialogHeader>
+                    <DialogTitle>Importar Clientes do Stripe</DialogTitle>
+                    <DialogDescription>
+                      Busque e importe clientes do Stripe para o CRM
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="Buscar por email ou nome no Stripe..."
+                          value={stripeSearchTerm}
+                          onChange={(e) => setStripeSearchTerm(e.target.value)}
+                          className="pl-10"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && stripeSearchTerm.trim()) {
+                              searchStripeCustomers(stripeSearchTerm);
+                            }
+                          }}
+                        />
+                      </div>
+                      <Button 
+                        onClick={() => searchStripeCustomers(stripeSearchTerm)}
+                        disabled={stripeSearchLoading || !stripeSearchTerm.trim()}
+                      >
+                        {stripeSearchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
+                      </Button>
+                    </div>
+                    
+                    <div className="max-h-96 overflow-y-auto space-y-2">
+                      {stripeSearchResults.map((customer) => (
+                        <div key={customer.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <div className="font-medium">{customer.name || customer.email}</div>
+                            <div className="text-sm text-gray-600">
+                              {customer.email} • {customer.id}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Criado em {new Date(customer.created * 1000).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm"
+                            onClick={() => linkStripeCustomer(customer)}
+                          >
+                            <Upload className="h-4 w-4 mr-1" />
+                            Importar
+                          </Button>
+                        </div>
+                      ))}
+                      
+                      {stripeSearchResults.length === 0 && stripeSearchTerm && !stripeSearchLoading && (
+                        <div className="text-center py-8 text-gray-500">
+                          Nenhum cliente encontrado no Stripe
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-center pt-4 border-t">
+                      <Button variant="outline" onClick={syncStripeCustomers}>
+                        <Sync className="h-4 w-4 mr-2" />
+                        Sincronizar Todos
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsStripeSearchOpen(false)}>
+                        Fechar
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* New Contact Dialog */}
               <Dialog open={isNewContactOpen} onOpenChange={setIsNewContactOpen}>
                 <DialogTrigger asChild>
                   <Button>
@@ -410,12 +620,28 @@ const CRMContatos: React.FC = () => {
                       
                       <div>
                         <Label htmlFor="stripe_customer">Stripe Customer ID</Label>
-                        <Input
-                          id="stripe_customer"
-                          value={formData.stripe_customer_id}
-                          onChange={(e) => setFormData(prev => ({ ...prev, stripe_customer_id: e.target.value }))}
-                          placeholder="cus_..."
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            id="stripe_customer"
+                            value={formData.stripe_customer_id}
+                            onChange={(e) => setFormData(prev => ({ ...prev, stripe_customer_id: e.target.value }))}
+                            placeholder="cus_..."
+                          />
+                          <Button 
+                            type="button"
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setIsStripeSearchOpen(true);
+                              setStripeSearchTerm(formData.email || formData.name);
+                            }}
+                          >
+                            <Search className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Cole o ID do cliente ou use o botão de busca
+                        </p>
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -443,7 +669,7 @@ const CRMContatos: React.FC = () => {
             Contatos ({contacts?.length || 0})
           </CardTitle>
           <CardDescription>
-            Lista unificada de contatos do sistema
+            Lista unificada de contatos do sistema com integração Stripe
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -451,7 +677,7 @@ const CRMContatos: React.FC = () => {
             <EmptyState
               type="clientes"
               title="Nenhum contato encontrado"
-              description="Comece adicionando contatos ao seu CRM"
+              description="Comece adicionando contatos ao seu CRM ou importe do Stripe"
               actionLabel="Novo Contato"
               onAction={() => setIsNewContactOpen(true)}
             />
@@ -467,7 +693,7 @@ const CRMContatos: React.FC = () => {
                     
                     <div className="flex-1">
                       <div className="font-medium">{contact.name}</div>
-                      <div className="text-sm text-gray-600 space-x-4">
+                      <div className="text-sm text-gray-600 flex items-center gap-4">
                         {contact.email && (
                           <span className="flex items-center gap-1">
                             <Mail className="h-3 w-3" />
@@ -494,9 +720,14 @@ const CRMContatos: React.FC = () => {
                         </Badge>
                       )}
                       {contact.stripe_customer_id && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs cursor-pointer hover:bg-gray-100" 
+                          onClick={() => window.open(`https://dashboard.stripe.com/customers/${contact.stripe_customer_id}`, '_blank')}
+                        >
                           <CreditCard className="h-3 w-3 mr-1" />
                           Stripe
+                          <ExternalLink className="h-2 w-2 ml-1" />
                         </Badge>
                       )}
                     </div>
@@ -509,6 +740,19 @@ const CRMContatos: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     {contact.source === 'legalflow.contacts' && (
                       <>
+                        {!contact.stripe_customer_id && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setIsStripeSearchOpen(true);
+                              setStripeSearchTerm(contact.email || contact.name);
+                            }}
+                            title="Vincular cliente Stripe"
+                          >
+                            <Link className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -637,12 +881,38 @@ const CRMContatos: React.FC = () => {
               
               <div>
                 <Label htmlFor="edit-stripe-customer">Stripe Customer ID</Label>
-                <Input
-                  id="edit-stripe-customer"
-                  value={formData.stripe_customer_id}
-                  onChange={(e) => setFormData(prev => ({ ...prev, stripe_customer_id: e.target.value }))}
-                  placeholder="cus_..."
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="edit-stripe-customer"
+                    value={formData.stripe_customer_id}
+                    onChange={(e) => setFormData(prev => ({ ...prev, stripe_customer_id: e.target.value }))}
+                    placeholder="cus_..."
+                  />
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setIsStripeSearchOpen(true);
+                      setStripeSearchTerm(formData.email || formData.name);
+                    }}
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                  {formData.stripe_customer_id && (
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => window.open(`https://dashboard.stripe.com/customers/${formData.stripe_customer_id}`, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Cole o ID do cliente, use o botão de busca ou abra no Stripe
+                </p>
               </div>
             </TabsContent>
           </Tabs>
@@ -661,4 +931,4 @@ const CRMContatos: React.FC = () => {
   );
 };
 
-export default CRMContatos;
+export default CRMContatosWithStripe;
