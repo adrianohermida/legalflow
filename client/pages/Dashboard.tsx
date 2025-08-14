@@ -24,47 +24,8 @@ import {
   Eye,
 } from "lucide-react";
 
-// Mock data for dashboard
-const mockStats = {
-  totalProcessos: 142,
-  processosAtivos: 128,
-  prazosEstaSemanana: 23,
-  altoRisco: 8,
-  novosClientes: 12,
-  jornadasAtivas: 34,
-  tarefasPendentes: 56,
-  receitaMes: 89750,
-};
-
-const mockRecentActivity = [
-  {
-    id: "1",
-    type: "processo",
-    title: "Novo processo cadastrado",
-    description: "1000123-45.2024.8.26.0001 - João Silva",
-    time: "2h atrás",
-    icon: FileText,
-    color: "text-brand-700",
-  },
-  {
-    id: "2",
-    type: "prazo",
-    title: "Prazo próximo do vencimento",
-    description: "Contestação - Processo 2000456-78.2024",
-    time: "4h atrás",
-    icon: AlertTriangle,
-    color: "text-warning",
-  },
-  {
-    id: "3",
-    type: "cliente",
-    title: "Novo cliente cadastrado",
-    description: "Empresa ABC Ltda - CNPJ 12.345.678/0001-90",
-    time: "6h atrás",
-    icon: Users,
-    color: "text-success",
-  },
-];
+// Real data queries will be implemented here
+// TODO: Replace with actual database queries
 
 const quickActions = [
   {
