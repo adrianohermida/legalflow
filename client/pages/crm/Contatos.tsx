@@ -495,7 +495,7 @@ const CRMContatosWithStripe: React.FC = () => {
                     
                     <div className="flex justify-between items-center pt-4 border-t">
                       <Button variant="outline" onClick={syncStripeCustomers}>
-                        <Sync className="h-4 w-4 mr-2" />
+                        <RefreshCw className="h-4 w-4 mr-2" />
                         Sincronizar Todos
                       </Button>
                       <Button variant="outline" onClick={() => setIsStripeSearchOpen(false)}>
