@@ -283,9 +283,11 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                 <p className="text-sm font-medium">Errors</p>
                 <p className="text-xs text-muted-foreground">Com problemas</p>
               </div>
-              <div className="text-2xl font-bold text-orange-600">{stats.avg_render_time}ms</div>
-              <p className="text-sm font-medium">Tempo Médio</p>
-              <p className="text-xs text-muted-foreground">Render</p>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{stats.avg_render_time}ms</div>
+                <p className="text-sm font-medium">Tempo Médio</p>
+                <p className="text-xs text-muted-foreground">Render</p>
+              </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{stats.coverage_percentage}%</div>
                 <p className="text-sm font-medium">Cobertura</p>
