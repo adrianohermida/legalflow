@@ -421,7 +421,8 @@ class AutofixHistoryManager {
 
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        throw fetchError; // Re-throw to be caught by outer catch
+        // Don't re-throw, let it fall through to outer catch for proper handling
+        throw fetchError;
       }
 
     } catch (error) {
