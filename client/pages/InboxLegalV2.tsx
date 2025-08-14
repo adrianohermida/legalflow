@@ -1233,6 +1233,75 @@ export default function InboxLegalV2() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Vincular/Criar Processo via Advise */}
+      <Dialog open={isVincularAdviseOpen} onOpenChange={setIsVincularAdviseOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Vincular/Criar Processo via Advise</DialogTitle>
+            <DialogDescription>
+              Criar novo processo com dados obtidos via API do Advise
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* CNJ Detectado */}
+            <div>
+              <Label>CNJ Detectado no Texto</Label>
+              <Input
+                value={cnjDetectado}
+                onChange={(e) => setCnjDetectado(e.target.value)}
+                placeholder="Digite o CNJ manualmente se não foi detectado"
+                className="font-mono"
+              />
+              <p className="text-xs text-neutral-600 mt-1">
+                {cnjDetectado ? 'CNJ válido detectado' : 'Nenhum CNJ encontrado no texto. Digite manualmente.'}
+              </p>
+            </div>
+
+            {/* Preview da publicação */}
+            {selectedPublicacao && (
+              <div className="p-3 bg-neutral-50 rounded-lg">
+                <h4 className="font-medium text-sm mb-2">Preview da Publicação:</h4>
+                <p className="text-sm text-neutral-700 line-clamp-3">
+                  {getResumo(selectedPublicacao)}
+                </p>
+                <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                  <span>Fonte: {selectedPublicacao.source}</span>
+                  <span>Data: {formatDate(selectedPublicacao.occured_at)}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Ação principal */}
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={() => {
+                  if (cnjDetectado) {
+                    buscarCapaAdviseMutation.mutate({ numero_cnj: cnjDetectado });
+                  }
+                }}
+                disabled={!cnjDetectado || buscarCapaAdviseMutation.isPending}
+                className="flex-1"
+              >
+                {buscarCapaAdviseMutation.isPending ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4 mr-2" />
+                )}
+                Buscar Capa (Advise)
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsVincularAdviseOpen(false)}
+            >
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
