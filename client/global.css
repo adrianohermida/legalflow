@@ -47,6 +47,10 @@
   --brand-100: var(--neutral-100);
   --brand-50: var(--neutral-50);
 
+  /* Mapear cores específicas para compatibilidade */
+  color: var(--on-surface);
+  background-color: var(--surface);
+
   /* Aliases para compatibilidade total */
   --theme-primary: var(--neutral-900);
   --theme-primary-hover: var(--neutral-800);
