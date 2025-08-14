@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { 
-  Target, 
-  CheckCircle, 
-  Clock, 
-  PlayCircle, 
-  FileText, 
-  Upload, 
-  Calendar, 
+import {
+  Target,
+  CheckCircle,
+  Clock,
+  PlayCircle,
+  FileText,
+  Upload,
+  Calendar,
   BookOpen,
   AlertCircle,
   Star,
   ChevronRight,
-  Progress as ProgressIcon
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
