@@ -852,6 +852,8 @@ const AutofixTesting: React.FC = () => {
                 </Alert>
               )}
 
+              <SQLFileDownloader className="mt-4" />
+
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
