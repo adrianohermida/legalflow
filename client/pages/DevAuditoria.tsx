@@ -426,14 +426,16 @@ const DevAuditoria: React.FC = () => {
       }
 
       if (finalAutofixResult?.success) {
+        const changesCount = finalAutofixResult.changes?.length || 0;
         toast({
-          title: "Autofix Executado",
-          description: finalAutofixResult.message,
+          title: "🔧 Autofix Executado",
+          description: `${finalAutofixResult.message} (${changesCount} alterações)`,
         });
       } else {
+        const errorsCount = finalAutofixResult?.errors?.length || 0;
         toast({
-          title: "Autofix Falhou",
-          description: finalAutofixResult?.message || `Falha ao executar patch ${patchCode}`,
+          title: "❌ Autofix Falhou",
+          description: `${finalAutofixResult?.message || `Falha ao executar patch ${patchCode}`}${errorsCount > 0 ? ` (${errorsCount} erros)` : ""}`,
           variant: "destructive",
         });
       }
