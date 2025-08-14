@@ -513,6 +513,14 @@ const AutofixTesting: React.FC = () => {
         <div className="flex gap-2">
           <Button
             variant="outline"
+            onClick={runDiagnostics}
+            className="min-w-[120px]"
+          >
+            <AlertCircle className="mr-2 h-4 w-4" />
+            Diagnostics
+          </Button>
+          <Button
+            variant="outline"
             onClick={testDatabaseConnection}
             className="min-w-[120px]"
           >
