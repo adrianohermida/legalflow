@@ -414,14 +414,6 @@ function DemoAppRoutes() {
         }
       />
       <Route
-        path="/documentos"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <Documentos />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
         path="/launch"
         element={
           <DemoProtectedRoute userType="advogado">
