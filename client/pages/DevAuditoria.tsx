@@ -357,8 +357,14 @@ const DevAuditoria: React.FC = () => {
         variant: "destructive",
       });
     } finally {
-      setIsRunningAudit(false);
+      clearInterval(progressInterval);
       setAuditProgress(100);
+
+      // Brief delay to show 100% before hiding progress
+      setTimeout(() => {
+        setIsRunningAudit(false);
+        setAuditProgress(0);
+      }, 500);
     }
   };
 
