@@ -518,8 +518,7 @@ export default function ProcessosV2() {
                       <TableCell className="font-mono text-sm">
                         <Link
                           to={`/processos-v2/${processo.numero_cnj}`}
-                          className="hover:underline"
-                          style={{ color: "var(--brand-700)" }}
+                          className="hover:underline text-neutral-800 hover:text-neutral-900"
                         >
                           {formatCNJ(processo.numero_cnj)}
                         </Link>
@@ -807,7 +806,7 @@ export default function ProcessosV2() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-neutral-600">
-              Funcionalidade de geração de relat��rio será implementada aqui:
+              Funcionalidade de geração de relatório será implementada aqui:
               exportação PDF, compartilhamento por WhatsApp, etc.
             </p>
           </div>
