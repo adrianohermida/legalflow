@@ -120,28 +120,51 @@ class AutofixHistoryManager {
     module?: string,
     type?: ModificationEntry["type"]
   ): Promise<ModificationEntry[]> {
-    let query = supabase
-      .from("autofix_history")
-      .select("*")
-      .order("timestamp", { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      let query = supabase
+        .from("autofix_history")
+        .select("*")
+        .order("timestamp", { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (module) {
-      query = query.eq("module", module);
+      if (module) {
+        query = query.eq("module", module);
+      }
+
+      if (type) {
+        query = query.eq("type", type);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Failed to fetch modification history - Detailed error:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+
+        if (error.message && error.message.includes("relation") && error.message.includes("does not exist")) {
+          throw new Error("Database tables not found. Please run the setup SQL script in Supabase SQL Editor.");
+        }
+
+        const errorMessage = error.message || error.code || JSON.stringify(error) || "Unknown database error";
+        throw new Error(`Database error: ${errorMessage}`);
+      }
+
+      return data || [];
+
+    } catch (error) {
+      console.error("Unexpected error in getModificationHistory:", error);
+
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      const errorString = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      throw new Error(`Unexpected error: ${errorString}`);
     }
-
-    if (type) {
-      query = query.eq("type", type);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Failed to fetch modification history:", error.message || error);
-      throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
-    }
-
-    return data || [];
   }
 
   async importGitHistory(): Promise<void> {
