@@ -440,10 +440,16 @@ const DevAuditoria: React.FC = () => {
         });
       }
 
-      // Re-run audit after autofix
-      setTimeout(() => {
-        runAudit();
-      }, 1000);
+      // Re-run audit after autofix with notification
+      if (finalAutofixResult?.success) {
+        setTimeout(() => {
+          toast({
+            title: "🔄 Revalidando Sistema",
+            description: "Verificando se as correções foram aplicadas...",
+          });
+          runAudit();
+        }, 1500);
+      }
 
     } catch (error) {
       console.error("Error running autofix:", error);
