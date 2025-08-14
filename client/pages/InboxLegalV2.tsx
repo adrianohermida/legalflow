@@ -276,6 +276,71 @@ export default function InboxLegalV2() {
     },
   });
 
+  // Mutation para buscar capa via Advise e criar processo
+  const buscarCapaAdviseMutation = useMutation({
+    mutationFn: async ({ numero_cnj }: { numero_cnj: string }) => {
+      // Simular chamada para API Advise ou Edge Function
+      const mockData = {
+        numero_cnj,
+        tribunal_sigla: "TJSP",
+        tribunal_nome: "Tribunal de Justiça de São Paulo",
+        titulo_polo_ativo: "Requerente",
+        titulo_polo_passivo: "Requerido",
+        capa: {
+          classe: "Ação Civil Pública",
+          assunto: "Danos Morais e Materiais",
+          area: "Cível",
+          valor_causa: 50000,
+          valor_formatado: "R$ 50.000,00",
+          orgao_julgador: "1ª Vara Cível",
+          data_distribuicao: new Date().toISOString(),
+          situacao: "Em Andamento",
+          instancia: "1ª Instância",
+          grau: 1
+        }
+      };
+
+      // Upsert processo no banco
+      const { data: novoProcesso, error } = await supabase
+        .from("processos")
+        .upsert({
+          numero_cnj,
+          tribunal_sigla: mockData.tribunal_sigla,
+          titulo_polo_ativo: mockData.titulo_polo_ativo,
+          titulo_polo_passivo: mockData.titulo_polo_passivo,
+          data: mockData,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return novoProcesso;
+    },
+    onSuccess: (processo) => {
+      toast({
+        title: "Processo criado",
+        description: `Capa obtida via Advise. Processo ${formatCNJ(processo.numero_cnj)} criado com sucesso`
+      });
+      setIsVincularAdviseOpen(false);
+      // Deep-link para página do processo
+      window.location.href = `/processos-v2/${processo.numero_cnj}`;
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao buscar capa",
+        description: error.message || "Falha na comunicação com Advise",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Função para detectar CNJ no texto
+  const detectarCNJ = (texto: string): string => {
+    const cnjRegex = /\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}/g;
+    const matches = texto.match(cnjRegex);
+    return matches ? matches[0] : '';
+  };
+
   // Mutation para vincular ao CNJ
   const vincularMutation = useMutation({
     mutationFn: async ({
@@ -1103,7 +1168,7 @@ export default function InboxLegalV2() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog Notificar Responsável */}
+      {/* Dialog Notificar Respons��vel */}
       <Dialog
         open={isNotificarDialogOpen}
         onOpenChange={setIsNotificarDialogOpen}
