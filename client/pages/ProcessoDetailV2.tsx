@@ -656,8 +656,12 @@ export default function ProcessoDetailV2() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowChatDrawer(true)}
+                className="relative"
               >
                 <MessageSquare className="w-4 h-4" />
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs bg-blue-600">
+                  SF-2
+                </Badge>
               </Button>
             </div>
           </div>
