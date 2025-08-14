@@ -440,20 +440,20 @@ export const ProcessJourneyCard: React.FC<{ numeroCnj: string }> = ({
 
         {/* Next Action */}
         {nextAction && nextAction.type !== "completed" && (
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+              <div className="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center text-white">
                 <PlayCircle className="w-4 h-4" />
               </div>
               <div className="flex-1">
-                <h4 className="font-medium text-blue-900">
+                <h4 className="font-medium text-gray-900">
                   {nextAction.title}
                 </h4>
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="text-sm text-gray-700 mt-1">
                   {nextAction.description}
                 </p>
                 {nextAction.due_at && (
-                  <div className="flex items-center gap-1 text-xs text-blue-600 mt-2">
+                  <div className="flex items-center gap-1 text-xs text-gray-600 mt-2">
                     <Clock className="w-3 h-3" />
                     Prazo:{" "}
                     {new Date(nextAction.due_at).toLocaleDateString("pt-BR")}
