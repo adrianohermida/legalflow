@@ -397,30 +397,48 @@ const AutofixTesting: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Autofix System Testing</h1>
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold">🧪 Autofix System Testing</h1>
           <p className="text-muted-foreground">
-            Comprehensive testing suite for the autofix module with Builder.io integration
+            Suite completa de testes para o módulo autofix com integração Builder.io
           </p>
+          <div className="flex gap-2 items-center text-sm">
+            <Badge variant={credentials?.public_key_configured && credentials?.private_key_configured ? "default" : "secondary"}>
+              {credentials?.public_key_configured && credentials?.private_key_configured ? "✅ API Configurada" : "⚠️ API Pendente"}
+            </Badge>
+            <Badge variant={databaseSetup?.success ? "default" : "outline"}>
+              {databaseSetup?.success ? "✅ Banco OK" : "🔧 Banco Pendente"}
+            </Badge>
+          </div>
         </div>
-        <Button 
-          onClick={runAllTests} 
-          disabled={isRunningTests}
-          className="min-w-[140px]"
-        >
-          {isRunningTests ? (
-            <>
-              <Play className="mr-2 h-4 w-4 animate-spin" />
-              Running Tests...
-            </>
-          ) : (
-            <>
-              <TestTube className="mr-2 h-4 w-4" />
-              Run All Tests
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={testDatabaseConnection}
+            className="min-w-[120px]"
+          >
+            <Database className="mr-2 h-4 w-4" />
+            Test DB
+          </Button>
+          <Button
+            onClick={runAllTests}
+            disabled={isRunningTests}
+            className="min-w-[140px]"
+          >
+            {isRunningTests ? (
+              <>
+                <Play className="mr-2 h-4 w-4 animate-spin" />
+                Executando...
+              </>
+            ) : (
+              <>
+                <TestTube className="mr-2 h-4 w-4" />
+                Executar Todos
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="results" className="space-y-4">
