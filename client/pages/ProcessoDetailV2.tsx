@@ -831,6 +831,30 @@ export default function ProcessoDetailV2() {
                   </div>
                 )}
 
+                {/* CTA Sincronizar Partes */}
+                <div className="mt-6 p-4 bg-neutral-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">Sincronizar Partes</h3>
+                      <p className="text-sm text-neutral-600">
+                        Extrair partes do processo a partir dos dados do Advise/Escavador
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => syncPartesMutation.mutate()}
+                      disabled={syncPartesMutation.isPending}
+                      variant="outline"
+                    >
+                      {syncPartesMutation.isPending ? (
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Users className="w-4 h-4 mr-2" />
+                      )}
+                      Sincronizar
+                    </Button>
+                  </div>
+                </div>
+
                 {/* Audiências Futuras */}
                 {audiencias.length > 0 && (
                   <div className="mt-6">
