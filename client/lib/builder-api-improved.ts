@@ -116,7 +116,7 @@ export class ImprovedBuilderAPI {
     return this.useMockAPI(request, "Real API unavailable - using fallback");
   }
 
-  private async attemptRealAPICall(request: any): Promise<{ success: boolean; data?: any }> {
+  private async attemptRealAPICall(request: any): Promise<{ success: boolean; data?: any; error?: string }> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -140,11 +140,19 @@ export class ImprovedBuilderAPI {
         return { success: true, data };
       } else {
         console.log(`⚠️ Builder.io API returned status ${response.status}`);
-        return { success: false };
+        return { success: false, error: `HTTP ${response.status}` };
       }
     } catch (error) {
       clearTimeout(timeoutId);
-      throw error;
+
+      // Don't throw, return failure result instead
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`🔄 Builder.io API fetch failed: ${errorMessage}`);
+
+      return {
+        success: false,
+        error: errorMessage.includes('Failed to fetch') ? 'Network/CORS error' : errorMessage
+      };
     }
   }
 
