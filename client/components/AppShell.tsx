@@ -60,7 +60,7 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
         {/* Header */}
         <Header
           userType={userType}
-          onAppLauncherToggle={handleAppLauncherToggle}
+          onAppLauncherToggle={handleOfficeModulesToggle}
           onNotificationToggle={handleNotificationToggle}
           onChatToggle={handleChatToggle}
           onSearchClick={() => setIsCommandPaletteOpen(true)}
