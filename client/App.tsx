@@ -406,6 +406,14 @@ function DemoAppRoutes() {
         }
       />
       <Route
+        path="/admin/integrity"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <AdminIntegrity />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
         path="/launch"
         element={
           <DemoProtectedRoute userType="advogado">
