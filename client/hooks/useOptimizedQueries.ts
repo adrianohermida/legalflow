@@ -160,7 +160,7 @@ export const useTimeEntriesByUser = (
 // Hook para stage instances com SLA próximo do vencimento
 export const useStageInstancesSLA = () => {
   return useSupabaseQuery(
-    "stage-instances-sla",
+    ["stage-instances-sla"],
     `
       SELECT 
         si.id,
