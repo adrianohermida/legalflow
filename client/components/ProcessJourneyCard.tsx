@@ -86,9 +86,9 @@ const getStageIcon = (stageType: string) => {
 };
 
 const getStageStatusColor = (status: string, overdue: boolean) => {
-  if (status === "completed") return "text-green-600 bg-green-50";
-  if (status === "in_progress") return "text-blue-600 bg-blue-50";
-  if (overdue) return "text-red-600 bg-red-50";
+  if (status === "completed") return "text-gray-700 bg-gray-100";
+  if (status === "in_progress") return "text-gray-800 bg-gray-50";
+  if (overdue) return "text-gray-900 bg-gray-200";
   return "text-neutral-600 bg-neutral-50";
 };
 
