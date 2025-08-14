@@ -84,19 +84,32 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
 
   const initializeDatabase = async () => {
     try {
-      // Simple check if tables exist - initialize directly in the component
+      // Check if autofix_history table exists
       const { error } = await supabase.from("autofix_history").select("id").limit(1);
 
       if (error && error.message.includes("relation") && error.message.includes("does not exist")) {
         console.log("Autofix tables don't exist. Please run the SQL setup script in Supabase.");
         toast({
-          title: "Configuração necessária",
-          description: "Execute o script SQL AUTOFIX_DATABASE_SETUP.sql no Supabase",
+          title: "⚠️ Configuração Necessária",
+          description: "As tabelas de histórico não existem. Execute o script AUTOFIX_DATABASE_SETUP.sql no Supabase SQL Editor.",
           variant: "destructive",
         });
+        return false;
+      } else if (error) {
+        console.error("Database access error:", error);
+        toast({
+          title: "Erro de Acesso",
+          description: `Erro ao acessar banco: ${error.message}`,
+          variant: "destructive",
+        });
+        return false;
       }
+
+      console.log("Autofix tables verified successfully");
+      return true;
     } catch (error) {
       console.warn("Could not verify autofix tables:", error);
+      return false;
     }
   };
 
