@@ -112,14 +112,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_autofix_history_updated_at 
-    BEFORE UPDATE ON autofix_history 
-    FOR EACH ROW 
+-- Drop existing triggers if they exist to avoid conflicts
+DROP TRIGGER IF EXISTS update_autofix_history_updated_at ON autofix_history;
+DROP TRIGGER IF EXISTS update_builder_prompts_updated_at ON builder_prompts;
+
+-- Create triggers
+CREATE TRIGGER update_autofix_history_updated_at
+    BEFORE UPDATE ON autofix_history
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_builder_prompts_updated_at 
-    BEFORE UPDATE ON builder_prompts 
-    FOR EACH ROW 
+CREATE TRIGGER update_builder_prompts_updated_at
+    BEFORE UPDATE ON builder_prompts
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- 7. Inserir dados de exemplo do histórico Git simulado
