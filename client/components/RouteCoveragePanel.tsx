@@ -293,6 +293,11 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                 <p className="text-sm font-medium">Cobertura</p>
                 <p className="text-xs text-muted-foreground">Testada</p>
               </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">{stats.performance_issues || 0}</div>
+                <p className="text-sm font-medium">Performance</p>
+                <p className="text-xs text-muted-foreground">Issues</p>
+              </div>
             </div>
           </CardContent>
         </Card>
