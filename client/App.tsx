@@ -732,6 +732,48 @@ function RegularAppRoutes() {
         }
       />
 
+      {/* CRM Routes */}
+      <Route
+        path="/crm/contatos"
+        element={
+          <ProtectedRoute userType="advogado">
+            <CRMContatos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/contatos/:id"
+        element={
+          <ProtectedRoute userType="advogado">
+            <ContactProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/leads"
+        element={
+          <ProtectedRoute userType="advogado">
+            <CRMLeads />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/deals"
+        element={
+          <ProtectedRoute userType="advogado">
+            <CRMDeals />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/relatorios"
+        element={
+          <ProtectedRoute userType="advogado">
+            <CRMReports />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Portal do Cliente */}
       <Route
         path="/portal/chat"
