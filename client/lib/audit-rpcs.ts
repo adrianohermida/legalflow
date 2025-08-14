@@ -1,12 +1,12 @@
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 
 interface AuditResult {
   [moduleId: string]: {
-    status: 'ok' | 'error' | 'pending';
+    status: "ok" | "error" | "pending";
     checks: Array<{
       id: string;
       name: string;
-      status: 'ok' | 'error' | 'pending';
+      status: "ok" | "error" | "pending";
       details?: string;
     }>;
   };
@@ -25,189 +25,234 @@ export const implAudit = async (): Promise<AuditResult> => {
   try {
     // API Library audit
     const { data: apiEndpoints, error: apiError } = await supabase
-      .from('legalflow.api_endpoints')
-      .select('id')
+      .from("legalflow.api_endpoints")
+      .select("id")
       .limit(1);
-    
-    auditResult['api-library'] = {
-      status: !apiError && apiEndpoints && apiEndpoints.length > 0 ? 'ok' : 'error',
+
+    auditResult["api-library"] = {
+      status:
+        !apiError && apiEndpoints && apiEndpoints.length > 0 ? "ok" : "error",
       checks: [
         {
-          id: 'api_endpoints_seed',
-          name: 'API endpoints seedados',
-          status: !apiError && apiEndpoints && apiEndpoints.length > 0 ? 'ok' : 'error',
-          details: !apiError && apiEndpoints && apiEndpoints.length > 0 ? undefined : 'Tabela api_endpoints não existe ou está vazia'
+          id: "api_endpoints_seed",
+          name: "API endpoints seedados",
+          status:
+            !apiError && apiEndpoints && apiEndpoints.length > 0
+              ? "ok"
+              : "error",
+          details:
+            !apiError && apiEndpoints && apiEndpoints.length > 0
+              ? undefined
+              : "Tabela api_endpoints não existe ou está vazia",
         },
         {
-          id: 'api_tokens_valid',
-          name: 'Tokens válidos',
-          status: 'ok'
-        }
-      ]
+          id: "api_tokens_valid",
+          name: "Tokens válidos",
+          status: "ok",
+        },
+      ],
     };
 
     // Journey audit
     const { data: stageTypes, error: stageError } = await supabase
-      .from('legalflow.stage_types')
-      .select('id, name')
-      .not('name', 'is', null)
+      .from("legalflow.stage_types")
+      .select("id, name")
+      .not("name", "is", null)
       .limit(1);
 
-    auditResult['jornadas'] = {
-      status: !stageError && stageTypes && stageTypes.length > 0 ? 'ok' : 'error',
+    auditResult["jornadas"] = {
+      status:
+        !stageError && stageTypes && stageTypes.length > 0 ? "ok" : "error",
       checks: [
         {
-          id: 'stage_types_filled',
-          name: 'legalflow.stage_types.name preenchido',
-          status: !stageError && stageTypes && stageTypes.length > 0 ? 'ok' : 'error',
-          details: !stageError && stageTypes && stageTypes.length > 0 ? undefined : 'Tabela stage_types não existe ou nomes vazios'
+          id: "stage_types_filled",
+          name: "legalflow.stage_types.name preenchido",
+          status:
+            !stageError && stageTypes && stageTypes.length > 0 ? "ok" : "error",
+          details:
+            !stageError && stageTypes && stageTypes.length > 0
+              ? undefined
+              : "Tabela stage_types não existe ou nomes vazios",
         },
         {
-          id: 'trg_stage_refresh',
-          name: 'trg_stage_refresh instalado',
-          status: 'pending',
-          details: 'Trigger não verificado automaticamente'
+          id: "trg_stage_refresh",
+          name: "trg_stage_refresh instalado",
+          status: "pending",
+          details: "Trigger não verificado automaticamente",
         },
         {
-          id: 'next_action_logic',
-          name: 'Lógica next_action',
-          status: 'pending',
-          details: 'Lógica não verificada automaticamente'
-        }
-      ]
+          id: "next_action_logic",
+          name: "Lógica next_action",
+          status: "pending",
+          details: "Lógica não verificada automaticamente",
+        },
+      ],
     };
 
     // Inbox Legal audit
     const { data: publications, error: pubError } = await supabase
-      .from('legalflow.publications')
-      .select('id, processo_cnj')
-      .not('processo_cnj', 'is', null)
+      .from("legalflow.publications")
+      .select("id, processo_cnj")
+      .not("processo_cnj", "is", null)
       .limit(1);
 
-    auditResult['inbox-legal'] = {
-      status: !pubError && publications && publications.length > 0 ? 'ok' : 'error',
+    auditResult["inbox-legal"] = {
+      status:
+        !pubError && publications && publications.length > 0 ? "ok" : "error",
       checks: [
         {
-          id: 'publications_linked',
-          name: 'Publicações vinculadas',
-          status: !pubError && publications && publications.length > 0 ? 'ok' : 'error',
-          details: !pubError && publications && publications.length > 0 ? undefined : 'Tabela publications não existe ou sem vínculos'
+          id: "publications_linked",
+          name: "Publicações vinculadas",
+          status:
+            !pubError && publications && publications.length > 0
+              ? "ok"
+              : "error",
+          details:
+            !pubError && publications && publications.length > 0
+              ? undefined
+              : "Tabela publications não existe ou sem vínculos",
         },
         {
-          id: 'inbox_filters',
-          name: 'Filtros configurados',
-          status: 'pending',
-          details: 'Filtros não verificados automaticamente'
-        }
-      ]
+          id: "inbox_filters",
+          name: "Filtros configurados",
+          status: "pending",
+          details: "Filtros não verificados automaticamente",
+        },
+      ],
     };
 
     // Processos audit
     const { data: processos, error: procError } = await supabase
-      .from('legalflow.processos')
-      .select('cnj')
+      .from("legalflow.processos")
+      .select("cnj")
       .limit(1);
 
-    auditResult['processos'] = {
-      status: !procError && processos && processos.length > 0 ? 'ok' : 'pending',
+    auditResult["processos"] = {
+      status:
+        !procError && processos && processos.length > 0 ? "ok" : "pending",
       checks: [
         {
-          id: 'process_sync',
-          name: 'Sincronização ativa',
-          status: !procError && processos && processos.length > 0 ? 'ok' : 'pending',
-          details: !procError && processos && processos.length > 0 ? undefined : 'Nenhum processo encontrado'
+          id: "process_sync",
+          name: "Sincronização ativa",
+          status:
+            !procError && processos && processos.length > 0 ? "ok" : "pending",
+          details:
+            !procError && processos && processos.length > 0
+              ? undefined
+              : "Nenhum processo encontrado",
         },
         {
-          id: 'movement_triggers',
-          name: 'Triggers de movimentação',
-          status: 'pending',
-          details: 'Triggers não verificados automaticamente'
-        }
-      ]
+          id: "movement_triggers",
+          name: "Triggers de movimentação",
+          status: "pending",
+          details: "Triggers não verificados automaticamente",
+        },
+      ],
     };
 
     // Stripe audit
     const { data: stripeCustomers, error: stripeError } = await supabase
-      .from('legalflow.stripe_customers')
-      .select('id')
+      .from("legalflow.stripe_customers")
+      .select("id")
       .limit(1);
 
-    auditResult['stripe'] = {
-      status: !stripeError && stripeCustomers && stripeCustomers.length > 0 ? 'ok' : 'error',
+    auditResult["stripe"] = {
+      status:
+        !stripeError && stripeCustomers && stripeCustomers.length > 0
+          ? "ok"
+          : "error",
       checks: [
         {
-          id: 'stripe_tables',
-          name: 'Tabelas espelho criadas',
-          status: !stripeError ? 'ok' : 'error',
-          details: stripeError ? 'Tabelas Stripe não existem' : undefined
+          id: "stripe_tables",
+          name: "Tabelas espelho criadas",
+          status: !stripeError ? "ok" : "error",
+          details: stripeError ? "Tabelas Stripe não existem" : undefined,
         },
         {
-          id: 'stripe_sync',
-          name: 'Sincronização ativa',
-          status: !stripeError && stripeCustomers && stripeCustomers.length > 0 ? 'ok' : 'error',
-          details: !stripeError && stripeCustomers && stripeCustomers.length > 0 ? undefined : 'Nenhum customer sincronizado'
-        }
-      ]
+          id: "stripe_sync",
+          name: "Sincronização ativa",
+          status:
+            !stripeError && stripeCustomers && stripeCustomers.length > 0
+              ? "ok"
+              : "error",
+          details:
+            !stripeError && stripeCustomers && stripeCustomers.length > 0
+              ? undefined
+              : "Nenhum customer sincronizado",
+        },
+      ],
     };
 
     // CRM audit
     const { data: contacts, error: crmError } = await supabase
-      .from('legalflow.crm_contacts')
-      .select('id')
+      .from("legalflow.crm_contacts")
+      .select("id")
       .limit(1);
 
-    auditResult['crm'] = {
-      status: !crmError && contacts && contacts.length > 0 ? 'ok' : 'error',
+    auditResult["crm"] = {
+      status: !crmError && contacts && contacts.length > 0 ? "ok" : "error",
       checks: [
         {
-          id: 'contacts_integrity',
-          name: 'Integridade de contatos',
-          status: !crmError && contacts && contacts.length > 0 ? 'ok' : 'error',
-          details: !crmError && contacts && contacts.length > 0 ? undefined : 'Tabela crm_contacts não existe ou vazia'
+          id: "contacts_integrity",
+          name: "Integridade de contatos",
+          status: !crmError && contacts && contacts.length > 0 ? "ok" : "error",
+          details:
+            !crmError && contacts && contacts.length > 0
+              ? undefined
+              : "Tabela crm_contacts não existe ou vazia",
         },
         {
-          id: 'deals_pipeline',
-          name: 'Pipeline de deals',
-          status: 'pending',
-          details: 'Pipeline não verificado automaticamente'
-        }
-      ]
+          id: "deals_pipeline",
+          name: "Pipeline de deals",
+          status: "pending",
+          details: "Pipeline não verificado automaticamente",
+        },
+      ],
     };
 
     // RLS audit - sempre pending por enquanto
-    auditResult['rls'] = {
-      status: 'pending',
+    auditResult["rls"] = {
+      status: "pending",
       checks: [
         {
-          id: 'rls_enabled',
-          name: 'RLS habilitado',
-          status: 'pending',
-          details: 'RLS ainda não configurado'
+          id: "rls_enabled",
+          name: "RLS habilitado",
+          status: "pending",
+          details: "RLS ainda não configurado",
         },
         {
-          id: 'basic_policies',
-          name: 'Políticas básicas',
-          status: 'pending',
-          details: 'Políticas RLS não criadas'
-        }
-      ]
+          id: "basic_policies",
+          name: "Políticas básicas",
+          status: "pending",
+          details: "Políticas RLS não criadas",
+        },
+      ],
     };
-
   } catch (error) {
-    console.error('Error running audit:', error);
-    
+    console.error("Error running audit:", error);
+
     // Fill with error status if something fails
-    const modules = ['api-library', 'jornadas', 'inbox-legal', 'processos', 'stripe', 'crm', 'rls'];
-    modules.forEach(moduleId => {
+    const modules = [
+      "api-library",
+      "jornadas",
+      "inbox-legal",
+      "processos",
+      "stripe",
+      "crm",
+      "rls",
+    ];
+    modules.forEach((moduleId) => {
       if (!auditResult[moduleId]) {
         auditResult[moduleId] = {
-          status: 'error',
-          checks: [{
-            id: 'general_error',
-            name: 'Erro geral',
-            status: 'error',
-            details: `Erro ao verificar módulo: ${error}`
-          }]
+          status: "error",
+          checks: [
+            {
+              id: "general_error",
+              name: "Erro geral",
+              status: "error",
+              details: `Erro ao verificar módulo: ${error}`,
+            },
+          ],
         };
       }
     });
@@ -216,128 +261,135 @@ export const implAudit = async (): Promise<AuditResult> => {
   return auditResult;
 };
 
-export const implAutofix = async (patchCode: string): Promise<AutofixResult> => {
+export const implAutofix = async (
+  patchCode: string,
+): Promise<AutofixResult> => {
   const result: AutofixResult = {
     success: false,
-    message: '',
+    message: "",
     changes: [],
-    errors: []
+    errors: [],
   };
 
   try {
     switch (patchCode) {
-      case 'api_library_seed':
+      case "api_library_seed":
         // Try to create api_endpoints table and seed basic data
         try {
           const endpointsToSeed = [
-            { 
-              id: '1',
-              name: 'tribunals', 
-              endpoint: '/api/tribunals', 
-              method: 'GET', 
-              description: 'Lista tribunais',
-              created_at: new Date().toISOString()
+            {
+              id: "1",
+              name: "tribunals",
+              endpoint: "/api/tribunals",
+              method: "GET",
+              description: "Lista tribunais",
+              created_at: new Date().toISOString(),
             },
-            { 
-              id: '2',
-              name: 'processes', 
-              endpoint: '/api/processes', 
-              method: 'GET', 
-              description: 'Lista processos',
-              created_at: new Date().toISOString()
+            {
+              id: "2",
+              name: "processes",
+              endpoint: "/api/processes",
+              method: "GET",
+              description: "Lista processos",
+              created_at: new Date().toISOString(),
             },
-            { 
-              id: '3',
-              name: 'clients', 
-              endpoint: '/api/clients', 
-              method: 'GET', 
-              description: 'Lista clientes',
-              created_at: new Date().toISOString()
-            }
+            {
+              id: "3",
+              name: "clients",
+              endpoint: "/api/clients",
+              method: "GET",
+              description: "Lista clientes",
+              created_at: new Date().toISOString(),
+            },
           ];
 
           const { error } = await supabase
-            .from('legalflow.api_endpoints')
-            .upsert(endpointsToSeed, { onConflict: 'id' });
-          
+            .from("legalflow.api_endpoints")
+            .upsert(endpointsToSeed, { onConflict: "id" });
+
           if (error) {
             result.errors.push(`Erro ao criar endpoints: ${error.message}`);
           } else {
-            result.changes.push('3 endpoints API básicos criados');
+            result.changes.push("3 endpoints API básicos criados");
           }
         } catch (error) {
           result.errors.push(`Tabela api_endpoints não existe: ${error}`);
         }
 
         result.success = result.errors.length === 0;
-        result.message = result.success ? 'API Library configurada' : 'Falha ao configurar API Library';
+        result.message = result.success
+          ? "API Library configurada"
+          : "Falha ao configurar API Library";
         break;
 
-      case 'journey_triggers_fix':
+      case "journey_triggers_fix":
         // Try to fix stage types names
         try {
           const { error: stageError } = await supabase
-            .from('legalflow.stage_types')
-            .update({ name: 'Default Stage' })
-            .is('name', null);
+            .from("legalflow.stage_types")
+            .update({ name: "Default Stage" })
+            .is("name", null);
 
           if (stageError) {
-            result.errors.push(`Erro ao corrigir stage types: ${stageError.message}`);
+            result.errors.push(
+              `Erro ao corrigir stage types: ${stageError.message}`,
+            );
           } else {
-            result.changes.push('Nomes de stage types corrigidos');
+            result.changes.push("Nomes de stage types corrigidos");
           }
         } catch (error) {
           result.errors.push(`Tabela stage_types não acessível: ${error}`);
         }
 
         result.success = result.errors.length === 0;
-        result.message = result.success ? 'Journey triggers corrigidos' : 'Falha ao corrigir triggers';
+        result.message = result.success
+          ? "Journey triggers corrigidos"
+          : "Falha ao corrigir triggers";
         break;
 
-      case 'inbox_publications_fix':
+      case "inbox_publications_fix":
         // Mock fix for publications
-        result.changes.push('Vínculo de publicações verificado');
+        result.changes.push("Vínculo de publicações verificado");
         result.success = true;
-        result.message = 'Inbox Legal configurado';
+        result.message = "Inbox Legal configurado";
         break;
 
-      case 'process_movements_sync':
+      case "process_movements_sync":
         // Mock fix for process synchronization
-        result.changes.push('Sincronização processo-movimentação verificada');
+        result.changes.push("Sincronização processo-movimentação verificada");
         result.success = true;
-        result.message = 'Sincronização de processos configurada';
+        result.message = "Sincronização de processos configurada";
         break;
 
-      case 'stripe_mirror_fix':
+      case "stripe_mirror_fix":
         // Mock fix for stripe tables
-        result.changes.push('Configuração de espelho Stripe verificada');
+        result.changes.push("Configuração de espelho Stripe verificada");
         result.success = true;
-        result.message = 'Espelho Stripe configurado';
+        result.message = "Espelho Stripe configurado";
         break;
 
-      case 'crm_data_fix':
+      case "crm_data_fix":
         // Mock fix for CRM data
-        result.changes.push('Integridade de dados CRM verificada');
+        result.changes.push("Integridade de dados CRM verificada");
         result.success = true;
-        result.message = 'Dados CRM configurados';
+        result.message = "Dados CRM configurados";
         break;
 
-      case 'rls_basic_setup':
+      case "rls_basic_setup":
         // Mock RLS setup
-        result.changes.push('Configuração RLS básica aplicada');
+        result.changes.push("Configuração RLS básica aplicada");
         result.success = true;
-        result.message = 'RLS básico configurado';
+        result.message = "RLS básico configurado";
         break;
 
       default:
         result.errors.push(`Patch desconhecido: ${patchCode}`);
-        result.message = 'Patch não encontrado';
+        result.message = "Patch não encontrado";
         break;
     }
-
   } catch (error) {
     result.errors.push(`Erro inesperado: ${error}`);
-    result.message = 'Falha na execução do autofix';
+    result.message = "Falha na execução do autofix";
   }
 
   return result;
@@ -347,16 +399,22 @@ export const implAutofix = async (patchCode: string): Promise<AutofixResult> => 
 export const mockSupabaseRPCs = () => {
   // Override the supabase.rpc method for our specific functions
   const originalRpc = supabase.rpc;
-  
-  supabase.rpc = function(fn: string, args?: any) {
-    if (fn === 'legalflow.impl_audit') {
-      return Promise.resolve({ data: null, error: new Error('Using local implementation') });
+
+  supabase.rpc = function (fn: string, args?: any) {
+    if (fn === "legalflow.impl_audit") {
+      return Promise.resolve({
+        data: null,
+        error: new Error("Using local implementation"),
+      });
     }
-    
-    if (fn === 'legalflow.impl_autofix') {
-      return Promise.resolve({ data: null, error: new Error('Using local implementation') });
+
+    if (fn === "legalflow.impl_autofix") {
+      return Promise.resolve({
+        data: null,
+        error: new Error("Using local implementation"),
+      });
     }
-    
+
     return originalRpc.call(this, fn, args);
   };
 };

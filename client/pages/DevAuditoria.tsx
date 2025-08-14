@@ -296,17 +296,22 @@ const DevAuditoria: React.FC = () => {
 
     // Show progress updates during audit
     const progressInterval = setInterval(() => {
-      setAuditProgress(prev => Math.min(prev + 15, 90));
+      setAuditProgress((prev) => Math.min(prev + 15, 90));
     }, 200);
-    
+
     try {
       // Try to call real RPC function first
-      const { data: auditResult, error } = await supabase.rpc("legalflow.impl_audit");
+      const { data: auditResult, error } = await supabase.rpc(
+        "legalflow.impl_audit",
+      );
 
       let finalAuditResult;
 
       if (error) {
-        console.log("RPC not available, using local implementation:", error.message);
+        console.log(
+          "RPC not available, using local implementation:",
+          error.message,
+        );
         // Use local implementation
         finalAuditResult = await implAudit();
       } else {
@@ -314,11 +319,15 @@ const DevAuditoria: React.FC = () => {
       }
 
       // Process audit results
-      const updatedModules = currentModules.map(module => {
+      const updatedModules = currentModules.map((module) => {
         const moduleResult = finalAuditResult?.[module.id];
         if (moduleResult) {
-          const hasErrors = moduleResult.checks?.some((check: any) => check.status === "error");
-          const allOk = moduleResult.checks?.every((check: any) => check.status === "ok");
+          const hasErrors = moduleResult.checks?.some(
+            (check: any) => check.status === "error",
+          );
+          const allOk = moduleResult.checks?.every(
+            (check: any) => check.status === "ok",
+          );
 
           return {
             ...module,
@@ -333,22 +342,29 @@ const DevAuditoria: React.FC = () => {
       setModules(updatedModules);
 
       const totalModules = updatedModules.length;
-      const okModules = updatedModules.filter(m => m.status === "ok").length;
-      const errorModules = updatedModules.filter(m => m.status === "error").length;
-      const pendingModules = updatedModules.filter(m => m.status === "pending").length;
+      const okModules = updatedModules.filter((m) => m.status === "ok").length;
+      const errorModules = updatedModules.filter(
+        (m) => m.status === "error",
+      ).length;
+      const pendingModules = updatedModules.filter(
+        (m) => m.status === "pending",
+      ).length;
 
       // Enhanced toast with detailed summary
       const isAllOk = errorModules === 0 && pendingModules === 0;
       const hasCriticalIssues = errorModules > 0;
 
       toast({
-        title: isAllOk ? "✅ Sistema Íntegro" : hasCriticalIssues ? "⚠️ Pendências Detectadas" : "🔄 Verificação Parcial",
+        title: isAllOk
+          ? "✅ Sistema Íntegro"
+          : hasCriticalIssues
+            ? "⚠️ Pendências Detectadas"
+            : "🔄 Verificação Parcial",
         description: `${okModules} OK • ${errorModules} pendências • ${pendingModules} aguardando${
           hasCriticalIssues ? " - Use Autofix para corrigir" : ""
         }`,
         variant: hasCriticalIssues ? "destructive" : "default",
       });
-
     } catch (error) {
       console.error("Error running audit:", error);
       toast({
@@ -370,17 +386,17 @@ const DevAuditoria: React.FC = () => {
 
   const simulateAudit = async (currentModules: AuditModule[]) => {
     const totalSteps = currentModules.length;
-    
+
     for (let i = 0; i < totalSteps; i++) {
       setAuditProgress((i / totalSteps) * 100);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
 
     // Simulate some results
     const updatedModules = currentModules.map((module, index) => {
       const randomStatus = Math.random();
       let status: "ok" | "error" | "pending";
-      
+
       if (randomStatus > 0.7) {
         status = "ok";
       } else if (randomStatus > 0.4) {
@@ -391,8 +407,14 @@ const DevAuditoria: React.FC = () => {
 
       const updatedChecks = module.checks.map((check, checkIndex) => ({
         ...check,
-        status: index % 2 === 0 && checkIndex === 0 ? "error" : "ok" as "ok" | "error" | "pending",
-        details: index % 2 === 0 && checkIndex === 0 ? "Necessita correção" : undefined,
+        status:
+          index % 2 === 0 && checkIndex === 0
+            ? "error"
+            : ("ok" as "ok" | "error" | "pending"),
+        details:
+          index % 2 === 0 && checkIndex === 0
+            ? "Necessita correção"
+            : undefined,
       }));
 
       return {
@@ -411,14 +433,20 @@ const DevAuditoria: React.FC = () => {
 
     try {
       // Try to call real RPC function first
-      const { data: autofixResult, error } = await supabase.rpc("legalflow.impl_autofix", {
-        patch_code: patchCode
-      });
+      const { data: autofixResult, error } = await supabase.rpc(
+        "legalflow.impl_autofix",
+        {
+          patch_code: patchCode,
+        },
+      );
 
       let finalAutofixResult;
 
       if (error) {
-        console.log("RPC not available, using local implementation:", error.message);
+        console.log(
+          "RPC not available, using local implementation:",
+          error.message,
+        );
         // Use local implementation
         finalAutofixResult = await implAutofix(patchCode);
       } else {
@@ -450,7 +478,6 @@ const DevAuditoria: React.FC = () => {
           runAudit();
         }, 1500);
       }
-
     } catch (error) {
       console.error("Error running autofix:", error);
       toast({
@@ -466,7 +493,7 @@ const DevAuditoria: React.FC = () => {
   const exportAuditLog = () => {
     const auditLog = {
       timestamp: new Date().toISOString(),
-      modules: modules.map(module => ({
+      modules: modules.map((module) => ({
         id: module.id,
         name: module.name,
         status: module.status,
@@ -481,7 +508,7 @@ const DevAuditoria: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `audit_log_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `audit_log_${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -519,8 +546,8 @@ const DevAuditoria: React.FC = () => {
     }
   };
 
-  const okCount = modules.filter(m => m.status === "ok").length;
-  const errorCount = modules.filter(m => m.status === "error").length;
+  const okCount = modules.filter((m) => m.status === "ok").length;
+  const errorCount = modules.filter((m) => m.status === "error").length;
   const totalCount = modules.length;
 
   return (
@@ -540,7 +567,9 @@ const DevAuditoria: React.FC = () => {
           <CardTitle className="flex items-center justify-between">
             <span>Resumo da Auditoria</span>
             <div className="flex items-center gap-2">
-              <Badge variant="outline">{okCount}/{totalCount} OK</Badge>
+              <Badge variant="outline">
+                {okCount}/{totalCount} OK
+              </Badge>
               {errorCount > 0 && (
                 <Badge variant="destructive">{errorCount} Pendências</Badge>
               )}
@@ -549,8 +578,8 @@ const DevAuditoria: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 mb-4">
-            <Button 
-              onClick={() => runAudit()} 
+            <Button
+              onClick={() => runAudit()}
               disabled={isRunningAudit}
               className="flex items-center gap-2"
             >
@@ -564,8 +593,8 @@ const DevAuditoria: React.FC = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   disabled={isRunningAutofix}
                   className="flex items-center gap-2"
                 >
@@ -586,14 +615,16 @@ const DevAuditoria: React.FC = () => {
                     className="flex flex-col items-start p-3"
                   >
                     <div className="font-medium">{patch.name}</div>
-                    <div className="text-sm text-gray-500">{patch.description}</div>
+                    <div className="text-sm text-gray-500">
+                      {patch.description}
+                    </div>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={exportAuditLog}
               className="flex items-center gap-2"
             >
@@ -616,12 +647,14 @@ const DevAuditoria: React.FC = () => {
       {/* Modules Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {modules.map((module) => (
-          <Card 
-            key={module.id} 
+          <Card
+            key={module.id}
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedModule === module.id ? "ring-2 ring-blue-500" : ""
             }`}
-            onClick={() => setSelectedModule(selectedModule === module.id ? null : module.id)}
+            onClick={() =>
+              setSelectedModule(selectedModule === module.id ? null : module.id)
+            }
           >
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-lg">
@@ -647,15 +680,19 @@ const DevAuditoria: React.FC = () => {
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm mb-2">Checks:</h4>
                   {module.checks.map((check) => (
-                    <div 
-                      key={check.id} 
+                    <div
+                      key={check.id}
                       className="flex items-center justify-between p-2 bg-gray-50 rounded"
                     >
                       <div className="flex-1">
                         <div className="font-medium text-sm">{check.name}</div>
-                        <div className="text-xs text-gray-600">{check.description}</div>
+                        <div className="text-xs text-gray-600">
+                          {check.description}
+                        </div>
                         {check.details && (
-                          <div className="text-xs text-red-600 mt-1">{check.details}</div>
+                          <div className="text-xs text-red-600 mt-1">
+                            {check.details}
+                          </div>
                         )}
                       </div>
                       {getStatusIcon(check.status)}
@@ -682,7 +719,8 @@ const DevAuditoria: React.FC = () => {
         <Alert className="mt-6 border-orange-200 bg-orange-50">
           <AlertCircle className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
-            ⚠️ {errorCount} módulo(s) com pendências detectadas. Use o Autofix para corrigir automaticamente.
+            ⚠️ {errorCount} módulo(s) com pendências detectadas. Use o Autofix
+            para corrigir automaticamente.
           </AlertDescription>
         </Alert>
       )}
