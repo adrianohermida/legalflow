@@ -477,8 +477,7 @@ export default function ProcessosV2() {
           {processosLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2
-                className="w-8 h-8 animate-spin"
-                style={{ color: "var(--brand-700)" }}
+                className="w-8 h-8 animate-spin text-neutral-700"
               />
               <span className="ml-2 text-neutral-600">
                 Carregando processos...
@@ -808,7 +807,7 @@ export default function ProcessosV2() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-neutral-600">
-              Funcionalidade de geração de relatório será implementada aqui:
+              Funcionalidade de geração de relat��rio será implementada aqui:
               exportação PDF, compartilhamento por WhatsApp, etc.
             </p>
           </div>
