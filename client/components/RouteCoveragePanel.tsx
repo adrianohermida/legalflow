@@ -304,9 +304,10 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
       )}
 
       <Tabs defaultValue="all-routes" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="all-routes">Todas as Rotas</TabsTrigger>
           <TabsTrigger value="by-category">Por Categoria</TabsTrigger>
+          <TabsTrigger value="performance">🚀 Performance</TabsTrigger>
           <TabsTrigger value="health-report">Health Report</TabsTrigger>
           <TabsTrigger value="deeplinks">Deeplinks</TabsTrigger>
         </TabsList>
