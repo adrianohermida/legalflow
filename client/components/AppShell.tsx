@@ -30,7 +30,7 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
     'g+p': () => navigate('/processos'),
     'g+c': () => navigate('/clientes'),
     'escape': () => {
-      setIsAppLauncherOpen(false);
+      setIsOfficeModulesOpen(false);
       setIsNotificationPanelOpen(false);
       setIsCommandPaletteOpen(false);
     },
