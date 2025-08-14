@@ -312,7 +312,8 @@ async function createCheckoutSession(event: any, headers: any) {
       
       // Update contact with Stripe customer ID
       await supabase
-        .from('legalflow.contacts')
+        .schema('legalflow')
+        .from('contacts')
         .update({ stripe_customer_id })
         .eq('id', contact_id);
       
