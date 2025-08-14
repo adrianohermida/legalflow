@@ -61,6 +61,7 @@ import StatusDashboard from "./pages/StatusDashboard";
 import FeatureFlags from "./pages/FeatureFlags";
 import DevTools from "./pages/DevTools";
 import AdminIntegrity from "./pages/AdminIntegrity";
+import DevAuditoria from "./pages/DevAuditoria";
 import Documentos from "./pages/Documentos";
 import ContatosUnificados from "./pages/crm/ContatosUnificados";
 import LeadsConversao from "./pages/crm/LeadsConversao";
