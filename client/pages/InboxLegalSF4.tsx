@@ -156,6 +156,32 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
 
   const pageSize = 25;
 
+  // Keyboard shortcuts and accessibility
+  const { showKeyboardShortcutsHelp } = useSF4KeyboardShortcuts({
+    onCommandK: () => sf4A11yUtils.focusSearch(),
+    onEscape: () => {
+      setShowVincularDialog(false);
+      setShowCriarEtapaDialog(false);
+      setShowNotificarDialog(false);
+      setShowBuscarCadastrarDialog(false);
+      setShowSaveViewDialog(false);
+    },
+    onEnter: () => {
+      // Handle enter key in dialogs - could be enhanced per dialog
+    },
+    onTabSwitch: (tab) => {
+      updateFilters({ tab });
+    },
+    onClearFilters: clearAllFilters,
+    onRefresh: () => {
+      queryClient.invalidateQueries({ queryKey: ['sf4-publicacoes'] });
+      queryClient.invalidateQueries({ queryKey: ['sf4-movimentacoes'] });
+      sf4A11yUtils.announce('Dados atualizados');
+    },
+    currentTab: filters.tab,
+    isDialogOpen: anyDialogOpen,
+  });
+
   // Update URL params when filters change
   useEffect(() => {
     const params = new URLSearchParams();
