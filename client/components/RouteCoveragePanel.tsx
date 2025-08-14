@@ -523,6 +523,138 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
           </div>
         </TabsContent>
 
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                Performance Analytics
+              </CardTitle>
+              <CardDescription>
+                Métricas detalhadas de performance com benchmarks e recomendações
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {stats && (
+                <div className="space-y-6">
+                  {/* Performance Overview */}
+                  <div className="grid gap-4 md:grid-cols-4">
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2 flex items-center gap-1">
+                        <Zap className="h-4 w-4" />
+                        Tempo Médio
+                      </h4>
+                      <div className={`text-2xl font-bold ${stats.avg_render_time > 500 ? 'text-red-600' : 'text-green-600'}`}>
+                        {stats.avg_render_time}ms
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Render médio
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2">🎯 Meta: &lt;500ms</h4>
+                      <div className={`text-2xl font-bold ${stats.routes_above_500ms > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {(stats.total - stats.routes_above_500ms)}/{stats.total}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Rotas dentro da meta
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2">⚠️ Issues</h4>
+                      <div className={`text-2xl font-bold ${stats.performance_issues > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                        {stats.performance_issues || 0}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Problemas detectados
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-2">📊 Score Geral</h4>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {Math.round(((stats.total - stats.performance_issues) / stats.total) * 100) || 0}%
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Performance score
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Performance Alerts */}
+                  {stats.routes_above_500ms > 0 && (
+                    <Alert className="border-orange-200">
+                      <TrendingDown className="h-4 w-4 text-orange-500" />
+                      <AlertDescription>
+                        ⚠️ {stats.routes_above_500ms} rotas com render time acima de 500ms.
+                        Considere otimizações para melhorar a experiência do usuário.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {stats.performance_issues > 0 && (
+                    <Alert className="border-red-200">
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <AlertDescription>
+                        🚨 {stats.performance_issues} rotas com problemas de performance detectados.
+                        Revise as rotas marcadas como "poor" ou "acceptable".
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Top Performing Routes */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-1 text-green-600">
+                        <TrendingUp className="h-4 w-4" />
+                        Top Performance
+                      </h4>
+                      <div className="space-y-2">
+                        {routes
+                          .filter(route => route.performanceStatus === 'excellent')
+                          .slice(0, 5)
+                          .map(route => (
+                            <div key={route.path} className="flex items-center justify-between text-sm">
+                              <span className="truncate">{route.name}</span>
+                              <Badge variant="outline" className="border-green-500 text-green-600">
+                                {route.performanceScore}
+                              </Badge>
+                            </div>
+                          ))}
+                        {routes.filter(route => route.performanceStatus === 'excellent').length === 0 && (
+                          <div className="text-sm text-muted-foreground">Nenhuma rota com performance excelente ainda</div>
+                        )}
+                      </div>
+                    </Card>
+
+                    <Card className="p-4">
+                      <h4 className="font-semibold text-sm mb-3 flex items-center gap-1 text-red-600">
+                        <TrendingDown className="h-4 w-4" />
+                        Needs Attention
+                      </h4>
+                      <div className="space-y-2">
+                        {routes
+                          .filter(route => route.performanceStatus === 'poor')
+                          .slice(0, 5)
+                          .map(route => (
+                            <div key={route.path} className="flex items-center justify-between text-sm">
+                              <span className="truncate">{route.name}</span>
+                              <Badge variant="outline" className="border-red-500 text-red-600">
+                                {route.performanceScore}
+                              </Badge>
+                            </div>
+                          ))}
+                        {routes.filter(route => route.performanceStatus === 'poor').length === 0 && (
+                          <div className="text-sm text-muted-foreground">Nenhuma rota com problemas críticos 🎉</div>
+                        )}
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="health-report" className="space-y-4">
           <Card>
             <CardHeader>
