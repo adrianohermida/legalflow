@@ -7,6 +7,7 @@ import { useToast } from "../hooks/use-toast";
 const SQL_CONTENT = `-- =====================================================
 -- AUTOFIX HISTORY SYSTEM - DATABASE SETUP
 -- Execute no Supabase SQL Editor para configurar as tabelas
+-- VERSÃO CORRIGIDA - Pode ser executado múltiplas vezes sem erro
 -- =====================================================
 
 -- 1. Criar tabela de histórico de modificações
@@ -84,7 +85,7 @@ BEGIN
       ) recent
     )
   ) INTO result;
-  
+
   RETURN result;
 END;
 $$ LANGUAGE plpgsql;
@@ -103,7 +104,7 @@ BEGIN
   )
   DELETE FROM autofix_history
   WHERE id IN (SELECT id FROM oldest_entries);
-  
+
   GET DIAGNOSTICS deleted_count = ROW_COUNT;
   RETURN deleted_count;
 END;
@@ -118,35 +119,46 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_autofix_history_updated_at 
-    BEFORE UPDATE ON autofix_history 
-    FOR EACH ROW 
+-- Drop existing triggers if they exist to avoid conflicts
+DROP TRIGGER IF EXISTS update_autofix_history_updated_at ON autofix_history;
+DROP TRIGGER IF EXISTS update_builder_prompts_updated_at ON builder_prompts;
+
+-- Create triggers
+CREATE TRIGGER update_autofix_history_updated_at
+    BEFORE UPDATE ON autofix_history
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_builder_prompts_updated_at 
-    BEFORE UPDATE ON builder_prompts 
-    FOR EACH ROW 
+CREATE TRIGGER update_builder_prompts_updated_at
+    BEFORE UPDATE ON builder_prompts
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- 7. Inserir dados de exemplo do histórico Git simulado
-INSERT INTO autofix_history (type, module, description, changes, success, context, metadata) VALUES
-('git_import', 'repository', 'Git commit: feat: Implement office modules reorganization', 
- '["Modified client/components/Sidebar.tsx", "Modified client/components/OfficeModulesWindow.tsx", "Modified client/components/AppShell.tsx"]',
- true,
- '{"git_commit": "abc123", "files_modified": ["client/components/Sidebar.tsx", "client/components/OfficeModulesWindow.tsx", "client/components/AppShell.tsx"]}',
- '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-15T10:30:00Z", "additions": 354, "deletions": 73}'
-),
-('git_import', 'repository', 'Git commit: fix: Resolve Label import error in InboxLegalV2',
- '["Modified client/pages/InboxLegalV2.tsx"]',
- true,
- '{"git_commit": "def456", "files_modified": ["client/pages/InboxLegalV2.tsx"]}',
- '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-14T15:45:00Z", "additions": 1, "deletions": 0}'
-),
-('git_import', 'repository', 'Git commit: fix: Update toast components to use Radix UI properly',
- '["Modified client/components/ui/toast.tsx", "Modified client/components/ui/toaster.tsx", "Modified client/hooks/use-toast.ts", "Modified client/global.css"]',
- true,
- '{"git_commit": "ghi789", "files_modified": ["client/components/ui/toast.tsx", "client/components/ui/toaster.tsx", "client/hooks/use-toast.ts", "client/global.css"]}',
- '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-13T09:20:00Z", "additions": 89, "deletions": 45}'
+-- 7. Inserir dados de exemplo do histórico Git simulado (apenas se não existirem)
+INSERT INTO autofix_history (type, module, description, changes, success, context, metadata)
+SELECT * FROM (VALUES
+  ('git_import'::text, 'repository'::text, 'Git commit: feat: Implement office modules reorganization'::text,
+   '["Modified client/components/Sidebar.tsx", "Modified client/components/OfficeModulesWindow.tsx", "Modified client/components/AppShell.tsx"]'::jsonb,
+   true,
+   '{"git_commit": "abc123", "files_modified": ["client/components/Sidebar.tsx", "client/components/OfficeModulesWindow.tsx", "client/components/AppShell.tsx"]}'::jsonb,
+   '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-15T10:30:00Z", "additions": 354, "deletions": 73}'::jsonb
+  ),
+  ('git_import'::text, 'repository'::text, 'Git commit: fix: Resolve Label import error in InboxLegalV2'::text,
+   '["Modified client/pages/InboxLegalV2.tsx"]'::jsonb,
+   true,
+   '{"git_commit": "def456", "files_modified": ["client/pages/InboxLegalV2.tsx"]}'::jsonb,
+   '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-14T15:45:00Z", "additions": 1, "deletions": 0}'::jsonb
+  ),
+  ('git_import'::text, 'repository'::text, 'Git commit: fix: Update toast components to use Radix UI properly'::text,
+   '["Modified client/components/ui/toast.tsx", "Modified client/components/ui/toaster.tsx", "Modified client/hooks/use-toast.ts", "Modified client/global.css"]'::jsonb,
+   true,
+   '{"git_commit": "ghi789", "files_modified": ["client/components/ui/toast.tsx", "client/components/ui/toaster.tsx", "client/hooks/use-toast.ts", "client/global.css"]}'::jsonb,
+   '{"author": "Adriano Hermida Maia", "commit_date": "2024-01-13T09:20:00Z", "additions": 89, "deletions": 45}'::jsonb
+  )
+) AS v(type, module, description, changes, success, context, metadata)
+WHERE NOT EXISTS (
+  SELECT 1 FROM autofix_history
+  WHERE context->>'git_commit' IN ('abc123', 'def456', 'ghi789')
 );
 
 -- =====================================================
@@ -154,37 +166,45 @@ INSERT INTO autofix_history (type, module, description, changes, success, contex
 -- =====================================================
 
 -- Verificar se as tabelas foram criadas
-SELECT 
+SELECT
   table_name,
   table_type
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
+FROM information_schema.tables
+WHERE table_schema = 'public'
   AND table_name IN ('autofix_history', 'builder_prompts');
 
 -- Verificar estatísticas iniciais
 SELECT get_autofix_stats();
 
 -- Verificar dados de exemplo inseridos
-SELECT 
+SELECT
   type,
   module,
   description,
   success,
   timestamp
-FROM autofix_history 
-ORDER BY timestamp DESC 
+FROM autofix_history
+ORDER BY timestamp DESC
 LIMIT 5;
 
 -- =====================================================
 -- INSTRUÇÕES DE USO
 -- =====================================================
 
-/* 
+/*
+✅ VERSÃO CORRIGIDA - Agora pode ser executado múltiplas vezes sem erro!
+
 1. Execute todo este script no Supabase SQL Editor
 2. Verifique se as tabelas foram criadas executando a seção de verificação
 3. No sistema, acesse /autofix-testing e execute os testes
 4. Teste a funcionalidade de importação de Git
 5. Teste prompts do Builder.io
+
+MELHORIAS NESTA VERSÃO:
+- ✅ DROP TRIGGER IF EXISTS para evitar conflitos
+- ✅ INSERT com verificação de duplicatas
+- ✅ Pode ser executado múltiplas vezes sem erro
+- ✅ Triggers recriados corretamente
 
 RECURSOS IMPLEMENTADOS:
 - ✅ Histórico completo de modificações
