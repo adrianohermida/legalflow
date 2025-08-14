@@ -91,21 +91,24 @@ const AutofixTesting: React.FC = () => {
     setTestResults([]);
 
     try {
+      // Test 0: Quick Diagnostics (NEW)
+      await runDiagnostics();
+
       // Test 1: Database Setup
       await testDatabaseSetup();
-      
+
       // Test 2: Credentials
       await testCredentials();
-      
+
       // Test 3: Database Operations
       await testDatabaseOperations();
-      
+
       // Test 4: Builder.io Integration
       await testBuilderIntegration();
-      
+
       // Test 5: Git History Import
       await testGitHistoryImport();
-      
+
       // Test 6: Stats Retrieval
       await testStatsRetrieval();
 
@@ -122,6 +125,46 @@ const AutofixTesting: React.FC = () => {
       });
     } finally {
       setIsRunningTests(false);
+    }
+  };
+
+  const runDiagnostics = async () => {
+    addTestResult({
+      name: "System Diagnostics",
+      status: "pending",
+      message: "Running comprehensive system diagnostics...",
+    });
+
+    try {
+      const diagnostic = await quickDiagnostic();
+
+      addTestResult({
+        name: "System Diagnostics",
+        status: diagnostic.overall_status === "healthy" ? "success" :
+               diagnostic.overall_status === "issues" ? "warning" : "error",
+        message: diagnostic.summary,
+        details: {
+          overall_status: diagnostic.overall_status,
+          detailed_results: diagnostic.results,
+        },
+      });
+
+      // Add individual diagnostic results
+      for (const result of diagnostic.results) {
+        addTestResult({
+          name: `Diagnostic: ${result.step}`,
+          status: result.status,
+          message: result.message,
+          details: result.details,
+        });
+      }
+
+    } catch (error) {
+      addTestResult({
+        name: "System Diagnostics",
+        status: "error",
+        message: `❌ Diagnostics failed: ${error instanceof Error ? error.message : String(error)}`,
+      });
     }
   };
 
