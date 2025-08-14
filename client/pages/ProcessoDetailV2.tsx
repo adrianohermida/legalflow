@@ -203,31 +203,6 @@ export default function ProcessoDetailV2() {
     },
   });
 
-  // Mutation para sincronizar partes via RPC
-  const syncPartesMutation = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await lf.rpc('lf_sync_partes', {
-        p_cnj: numero_cnj
-      });
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (count) => {
-      refetchPartes();
-      toast({
-        title: "Partes sincronizadas",
-        description: `${count} partes processadas com sucesso`
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro ao sincronizar partes",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
 
   // Query movimentações
   const {
