@@ -18,6 +18,7 @@ import {
 } from "../components/ui/dropdown-menu";
 import { useToast } from "../hooks/use-toast";
 import { supabase } from "../lib/supabase";
+import { implAudit, implAutofix } from "../lib/audit-rpcs";
 import {
   Shield,
   CheckCircle,
