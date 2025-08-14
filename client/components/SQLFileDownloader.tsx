@@ -301,6 +301,32 @@ export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className 
     }
   };
 
+  const downloadCleanupSQL = () => {
+    try {
+      const blob = new Blob([CLEANUP_SQL_CONTENT], { type: 'text/sql' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'AUTOFIX_CLEANUP.sql';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "🧹 Script de limpeza baixado",
+        description: "AUTOFIX_CLEANUP.sql foi baixado. ⚠️ Use com cuidado!",
+        variant: "destructive",
+      });
+    } catch (error) {
+      toast({
+        title: "❌ Erro no download",
+        description: "Não foi possível baixar o script de limpeza",
+        variant: "destructive",
+      });
+    }
+  };
+
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(SQL_CONTENT);
