@@ -313,7 +313,7 @@ const AutofixTesting: React.FC = () => {
       });
 
       const response = await autofixHistory.executeBuilderPrompt(testPrompt);
-      
+
       addTestResult({
         name: "Custom Builder.io Prompt",
         status: response.status === "completed" ? "success" : "error",
@@ -330,6 +330,37 @@ const AutofixTesting: React.FC = () => {
         name: "Custom Builder.io Prompt",
         status: "error",
         message: `Prompt execution failed: ${error instanceof Error ? error.message : String(error)}`,
+      });
+    }
+  };
+
+  const testDatabaseConnection = async () => {
+    try {
+      addTestResult({
+        name: "Database Connection Test",
+        status: "pending",
+        message: "Testando conexão com o banco de dados...",
+      });
+
+      const validation = await validateDatabaseSetup();
+
+      addTestResult({
+        name: "Database Connection Test",
+        status: validation.success ? "success" : "error",
+        message: validation.message,
+        details: validation.details,
+      });
+
+      toast({
+        title: validation.success ? "Conexão Bem-sucedida" : "Falha na Conexão",
+        description: validation.message,
+        variant: validation.success ? "default" : "destructive",
+      });
+    } catch (error) {
+      addTestResult({
+        name: "Database Connection Test",
+        status: "error",
+        message: `Erro no teste de conexão: ${error instanceof Error ? error.message : String(error)}`,
       });
     }
   };
@@ -639,7 +670,7 @@ const AutofixTesting: React.FC = () => {
                     <ul className="text-xs space-y-1 text-muted-foreground">
                       <li>• Índices de performance</li>
                       <li>• Funções de estatísticas</li>
-                      <li>�� Triggers de atualização</li>
+                      <li>• Triggers de atualização</li>
                       <li>• Dados de exemplo</li>
                     </ul>
                   </Card>
