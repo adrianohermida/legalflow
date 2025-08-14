@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { autofixHistory } from "./autofix-history";
 
 interface AuditResult {
   [moduleId: string]: {
