@@ -1,21 +1,47 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { handleApiError } from '../lib/api';
+import { supabase } from '../lib/supabase';
 
-// Generic hook for Supabase queries
+// Generic hook for Supabase queries - supports both function and SQL string approaches
 export function useSupabaseQuery<T>(
   queryKey: (string | number)[],
-  queryFn: () => Promise<T>,
+  queryFnOrSql: (() => Promise<T>) | string,
+  sqlParamsOrOptions?: any[] | {
+    enabled?: boolean;
+    staleTime?: number;
+    refetchInterval?: number;
+  },
   options?: {
     enabled?: boolean;
     staleTime?: number;
     refetchInterval?: number;
   }
 ) {
+  // Determine if this is a SQL query or function call
+  const isSqlQuery = typeof queryFnOrSql === 'string';
+  const finalOptions = isSqlQuery ? options : (sqlParamsOrOptions as any);
+  const sqlParams = isSqlQuery ? sqlParamsOrOptions as any[] : undefined;
+
   return useQuery({
     queryKey,
     queryFn: async () => {
       try {
-        return await queryFn();
+        if (isSqlQuery) {
+          // Execute SQL query with parameters using RPC
+          const { data, error } = await supabase.rpc('execute_query', {
+            query_text: queryFnOrSql,
+            query_params: sqlParams || []
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          return data as T;
+        } else {
+          // Execute function directly
+          return await (queryFnOrSql as () => Promise<T>)();
+        }
       } catch (error: any) {
         // Handle and transform error to a proper Error object
         const errorMessage = error?.message || String(error);
@@ -23,9 +49,9 @@ export function useSupabaseQuery<T>(
         throw new Error(errorMessage);
       }
     },
-    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    refetchInterval: options?.refetchInterval,
-    enabled: options?.enabled,
+    staleTime: finalOptions?.staleTime || 5 * 60 * 1000, // 5 minutes
+    refetchInterval: finalOptions?.refetchInterval,
+    enabled: finalOptions?.enabled,
     retry: (failureCount, error) => {
       // Don't retry configuration errors or auth errors
       if (error?.message?.includes('não está configurado') ||
