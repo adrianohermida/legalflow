@@ -112,9 +112,11 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
       }
 
       console.log("Autofix tables verified successfully");
+      setTablesExist(true);
       return true;
     } catch (error) {
       console.warn("Could not verify autofix tables:", error);
+      setTablesExist(false);
       return false;
     }
   };
