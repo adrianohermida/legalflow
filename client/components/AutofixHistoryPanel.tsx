@@ -293,6 +293,86 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
     }
   };
 
+  // Se as tabelas não existem, mostrar instruções de setup
+  if (tablesExist === false) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-orange-200 bg-orange-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-800">
+              <MessageSquare className="w-5 h-5" />
+              Configuração Necessária
+            </CardTitle>
+            <CardDescription className="text-orange-700">
+              As tabelas de histórico do autofix não foram encontradas no Supabase
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm text-orange-700">
+                Para usar o sistema de histórico, você precisa executar o script SQL no Supabase:
+              </p>
+
+              <div className="bg-white p-4 rounded-lg border border-orange-200">
+                <ol className="list-decimal list-inside space-y-2 text-sm text-orange-800">
+                  <li>Acesse o Supabase SQL Editor</li>
+                  <li>Execute o arquivo <code className="bg-orange-100 px-2 py-1 rounded">AUTOFIX_DATABASE_SETUP.sql</code></li>
+                  <li>Aguarde a criação das tabelas</li>
+                  <li>Recarregue esta página</li>
+                </ol>
+              </div>
+
+              <div className="flex gap-3 mt-4">
+                <Button
+                  onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Abrir Supabase
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setTablesExist(null);
+                    const init = async () => {
+                      const exists = await initializeDatabase();
+                      if (exists) {
+                        loadHistory();
+                        loadStats();
+                      }
+                    };
+                    init();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Verificar Novamente
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Loading state durante verificação inicial
+  if (tablesExist === null) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="w-6 h-6 animate-spin mr-2" />
+              Verificando configuração do banco de dados...
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
