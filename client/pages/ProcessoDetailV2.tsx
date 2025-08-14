@@ -100,6 +100,7 @@ import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
 import ProcessoChatMultiThread from "../components/ProcessoChatMultiThread";
 import ProcessJourneyCard from "../components/ProcessJourneyCard";
+import ProcessoTimelineUnificada from "../components/ProcessoTimelineUnificada";
 import { useProcessoRealtimeComplete } from "../hooks/useProcessoRealtimeComplete";
 
 interface Processo {
