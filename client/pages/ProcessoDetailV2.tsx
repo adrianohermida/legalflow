@@ -836,7 +836,20 @@ export default function ProcessoDetailV2() {
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
 
+            {/* Journey Card */}
+            <div className="mt-6">
+              <ProcessJourneyCard numeroCnj={numero_cnj!} />
+            </div>
+
+            {/* Process Actions Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Ações do Processo</CardTitle>
+              </CardHeader>
+              <CardContent>
                 {/* CTA Sincronizar Partes */}
                 <div className="mt-6 p-4 bg-neutral-50 rounded-lg">
                   <div className="flex items-center justify-between">
