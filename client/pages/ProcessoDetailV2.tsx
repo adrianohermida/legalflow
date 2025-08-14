@@ -81,6 +81,8 @@ import {
 import { Switch } from "../components/ui/switch";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
+import { Progress } from "../components/ui/progress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
 import {
   Select,
   SelectContent,
