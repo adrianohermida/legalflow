@@ -107,7 +107,7 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
     subscriptions.push(aiMessagesChannel);
 
     // 4. Activities (tarefas)
-    const activitiesChannel = lf
+    const activitiesChannel = supabase
       .channel('activities_processo')
       .on(
         'postgres_changes',
@@ -122,7 +122,7 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
           queryClient.invalidateQueries({
             queryKey: ['activities', numero_cnj]
           });
-          
+
           if (payload.eventType === 'INSERT') {
             toast({
               title: "Nova tarefa criada",
