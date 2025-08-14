@@ -62,6 +62,11 @@ import FeatureFlags from "./pages/FeatureFlags";
 import DevTools from "./pages/DevTools";
 import AdminIntegrity from "./pages/AdminIntegrity";
 import Documentos from "./pages/Documentos";
+import ContatosUnificados from "./pages/crm/ContatosUnificados";
+import LeadsConversao from "./pages/crm/LeadsConversao";
+import DealsKanban from "./pages/crm/DealsKanban";
+import ContatoPerfil360 from "./pages/crm/ContatoPerfil360";
+import RelatoriosCRM from "./pages/crm/RelatoriosCRM";
 import LaunchPlan from "./pages/LaunchPlan";
 
 // CRM pages
