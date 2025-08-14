@@ -338,19 +338,44 @@ const AutofixTesting: React.FC = () => {
     });
 
     try {
-      const connectionTest = await autofixHistory.testBuilderConnection();
-      
+      // First run API diagnostics
+      const apiDiagnostic = await quickBuilderAPIDiagnostic();
+
       addTestResult({
-        name: "Builder.io Integration",
+        name: "Builder.io API Diagnostics",
+        status: apiDiagnostic.status === "healthy" ? "success" :
+               apiDiagnostic.status === "issues" ? "warning" : "error",
+        message: apiDiagnostic.message,
+        details: {
+          recommendations: apiDiagnostic.recommendations,
+          diagnostic_status: apiDiagnostic.status,
+        },
+      });
+
+      // Then test the actual connection
+      const connectionTest = await autofixHistory.testBuilderConnection();
+
+      addTestResult({
+        name: "Builder.io Connection Test",
         status: connectionTest.success ? "success" : "error",
         message: connectionTest.message,
         details: connectionTest.details,
       });
+
     } catch (error) {
       addTestResult({
         name: "Builder.io Integration",
         status: "error",
-        message: `Builder.io integration test failed: ${error instanceof Error ? error.message : String(error)}`,
+        message: `❌ Builder.io integration test failed: ${error instanceof Error ? error.message : String(error)}`,
+        details: {
+          error_type: error instanceof Error ? error.name : typeof error,
+          troubleshooting: [
+            "Check network connectivity",
+            "Verify API credentials are correctly configured",
+            "Ensure CORS is properly configured",
+            "Try again in a few minutes"
+          ]
+        },
       });
     }
   };
