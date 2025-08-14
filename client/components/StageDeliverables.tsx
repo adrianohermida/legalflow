@@ -86,19 +86,19 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "approved":
       return (
-        <Badge className="bg-green-100 text-green-800 border-green-300">
+        <Badge className="bg-gray-100 text-gray-800 border-gray-300">
           Aprovado
         </Badge>
       );
     case "rejected":
       return (
-        <Badge className="bg-red-100 text-red-800 border-red-300">
+        <Badge className="bg-gray-200 text-gray-900 border-gray-400">
           Rejeitado
         </Badge>
       );
     default:
       return (
-        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+        <Badge className="bg-gray-50 text-gray-700 border-gray-200">
           Aguardando
         </Badge>
       );
