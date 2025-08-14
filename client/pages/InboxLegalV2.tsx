@@ -72,6 +72,7 @@ import { supabase } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate, formatCNJ } from "../lib/utils";
 import { useInboxRealtimeUpdates } from "../hooks/useRealtimeUpdates";
+import CreateStageDialog from "../components/CreateStageDialog";
 
 interface PublicacaoUnificada {
   source: "publicacoes" | "movimentacoes";
