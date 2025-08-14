@@ -1,18 +1,18 @@
 import React, { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  Upload, 
-  File, 
-  Check, 
-  X, 
-  Eye, 
-  Download, 
-  Clock, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Upload,
+  File,
+  Check,
+  X,
+  Eye,
+  Download,
+  Clock,
+  AlertCircle,
+  CheckCircle,
   FileText,
   Plus,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -20,8 +20,20 @@ import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { Progress } from "./ui/progress";
 import { Switch } from "./ui/switch";
 import { toast } from "../hooks/use-toast";
@@ -45,7 +57,7 @@ interface DocumentUpload {
   file_size: number;
   file_type: string;
   storage_path: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   uploaded_by: string;
   uploaded_at: string;
   reviewed_by?: string;
@@ -61,29 +73,44 @@ interface StageInstance {
 }
 
 const getFileIcon = (fileType: string) => {
-  if (fileType.includes('pdf')) return <FileText className="w-4 h-4 text-red-500" />;
-  if (fileType.includes('image')) return <File className="w-4 h-4 text-blue-500" />;
-  if (fileType.includes('word') || fileType.includes('doc')) return <FileText className="w-4 h-4 text-blue-600" />;
+  if (fileType.includes("pdf"))
+    return <FileText className="w-4 h-4 text-red-500" />;
+  if (fileType.includes("image"))
+    return <File className="w-4 h-4 text-blue-500" />;
+  if (fileType.includes("word") || fileType.includes("doc"))
+    return <FileText className="w-4 h-4 text-blue-600" />;
   return <File className="w-4 h-4 text-neutral-500" />;
 };
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'approved':
-      return <Badge className="bg-green-100 text-green-800 border-green-300">Aprovado</Badge>;
-    case 'rejected':
-      return <Badge className="bg-red-100 text-red-800 border-red-300">Rejeitado</Badge>;
+    case "approved":
+      return (
+        <Badge className="bg-green-100 text-green-800 border-green-300">
+          Aprovado
+        </Badge>
+      );
+    case "rejected":
+      return (
+        <Badge className="bg-red-100 text-red-800 border-red-300">
+          Rejeitado
+        </Badge>
+      );
     default:
-      return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">Aguardando</Badge>;
+      return (
+        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+          Aguardando
+        </Badge>
+      );
   }
 };
 
 const formatFileSize = (bytes: number) => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
 const FileUploadArea: React.FC<{
@@ -98,15 +125,19 @@ const FileUploadArea: React.FC<{
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       // Validate file type
-      const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+      const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
       if (!requirement.file_types.includes(fileExtension)) {
-        throw new Error(`Tipo de arquivo não permitido. Aceitos: ${requirement.file_types.join(', ')}`);
+        throw new Error(
+          `Tipo de arquivo não permitido. Aceitos: ${requirement.file_types.join(", ")}`,
+        );
       }
 
       // Validate file size
       const fileSizeMB = file.size / (1024 * 1024);
       if (fileSizeMB > requirement.max_size_mb) {
-        throw new Error(`Arquivo muito grande. Máximo: ${requirement.max_size_mb}MB`);
+        throw new Error(
+          `Arquivo muito grande. Máximo: ${requirement.max_size_mb}MB`,
+        );
       }
 
       // Create storage path (in a real app, you'd upload to Supabase Storage)
@@ -114,7 +145,7 @@ const FileUploadArea: React.FC<{
 
       // Insert upload record
       const { data, error } = await lf
-        .from('document_uploads')
+        .from("document_uploads")
         .insert({
           stage_instance_id: stageInstanceId,
           document_requirement_id: requirement.id,
@@ -122,7 +153,7 @@ const FileUploadArea: React.FC<{
           file_size: file.size,
           file_type: file.type,
           storage_path: storagePath,
-          status: 'pending'
+          status: "pending",
         })
         .select()
         .single();
@@ -148,7 +179,7 @@ const FileUploadArea: React.FC<{
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    
+
     const file = files[0];
     setUploading(true);
     uploadMutation.mutate(file);
@@ -162,7 +193,9 @@ const FileUploadArea: React.FC<{
   };
 
   const existingUploads = requirement.uploads || [];
-  const hasApprovedUpload = existingUploads.some(u => u.status === 'approved');
+  const hasApprovedUpload = existingUploads.some(
+    (u) => u.status === "approved",
+  );
 
   if (hasApprovedUpload) {
     return null; // Don't show upload area if already approved
@@ -173,10 +206,13 @@ const FileUploadArea: React.FC<{
       <div
         className={`
           border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
-          ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-neutral-300 hover:border-neutral-400'}
-          ${uploading ? 'opacity-50 pointer-events-none' : ''}
+          ${isDragging ? "border-blue-500 bg-blue-50" : "border-neutral-300 hover:border-neutral-400"}
+          ${uploading ? "opacity-50 pointer-events-none" : ""}
         `}
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
@@ -186,7 +222,8 @@ const FileUploadArea: React.FC<{
           Clique para enviar ou arraste arquivos aqui
         </p>
         <p className="text-xs text-neutral-500">
-          Aceitos: {requirement.file_types.join(', ')} • Máximo: {requirement.max_size_mb}MB
+          Aceitos: {requirement.file_types.join(", ")} • Máximo:{" "}
+          {requirement.max_size_mb}MB
         </p>
         {uploading && (
           <div className="mt-3">
@@ -200,7 +237,7 @@ const FileUploadArea: React.FC<{
         ref={fileInputRef}
         type="file"
         className="hidden"
-        accept={requirement.file_types.map(type => `.${type}`).join(',')}
+        accept={requirement.file_types.map((type) => `.${type}`).join(",")}
         onChange={(e) => handleFileSelect(e.target.files)}
       />
     </div>
@@ -212,26 +249,26 @@ const ReviewUploadDialog: React.FC<{
   onReview: () => void;
 }> = ({ upload, onReview }) => {
   const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState<'approved' | 'rejected'>('approved');
-  const [notes, setNotes] = useState('');
+  const [status, setStatus] = useState<"approved" | "rejected">("approved");
+  const [notes, setNotes] = useState("");
 
   const reviewMutation = useMutation({
     mutationFn: async () => {
       const { error } = await lf
-        .from('document_uploads')
+        .from("document_uploads")
         .update({
           status,
           review_notes: notes,
-          reviewed_at: new Date().toISOString()
+          reviewed_at: new Date().toISOString(),
         })
-        .eq('id', upload.id);
-      
+        .eq("id", upload.id);
+
       if (error) throw error;
     },
     onSuccess: () => {
       toast({
         title: "Revisão concluída",
-        description: `Documento ${status === 'approved' ? 'aprovado' : 'rejeitado'}.`,
+        description: `Documento ${status === "approved" ? "aprovado" : "rejeitado"}.`,
       });
       setOpen(false);
       onReview();
@@ -264,13 +301,19 @@ const ReviewUploadDialog: React.FC<{
               <span className="font-medium">{upload.filename}</span>
             </div>
             <div className="text-xs text-neutral-500">
-              {formatFileSize(upload.file_size)} • Enviado em {new Date(upload.uploaded_at).toLocaleDateString("pt-BR")}
+              {formatFileSize(upload.file_size)} • Enviado em{" "}
+              {new Date(upload.uploaded_at).toLocaleDateString("pt-BR")}
             </div>
           </div>
 
           <div className="space-y-2">
             <Label>Status da Revisão</Label>
-            <Select value={status} onValueChange={(value: 'approved' | 'rejected') => setStatus(value)}>
+            <Select
+              value={status}
+              onValueChange={(value: "approved" | "rejected") =>
+                setStatus(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -292,10 +335,14 @@ const ReviewUploadDialog: React.FC<{
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="flex-1"
+          >
             Cancelar
           </Button>
-          <Button 
+          <Button
             onClick={() => reviewMutation.mutate()}
             disabled={reviewMutation.isPending}
             className="flex-1"
@@ -314,24 +361,22 @@ const AddRequirementDialog: React.FC<{
 }> = ({ templateStageId, onAdd }) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    name: "",
     required: true,
-    file_types: ['pdf'],
-    max_size_mb: 10
+    file_types: ["pdf"],
+    max_size_mb: 10,
   });
 
   const addMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await lf
-        .from('document_requirements')
-        .insert({
-          template_stage_id: templateStageId,
-          name: formData.name,
-          required: formData.required,
-          file_types: formData.file_types,
-          max_size_mb: formData.max_size_mb
-        });
-      
+      const { error } = await lf.from("document_requirements").insert({
+        template_stage_id: templateStageId,
+        name: formData.name,
+        required: formData.required,
+        file_types: formData.file_types,
+        max_size_mb: formData.max_size_mb,
+      });
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -340,7 +385,12 @@ const AddRequirementDialog: React.FC<{
         description: "Novo requisito de documento criado.",
       });
       setOpen(false);
-      setFormData({ name: '', required: true, file_types: ['pdf'], max_size_mb: 10 });
+      setFormData({
+        name: "",
+        required: true,
+        file_types: ["pdf"],
+        max_size_mb: 10,
+      });
       onAdd();
     },
     onError: (error) => {
@@ -369,7 +419,9 @@ const AddRequirementDialog: React.FC<{
             <Label>Nome do Documento</Label>
             <Input
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="Ex: RG do requerente"
             />
           </div>
@@ -377,7 +429,9 @@ const AddRequirementDialog: React.FC<{
           <div className="flex items-center space-x-2">
             <Switch
               checked={formData.required}
-              onCheckedChange={(checked) => setFormData({...formData, required: checked})}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, required: checked })
+              }
             />
             <Label>Documento obrigatório</Label>
           </div>
@@ -385,11 +439,13 @@ const AddRequirementDialog: React.FC<{
           <div className="space-y-2">
             <Label>Tipos de arquivo aceitos</Label>
             <Input
-              value={formData.file_types.join(', ')}
-              onChange={(e) => setFormData({
-                ...formData, 
-                file_types: e.target.value.split(',').map(t => t.trim())
-              })}
+              value={formData.file_types.join(", ")}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  file_types: e.target.value.split(",").map((t) => t.trim()),
+                })
+              }
               placeholder="pdf, jpg, png, doc"
             />
           </div>
@@ -401,15 +457,24 @@ const AddRequirementDialog: React.FC<{
               min="1"
               max="100"
               value={formData.max_size_mb}
-              onChange={(e) => setFormData({...formData, max_size_mb: parseInt(e.target.value) || 10})}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  max_size_mb: parseInt(e.target.value) || 10,
+                })
+              }
             />
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="flex-1"
+          >
             Cancelar
           </Button>
-          <Button 
+          <Button
             onClick={() => addMutation.mutate()}
             disabled={!formData.name.trim() || addMutation.isPending}
             className="flex-1"
@@ -429,7 +494,11 @@ export const StageDeliverables: React.FC<{
   const queryClient = useQueryClient();
 
   // Load document requirements for this stage
-  const { data: requirements, isLoading, refetch } = useQuery({
+  const {
+    data: requirements,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["document-requirements", stageInstance.template_stage_id],
     queryFn: async () => {
       const { data: reqs, error } = await lf
@@ -452,7 +521,7 @@ export const StageDeliverables: React.FC<{
 
           if (uploadsError) throw uploadsError;
           return { ...req, uploads };
-        })
+        }),
       );
 
       return reqsWithUploads as DocumentRequirement[];
@@ -461,8 +530,8 @@ export const StageDeliverables: React.FC<{
 
   const handleRefresh = () => {
     refetch();
-    queryClient.invalidateQueries({ 
-      queryKey: ["document-requirements", stageInstance.template_stage_id] 
+    queryClient.invalidateQueries({
+      queryKey: ["document-requirements", stageInstance.template_stage_id],
     });
   };
 
@@ -489,7 +558,7 @@ export const StageDeliverables: React.FC<{
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Entregáveis da Etapa</CardTitle>
             {canManageRequirements && (
-              <AddRequirementDialog 
+              <AddRequirementDialog
                 templateStageId={stageInstance.template_stage_id}
                 onAdd={handleRefresh}
               />
@@ -499,7 +568,9 @@ export const StageDeliverables: React.FC<{
         <CardContent>
           <div className="text-center py-8">
             <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-            <h3 className="font-medium text-neutral-900 mb-2">Nenhum documento necessário</h3>
+            <h3 className="font-medium text-neutral-900 mb-2">
+              Nenhum documento necessário
+            </h3>
             <p className="text-neutral-600 text-sm">
               Esta etapa não possui requisitos de documentos.
             </p>
@@ -510,10 +581,13 @@ export const StageDeliverables: React.FC<{
   }
 
   const totalRequirements = requirements.length;
-  const completedRequirements = requirements.filter(req => 
-    req.uploads?.some(upload => upload.status === 'approved')
+  const completedRequirements = requirements.filter((req) =>
+    req.uploads?.some((upload) => upload.status === "approved"),
   ).length;
-  const progressPercentage = totalRequirements > 0 ? (completedRequirements / totalRequirements) * 100 : 0;
+  const progressPercentage =
+    totalRequirements > 0
+      ? (completedRequirements / totalRequirements) * 100
+      : 0;
 
   return (
     <Card>
@@ -521,7 +595,7 @@ export const StageDeliverables: React.FC<{
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Entregáveis da Etapa</CardTitle>
           {canManageRequirements && (
-            <AddRequirementDialog 
+            <AddRequirementDialog
               templateStageId={stageInstance.template_stage_id}
               onAdd={handleRefresh}
             />
@@ -530,7 +604,9 @@ export const StageDeliverables: React.FC<{
         <div className="mt-4">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-neutral-600">Progresso dos Documentos</span>
-            <span className="font-medium">{completedRequirements} de {totalRequirements}</span>
+            <span className="font-medium">
+              {completedRequirements} de {totalRequirements}
+            </span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
         </div>
@@ -538,25 +614,32 @@ export const StageDeliverables: React.FC<{
       <CardContent className="space-y-6">
         {requirements.map((requirement) => {
           const uploads = requirement.uploads || [];
-          const approvedUpload = uploads.find(u => u.status === 'approved');
-          const pendingUploads = uploads.filter(u => u.status === 'pending');
-          const rejectedUploads = uploads.filter(u => u.status === 'rejected');
+          const approvedUpload = uploads.find((u) => u.status === "approved");
+          const pendingUploads = uploads.filter((u) => u.status === "pending");
+          const rejectedUploads = uploads.filter(
+            (u) => u.status === "rejected",
+          );
 
           return (
             <div key={requirement.id} className="border rounded-lg p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-neutral-900">{requirement.name}</h4>
+                    <h4 className="font-medium text-neutral-900">
+                      {requirement.name}
+                    </h4>
                     {requirement.required && (
-                      <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        Obrigatório
+                      </Badge>
                     )}
                   </div>
                   <p className="text-xs text-neutral-500">
-                    Aceitos: {requirement.file_types.join(', ')} • Máximo: {requirement.max_size_mb}MB
+                    Aceitos: {requirement.file_types.join(", ")} • Máximo:{" "}
+                    {requirement.max_size_mb}MB
                   </p>
                 </div>
-                
+
                 {approvedUpload ? (
                   <Badge className="bg-green-100 text-green-800 border-green-300">
                     <CheckCircle className="w-3 h-3 mr-1" />
@@ -590,26 +673,40 @@ export const StageDeliverables: React.FC<{
                     </Button>
                   </div>
                   <p className="text-xs text-green-700 mt-1">
-                    Aprovado em {new Date(approvedUpload.reviewed_at!).toLocaleDateString("pt-BR")}
+                    Aprovado em{" "}
+                    {new Date(approvedUpload.reviewed_at!).toLocaleDateString(
+                      "pt-BR",
+                    )}
                   </p>
                 </div>
               )}
 
               {/* Pending Uploads */}
               {pendingUploads.map((upload) => (
-                <div key={upload.id} className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div
+                  key={upload.id}
+                  className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {getFileIcon(upload.file_type)}
                       <div>
-                        <span className="text-sm font-medium">{upload.filename}</span>
+                        <span className="text-sm font-medium">
+                          {upload.filename}
+                        </span>
                         <p className="text-xs text-neutral-500">
-                          {formatFileSize(upload.file_size)} • {new Date(upload.uploaded_at).toLocaleDateString("pt-BR")}
+                          {formatFileSize(upload.file_size)} •{" "}
+                          {new Date(upload.uploaded_at).toLocaleDateString(
+                            "pt-BR",
+                          )}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <ReviewUploadDialog upload={upload} onReview={handleRefresh} />
+                      <ReviewUploadDialog
+                        upload={upload}
+                        onReview={handleRefresh}
+                      />
                       <Button size="sm" variant="ghost">
                         <Download className="w-4 h-4" />
                       </Button>
@@ -620,14 +717,20 @@ export const StageDeliverables: React.FC<{
 
               {/* Rejected Uploads */}
               {rejectedUploads.map((upload) => (
-                <div key={upload.id} className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div
+                  key={upload.id}
+                  className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <X className="w-4 h-4 text-red-600" />
                       <div>
-                        <span className="text-sm font-medium text-red-900">{upload.filename}</span>
+                        <span className="text-sm font-medium text-red-900">
+                          {upload.filename}
+                        </span>
                         <p className="text-xs text-red-600">
-                          Rejeitado • {upload.review_notes || "Documento não conforme"}
+                          Rejeitado •{" "}
+                          {upload.review_notes || "Documento não conforme"}
                         </p>
                       </div>
                     </div>

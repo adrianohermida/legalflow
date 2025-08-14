@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, FileText, Users, ArrowRight, Clock } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
-import { cn } from '../lib/utils';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, FileText, Users, ArrowRight, Clock } from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
+import { cn } from "../lib/utils";
 
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
-  userType: 'advogado' | 'cliente';
+  userType: "advogado" | "cliente";
 }
 
-type SearchCategory = 'processos' | 'clientes' | 'assuntos';
+type SearchCategory = "processos" | "clientes" | "assuntos";
 
 // Mock data removed - implement real search functionality
 const mockResults = {
@@ -22,14 +22,19 @@ const mockResults = {
 };
 
 const categories = [
-  { key: 'processos' as SearchCategory, label: 'Processos', icon: FileText },
-  { key: 'clientes' as SearchCategory, label: 'Clientes', icon: Users },
-  { key: 'assuntos' as SearchCategory, label: 'Assuntos', icon: Clock },
+  { key: "processos" as SearchCategory, label: "Processos", icon: FileText },
+  { key: "clientes" as SearchCategory, label: "Clientes", icon: Users },
+  { key: "assuntos" as SearchCategory, label: "Assuntos", icon: Clock },
 ];
 
-export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState<SearchCategory>('processos');
+export function CommandPalette({
+  isOpen,
+  onClose,
+  userType,
+}: CommandPaletteProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] =
+    useState<SearchCategory>("processos");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -44,8 +49,8 @@ export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProp
   // Reset state when closed
   useEffect(() => {
     if (!isOpen) {
-      setSearchTerm('');
-      setActiveCategory('processos');
+      setSearchTerm("");
+      setActiveCategory("processos");
       setSelectedIndex(0);
     }
   }, [isOpen]);
@@ -56,42 +61,45 @@ export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProp
       if (!isOpen) return;
 
       const results = mockResults[activeCategory];
-      
-      if (e.key === 'ArrowDown') {
+
+      if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIndex(i => Math.min(i + 1, results.length - 1));
-      } else if (e.key === 'ArrowUp') {
+        setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
+      } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex(i => Math.max(i - 1, 0));
-      } else if (e.key === 'Enter') {
+        setSelectedIndex((i) => Math.max(i - 1, 0));
+      } else if (e.key === "Enter") {
         e.preventDefault();
         const selected = results[selectedIndex];
         if (selected) {
           navigate(selected.href);
           onClose();
         }
-      } else if (e.key === 'Tab') {
+      } else if (e.key === "Tab") {
         e.preventDefault();
-        const currentIndex = categories.findIndex(c => c.key === activeCategory);
+        const currentIndex = categories.findIndex(
+          (c) => c.key === activeCategory,
+        );
         const nextIndex = (currentIndex + 1) % categories.length;
         setActiveCategory(categories[nextIndex].key);
         setSelectedIndex(0);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, activeCategory, selectedIndex, navigate, onClose]);
 
   if (!isOpen) return null;
 
   const results = mockResults[activeCategory];
-  const filteredResults = results.filter(item =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredResults = results.filter(
+    (item) =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.subtitle.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const handleSelect = (item: typeof results[0]) => {
+  const handleSelect = (item: (typeof results)[0]) => {
     navigate(item.href);
     onClose();
   };
@@ -124,7 +132,7 @@ export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProp
             {categories.map((category) => {
               const Icon = category.icon;
               const count = mockResults[category.key].length;
-              
+
               return (
                 <button
                   key={category.key}
@@ -133,10 +141,10 @@ export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProp
                     setSelectedIndex(0);
                   }}
                   className={cn(
-                    'flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors',
+                    "flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors",
                     activeCategory === category.key
-                      ? 'text-brand-700 bg-brand-50 border-b-2 border-brand-700'
-                      : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+                      ? "text-brand-700 bg-brand-50 border-b-2 border-brand-700"
+                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50",
                   )}
                 >
                   <Icon className="w-4 h-4 mr-2" />
@@ -168,10 +176,10 @@ export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProp
                     key={item.id}
                     onClick={() => handleSelect(item)}
                     className={cn(
-                      'w-full flex items-center justify-between px-4 py-3 text-left transition-colors',
+                      "w-full flex items-center justify-between px-4 py-3 text-left transition-colors",
                       index === selectedIndex
-                        ? 'bg-brand-50 text-brand-900'
-                        : 'hover:bg-neutral-50'
+                        ? "bg-brand-50 text-brand-900"
+                        : "hover:bg-neutral-50",
                     )}
                   >
                     <div className="flex-1 min-w-0">
@@ -193,9 +201,24 @@ export function CommandPalette({ isOpen, onClose, userType }: CommandPaletteProp
           <div className="px-4 py-3 bg-neutral-50 border-t border-border">
             <div className="flex items-center justify-between text-xs text-neutral-500">
               <div className="flex items-center space-x-4">
-                <span><kbd className="px-1.5 py-0.5 bg-white border rounded">↑↓</kbd> navegar</span>
-                <span><kbd className="px-1.5 py-0.5 bg-white border rounded">Enter</kbd> selecionar</span>
-                <span><kbd className="px-1.5 py-0.5 bg-white border rounded">Tab</kbd> categoria</span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white border rounded">
+                    ↑↓
+                  </kbd>{" "}
+                  navegar
+                </span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white border rounded">
+                    Enter
+                  </kbd>{" "}
+                  selecionar
+                </span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white border rounded">
+                    Tab
+                  </kbd>{" "}
+                  categoria
+                </span>
               </div>
               <span>ESC para fechar</span>
             </div>

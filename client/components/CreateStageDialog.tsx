@@ -2,8 +2,20 @@ import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Target, Plus, Calendar, Clock } from "lucide-react";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -38,7 +50,7 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
   defaultTitle = "",
   defaultDescription = "",
   onSuccess,
-  trigger
+  trigger,
 }) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,7 +59,7 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
     title: defaultTitle,
     description: defaultDescription,
     slaHours: 24,
-    mandatory: false
+    mandatory: false,
   });
 
   // Load journey instances for the process
@@ -55,13 +67,13 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
     queryKey: ["journey-instances-by-process", numeroCnj],
     queryFn: async () => {
       if (!numeroCnj) return [];
-      
+
       const { data, error } = await lf
         .from("vw_process_journey")
         .select("*")
         .eq("numero_cnj", numeroCnj)
         .eq("status", "active");
-      
+
       if (error) throw error;
       return data as JourneyInstance[];
     },
@@ -76,7 +88,7 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
         .from("stage_types")
         .select("*")
         .order("label");
-      
+
       if (error) throw error;
       return data as StageType[];
     },
@@ -86,7 +98,9 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
   const createStageMutation = useMutation({
     mutationFn: async () => {
       if (!formData.journeyInstanceId || !formData.stageTypeId) {
-        throw new Error("Instância da jornada e tipo de etapa são obrigatórios");
+        throw new Error(
+          "Instância da jornada e tipo de etapa são obrigatórios",
+        );
       }
 
       // First, create a template stage (simplified for this case)
@@ -99,7 +113,7 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
           description: formData.description,
           type_id: formData.stageTypeId,
           mandatory: formData.mandatory,
-          sla_hours: formData.slaHours
+          sla_hours: formData.slaHours,
         })
         .select()
         .single();
@@ -114,7 +128,9 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
           template_stage_id: templateStage.id,
           status: "pending",
           mandatory: formData.mandatory,
-          sla_at: new Date(Date.now() + formData.slaHours * 60 * 60 * 1000).toISOString()
+          sla_at: new Date(
+            Date.now() + formData.slaHours * 60 * 60 * 1000,
+          ).toISOString(),
         })
         .select()
         .single();
@@ -134,7 +150,7 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
         title: defaultTitle,
         description: defaultDescription,
         slaHours: 24,
-        mandatory: false
+        mandatory: false,
       });
       onSuccess?.();
     },
@@ -147,10 +163,15 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
     },
   });
 
-  const selectedJourney = journeyInstances?.find(j => j.id === formData.journeyInstanceId);
-  const selectedStageType = stageTypes?.find(st => st.id === formData.stageTypeId);
+  const selectedJourney = journeyInstances?.find(
+    (j) => j.id === formData.journeyInstanceId,
+  );
+  const selectedStageType = stageTypes?.find(
+    (st) => st.id === formData.stageTypeId,
+  );
 
-  const canSubmit = formData.journeyInstanceId && formData.stageTypeId && formData.title.trim();
+  const canSubmit =
+    formData.journeyInstanceId && formData.stageTypeId && formData.title.trim();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -169,11 +190,13 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
             Criar Etapa de Jornada
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 py-4">
           {numeroCnj && (
             <div className="p-3 bg-neutral-50 rounded-lg">
-              <div className="text-sm font-medium text-neutral-900">Processo</div>
+              <div className="text-sm font-medium text-neutral-900">
+                Processo
+              </div>
               <div className="text-sm text-neutral-600">{numeroCnj}</div>
             </div>
           )}
@@ -181,9 +204,11 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
           <div className="space-y-2">
             <Label>Instância da Jornada</Label>
             {journeyInstances && journeyInstances.length > 0 ? (
-              <Select 
-                value={formData.journeyInstanceId} 
-                onValueChange={(value) => setFormData({...formData, journeyInstanceId: value})}
+              <Select
+                value={formData.journeyInstanceId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, journeyInstanceId: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a jornada ativa" />
@@ -218,9 +243,11 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
 
           <div className="space-y-2">
             <Label>Tipo de Etapa</Label>
-            <Select 
-              value={formData.stageTypeId} 
-              onValueChange={(value) => setFormData({...formData, stageTypeId: value})}
+            <Select
+              value={formData.stageTypeId}
+              onValueChange={(value) =>
+                setFormData({ ...formData, stageTypeId: value })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o tipo" />
@@ -239,7 +266,9 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
             <Label>Título da Etapa</Label>
             <Input
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               placeholder="Ex: Analisar publicação do dia X"
             />
           </div>
@@ -248,7 +277,9 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
             <Label>Descrição (opcional)</Label>
             <Textarea
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Descreva o que deve ser feito nesta etapa..."
               rows={3}
             />
@@ -262,14 +293,21 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
                 min="1"
                 max="720"
                 value={formData.slaHours}
-                onChange={(e) => setFormData({...formData, slaHours: parseInt(e.target.value) || 24})}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    slaHours: parseInt(e.target.value) || 24,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label>Prioridade</Label>
-              <Select 
-                value={formData.mandatory ? "high" : "normal"} 
-                onValueChange={(value) => setFormData({...formData, mandatory: value === "high"})}
+              <Select
+                value={formData.mandatory ? "high" : "normal"}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, mandatory: value === "high" })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -284,14 +322,22 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
 
           {selectedJourney && selectedStageType && (
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="text-sm font-medium text-blue-900 mb-1">Resumo da Etapa</div>
+              <div className="text-sm font-medium text-blue-900 mb-1">
+                Resumo da Etapa
+              </div>
               <div className="text-sm text-blue-700">
-                <div>📋 <strong>{formData.title || "Nova etapa"}</strong></div>
+                <div>
+                  📋 <strong>{formData.title || "Nova etapa"}</strong>
+                </div>
                 <div>🎯 Jornada: {selectedJourney.template_name}</div>
                 <div>⚡ Tipo: {selectedStageType.label}</div>
                 <div className="flex items-center gap-1 mt-1">
                   <Clock className="w-3 h-3" />
-                  Prazo: {formData.slaHours}h ({new Date(Date.now() + formData.slaHours * 60 * 60 * 1000).toLocaleDateString("pt-BR")})
+                  Prazo: {formData.slaHours}h (
+                  {new Date(
+                    Date.now() + formData.slaHours * 60 * 60 * 1000,
+                  ).toLocaleDateString("pt-BR")}
+                  )
                 </div>
               </div>
             </div>
@@ -299,10 +345,14 @@ export const CreateStageDialog: React.FC<CreateStageDialogProps> = ({
         </div>
 
         <div className="flex gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="flex-1"
+          >
             Cancelar
           </Button>
-          <Button 
+          <Button
             onClick={() => createStageMutation.mutate()}
             disabled={!canSubmit || createStageMutation.isPending}
             className="flex-1"

@@ -1,36 +1,48 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  DragDropContext, 
-  Droppable, 
-  Draggable, 
-  DropResult 
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
 } from "@hello-pangea/dnd";
-import { 
-  Plus, 
-  Save, 
-  BookOpen, 
-  FileText, 
-  Upload, 
-  Calendar, 
-  GitBranch, 
+import {
+  Plus,
+  Save,
+  BookOpen,
+  FileText,
+  Upload,
+  Calendar,
+  GitBranch,
   CheckCircle,
   Settings,
   Trash2,
   GripVertical,
   Clock,
   Star,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Switch } from "./ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { toast } from "../hooks/use-toast";
@@ -59,10 +71,10 @@ interface JourneyStage {
 interface StageRule {
   id: string;
   stage_id: string;
-  rule_type: 'on_enter' | 'on_done';
+  rule_type: "on_enter" | "on_done";
   conditions?: any;
   actions: {
-    type: 'notify' | 'schedule' | 'create_task' | 'webhook';
+    type: "notify" | "schedule" | "create_task" | "webhook";
     config: any;
   }[];
 }
@@ -77,12 +89,48 @@ interface JourneyTemplate {
 }
 
 const STAGE_TYPES: StageType[] = [
-  { id: 'lesson', code: 'lesson', label: 'Aula', icon: <BookOpen className="w-4 h-4" />, color: 'bg-blue-500' },
-  { id: 'form', code: 'form', label: 'Formulário', icon: <FileText className="w-4 h-4" />, color: 'bg-green-500' },
-  { id: 'upload', code: 'upload', label: 'Upload', icon: <Upload className="w-4 h-4" />, color: 'bg-orange-500' },
-  { id: 'meeting', code: 'meeting', label: 'Reunião', icon: <Calendar className="w-4 h-4" />, color: 'bg-purple-500' },
-  { id: 'gate', code: 'gate', label: 'Aprovação', icon: <GitBranch className="w-4 h-4" />, color: 'bg-red-500' },
-  { id: 'task', code: 'task', label: 'Tarefa', icon: <CheckCircle className="w-4 h-4" />, color: 'bg-neutral-500' }
+  {
+    id: "lesson",
+    code: "lesson",
+    label: "Aula",
+    icon: <BookOpen className="w-4 h-4" />,
+    color: "bg-blue-500",
+  },
+  {
+    id: "form",
+    code: "form",
+    label: "Formulário",
+    icon: <FileText className="w-4 h-4" />,
+    color: "bg-green-500",
+  },
+  {
+    id: "upload",
+    code: "upload",
+    label: "Upload",
+    icon: <Upload className="w-4 h-4" />,
+    color: "bg-orange-500",
+  },
+  {
+    id: "meeting",
+    code: "meeting",
+    label: "Reunião",
+    icon: <Calendar className="w-4 h-4" />,
+    color: "bg-purple-500",
+  },
+  {
+    id: "gate",
+    code: "gate",
+    label: "Aprovação",
+    icon: <GitBranch className="w-4 h-4" />,
+    color: "bg-red-500",
+  },
+  {
+    id: "task",
+    code: "task",
+    label: "Tarefa",
+    icon: <CheckCircle className="w-4 h-4" />,
+    color: "bg-neutral-500",
+  },
 ];
 
 const StageBlock: React.FC<{
@@ -91,8 +139,8 @@ const StageBlock: React.FC<{
   onEdit: (stage: JourneyStage) => void;
   onDelete: (stageId: string) => void;
 }> = ({ stage, index, onEdit, onDelete }) => {
-  const stageType = STAGE_TYPES.find(t => t.id === stage.type_id);
-  
+  const stageType = STAGE_TYPES.find((t) => t.id === stage.type_id);
+
   return (
     <Draggable draggableId={stage.id} index={index}>
       {(provided, snapshot) => (
@@ -101,31 +149,37 @@ const StageBlock: React.FC<{
           {...provided.draggableProps}
           className={`
             group relative bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow
-            ${snapshot.isDragging ? 'shadow-lg ring-2 ring-blue-500' : ''}
+            ${snapshot.isDragging ? "shadow-lg ring-2 ring-blue-500" : ""}
           `}
         >
           <div className="flex items-start gap-3">
-            <div 
+            <div
               {...provided.dragHandleProps}
               className="flex-shrink-0 mt-1 opacity-50 group-hover:opacity-100 transition-opacity"
             >
               <GripVertical className="w-4 h-4 text-neutral-400" />
             </div>
-            
-            <div className={`flex-shrink-0 w-8 h-8 rounded-lg ${stageType?.color} flex items-center justify-center text-white`}>
+
+            <div
+              className={`flex-shrink-0 w-8 h-8 rounded-lg ${stageType?.color} flex items-center justify-center text-white`}
+            >
               {stageType?.icon}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-medium text-neutral-900 truncate">{stage.title}</h4>
+                <h4 className="font-medium text-neutral-900 truncate">
+                  {stage.title}
+                </h4>
                 {stage.mandatory && <Star className="w-3 h-3 text-amber-500" />}
               </div>
-              
+
               {stage.description && (
-                <p className="text-sm text-neutral-600 mb-2 line-clamp-2">{stage.description}</p>
+                <p className="text-sm text-neutral-600 mb-2 line-clamp-2">
+                  {stage.description}
+                </p>
               )}
-              
+
               <div className="flex items-center gap-3 text-xs text-neutral-500">
                 <div className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
@@ -142,7 +196,11 @@ const StageBlock: React.FC<{
                 <Button variant="ghost" size="sm" onClick={() => onEdit(stage)}>
                   <Settings className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => onDelete(stage.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(stage.id)}
+                >
                   <Trash2 className="w-3 h-3 text-red-500" />
                 </Button>
               </div>
@@ -169,8 +227,8 @@ const StageConfigDialog: React.FC<{
       type_id: "task",
       mandatory: false,
       sla_hours: 24,
-      config: {}
-    }
+      config: {},
+    },
   );
 
   React.useEffect(() => {
@@ -179,7 +237,7 @@ const StageConfigDialog: React.FC<{
     }
   }, [stage]);
 
-  const selectedStageType = STAGE_TYPES.find(t => t.id === formData.type_id);
+  const selectedStageType = STAGE_TYPES.find((t) => t.id === formData.type_id);
 
   const handleSave = () => {
     if (!formData.title.trim()) {
@@ -198,7 +256,7 @@ const StageConfigDialog: React.FC<{
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{stage ? 'Editar Etapa' : 'Nova Etapa'}</DialogTitle>
+          <DialogTitle>{stage ? "Editar Etapa" : "Nova Etapa"}</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="basic" className="space-y-6">
@@ -214,14 +272,21 @@ const StageConfigDialog: React.FC<{
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   placeholder="Ex: Enviar documentos iniciais"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="type">Tipo da Etapa</Label>
-                <Select value={formData.type_id} onValueChange={(value) => setFormData({...formData, type_id: value})}>
+                <Select
+                  value={formData.type_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, type_id: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -244,7 +309,9 @@ const StageConfigDialog: React.FC<{
               <Textarea
                 id="description"
                 value={formData.description || ""}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Descreva o que o cliente deve fazer nesta etapa..."
                 rows={3}
               />
@@ -258,7 +325,12 @@ const StageConfigDialog: React.FC<{
                   type="number"
                   min="1"
                   value={formData.sla_hours}
-                  onChange={(e) => setFormData({...formData, sla_hours: parseInt(e.target.value) || 24})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      sla_hours: parseInt(e.target.value) || 24,
+                    })
+                  }
                 />
               </div>
 
@@ -266,7 +338,9 @@ const StageConfigDialog: React.FC<{
                 <Switch
                   id="mandatory"
                   checked={formData.mandatory}
-                  onCheckedChange={(checked) => setFormData({...formData, mandatory: checked})}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, mandatory: checked })
+                  }
                 />
                 <Label htmlFor="mandatory">Etapa obrigatória</Label>
               </div>
@@ -281,32 +355,41 @@ const StageConfigDialog: React.FC<{
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {formData.type_id === 'lesson' && (
+                  {formData.type_id === "lesson" && (
                     <div className="space-y-2">
                       <Label>URL do Vídeo</Label>
-                      <Input 
-                        placeholder="https://..." 
+                      <Input
+                        placeholder="https://..."
                         value={formData.config?.video_url || ""}
-                        onChange={(e) => setFormData({
-                          ...formData, 
-                          config: {...formData.config, video_url: e.target.value}
-                        })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            config: {
+                              ...formData.config,
+                              video_url: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                   )}
 
-                  {formData.type_id === 'form' && (
+                  {formData.type_id === "form" && (
                     <div className="space-y-2">
                       <Label>Campos do Formulário (JSON)</Label>
-                      <Textarea 
+                      <Textarea
                         placeholder='[{"name": "campo1", "type": "text", "required": true}]'
-                        value={JSON.stringify(formData.config?.fields || [], null, 2)}
+                        value={JSON.stringify(
+                          formData.config?.fields || [],
+                          null,
+                          2,
+                        )}
                         onChange={(e) => {
                           try {
                             const fields = JSON.parse(e.target.value);
                             setFormData({
-                              ...formData, 
-                              config: {...formData.config, fields}
+                              ...formData,
+                              config: { ...formData.config, fields },
                             });
                           } catch {}
                         }}
@@ -315,52 +398,62 @@ const StageConfigDialog: React.FC<{
                     </div>
                   )}
 
-                  {formData.type_id === 'upload' && (
+                  {formData.type_id === "upload" && (
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Tipos de arquivo aceitos</Label>
-                        <Input 
+                        <Input
                           placeholder="pdf,doc,docx"
-                          value={formData.config?.accepted_types?.join(',') || ""}
-                          onChange={(e) => setFormData({
-                            ...formData, 
-                            config: {
-                              ...formData.config, 
-                              accepted_types: e.target.value.split(',').map(t => t.trim())
-                            }
-                          })}
+                          value={
+                            formData.config?.accepted_types?.join(",") || ""
+                          }
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              config: {
+                                ...formData.config,
+                                accepted_types: e.target.value
+                                  .split(",")
+                                  .map((t) => t.trim()),
+                              },
+                            })
+                          }
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>Tamanho máximo (MB)</Label>
-                        <Input 
+                        <Input
                           type="number"
                           value={formData.config?.max_size_mb || 10}
-                          onChange={(e) => setFormData({
-                            ...formData, 
-                            config: {
-                              ...formData.config, 
-                              max_size_mb: parseInt(e.target.value) || 10
-                            }
-                          })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              config: {
+                                ...formData.config,
+                                max_size_mb: parseInt(e.target.value) || 10,
+                              },
+                            })
+                          }
                         />
                       </div>
                     </div>
                   )}
 
-                  {formData.type_id === 'meeting' && (
+                  {formData.type_id === "meeting" && (
                     <div className="space-y-2">
                       <Label>Duração padrão (minutos)</Label>
-                      <Input 
+                      <Input
                         type="number"
                         value={formData.config?.duration_minutes || 60}
-                        onChange={(e) => setFormData({
-                          ...formData, 
-                          config: {
-                            ...formData.config, 
-                            duration_minutes: parseInt(e.target.value) || 60
-                          }
-                        })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            config: {
+                              ...formData.config,
+                              duration_minutes: parseInt(e.target.value) || 60,
+                            },
+                          })
+                        }
                       />
                     </div>
                   )}
@@ -372,9 +465,12 @@ const StageConfigDialog: React.FC<{
           <TabsContent value="rules" className="space-y-6">
             <div className="text-center py-8">
               <AlertCircle className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-              <h3 className="font-medium text-neutral-900 mb-2">Regras e Automação</h3>
+              <h3 className="font-medium text-neutral-900 mb-2">
+                Regras e Automação
+              </h3>
               <p className="text-sm text-neutral-600 mb-4">
-                Configure ações que devem ser executadas automaticamente quando esta etapa for iniciada ou concluída.
+                Configure ações que devem ser executadas automaticamente quando
+                esta etapa for iniciada ou concluída.
               </p>
               <Button variant="outline" disabled>
                 <Plus className="w-4 h-4 mr-2" />
@@ -385,11 +481,15 @@ const StageConfigDialog: React.FC<{
         </Tabs>
 
         <div className="flex gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button onClick={handleSave} className="flex-1">
-            {stage ? 'Salvar Alterações' : 'Adicionar Etapa'}
+            {stage ? "Salvar Alterações" : "Adicionar Etapa"}
           </Button>
         </div>
       </DialogContent>
@@ -407,7 +507,7 @@ export const JourneyDesigner: React.FC<{
     niche: "",
     steps_count: 0,
     eta_days: 0,
-    tags: []
+    tags: [],
   });
   const [stages, setStages] = useState<JourneyStage[]>([]);
   const [editingStage, setEditingStage] = useState<JourneyStage | null>(null);
@@ -418,13 +518,13 @@ export const JourneyDesigner: React.FC<{
     queryKey: ["journey-template", templateId],
     queryFn: async () => {
       if (!templateId) return null;
-      
+
       const { data, error } = await lf
         .from("journey_templates")
         .select("*")
         .eq("id", templateId)
         .single();
-      
+
       if (error) throw error;
       setTemplate(data);
       return data;
@@ -437,13 +537,13 @@ export const JourneyDesigner: React.FC<{
     queryKey: ["journey-template-stages", templateId],
     queryFn: async () => {
       if (!templateId) return [];
-      
+
       const { data, error } = await lf
         .from("journey_template_stages")
         .select("*")
         .eq("template_id", templateId)
         .order("position");
-      
+
       if (error) throw error;
       setStages(data);
       return data;
@@ -454,7 +554,7 @@ export const JourneyDesigner: React.FC<{
   const saveTemplateMutation = useMutation({
     mutationFn: async () => {
       let savedTemplate;
-      
+
       if (templateId) {
         // Update existing template
         const { data, error } = await lf
@@ -464,12 +564,12 @@ export const JourneyDesigner: React.FC<{
             niche: template.niche,
             steps_count: stages.length,
             eta_days: template.eta_days,
-            tags: template.tags
+            tags: template.tags,
           })
           .eq("id", templateId)
           .select()
           .single();
-        
+
         if (error) throw error;
         savedTemplate = data;
       } else {
@@ -481,11 +581,11 @@ export const JourneyDesigner: React.FC<{
             niche: template.niche,
             steps_count: stages.length,
             eta_days: template.eta_days,
-            tags: template.tags
+            tags: template.tags,
           })
           .select()
           .single();
-        
+
         if (error) throw error;
         savedTemplate = data;
       }
@@ -494,22 +594,27 @@ export const JourneyDesigner: React.FC<{
       if (stages.length > 0) {
         // Delete existing stages if updating
         if (templateId) {
-          await lf.from("journey_template_stages").delete().eq("template_id", templateId);
+          await lf
+            .from("journey_template_stages")
+            .delete()
+            .eq("template_id", templateId);
         }
 
         // Insert new stages
-        const { error: stagesError } = await lf.from("journey_template_stages").insert(
-          stages.map((stage, index) => ({
-            template_id: savedTemplate.id,
-            position: index,
-            title: stage.title,
-            description: stage.description,
-            type_id: stage.type_id,
-            mandatory: stage.mandatory,
-            sla_hours: stage.sla_hours,
-            config: stage.config
-          }))
-        );
+        const { error: stagesError } = await lf
+          .from("journey_template_stages")
+          .insert(
+            stages.map((stage, index) => ({
+              template_id: savedTemplate.id,
+              position: index,
+              title: stage.title,
+              description: stage.description,
+              type_id: stage.type_id,
+              mandatory: stage.mandatory,
+              sla_hours: stage.sla_hours,
+              config: stage.config,
+            })),
+          );
 
         if (stagesError) throw stagesError;
       }
@@ -555,18 +660,18 @@ export const JourneyDesigner: React.FC<{
 
   const handleStageSave = (stage: JourneyStage) => {
     if (editingStage) {
-      setStages(prev => prev.map(s => s.id === stage.id ? stage : s));
+      setStages((prev) => prev.map((s) => (s.id === stage.id ? stage : s)));
     } else {
-      setStages(prev => [...prev, { ...stage, position: prev.length }]);
+      setStages((prev) => [...prev, { ...stage, position: prev.length }]);
     }
   };
 
   const handleStageDelete = (stageId: string) => {
-    setStages(prev => prev.filter(s => s.id !== stageId));
+    setStages((prev) => prev.filter((s) => s.id !== stageId));
   };
 
   const addStageType = (typeId: string) => {
-    const stageType = STAGE_TYPES.find(t => t.id === typeId);
+    const stageType = STAGE_TYPES.find((t) => t.id === typeId);
     if (!stageType) return;
 
     const newStage: JourneyStage = {
@@ -576,30 +681,33 @@ export const JourneyDesigner: React.FC<{
       type_id: typeId,
       mandatory: false,
       sla_hours: 24,
-      config: {}
+      config: {},
     };
 
-    setStages(prev => [...prev, newStage]);
+    setStages((prev) => [...prev, newStage]);
   };
 
-  const canSave = template.name.trim() && template.niche.trim() && stages.length > 0;
+  const canSave =
+    template.name.trim() && template.niche.trim() && stages.length > 0;
 
   return (
     <div className="flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900">
-            {templateId ? 'Editar Template' : 'Novo Template'}
+            {templateId ? "Editar Template" : "Novo Template"}
           </h1>
-          <p className="text-neutral-600">Configure etapas e automações da jornada</p>
+          <p className="text-neutral-600">
+            Configure etapas e automações da jornada
+          </p>
         </div>
-        <Button 
+        <Button
           onClick={() => saveTemplateMutation.mutate()}
           disabled={!canSave || saveTemplateMutation.isPending}
           className="gap-2"
         >
           <Save className="w-4 h-4" />
-          {saveTemplateMutation.isPending ? 'Salvando...' : 'Salvar Template'}
+          {saveTemplateMutation.isPending ? "Salvando..." : "Salvar Template"}
         </Button>
       </div>
 
@@ -615,14 +723,21 @@ export const JourneyDesigner: React.FC<{
               <Input
                 id="template-name"
                 value={template.name}
-                onChange={(e) => setTemplate({...template, name: e.target.value})}
+                onChange={(e) =>
+                  setTemplate({ ...template, name: e.target.value })
+                }
                 placeholder="Ex: Consultoria Trabalhista"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="template-niche">Área de Atuação</Label>
-              <Select value={template.niche} onValueChange={(value) => setTemplate({...template, niche: value})}>
+              <Select
+                value={template.niche}
+                onValueChange={(value) =>
+                  setTemplate({ ...template, niche: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a área" />
                 </SelectTrigger>
@@ -644,19 +759,31 @@ export const JourneyDesigner: React.FC<{
                 type="number"
                 min="1"
                 value={template.eta_days}
-                onChange={(e) => setTemplate({...template, eta_days: parseInt(e.target.value) || 0})}
+                onChange={(e) =>
+                  setTemplate({
+                    ...template,
+                    eta_days: parseInt(e.target.value) || 0,
+                  })
+                }
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="template-tags">Tags (separadas por vírgula)</Label>
+              <Label htmlFor="template-tags">
+                Tags (separadas por vírgula)
+              </Label>
               <Input
                 id="template-tags"
-                value={template.tags.join(', ')}
-                onChange={(e) => setTemplate({
-                  ...template, 
-                  tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
-                })}
+                value={template.tags.join(", ")}
+                onChange={(e) =>
+                  setTemplate({
+                    ...template,
+                    tags: e.target.value
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter(Boolean),
+                  })
+                }
                 placeholder="urgente, premium, complexo"
               />
             </div>
@@ -698,9 +825,12 @@ export const JourneyDesigner: React.FC<{
             {stages.length === 0 ? (
               <div className="text-center py-12">
                 <GitBranch className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-neutral-900 mb-2">Canvas vazio</h3>
+                <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                  Canvas vazio
+                </h3>
                 <p className="text-neutral-600 mb-4">
-                  Adicione etapas ao seu template para começar a desenhar a jornada.
+                  Adicione etapas ao seu template para começar a desenhar a
+                  jornada.
                 </p>
                 <Button onClick={handleStageAdd}>
                   <Plus className="w-4 h-4 mr-2" />

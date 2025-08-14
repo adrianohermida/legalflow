@@ -1,26 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  RefreshCw, 
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  RefreshCw,
   Database,
   Activity,
   TrendingUp,
   Shield,
-  Search
-} from 'lucide-react';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import { lf } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
+  Search,
+} from "lucide-react";
+import { useSupabaseQuery } from "../hooks/useSupabaseQuery";
+import { lf } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
 
 interface ValidationResult {
   check_name: string;
-  status: 'PASS' | 'FAIL' | 'WARNING';
+  status: "PASS" | "FAIL" | "WARNING";
   details: string;
 }
 
@@ -41,34 +46,39 @@ interface ConsistencyIssue {
 const DatabaseValidation = () => {
   const { toast } = useToast();
   const [isValidating, setIsValidating] = useState(false);
-  const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
+  const [validationResults, setValidationResults] = useState<
+    ValidationResult[]
+  >([]);
   const [orphanedRecords, setOrphanedRecords] = useState<OrphanedRecord[]>([]);
-  const [consistencyIssues, setConsistencyIssues] = useState<ConsistencyIssue[]>([]);
+  const [consistencyIssues, setConsistencyIssues] = useState<
+    ConsistencyIssue[]
+  >([]);
 
   // Queries automáticas
   const { data: integrityData, refetch: refetchIntegrity } = useSupabaseQuery(
-    'integrity-validation',
+    "integrity-validation",
     `SELECT * FROM legalflow.validate_data_integrity()`,
     [],
-    { enabled: false }
+    { enabled: false },
   );
 
   const { data: orphansData, refetch: refetchOrphans } = useSupabaseQuery(
-    'orphaned-records',
+    "orphaned-records",
     `SELECT * FROM legalflow.vw_orphaned_records`,
     [],
-    { enabled: false }
+    { enabled: false },
   );
 
-  const { data: consistencyData, refetch: refetchConsistency } = useSupabaseQuery(
-    'consistency-issues',
-    `SELECT * FROM legalflow.vw_data_consistency WHERE count > 0`,
-    [],
-    { enabled: false }
-  );
+  const { data: consistencyData, refetch: refetchConsistency } =
+    useSupabaseQuery(
+      "consistency-issues",
+      `SELECT * FROM legalflow.vw_data_consistency WHERE count > 0`,
+      [],
+      { enabled: false },
+    );
 
   const { data: dbStats } = useSupabaseQuery(
-    'database-stats',
+    "database-stats",
     `
       SELECT 
         schemaname,
@@ -82,11 +92,11 @@ const DatabaseValidation = () => {
       WHERE schemaname IN ('public', 'legalflow')
       ORDER BY n_live_tup DESC
     `,
-    []
+    [],
   );
 
   const { data: indexStats } = useSupabaseQuery(
-    'index-stats',
+    "index-stats",
     `
       SELECT 
         schemaname,
@@ -99,7 +109,7 @@ const DatabaseValidation = () => {
       ORDER BY idx_tup_read DESC
       LIMIT 20
     `,
-    []
+    [],
   );
 
   // Executar validação completa
@@ -107,28 +117,27 @@ const DatabaseValidation = () => {
     setIsValidating(true);
     try {
       toast({
-        title: 'Iniciando validação',
-        description: 'Executando verificações de integridade...'
+        title: "Iniciando validação",
+        description: "Executando verificações de integridade...",
       });
 
       // Executar todas as validações
       await Promise.all([
         refetchIntegrity(),
         refetchOrphans(),
-        refetchConsistency()
+        refetchConsistency(),
       ]);
 
       toast({
-        title: 'Validação concluída',
-        description: 'Todas as verificações foram executadas com sucesso.'
+        title: "Validação concluída",
+        description: "Todas as verificações foram executadas com sucesso.",
       });
-
     } catch (error) {
-      console.error('Erro na validação:', error);
+      console.error("Erro na validação:", error);
       toast({
-        title: 'Erro na validação',
-        description: 'Não foi possível executar todas as verificações.',
-        variant: 'destructive'
+        title: "Erro na validação",
+        description: "Não foi possível executar todas as verificações.",
+        variant: "destructive",
       });
     } finally {
       setIsValidating(false);
@@ -139,33 +148,35 @@ const DatabaseValidation = () => {
   const runSpecificValidation = async (validationType: string) => {
     try {
       let result;
-      
+
       switch (validationType) {
-        case 'integrity':
-          result = await lf.rpc('validate_data_integrity');
+        case "integrity":
+          result = await lf.rpc("validate_data_integrity");
           setValidationResults(result.data || []);
           break;
-        case 'orphans':
-          result = await lf.from('vw_orphaned_records').select('*');
+        case "orphans":
+          result = await lf.from("vw_orphaned_records").select("*");
           setOrphanedRecords(result.data || []);
           break;
-        case 'consistency':
-          result = await lf.from('vw_data_consistency').select('*').gt('count', 0);
+        case "consistency":
+          result = await lf
+            .from("vw_data_consistency")
+            .select("*")
+            .gt("count", 0);
           setConsistencyIssues(result.data || []);
           break;
       }
 
       toast({
-        title: 'Validação específica concluída',
-        description: `Verificação de ${validationType} executada com sucesso.`
+        title: "Validação específica concluída",
+        description: `Verificação de ${validationType} executada com sucesso.`,
       });
-
     } catch (error) {
       console.error(`Erro na validação ${validationType}:`, error);
       toast({
-        title: 'Erro na validação',
+        title: "Erro na validação",
         description: `Não foi possível executar a verificação de ${validationType}.`,
-        variant: 'destructive'
+        variant: "destructive",
       });
     }
   };
@@ -175,37 +186,36 @@ const DatabaseValidation = () => {
     try {
       // Implementar correção automática de órfãos
       toast({
-        title: 'Correção iniciada',
-        description: 'Removendo registros órfãos...'
+        title: "Correção iniciada",
+        description: "Removendo registros órfãos...",
       });
 
       // Aqui implementaríamos a lógica de correção específica
       // Por segurança, vamos apenas simular
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       toast({
-        title: 'Correção concluída',
-        description: 'Registros órfãos foram corrigidos.'
+        title: "Correção concluída",
+        description: "Registros órfãos foram corrigidos.",
       });
 
       refetchOrphans();
-
     } catch (error) {
       toast({
-        title: 'Erro na correção',
-        description: 'Não foi possível corrigir os registros órfãos.',
-        variant: 'destructive'
+        title: "Erro na correção",
+        description: "Não foi possível corrigir os registros órfãos.",
+        variant: "destructive",
       });
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'PASS':
+      case "PASS":
         return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'FAIL':
+      case "FAIL":
         return <XCircle className="h-5 w-5 text-red-600" />;
-      case 'WARNING':
+      case "WARNING":
         return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
       default:
         return <AlertTriangle className="h-5 w-5 text-gray-600" />;
@@ -214,19 +224,27 @@ const DatabaseValidation = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'PASS':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Aprovado</Badge>;
-      case 'FAIL':
+      case "PASS":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Aprovado
+          </Badge>
+        );
+      case "FAIL":
         return <Badge variant="destructive">Falha</Badge>;
-      case 'WARNING':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Atenção</Badge>;
+      case "WARNING":
+        return (
+          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+            Atenção
+          </Badge>
+        );
       default:
         return <Badge variant="outline">Desconhecido</Badge>;
     }
   };
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('pt-BR').format(num);
+    return new Intl.NumberFormat("pt-BR").format(num);
   };
 
   return (
@@ -238,14 +256,12 @@ const DatabaseValidation = () => {
             🔍 Validação de Integridade
           </h1>
           <p className="text-gray-600 mt-1">
-            Verificações automáticas de integridade e consistência do banco de dados
+            Verificações automáticas de integridade e consistência do banco de
+            dados
           </p>
         </div>
-        
-        <Button 
-          onClick={runFullValidation}
-          disabled={isValidating}
-        >
+
+        <Button onClick={runFullValidation} disabled={isValidating}>
           {isValidating ? (
             <>
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -272,11 +288,16 @@ const DatabaseValidation = () => {
           <CardContent>
             <div className="grid gap-3">
               {integrityData.map((result: ValidationResult, index: number) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     {getStatusIcon(result.status)}
                     <div>
-                      <h4 className="font-medium">{result.check_name.replace('_', ' ').toUpperCase()}</h4>
+                      <h4 className="font-medium">
+                        {result.check_name.replace("_", " ").toUpperCase()}
+                      </h4>
                       <p className="text-sm text-gray-600">{result.details}</p>
                     </div>
                   </div>
@@ -297,16 +318,16 @@ const DatabaseValidation = () => {
               Registros Órfãos
             </CardTitle>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
-                onClick={() => runSpecificValidation('orphans')}
+                onClick={() => runSpecificValidation("orphans")}
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
               {orphansData && orphansData.length > 0 && (
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   size="sm"
                   onClick={fixOrphanedRecords}
                 >
@@ -321,16 +342,18 @@ const DatabaseValidation = () => {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    Encontrados {orphansData.length} registros órfãos que precisam de atenção.
+                    Encontrados {orphansData.length} registros órfãos que
+                    precisam de atenção.
                   </AlertDescription>
                 </Alert>
-                
+
                 <div className="max-h-64 overflow-y-auto space-y-2">
                   {orphansData.map((record: OrphanedRecord, index: number) => (
                     <div key={index} className="p-2 border rounded text-sm">
                       <div className="font-medium">{record.table_name}</div>
                       <div className="text-gray-600">
-                        ID: {record.record_id} → {record.foreign_key}: {record.foreign_value}
+                        ID: {record.record_id} → {record.foreign_key}:{" "}
+                        {record.foreign_value}
                       </div>
                       <div className="text-xs text-gray-500">
                         Referência: {record.referenced_table}
@@ -342,8 +365,12 @@ const DatabaseValidation = () => {
             ) : (
               <div className="text-center py-8">
                 <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                <p className="text-green-800 font-medium">Nenhum registro órfão encontrado</p>
-                <p className="text-green-600 text-sm">Todas as referências estão íntegras</p>
+                <p className="text-green-800 font-medium">
+                  Nenhum registro órfão encontrado
+                </p>
+                <p className="text-green-600 text-sm">
+                  Todas as referências estão íntegras
+                </p>
               </div>
             )}
           </CardContent>
@@ -356,10 +383,10 @@ const DatabaseValidation = () => {
               <Activity className="h-5 w-5" />
               Consistência de Dados
             </CardTitle>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              onClick={() => runSpecificValidation('consistency')}
+              onClick={() => runSpecificValidation("consistency")}
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -370,29 +397,36 @@ const DatabaseValidation = () => {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    Encontrados {consistencyData.length} problemas de consistência.
+                    Encontrados {consistencyData.length} problemas de
+                    consistência.
                   </AlertDescription>
                 </Alert>
-                
+
                 <div className="space-y-2">
-                  {consistencyData.map((issue: ConsistencyIssue, index: number) => (
-                    <div key={index} className="p-3 border rounded">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{issue.description}</span>
-                        <Badge variant="destructive">{issue.count}</Badge>
+                  {consistencyData.map(
+                    (issue: ConsistencyIssue, index: number) => (
+                      <div key={index} className="p-3 border rounded">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">
+                            {issue.description}
+                          </span>
+                          <Badge variant="destructive">{issue.count}</Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Tipo: {issue.issue_type}
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Tipo: {issue.issue_type}
-                      </p>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
                 <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
                 <p className="text-green-800 font-medium">Dados consistentes</p>
-                <p className="text-green-600 text-sm">Nenhum problema de consistência encontrado</p>
+                <p className="text-green-600 text-sm">
+                  Nenhum problema de consistência encontrado
+                </p>
               </div>
             )}
           </CardContent>
@@ -412,17 +446,28 @@ const DatabaseValidation = () => {
             {dbStats && dbStats.length > 0 ? (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {dbStats.map((stat: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 border rounded"
+                  >
                     <div>
-                      <span className="font-medium">{stat.schemaname}.{stat.tablename}</span>
+                      <span className="font-medium">
+                        {stat.schemaname}.{stat.tablename}
+                      </span>
                       <div className="text-xs text-gray-500">
                         {formatNumber(stat.live_tuples)} registros
                       </div>
                     </div>
                     <div className="text-right text-sm">
-                      <div className="text-green-600">+{formatNumber(stat.inserts)}</div>
-                      <div className="text-blue-600">~{formatNumber(stat.updates)}</div>
-                      <div className="text-red-600">-{formatNumber(stat.deletes)}</div>
+                      <div className="text-green-600">
+                        +{formatNumber(stat.inserts)}
+                      </div>
+                      <div className="text-blue-600">
+                        ~{formatNumber(stat.updates)}
+                      </div>
+                      <div className="text-red-600">
+                        -{formatNumber(stat.deletes)}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -452,8 +497,8 @@ const DatabaseValidation = () => {
                       {stat.schemaname}.{stat.tablename}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      Leituras: {formatNumber(stat.idx_tup_read)} | 
-                      Buscas: {formatNumber(stat.idx_tup_fetch)}
+                      Leituras: {formatNumber(stat.idx_tup_read)} | Buscas:{" "}
+                      {formatNumber(stat.idx_tup_fetch)}
                     </div>
                   </div>
                 ))}

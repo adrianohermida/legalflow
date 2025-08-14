@@ -1,18 +1,42 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import { supabase } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
-import { locale } from '../lib/locale';
-import { 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Badge } from "../components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { useSupabaseQuery } from "../hooks/useSupabaseQuery";
+import { supabase } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import { EmptyState, ErrorState, LoadingState } from "../components/states";
+import { locale } from "../lib/locale";
+import {
   Search,
   Plus,
   CreditCard,
@@ -32,8 +56,8 @@ import {
   Edit,
   Settings,
   Loader2,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+} from "lucide-react";
 
 interface StripeCustomer {
   id: string;
@@ -97,21 +121,26 @@ interface CreateSubscriptionData {
 }
 
 const StripeCenter: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('customers');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState("customers");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateSubOpen, setIsCreateSubOpen] = useState(false);
   const [createSubData, setCreateSubData] = useState<CreateSubscriptionData>({
-    customer_id: '',
-    price_id: '',
+    customer_id: "",
+    price_id: "",
     quantity: 1,
-    trial_days: 0
+    trial_days: 0,
   });
   const { toast } = useToast();
 
   // Fetch Stripe customers
-  const { data: customers, isLoading: customersLoading, error: customersError, refetch: refetchCustomers } = useSupabaseQuery<StripeCustomer[]>(
-    'stripe-customers',
+  const {
+    data: customers,
+    isLoading: customersLoading,
+    error: customersError,
+    refetch: refetchCustomers,
+  } = useSupabaseQuery<StripeCustomer[]>(
+    "stripe-customers",
     `
     select 
       sc.*, 
@@ -123,12 +152,17 @@ const StripeCenter: React.FC = () => {
     order by sc.updated_at desc
     limit 50
     `,
-    [`%${searchTerm}%`]
+    [`%${searchTerm}%`],
   );
 
   // Fetch Stripe subscriptions
-  const { data: subscriptions, isLoading: subscriptionsLoading, error: subscriptionsError, refetch: refetchSubscriptions } = useSupabaseQuery<StripeSubscription[]>(
-    'stripe-subscriptions',
+  const {
+    data: subscriptions,
+    isLoading: subscriptionsLoading,
+    error: subscriptionsError,
+    refetch: refetchSubscriptions,
+  } = useSupabaseQuery<StripeSubscription[]>(
+    "stripe-subscriptions",
     `
     select 
       ss.*,
@@ -142,12 +176,17 @@ const StripeCenter: React.FC = () => {
     order by ss.updated_at desc
     limit 50
     `,
-    [statusFilter === 'all' ? 'all' : statusFilter, `%${searchTerm}%`]
+    [statusFilter === "all" ? "all" : statusFilter, `%${searchTerm}%`],
   );
 
   // Fetch Stripe invoices
-  const { data: invoices, isLoading: invoicesLoading, error: invoicesError, refetch: refetchInvoices } = useSupabaseQuery<StripeInvoice[]>(
-    'stripe-invoices',
+  const {
+    data: invoices,
+    isLoading: invoicesLoading,
+    error: invoicesError,
+    refetch: refetchInvoices,
+  } = useSupabaseQuery<StripeInvoice[]>(
+    "stripe-invoices",
     `
     select 
       si.*,
@@ -161,12 +200,17 @@ const StripeCenter: React.FC = () => {
     order by si.created_ts desc
     limit 50
     `,
-    [statusFilter === 'all' ? 'all' : statusFilter, `%${searchTerm}%`]
+    [statusFilter === "all" ? "all" : statusFilter, `%${searchTerm}%`],
   );
 
   // Fetch Stripe payment intents
-  const { data: payments, isLoading: paymentsLoading, error: paymentsError, refetch: refetchPayments } = useSupabaseQuery<StripePaymentIntent[]>(
-    'stripe-payment-intents',
+  const {
+    data: payments,
+    isLoading: paymentsLoading,
+    error: paymentsError,
+    refetch: refetchPayments,
+  } = useSupabaseQuery<StripePaymentIntent[]>(
+    "stripe-payment-intents",
     `
     select 
       sp.*,
@@ -180,12 +224,12 @@ const StripeCenter: React.FC = () => {
     order by sp.created_ts desc
     limit 50
     `,
-    [statusFilter === 'all' ? 'all' : statusFilter, `%${searchTerm}%`]
+    [statusFilter === "all" ? "all" : statusFilter, `%${searchTerm}%`],
   );
 
   // Fetch available prices for subscription creation
   const { data: prices } = useSupabaseQuery(
-    'stripe-prices',
+    "stripe-prices",
     `
     select 
       sp.*,
@@ -194,35 +238,55 @@ const StripeCenter: React.FC = () => {
     left join legalflow.stripe_products spr on spr.id = sp.product_id
     where sp.active = true
     order by spr.name, sp.unit_amount
-    `
+    `,
   );
 
-  const getStatusBadge = (status: string, type: 'subscription' | 'invoice' | 'payment') => {
+  const getStatusBadge = (
+    status: string,
+    type: "subscription" | "invoice" | "payment",
+  ) => {
     const getVariant = () => {
-      if (type === 'subscription') {
+      if (type === "subscription") {
         switch (status) {
-          case 'active': return 'default';
-          case 'trialing': return 'secondary';
-          case 'past_due': return 'destructive';
-          case 'canceled': return 'outline';
-          case 'unpaid': return 'destructive';
-          default: return 'outline';
+          case "active":
+            return "default";
+          case "trialing":
+            return "secondary";
+          case "past_due":
+            return "destructive";
+          case "canceled":
+            return "outline";
+          case "unpaid":
+            return "destructive";
+          default:
+            return "outline";
         }
-      } else if (type === 'invoice') {
+      } else if (type === "invoice") {
         switch (status) {
-          case 'paid': return 'default';
-          case 'open': return 'secondary';
-          case 'void': return 'outline';
-          case 'uncollectible': return 'destructive';
-          default: return 'outline';
+          case "paid":
+            return "default";
+          case "open":
+            return "secondary";
+          case "void":
+            return "outline";
+          case "uncollectible":
+            return "destructive";
+          default:
+            return "outline";
         }
-      } else { // payment
+      } else {
+        // payment
         switch (status) {
-          case 'succeeded': return 'default';
-          case 'processing': return 'secondary';
-          case 'requires_action': return 'destructive';
-          case 'canceled': return 'outline';
-          default: return 'outline';
+          case "succeeded":
+            return "default";
+          case "processing":
+            return "secondary";
+          case "requires_action":
+            return "destructive";
+          case "canceled":
+            return "outline";
+          default:
+            return "outline";
         }
       }
     };
@@ -230,66 +294,66 @@ const StripeCenter: React.FC = () => {
     return <Badge variant={getVariant()}>{status}</Badge>;
   };
 
-  const formatCurrency = (amount: number, currency: string = 'brl') => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: currency.toUpperCase()
+  const formatCurrency = (amount: number, currency: string = "brl") => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: currency.toUpperCase(),
     }).format(amount / 100);
   };
 
   const handleCreateSubscription = async () => {
     try {
-      const response = await fetch('/api/stripe/create-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createSubData)
+      const response = await fetch("/api/stripe/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(createSubData),
       });
 
       const result = await response.json();
       if (result.success) {
         toast({
-          title: 'Assinatura criada',
-          description: `Nova assinatura ${result.subscription_id} criada com sucesso`
+          title: "Assinatura criada",
+          description: `Nova assinatura ${result.subscription_id} criada com sucesso`,
         });
         setIsCreateSubOpen(false);
         setCreateSubData({
-          customer_id: '',
-          price_id: '',
+          customer_id: "",
+          price_id: "",
           quantity: 1,
-          trial_days: 0
+          trial_days: 0,
         });
         refetchSubscriptions();
       } else {
         toast({
-          title: 'Erro',
-          description: result.error || 'Falha ao criar assinatura',
-          variant: 'destructive'
+          title: "Erro",
+          description: result.error || "Falha ao criar assinatura",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error creating subscription:', error);
+      console.error("Error creating subscription:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao conectar com Stripe',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao conectar com Stripe",
+        variant: "destructive",
       });
     }
   };
 
   const syncStripeData = async () => {
     try {
-      const response = await fetch('/api/stripe/sync-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await fetch("/api/stripe/sync-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
 
       const result = await response.json();
       if (result.success) {
         toast({
-          title: 'Sincronização iniciada',
-          description: 'Dados do Stripe sendo atualizados'
+          title: "Sincronização iniciada",
+          description: "Dados do Stripe sendo atualizados",
         });
-        
+
         // Refetch all data
         refetchCustomers();
         refetchSubscriptions();
@@ -297,17 +361,17 @@ const StripeCenter: React.FC = () => {
         refetchPayments();
       } else {
         toast({
-          title: 'Erro',
-          description: result.error || 'Falha na sincronização',
-          variant: 'destructive'
+          title: "Erro",
+          description: result.error || "Falha na sincronização",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error syncing Stripe data:', error);
+      console.error("Error syncing Stripe data:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao sincronizar dados do Stripe',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao sincronizar dados do Stripe",
+        variant: "destructive",
       });
     }
   };
@@ -322,7 +386,8 @@ const StripeCenter: React.FC = () => {
               Stripe Center
             </h1>
             <p className="text-gray-600">
-              Visão 360° de clientes, assinaturas, faturas e pagamentos do Stripe
+              Visão 360° de clientes, assinaturas, faturas e pagamentos do
+              Stripe
             </p>
           </div>
           <div className="flex gap-2">
@@ -330,7 +395,7 @@ const StripeCenter: React.FC = () => {
               <RefreshCw className="h-4 w-4 mr-2" />
               Sincronizar
             </Button>
-            <Button onClick={() => window.open('/settings/stripe', '_blank')}>
+            <Button onClick={() => window.open("/settings/stripe", "_blank")}>
               <Settings className="h-4 w-4 mr-2" />
               Configurações
             </Button>
@@ -360,7 +425,7 @@ const StripeCenter: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os status</SelectItem>
-                  {activeTab === 'subscriptions' && (
+                  {activeTab === "subscriptions" && (
                     <>
                       <SelectItem value="active">Ativa</SelectItem>
                       <SelectItem value="trialing">Teste</SelectItem>
@@ -369,7 +434,7 @@ const StripeCenter: React.FC = () => {
                       <SelectItem value="unpaid">Não paga</SelectItem>
                     </>
                   )}
-                  {activeTab === 'invoices' && (
+                  {activeTab === "invoices" && (
                     <>
                       <SelectItem value="paid">Paga</SelectItem>
                       <SelectItem value="open">Aberta</SelectItem>
@@ -377,11 +442,13 @@ const StripeCenter: React.FC = () => {
                       <SelectItem value="uncollectible">Incobrável</SelectItem>
                     </>
                   )}
-                  {activeTab === 'payments' && (
+                  {activeTab === "payments" && (
                     <>
                       <SelectItem value="succeeded">Sucesso</SelectItem>
                       <SelectItem value="processing">Processando</SelectItem>
-                      <SelectItem value="requires_action">Requer ação</SelectItem>
+                      <SelectItem value="requires_action">
+                        Requer ação
+                      </SelectItem>
                       <SelectItem value="canceled">Cancelado</SelectItem>
                     </>
                   )}
@@ -392,7 +459,11 @@ const StripeCenter: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="customers">
             <Users className="h-4 w-4 mr-2" />
@@ -435,18 +506,25 @@ const StripeCenter: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {customers.map((customer) => (
-                    <div key={customer.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div
+                      key={customer.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    >
                       <div className="flex items-center space-x-4">
                         <div className="flex-1">
-                          <div className="font-medium">{customer.name || customer.email}</div>
+                          <div className="font-medium">
+                            {customer.name || customer.email}
+                          </div>
                           <div className="text-sm text-gray-600 flex items-center gap-4">
                             <span className="flex items-center gap-1">
                               <span>{customer.email}</span>
                             </span>
-                            <span className="text-xs text-gray-500">{customer.id}</span>
+                            <span className="text-xs text-gray-500">
+                              {customer.id}
+                            </span>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
                           {customer.contact_id && (
                             <Badge variant="secondary" className="text-xs">
@@ -461,17 +539,22 @@ const StripeCenter: React.FC = () => {
                             </Badge>
                           )}
                         </div>
-                        
+
                         <div className="text-sm text-gray-500">
                           {locale.formatRelativeTime(customer.updated_at)}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`https://dashboard.stripe.com/customers/${customer.id}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `https://dashboard.stripe.com/customers/${customer.id}`,
+                              "_blank",
+                            )
+                          }
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -490,12 +573,17 @@ const StripeCenter: React.FC = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Assinaturas ({subscriptions?.length || 0})</CardTitle>
+                  <CardTitle>
+                    Assinaturas ({subscriptions?.length || 0})
+                  </CardTitle>
                   <CardDescription>
                     Assinaturas ativas e históricas do Stripe
                   </CardDescription>
                 </div>
-                <Dialog open={isCreateSubOpen} onOpenChange={setIsCreateSubOpen}>
+                <Dialog
+                  open={isCreateSubOpen}
+                  onOpenChange={setIsCreateSubOpen}
+                >
                   <DialogTrigger asChild>
                     <Button>
                       <Plus className="h-4 w-4 mr-2" />
@@ -509,41 +597,63 @@ const StripeCenter: React.FC = () => {
                         Crie uma nova assinatura para um cliente
                       </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="customer">Cliente</Label>
-                        <Select value={createSubData.customer_id} onValueChange={(value) => setCreateSubData(prev => ({ ...prev, customer_id: value }))}>
+                        <Select
+                          value={createSubData.customer_id}
+                          onValueChange={(value) =>
+                            setCreateSubData((prev) => ({
+                              ...prev,
+                              customer_id: value,
+                            }))
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecionar cliente..." />
                           </SelectTrigger>
                           <SelectContent>
                             {customers?.map((customer) => (
                               <SelectItem key={customer.id} value={customer.id}>
-                                {customer.name || customer.email} ({customer.id})
+                                {customer.name || customer.email} ({customer.id}
+                                )
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="price">Plano</Label>
-                        <Select value={createSubData.price_id} onValueChange={(value) => setCreateSubData(prev => ({ ...prev, price_id: value }))}>
+                        <Select
+                          value={createSubData.price_id}
+                          onValueChange={(value) =>
+                            setCreateSubData((prev) => ({
+                              ...prev,
+                              price_id: value,
+                            }))
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecionar plano..." />
                           </SelectTrigger>
                           <SelectContent>
                             {prices?.map((price: any) => (
                               <SelectItem key={price.id} value={price.id}>
-                                {price.product_name} - {formatCurrency(price.unit_amount, price.currency)}
-                                {price.recurring_interval && ` / ${price.recurring_interval}`}
+                                {price.product_name} -{" "}
+                                {formatCurrency(
+                                  price.unit_amount,
+                                  price.currency,
+                                )}
+                                {price.recurring_interval &&
+                                  ` / ${price.recurring_interval}`}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="quantity">Quantidade</Label>
@@ -551,7 +661,12 @@ const StripeCenter: React.FC = () => {
                             type="number"
                             min="1"
                             value={createSubData.quantity}
-                            onChange={(e) => setCreateSubData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                            onChange={(e) =>
+                              setCreateSubData((prev) => ({
+                                ...prev,
+                                quantity: parseInt(e.target.value) || 1,
+                              }))
+                            }
                           />
                         </div>
                         <div>
@@ -560,17 +675,30 @@ const StripeCenter: React.FC = () => {
                             type="number"
                             min="0"
                             value={createSubData.trial_days}
-                            onChange={(e) => setCreateSubData(prev => ({ ...prev, trial_days: parseInt(e.target.value) || 0 }))}
+                            onChange={(e) =>
+                              setCreateSubData((prev) => ({
+                                ...prev,
+                                trial_days: parseInt(e.target.value) || 0,
+                              }))
+                            }
                           />
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline" onClick={() => setIsCreateSubOpen(false)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsCreateSubOpen(false)}
+                      >
                         Cancelar
                       </Button>
-                      <Button onClick={handleCreateSubscription} disabled={!createSubData.customer_id || !createSubData.price_id}>
+                      <Button
+                        onClick={handleCreateSubscription}
+                        disabled={
+                          !createSubData.customer_id || !createSubData.price_id
+                        }
+                      >
                         Criar Assinatura
                       </Button>
                     </div>
@@ -582,7 +710,10 @@ const StripeCenter: React.FC = () => {
               {subscriptionsLoading ? (
                 <LoadingState type="list" title="Carregando assinaturas..." />
               ) : subscriptionsError ? (
-                <ErrorState error={subscriptionsError} onRetry={refetchSubscriptions} />
+                <ErrorState
+                  error={subscriptionsError}
+                  onRetry={refetchSubscriptions}
+                />
               ) : !subscriptions?.length ? (
                 <EmptyState
                   type="deals"
@@ -592,32 +723,51 @@ const StripeCenter: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {subscriptions.map((subscription) => (
-                    <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div
+                      key={subscription.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    >
                       <div className="flex items-center space-x-4">
                         <div className="flex-1">
-                          <div className="font-medium">{subscription.customer_name || subscription.customer_email}</div>
+                          <div className="font-medium">
+                            {subscription.customer_name ||
+                              subscription.customer_email}
+                          </div>
                           <div className="text-sm text-gray-600 flex items-center gap-4">
-                            <span className="text-xs text-gray-500">{subscription.id}</span>
+                            <span className="text-xs text-gray-500">
+                              {subscription.id}
+                            </span>
                             <span>
-                              {new Date(subscription.current_period_start).toLocaleDateString()} - {new Date(subscription.current_period_end).toLocaleDateString()}
+                              {new Date(
+                                subscription.current_period_start,
+                              ).toLocaleDateString()}{" "}
+                              -{" "}
+                              {new Date(
+                                subscription.current_period_end,
+                              ).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
-                          {getStatusBadge(subscription.status, 'subscription')}
+                          {getStatusBadge(subscription.status, "subscription")}
                         </div>
-                        
+
                         <div className="text-sm text-gray-500">
                           {locale.formatRelativeTime(subscription.created_at)}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`https://dashboard.stripe.com/subscriptions/${subscription.id}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `https://dashboard.stripe.com/subscriptions/${subscription.id}`,
+                              "_blank",
+                            )
+                          }
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -635,9 +785,7 @@ const StripeCenter: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Faturas ({invoices?.length || 0})</CardTitle>
-              <CardDescription>
-                Faturas geradas pelo Stripe
-              </CardDescription>
+              <CardDescription>Faturas geradas pelo Stripe</CardDescription>
             </CardHeader>
             <CardContent>
               {invoicesLoading ? (
@@ -653,7 +801,10 @@ const StripeCenter: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {invoices.map((invoice) => (
-                    <div key={invoice.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div
+                      key={invoice.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    >
                       <div className="flex items-center space-x-4">
                         <div className="flex-1">
                           <div className="font-medium">
@@ -663,33 +814,38 @@ const StripeCenter: React.FC = () => {
                             {invoice.customer_name || invoice.customer_email}
                           </div>
                         </div>
-                        
+
                         <div className="text-right">
                           <div className="font-medium">
                             {formatCurrency(invoice.amount_due)}
                           </div>
                           {invoice.amount_remaining > 0 && (
                             <div className="text-sm text-red-600">
-                              Pendente: {formatCurrency(invoice.amount_remaining)}
+                              Pendente:{" "}
+                              {formatCurrency(invoice.amount_remaining)}
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
-                          {getStatusBadge(invoice.status, 'invoice')}
+                          {getStatusBadge(invoice.status, "invoice")}
                         </div>
-                        
+
                         <div className="text-sm text-gray-500">
-                          {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : 'Sem vencimento'}
+                          {invoice.due_date
+                            ? new Date(invoice.due_date).toLocaleDateString()
+                            : "Sem vencimento"}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         {invoice.hosted_invoice_url && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(invoice.hosted_invoice_url!, '_blank')}
+                            onClick={() =>
+                              window.open(invoice.hosted_invoice_url!, "_blank")
+                            }
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -697,7 +853,12 @@ const StripeCenter: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`https://dashboard.stripe.com/invoices/${invoice.id}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `https://dashboard.stripe.com/invoices/${invoice.id}`,
+                              "_blank",
+                            )
+                          }
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -733,38 +894,47 @@ const StripeCenter: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {payments.map((payment) => (
-                    <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div
+                      key={payment.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    >
                       <div className="flex items-center space-x-4">
                         <div className="flex-1">
                           <div className="font-medium">
-                            {payment.customer_name || payment.customer_email || 'Cliente não identificado'}
+                            {payment.customer_name ||
+                              payment.customer_email ||
+                              "Cliente não identificado"}
                           </div>
                           <div className="text-sm text-gray-600 flex items-center gap-4">
-                            <span className="text-xs text-gray-500">{payment.id}</span>
+                            <span className="text-xs text-gray-500">
+                              {payment.id}
+                            </span>
                           </div>
                         </div>
-                        
+
                         <div className="text-right">
                           <div className="font-medium">
                             {formatCurrency(payment.amount, payment.currency)}
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
-                          {getStatusBadge(payment.status, 'payment')}
+                          {getStatusBadge(payment.status, "payment")}
                         </div>
-                        
+
                         <div className="text-sm text-gray-500">
                           {new Date(payment.created_ts).toLocaleDateString()}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         {payment.receipt_url && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(payment.receipt_url!, '_blank')}
+                            onClick={() =>
+                              window.open(payment.receipt_url!, "_blank")
+                            }
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -772,7 +942,12 @@ const StripeCenter: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`https://dashboard.stripe.com/payments/${payment.id}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `https://dashboard.stripe.com/payments/${payment.id}`,
+                              "_blank",
+                            )
+                          }
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>

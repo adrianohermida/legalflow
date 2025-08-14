@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Badge } from '../../components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { useSupabaseQuery } from '../../hooks/useSupabaseQuery';
-import { supabase } from '../../lib/supabase';
-import { useToast } from '../../hooks/use-toast';
-import { EmptyState, ErrorState, LoadingState } from '../../components/states';
-import { locale } from '../../lib/locale';
-import { useNavigate } from 'react-router-dom';
-import { 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Badge } from "../../components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { useSupabaseQuery } from "../../hooks/useSupabaseQuery";
+import { supabase } from "../../lib/supabase";
+import { useToast } from "../../hooks/use-toast";
+import { EmptyState, ErrorState, LoadingState } from "../../components/states";
+import { locale } from "../../lib/locale";
+import { useNavigate } from "react-router-dom";
+import {
   Search,
   Users,
   ArrowRight,
@@ -21,8 +33,8 @@ import {
   Play,
   ExternalLink,
   Clock,
-  User
-} from 'lucide-react';
+  User,
+} from "lucide-react";
 
 interface Lead {
   id: string;
@@ -35,17 +47,17 @@ interface Lead {
 }
 
 const CRMLeads: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [originFilter, setOriginFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [originFilter, setOriginFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<string>("all");
   const [isConverting, setIsConverting] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Build dynamic query based on filters
   const buildQuery = () => {
-    let whereClause = 'true';
+    let whereClause = "true";
     const params: any[] = [];
     let paramIndex = 1;
 
@@ -55,20 +67,20 @@ const CRMLeads: React.FC = () => {
       paramIndex++;
     }
 
-    if (originFilter !== 'all') {
+    if (originFilter !== "all") {
       whereClause += ` and dados->>'source' = $${paramIndex}`;
       params.push(originFilter);
       paramIndex++;
     }
 
-    if (statusFilter !== 'all') {
-      const isPaused = statusFilter === 'paused';
+    if (statusFilter !== "all") {
+      const isPaused = statusFilter === "paused";
       whereClause += ` and pausado = $${paramIndex}`;
       params.push(isPaused);
       paramIndex++;
     }
 
-    if (dateRange !== 'all') {
+    if (dateRange !== "all") {
       const daysAgo = parseInt(dateRange);
       whereClause += ` and created_at >= now() - interval '${daysAgo} days'`;
     }
@@ -81,22 +93,27 @@ const CRMLeads: React.FC = () => {
         order by created_at desc
         limit 50
       `,
-      params
+      params,
     };
   };
 
   const { query, params } = buildQuery();
-  
+
   // Fetch leads with filters
-  const { data: leads, isLoading, error, refetch } = useSupabaseQuery<Lead[]>(
-    ['crm-leads', searchTerm, originFilter, statusFilter, dateRange],
+  const {
+    data: leads,
+    isLoading,
+    error,
+    refetch,
+  } = useSupabaseQuery<Lead[]>(
+    ["crm-leads", searchTerm, originFilter, statusFilter, dateRange],
     query,
-    params
+    params,
   );
 
   // Get lead stats
   const { data: leadStats } = useSupabaseQuery(
-    'lead-stats',
+    "lead-stats",
     `
     select 
       count(*) as total,
@@ -105,40 +122,37 @@ const CRMLeads: React.FC = () => {
       count(*) filter (where created_at >= now() - interval '7 days') as recent,
       count(distinct dados->>'source') as sources
     from public.leads
-    `
+    `,
   );
 
   const handleConvertLead = async (lead: Lead) => {
     setIsConverting(lead.id);
-    
+
     try {
-      const { data, error } = await supabase.rpc('crm_convert_lead', {
-        p_lead_whatsapp: lead.whatsapp
+      const { data, error } = await supabase.rpc("crm_convert_lead", {
+        p_lead_whatsapp: lead.whatsapp,
       });
 
       if (error) throw error;
 
       toast({
-        title: 'Lead convertido!',
+        title: "Lead convertido!",
         description: `${lead.nome} foi convertido em contato e deal`,
         action: (
-          <Button
-            size="sm"
-            onClick={() => navigate(`/crm/deals`)}
-          >
+          <Button size="sm" onClick={() => navigate(`/crm/deals`)}>
             <ExternalLink className="h-4 w-4 mr-1" />
             Ver Deal
           </Button>
-        )
+        ),
       });
 
       refetch();
     } catch (error) {
-      console.error('Error converting lead:', error);
+      console.error("Error converting lead:", error);
       toast({
-        title: 'Erro na conversão',
-        description: 'Falha ao converter lead. Tente novamente.',
-        variant: 'destructive'
+        title: "Erro na conversão",
+        description: "Falha ao converter lead. Tente novamente.",
+        variant: "destructive",
       });
     } finally {
       setIsConverting(null);
@@ -147,20 +161,17 @@ const CRMLeads: React.FC = () => {
 
   const getOriginBadge = (origin: string) => {
     const colors = {
-      'website': 'bg-blue-100 text-blue-800',
-      'whatsapp': 'bg-green-100 text-green-800',
-      'social': 'bg-purple-100 text-purple-800',
-      'referral': 'bg-orange-100 text-orange-800',
-      'campaign': 'bg-pink-100 text-pink-800',
+      website: "bg-blue-100 text-blue-800",
+      whatsapp: "bg-green-100 text-green-800",
+      social: "bg-purple-100 text-purple-800",
+      referral: "bg-orange-100 text-orange-800",
+      campaign: "bg-pink-100 text-pink-800",
     };
-    
-    const color = colors[origin as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-    
-    return (
-      <Badge className={color}>
-        {origin || 'Não informado'}
-      </Badge>
-    );
+
+    const color =
+      colors[origin as keyof typeof colors] || "bg-gray-100 text-gray-800";
+
+    return <Badge className={color}>{origin || "Não informado"}</Badge>;
   };
 
   const getStatusBadge = (pausado: boolean) => {
@@ -171,7 +182,8 @@ const CRMLeads: React.FC = () => {
     );
   };
 
-  if (isLoading) return <LoadingState type="list" title="Carregando leads..." />;
+  if (isLoading)
+    return <LoadingState type="list" title="Carregando leads..." />;
   if (error) return <ErrorState error={error} onRetry={refetch} />;
 
   return (
@@ -190,55 +202,65 @@ const CRMLeads: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-blue-600" />
               <div>
-                <div className="text-2xl font-bold">{leadStats?.total || 0}</div>
+                <div className="text-2xl font-bold">
+                  {leadStats?.total || 0}
+                </div>
                 <div className="text-xs text-gray-600">Total</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Play className="h-4 w-4 text-green-600" />
               <div>
-                <div className="text-2xl font-bold">{leadStats?.active || 0}</div>
+                <div className="text-2xl font-bold">
+                  {leadStats?.active || 0}
+                </div>
                 <div className="text-xs text-gray-600">Ativos</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-orange-600" />
               <div>
-                <div className="text-2xl font-bold">{leadStats?.paused || 0}</div>
+                <div className="text-2xl font-bold">
+                  {leadStats?.paused || 0}
+                </div>
                 <div className="text-xs text-gray-600">Pausados</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4 text-purple-600" />
               <div>
-                <div className="text-2xl font-bold">{leadStats?.recent || 0}</div>
+                <div className="text-2xl font-bold">
+                  {leadStats?.recent || 0}
+                </div>
                 <div className="text-xs text-gray-600">Últimos 7d</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Filter className="h-4 w-4 text-indigo-600" />
               <div>
-                <div className="text-2xl font-bold">{leadStats?.sources || 0}</div>
+                <div className="text-2xl font-bold">
+                  {leadStats?.sources || 0}
+                </div>
                 <div className="text-xs text-gray-600">Fontes</div>
               </div>
             </div>
@@ -261,7 +283,7 @@ const CRMLeads: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex gap-2">
               <Select value={originFilter} onValueChange={setOriginFilter}>
                 <SelectTrigger className="w-40">
@@ -276,7 +298,7 @@ const CRMLeads: React.FC = () => {
                   <SelectItem value="campaign">Campanha</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-32">
                   <SelectValue placeholder="Status" />
@@ -287,7 +309,7 @@ const CRMLeads: React.FC = () => {
                   <SelectItem value="paused">Pausados</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={dateRange} onValueChange={setDateRange}>
                 <SelectTrigger className="w-36">
                   <SelectValue placeholder="Período" />
@@ -311,9 +333,7 @@ const CRMLeads: React.FC = () => {
             <Users className="h-5 w-5" />
             Leads ({leads?.length || 0})
           </CardTitle>
-          <CardDescription>
-            Lista de leads aguardando conversão
-          </CardDescription>
+          <CardDescription>Lista de leads aguardando conversão</CardDescription>
         </CardHeader>
         <CardContent>
           {!leads?.length ? (
@@ -323,22 +343,25 @@ const CRMLeads: React.FC = () => {
               description="Leads de diferentes fontes aparecerão aqui para conversão"
               actionLabel="Ajustar Filtros"
               onAction={() => {
-                setSearchTerm('');
-                setOriginFilter('all');
-                setStatusFilter('all');
-                setDateRange('all');
+                setSearchTerm("");
+                setOriginFilter("all");
+                setStatusFilter("all");
+                setDateRange("all");
               }}
             />
           ) : (
             <div className="space-y-3">
               {leads.map((lead) => (
-                <div key={lead.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                <div
+                  key={lead.id}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                >
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                       <User className="h-4 w-4 text-blue-600" />
                       {getStatusBadge(lead.pausado)}
                     </div>
-                    
+
                     <div className="flex-1">
                       <div className="font-medium">{lead.nome}</div>
                       <div className="text-sm text-gray-600 flex items-center gap-4">
@@ -346,16 +369,17 @@ const CRMLeads: React.FC = () => {
                           <MessageCircle className="h-3 w-3" />
                           {lead.whatsapp}
                         </span>
-                        {lead.dados?.source && getOriginBadge(lead.dados.source)}
+                        {lead.dados?.source &&
+                          getOriginBadge(lead.dados.source)}
                       </div>
                     </div>
-                    
+
                     <div className="text-sm text-gray-500 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {locale.formatRelativeTime(lead.created_at)}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Button
                       onClick={() => handleConvertLead(lead)}
@@ -401,7 +425,7 @@ const CRMLeads: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <div className="bg-green-100 rounded-full p-2">
                 <TrendingUp className="h-4 w-4 text-green-600" />
@@ -413,7 +437,7 @@ const CRMLeads: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <div className="bg-purple-100 rounded-full p-2">
                 <ArrowRight className="h-4 w-4 text-purple-600" />

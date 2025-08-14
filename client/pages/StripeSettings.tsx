@@ -1,20 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Label } from '../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Badge } from '../components/ui/badge';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { CreditCard, Settings, Check, AlertCircle, Loader2, TestTube } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { toast } from '../hooks/use-toast';
+import React, { useState, useEffect } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Label } from "../components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { Badge } from "../components/ui/badge";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import {
+  CreditCard,
+  Settings,
+  Check,
+  AlertCircle,
+  Loader2,
+  TestTube,
+} from "lucide-react";
+import { supabase } from "../lib/supabase";
+import { toast } from "../hooks/use-toast";
 
 interface StripeConfig {
   secret_key: string;
   webhook_secret: string;
-  mode: 'test' | 'live';
+  mode: "test" | "live";
   active: boolean;
 }
 
@@ -32,14 +56,14 @@ interface ConnectionStatus {
 
 export default function StripeSettings() {
   const [config, setConfig] = useState<StripeConfig>({
-    secret_key: '',
-    webhook_secret: '',
-    mode: 'test',
-    active: false
+    secret_key: "",
+    webhook_secret: "",
+    mode: "test",
+    active: false,
   });
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
     connected: false,
-    testing: false
+    testing: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -51,29 +75,29 @@ export default function StripeSettings() {
   const loadStripeConfig = async () => {
     try {
       const { data, error } = await supabase
-        .from('api_credentials')
-        .select('*')
-        .eq('provider', 'stripe')
+        .from("api_credentials")
+        .select("*")
+        .eq("provider", "stripe")
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
       if (data) {
         setConfig({
-          secret_key: data.secret_key || '',
-          webhook_secret: data.webhook_secret || '',
-          mode: data.mode || 'test',
-          active: data.active || false
+          secret_key: data.secret_key || "",
+          webhook_secret: data.webhook_secret || "",
+          mode: data.mode || "test",
+          active: data.active || false,
         });
       }
     } catch (error) {
-      console.error('Erro ao carregar configuração Stripe:', error);
+      console.error("Erro ao carregar configuração Stripe:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao carregar configuração do Stripe',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao carregar configuração do Stripe",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -83,29 +107,27 @@ export default function StripeSettings() {
   const saveStripeConfig = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('api_credentials')
-        .upsert({
-          provider: 'stripe',
-          secret_key: config.secret_key,
-          webhook_secret: config.webhook_secret,
-          mode: config.mode,
-          active: config.active,
-          updated_at: new Date().toISOString()
-        });
+      const { error } = await supabase.from("api_credentials").upsert({
+        provider: "stripe",
+        secret_key: config.secret_key,
+        webhook_secret: config.webhook_secret,
+        mode: config.mode,
+        active: config.active,
+        updated_at: new Date().toISOString(),
+      });
 
       if (error) throw error;
 
       toast({
-        title: 'Sucesso',
-        description: 'Configuração do Stripe salva com sucesso'
+        title: "Sucesso",
+        description: "Configuração do Stripe salva com sucesso",
       });
     } catch (error) {
-      console.error('Erro ao salvar configuração:', error);
+      console.error("Erro ao salvar configuração:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao salvar configuração do Stripe',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao salvar configuração do Stripe",
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
@@ -115,25 +137,29 @@ export default function StripeSettings() {
   const testStripeConnection = async () => {
     if (!config.secret_key) {
       toast({
-        title: 'Erro',
-        description: 'Secret Key é obrigatória para testar a conexão',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Secret Key é obrigatória para testar a conexão",
+        variant: "destructive",
       });
       return;
     }
 
-    setConnectionStatus(prev => ({ ...prev, testing: true, error: undefined }));
+    setConnectionStatus((prev) => ({
+      ...prev,
+      testing: true,
+      error: undefined,
+    }));
 
     try {
-      const response = await fetch('/api/stripe/test-connection', {
-        method: 'POST',
+      const response = await fetch("/api/stripe/test-connection", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           secret_key: config.secret_key,
-          mode: config.mode
-        })
+          mode: config.mode,
+        }),
       });
 
       const result = await response.json();
@@ -142,35 +168,35 @@ export default function StripeSettings() {
         setConnectionStatus({
           connected: true,
           testing: false,
-          accountInfo: result.account
+          accountInfo: result.account,
         });
         toast({
-          title: 'Sucesso',
-          description: 'Conexão com Stripe estabelecida com sucesso'
+          title: "Sucesso",
+          description: "Conexão com Stripe estabelecida com sucesso",
         });
       } else {
         setConnectionStatus({
           connected: false,
           testing: false,
-          error: result.error
+          error: result.error,
         });
         toast({
-          title: 'Erro de Conexão',
+          title: "Erro de Conexão",
           description: result.error,
-          variant: 'destructive'
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Erro ao testar conexão:', error);
+      console.error("Erro ao testar conexão:", error);
       setConnectionStatus({
         connected: false,
         testing: false,
-        error: 'Falha na comunicação com o servidor'
+        error: "Falha na comunicação com o servidor",
       });
       toast({
-        title: 'Erro',
-        description: 'Falha ao testar conexão com Stripe',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao testar conexão com Stripe",
+        variant: "destructive",
       });
     }
   };
@@ -213,7 +239,8 @@ export default function StripeSettings() {
             <CardHeader>
               <CardTitle>Credenciais Stripe</CardTitle>
               <CardDescription>
-                Configure suas chaves API do Stripe para integração com pagamentos
+                Configure suas chaves API do Stripe para integração com
+                pagamentos
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -224,7 +251,12 @@ export default function StripeSettings() {
                   type="password"
                   placeholder="sk_test_... ou sk_live_..."
                   value={config.secret_key}
-                  onChange={(e) => setConfig(prev => ({ ...prev, secret_key: e.target.value }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      secret_key: e.target.value,
+                    }))
+                  }
                 />
                 <p className="text-sm text-muted-foreground">
                   Chave secreta obtida no painel do Stripe
@@ -238,18 +270,27 @@ export default function StripeSettings() {
                   type="password"
                   placeholder="whsec_..."
                   value={config.webhook_secret}
-                  onChange={(e) => setConfig(prev => ({ ...prev, webhook_secret: e.target.value }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      webhook_secret: e.target.value,
+                    }))
+                  }
                 />
                 <p className="text-sm text-muted-foreground">
-                  Secret do endpoint webhook (opcional, mas recomendado para segurança)
+                  Secret do endpoint webhook (opcional, mas recomendado para
+                  segurança)
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="mode">Modo</Label>
-                <Select value={config.mode} onValueChange={(value: 'test' | 'live') => 
-                  setConfig(prev => ({ ...prev, mode: value }))
-                }>
+                <Select
+                  value={config.mode}
+                  onValueChange={(value: "test" | "live") =>
+                    setConfig((prev) => ({ ...prev, mode: value }))
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -275,14 +316,16 @@ export default function StripeSettings() {
                   type="checkbox"
                   id="active"
                   checked={config.active}
-                  onChange={(e) => setConfig(prev => ({ ...prev, active: e.target.checked }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({ ...prev, active: e.target.checked }))
+                  }
                   className="rounded border-gray-300"
                 />
                 <Label htmlFor="active">Ativar integração Stripe</Label>
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button 
+                <Button
                   onClick={saveStripeConfig}
                   disabled={saving || !config.secret_key}
                 >
@@ -292,7 +335,7 @@ export default function StripeSettings() {
                       Salvando...
                     </>
                   ) : (
-                    'Salvar Configuração'
+                    "Salvar Configuração"
                   )}
                 </Button>
               </div>
@@ -305,7 +348,8 @@ export default function StripeSettings() {
             <CardHeader>
               <CardTitle>Teste de Conexão</CardTitle>
               <CardDescription>
-                Verifique se a conexão com o Stripe está funcionando corretamente
+                Verifique se a conexão com o Stripe está funcionando
+                corretamente
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -314,11 +358,16 @@ export default function StripeSettings() {
                   <Check className="h-4 w-4" />
                   <AlertDescription>
                     <div className="space-y-1">
-                      <p><strong>Conexão estabelecida com sucesso!</strong></p>
+                      <p>
+                        <strong>Conexão estabelecida com sucesso!</strong>
+                      </p>
                       <p>Account ID: {connectionStatus.accountInfo.id}</p>
                       <p>Email: {connectionStatus.accountInfo.email}</p>
                       <p>País: {connectionStatus.accountInfo.country}</p>
-                      <p>Moeda padrão: {connectionStatus.accountInfo.currency.toUpperCase()}</p>
+                      <p>
+                        Moeda padrão:{" "}
+                        {connectionStatus.accountInfo.currency.toUpperCase()}
+                      </p>
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -334,7 +383,7 @@ export default function StripeSettings() {
               )}
 
               <div className="flex items-center gap-2">
-                <Button 
+                <Button
                   onClick={testStripeConnection}
                   disabled={connectionStatus.testing || !config.secret_key}
                   variant={connectionStatus.connected ? "outline" : "default"}
@@ -353,7 +402,10 @@ export default function StripeSettings() {
                 </Button>
 
                 {connectionStatus.connected && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     <Check className="h-3 w-3" />
                     Conectado
                   </Badge>
@@ -361,7 +413,9 @@ export default function StripeSettings() {
               </div>
 
               <div className="text-sm text-muted-foreground space-y-2">
-                <p><strong>O que este teste verifica:</strong></p>
+                <p>
+                  <strong>O que este teste verifica:</strong>
+                </p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Validade da Secret Key</li>
                   <li>Informações da conta Stripe</li>
@@ -383,19 +437,22 @@ export default function StripeSettings() {
               <div className="space-y-2">
                 <Label>Webhook Endpoint URL</Label>
                 <div className="flex items-center gap-2">
-                  <Input 
-                    readOnly 
+                  <Input
+                    readOnly
                     value={`${window.location.origin}/api/stripe/webhook`}
                     className="font-mono text-sm"
                   />
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/api/stripe/webhook`);
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/api/stripe/webhook`,
+                      );
                       toast({
-                        title: 'Copiado!',
-                        description: 'URL do webhook copiada para a área de transferência'
+                        title: "Copiado!",
+                        description:
+                          "URL do webhook copiada para a área de transferência",
                       });
                     }}
                   >

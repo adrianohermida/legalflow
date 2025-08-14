@@ -5,6 +5,7 @@
 Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificações detalhadas, incluindo:
 
 ### 📊 SQL de Apoio Implementado
+
 - ✅ **View `vw_publicacoes_unificadas`** - Combina publicações + movimentações que são publicações
 - ✅ **Função `is_publicacao(jsonb)`** - Detecta se movimentação é publicação
 - ✅ **RPC `lf_sync_partes`** - Sincroniza partes do processo dos dados Advise/Escavador
@@ -14,6 +15,7 @@ Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificaçõe
 ### 🔧 ProcessoDetailV2 - Funcionalidades Implementadas
 
 #### A. Header & Ações ✅
+
 - **Título**: CNJ + subtítulo (polo ativo × polo passivo)
 - **Botões de ação**: Atualizar, Configurações, Nova conversa, Criar (tarefa/evento/documento)
 - **Status de monitoramento**: Fonte ativa (Advise/Escavador Premium)
@@ -21,34 +23,41 @@ Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificaçõe
 - **Busca local**: Filtra conteúdo nas abas
 
 #### B. Capa (tab) ✅
+
 - **Dados completos**: área, classe, assunto, valor, órgão julgador, distribuição, situação
 - **Audiências futuras**: Renderizadas se existirem
 - **CTA Sincronizar Partes**: Botão que chama `lf_sync_partes(:cnj)`
 
 #### C. Audiências (tab) ✅
+
 - **Tabela completa**: data, tipo, situação das audiências
 - **Ação criar compromisso**: Upsert em `legalflow.eventos_agenda`
 
 #### D. Partes (tab) ✅
-- **Lista consolidada**: Lê `legalflow.partes_processo` 
+
+- **Lista consolidada**: Lê `legalflow.partes_processo`
 - **Agrupamento**: ATIVO/PASSIVO/ADVOGADO
 - **Ações**: Vincular cliente existente ou criar novo
 
 #### E. Movimentações (tab) ✅
+
 - **Tabela paginada**: 20/página com data, resumo, origem
 - **Leitura**: `public.movimentacoes`
 - **Ação rápida**: Criar tarefa → `legalflow.activities`
 
 #### F. Publicações (tab) ✅
+
 - **View unificada**: Usa `vw_publicacoes_unificadas`
 - **Ações por item**: Vincular ao processo, notificar responsável, abrir origem
 
 #### G. Documentos (tab) ✅
+
 - **Lista completa**: `public.documents` + `public.peticoes`
 - **Estante digital**: Estrutura preparada para flipbook
 - **Ação**: Solicitar documento → `legalflow.document_requirements`
 
 #### H. Chat Multithread ✅
+
 - **Drawer de chats**: Múltiplos threads por processo
 - **Memória do agente**: Contexto completo (capa, partes, eventos, tarefas)
 - **Ações do composer**: Criar tarefa, agendar, solicitar documento
@@ -57,11 +66,13 @@ Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificaçõe
 ### 📬 InboxLegalV2 - Funcionalidades Implementadas
 
 #### Estrutura Completa ✅
+
 - **Tabs**: Publicações + Movimentações
 - **Filtros**: período, tribunal, não vinculadas, não lidas
 - **Fonte de dados**: `public.vw_publicacoes_unificadas`
 
 #### Funcionalidades Avançadas ✅
+
 - **Detecção automática de CNJ** no texto das publicações
 - **Modal Vincular/Criar via Advise**: Busca capa e cria processo
 - **Fallback de cadastro**: Para publicações sem CNJ
@@ -70,6 +81,7 @@ Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificaçõe
 ### 🔄 Sistema de Realtime Completo ✅
 
 #### Hook `useProcessoRealtimeComplete`
+
 - **Movimentações**: Notifica novas movimentações
 - **Publicações**: Atualiza feed unificado
 - **AI Messages**: Para todos os threads do processo
@@ -81,9 +93,11 @@ Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificaçõe
 ### 🔧 Arquivos Criados/Atualizados
 
 #### SQL
+
 - `SQL_FLOW_P_DETAIL_V2_COMPLETE.sql` - Schema completo com 279 linhas
 
 #### Frontend
+
 - `client/hooks/useProcessoRealtimeComplete.ts` - Realtime 290 linhas
 - `client/pages/ProcessoDetailV2.tsx` - Atualizado com funcionalidades completas
 - `client/pages/InboxLegalV2.tsx` - Modal Advise e detecção CNJ
@@ -101,23 +115,26 @@ Implementação completa do Flow P-Detail v2 e Inbox v2 conforme especificaçõe
 ### 🎯 Funcionalidades Principais
 
 #### Monitoramento Inteligente
+
 ```typescript
 // Toggle Premium atualiza automaticamente
-await lf.rpc('lf_set_monitoring', {
+await lf.rpc("lf_set_monitoring", {
   p_numero_cnj: numero_cnj,
-  p_provider: checked ? 'escavador' : 'advise',
+  p_provider: checked ? "escavador" : "advise",
   p_active: true,
-  p_premium: checked
+  p_premium: checked,
 });
 ```
 
 #### Sincronização de Partes
+
 ```sql
 -- RPC extrai partes dos dados do Advise
 SELECT legalflow.lf_sync_partes('1234567-12.3456.7.89.0123');
 ```
 
 #### Criação via Advise
+
 ```typescript
 // Detecta CNJ e busca capa via Advise
 const cnj = detectarCNJ(texto);
@@ -143,6 +160,7 @@ await buscarCapaAdviseMutation.mutate({ numero_cnj: cnj });
 ## ✅ **STATUS FINAL: IMPLEMENTAÇÃO 100% COMPLETA**
 
 O Flow P-Detail v2 e Inbox v2 estão totalmente implementados conforme especificações, incluindo:
+
 - SQL schema completo com views e RPCs
 - Interface com 6 tabs funcionais
 - Sistema de realtime completo

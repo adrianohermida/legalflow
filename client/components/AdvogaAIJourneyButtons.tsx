@@ -1,19 +1,31 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  CheckCircle, 
-  Plus, 
-  FileText, 
-  Upload, 
+import {
+  CheckCircle,
+  Plus,
+  FileText,
+  Upload,
   Target,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
@@ -22,7 +34,7 @@ import { toast } from "../hooks/use-toast";
 interface AdvogaAIJourneyButtonsProps {
   numeroCnj?: string;
   journeyInstanceId?: string;
-  context?: 'chat' | 'inbox' | 'process';
+  context?: "chat" | "inbox" | "process";
   className?: string;
 }
 
@@ -34,14 +46,9 @@ interface QuickActionDialogProps {
   children?: React.ReactNode;
 }
 
-const QuickActionDialog: React.FC<QuickActionDialogProps & { trigger: React.ReactNode }> = ({
-  title,
-  description,
-  onConfirm,
-  isLoading,
-  children,
-  trigger
-}) => {
+const QuickActionDialog: React.FC<
+  QuickActionDialogProps & { trigger: React.ReactNode }
+> = ({ title, description, onConfirm, isLoading, children, trigger }) => {
   const [open, setOpen] = useState(false);
 
   const handleConfirm = () => {
@@ -61,10 +68,18 @@ const QuickActionDialog: React.FC<QuickActionDialogProps & { trigger: React.Reac
           {children}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="flex-1"
+          >
             Cancelar
           </Button>
-          <Button onClick={handleConfirm} disabled={isLoading} className="flex-1">
+          <Button
+            onClick={handleConfirm}
+            disabled={isLoading}
+            className="flex-1"
+          >
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Confirmar
           </Button>
@@ -77,26 +92,29 @@ const QuickActionDialog: React.FC<QuickActionDialogProps & { trigger: React.Reac
 export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
   numeroCnj,
   journeyInstanceId,
-  context = 'chat',
-  className = ""
+  context = "chat",
+  className = "",
 }) => {
   const queryClient = useQueryClient();
   const [createStageData, setCreateStageData] = useState({
     title: "",
     description: "",
     type_id: "task",
-    sla_hours: 24
+    sla_hours: 24,
   });
 
   // Mutation for completing stage
   const completeStageMatation = useMutation({
     mutationFn: async (stageInstanceId: string) => {
-      const response = await fetch('/.netlify/functions/api-agent-tools/v1/agent/tools/stage.complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage_instance_id: stageInstanceId })
-      });
-      
+      const response = await fetch(
+        "/.netlify/functions/api-agent-tools/v1/agent/tools/stage.complete",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stage_instance_id: stageInstanceId }),
+        },
+      );
+
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
       return result.data;
@@ -121,20 +139,24 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
   // Mutation for creating stage
   const createStageMutation = useMutation({
     mutationFn: async () => {
-      if (!journeyInstanceId) throw new Error("ID da instância da jornada é necessário");
-      
-      const response = await fetch('/.netlify/functions/api-agent-tools/v1/agent/tools/stage.create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instance_id: journeyInstanceId,
-          title: createStageData.title,
-          description: createStageData.description,
-          type_id: createStageData.type_id,
-          sla_hours: createStageData.sla_hours
-        })
-      });
-      
+      if (!journeyInstanceId)
+        throw new Error("ID da instância da jornada é necessário");
+
+      const response = await fetch(
+        "/.netlify/functions/api-agent-tools/v1/agent/tools/stage.create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            instance_id: journeyInstanceId,
+            title: createStageData.title,
+            description: createStageData.description,
+            type_id: createStageData.type_id,
+            sla_hours: createStageData.sla_hours,
+          }),
+        },
+      );
+
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
       return result.data;
@@ -144,7 +166,12 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
         title: "Etapa criada",
         description: "Nova etapa adicionada pelo assistente.",
       });
-      setCreateStageData({ title: "", description: "", type_id: "task", sla_hours: 24 });
+      setCreateStageData({
+        title: "",
+        description: "",
+        type_id: "task",
+        sla_hours: 24,
+      });
       queryClient.invalidateQueries({ queryKey: ["journey-stages"] });
     },
     onError: (error: any) => {
@@ -158,17 +185,26 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
 
   // Mutation for submitting form
   const submitFormMutation = useMutation({
-    mutationFn: async ({ stageInstanceId, formData }: { stageInstanceId: string; formData: any }) => {
-      const response = await fetch('/.netlify/functions/api-agent-tools/v1/agent/tools/form.submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          stage_instance_id: stageInstanceId,
-          form_key: `form_${Date.now()}`,
-          answers_json: formData
-        })
-      });
-      
+    mutationFn: async ({
+      stageInstanceId,
+      formData,
+    }: {
+      stageInstanceId: string;
+      formData: any;
+    }) => {
+      const response = await fetch(
+        "/.netlify/functions/api-agent-tools/v1/agent/tools/form.submit",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            stage_instance_id: stageInstanceId,
+            form_key: `form_${Date.now()}`,
+            answers_json: formData,
+          }),
+        },
+      );
+
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
       return result.data;
@@ -191,17 +227,26 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
 
   // Mutation for requesting document
   const requestDocumentMutation = useMutation({
-    mutationFn: async ({ templateStageId, docName }: { templateStageId: string; docName: string }) => {
-      const response = await fetch('/.netlify/functions/api-agent-tools/v1/agent/tools/document.request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          template_stage_id: templateStageId,
-          name: docName,
-          required: true
-        })
-      });
-      
+    mutationFn: async ({
+      templateStageId,
+      docName,
+    }: {
+      templateStageId: string;
+      docName: string;
+    }) => {
+      const response = await fetch(
+        "/.netlify/functions/api-agent-tools/v1/agent/tools/document.request",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            template_stage_id: templateStageId,
+            name: docName,
+            required: true,
+          }),
+        },
+      );
+
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
       return result.data;
@@ -221,8 +266,8 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
     },
   });
 
-  const buttonSize = context === 'chat' ? 'sm' : 'default';
-  const isCompact = context === 'chat';
+  const buttonSize = context === "chat" ? "sm" : "default";
+  const isCompact = context === "chat";
 
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
@@ -235,13 +280,14 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
           // For demo purposes, we'll show that the action is available
           toast({
             title: "Funcionalidade disponível",
-            description: "O assistente pode concluir etapas quando integrado ao chat.",
+            description:
+              "O assistente pode concluir etapas quando integrado ao chat.",
           });
         }}
         isLoading={completeStageMatation.isPending}
         trigger={
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size={buttonSize}
             className={isCompact ? "text-xs" : ""}
           >
@@ -254,8 +300,8 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
       {/* Create Stage Button */}
       <Dialog>
         <DialogTrigger asChild>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size={buttonSize}
             className={isCompact ? "text-xs" : ""}
           >
@@ -272,27 +318,39 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
               <Label>Título da Etapa</Label>
               <Input
                 value={createStageData.title}
-                onChange={(e) => setCreateStageData({...createStageData, title: e.target.value})}
+                onChange={(e) =>
+                  setCreateStageData({
+                    ...createStageData,
+                    title: e.target.value,
+                  })
+                }
                 placeholder="Ex: Analisar documentos recebidos"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label>Descrição</Label>
               <Textarea
                 value={createStageData.description}
-                onChange={(e) => setCreateStageData({...createStageData, description: e.target.value})}
+                onChange={(e) =>
+                  setCreateStageData({
+                    ...createStageData,
+                    description: e.target.value,
+                  })
+                }
                 placeholder="Descreva o que deve ser feito..."
                 rows={3}
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Tipo</Label>
-                <Select 
-                  value={createStageData.type_id} 
-                  onValueChange={(value) => setCreateStageData({...createStageData, type_id: value})}
+                <Select
+                  value={createStageData.type_id}
+                  onValueChange={(value) =>
+                    setCreateStageData({ ...createStageData, type_id: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -306,26 +364,39 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Prazo (horas)</Label>
                 <Input
                   type="number"
                   min="1"
                   value={createStageData.sla_hours}
-                  onChange={(e) => setCreateStageData({...createStageData, sla_hours: parseInt(e.target.value) || 24})}
+                  onChange={(e) =>
+                    setCreateStageData({
+                      ...createStageData,
+                      sla_hours: parseInt(e.target.value) || 24,
+                    })
+                  }
                 />
               </div>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1">Cancelar</Button>
-            <Button 
+            <Button variant="outline" className="flex-1">
+              Cancelar
+            </Button>
+            <Button
               onClick={() => createStageMutation.mutate()}
-              disabled={!createStageData.title.trim() || createStageMutation.isPending || !journeyInstanceId}
+              disabled={
+                !createStageData.title.trim() ||
+                createStageMutation.isPending ||
+                !journeyInstanceId
+              }
               className="flex-1"
             >
-              {createStageMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {createStageMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
               Criar
             </Button>
           </div>
@@ -339,13 +410,14 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
         onConfirm={() => {
           toast({
             title: "Funcionalidade disponível",
-            description: "O assistente pode processar formulários quando integrado.",
+            description:
+              "O assistente pode processar formulários quando integrado.",
           });
         }}
         isLoading={submitFormMutation.isPending}
         trigger={
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size={buttonSize}
             className={isCompact ? "text-xs" : ""}
           >
@@ -362,13 +434,14 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
         onConfirm={() => {
           toast({
             title: "Funcionalidade disponível",
-            description: "O assistente pode solicitar documentos quando necessário.",
+            description:
+              "O assistente pode solicitar documentos quando necessário.",
           });
         }}
         isLoading={requestDocumentMutation.isPending}
         trigger={
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size={buttonSize}
             className={isCompact ? "text-xs" : ""}
           >
@@ -379,7 +452,7 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
       />
 
       {/* Status indicator */}
-      {context !== 'chat' && (
+      {context !== "chat" && (
         <div className="flex items-center gap-2 ml-auto">
           <Badge variant="outline" className="text-xs">
             <Target className="w-3 h-3 mr-1" />
@@ -399,10 +472,10 @@ export const AdvogaAIJourneyButtons: React.FC<AdvogaAIJourneyButtonsProps> = ({
 /**
  * Compact version for chat integration
  */
-export const AdvogaAIChatTools: React.FC<{ numeroCnj?: string; journeyInstanceId?: string }> = ({
-  numeroCnj,
-  journeyInstanceId
-}) => {
+export const AdvogaAIChatTools: React.FC<{
+  numeroCnj?: string;
+  journeyInstanceId?: string;
+}> = ({ numeroCnj, journeyInstanceId }) => {
   return (
     <Card className="border-blue-200 bg-blue-50">
       <CardHeader className="pb-3">
@@ -419,7 +492,8 @@ export const AdvogaAIChatTools: React.FC<{ numeroCnj?: string; journeyInstanceId
           className="justify-start"
         />
         <p className="text-xs text-blue-700 mt-2">
-          O assistente pode usar essas ferramentas para gerenciar jornadas automaticamente.
+          O assistente pode usar essas ferramentas para gerenciar jornadas
+          automaticamente.
         </p>
       </CardContent>
     </Card>

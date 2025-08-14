@@ -1,16 +1,55 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Filter, Edit, Copy, Play, MoreHorizontal, Calendar, Users, Target, Tag } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Copy,
+  Play,
+  MoreHorizontal,
+  Calendar,
+  Users,
+  Target,
+  Tag,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { Label } from "../components/ui/label";
 import { toast } from "../hooks/use-toast";
 import { lf } from "../lib/supabase";
@@ -47,7 +86,10 @@ interface StartJourneyFormData {
   ownerOab?: number;
 }
 
-const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () => void }> = ({ template, onSuccess }) => {
+const StartJourneyDialog: React.FC<{
+  template: JourneyTemplate;
+  onSuccess: () => void;
+}> = ({ template, onSuccess }) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<StartJourneyFormData>({
     templateId: template.id,
@@ -59,7 +101,10 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
   const { data: clientes } = useQuery({
     queryKey: ["clientes"],
     queryFn: async () => {
-      const { data, error } = await lf.from("clientes").select("cpfcnpj, nome").order("nome");
+      const { data, error } = await lf
+        .from("clientes")
+        .select("cpfcnpj, nome")
+        .order("nome");
       if (error) throw error;
       return data;
     },
@@ -69,7 +114,10 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
     queryKey: ["processos", formData.cpfcnpj],
     queryFn: async () => {
       if (!formData.cpfcnpj) return [];
-      const { data, error } = await lf.from("processos").select("numero_cnj, numero").eq("cliente_cpfcnpj", formData.cpfcnpj);
+      const { data, error } = await lf
+        .from("processos")
+        .select("numero_cnj, numero")
+        .eq("cliente_cpfcnpj", formData.cpfcnpj);
       if (error) throw error;
       return data;
     },
@@ -104,7 +152,7 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
     },
   });
 
-  const selectedCliente = clientes?.find(c => c.cpfcnpj === formData.cpfcnpj);
+  const selectedCliente = clientes?.find((c) => c.cpfcnpj === formData.cpfcnpj);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -121,7 +169,12 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="cliente">Cliente</Label>
-            <Select value={formData.cpfcnpj} onValueChange={(value) => setFormData({...formData, cpfcnpj: value, numeroCnj: ""})}>
+            <Select
+              value={formData.cpfcnpj}
+              onValueChange={(value) =>
+                setFormData({ ...formData, cpfcnpj: value, numeroCnj: "" })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o cliente" />
               </SelectTrigger>
@@ -138,13 +191,21 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
           {formData.cpfcnpj && processos && processos.length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="processo">Processo (opcional)</Label>
-              <Select value={formData.numeroCnj} onValueChange={(value) => setFormData({...formData, numeroCnj: value})}>
+              <Select
+                value={formData.numeroCnj}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, numeroCnj: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o processo" />
                 </SelectTrigger>
                 <SelectContent>
                   {processos.map((processo) => (
-                    <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                    <SelectItem
+                      key={processo.numero_cnj}
+                      value={processo.numero_cnj}
+                    >
                       {processo.numero} ({processo.numero_cnj})
                     </SelectItem>
                   ))}
@@ -154,11 +215,15 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
           )}
 
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="flex-1"
+            >
               Cancelar
             </Button>
-            <Button 
-              onClick={() => startJourneyMutation.mutate()} 
+            <Button
+              onClick={() => startJourneyMutation.mutate()}
               disabled={!formData.cpfcnpj || startJourneyMutation.isPending}
               className="flex-1"
             >
@@ -171,7 +236,10 @@ const StartJourneyDialog: React.FC<{ template: JourneyTemplate; onSuccess: () =>
   );
 };
 
-const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void }> = ({ template, onRefresh }) => {
+const TemplateCard: React.FC<{
+  template: JourneyTemplate;
+  onRefresh: () => void;
+}> = ({ template, onRefresh }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -201,18 +269,20 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
       if (stagesError) throw stagesError;
 
       if (stages && stages.length > 0) {
-        const { error: insertError } = await lf.from("journey_template_stages").insert(
-          stages.map((stage) => ({
-            template_id: newTemplate.id,
-            position: stage.position,
-            title: stage.title,
-            description: stage.description,
-            type_id: stage.type_id,
-            mandatory: stage.mandatory,
-            sla_hours: stage.sla_hours,
-            config: stage.config,
-          }))
-        );
+        const { error: insertError } = await lf
+          .from("journey_template_stages")
+          .insert(
+            stages.map((stage) => ({
+              template_id: newTemplate.id,
+              position: stage.position,
+              title: stage.title,
+              description: stage.description,
+              type_id: stage.type_id,
+              mandatory: stage.mandatory,
+              sla_hours: stage.sla_hours,
+              config: stage.config,
+            })),
+          );
 
         if (insertError) throw insertError;
       }
@@ -240,7 +310,9 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg font-medium">{template.name}</CardTitle>
+            <CardTitle className="text-lg font-medium">
+              {template.name}
+            </CardTitle>
             <div className="flex items-center gap-2 text-sm text-neutral-600">
               <Badge variant="secondary" className="text-xs">
                 {template.niche}
@@ -249,16 +321,24 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate(`/jornadas/designer/${template.id}`)}>
+              <DropdownMenuItem
+                onClick={() => navigate(`/jornadas/designer/${template.id}`)}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => duplicateTemplateMutation.mutate()}>
+              <DropdownMenuItem
+                onClick={() => duplicateTemplateMutation.mutate()}
+              >
                 <Copy className="w-4 h-4 mr-2" />
                 Duplicar
               </DropdownMenuItem>
@@ -269,15 +349,21 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div className="text-center">
-            <div className="font-medium text-neutral-900">{template.steps_count}</div>
+            <div className="font-medium text-neutral-900">
+              {template.steps_count}
+            </div>
             <div className="text-neutral-600">Etapas</div>
           </div>
           <div className="text-center">
-            <div className="font-medium text-neutral-900">{template.eta_days}</div>
+            <div className="font-medium text-neutral-900">
+              {template.eta_days}
+            </div>
             <div className="text-neutral-600">Dias</div>
           </div>
           <div className="text-center">
-            <div className="font-medium text-neutral-900">{template.tags?.length || 0}</div>
+            <div className="font-medium text-neutral-900">
+              {template.tags?.length || 0}
+            </div>
             <div className="text-neutral-600">Tags</div>
           </div>
         </div>
@@ -298,7 +384,12 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate(`/jornadas/designer/${template.id}`)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => navigate(`/jornadas/designer/${template.id}`)}
+          >
             <Edit className="w-4 h-4 mr-2" />
             Editar
           </Button>
@@ -309,21 +400,39 @@ const TemplateCard: React.FC<{ template: JourneyTemplate; onRefresh: () => void 
   );
 };
 
-const InstanceCard: React.FC<{ instance: JourneyInstance }> = ({ instance }) => {
-  const progressColor = instance.progress_pct >= 100 ? "bg-green-500" : instance.progress_pct >= 50 ? "bg-blue-500" : "bg-neutral-400";
+const InstanceCard: React.FC<{ instance: JourneyInstance }> = ({
+  instance,
+}) => {
+  const progressColor =
+    instance.progress_pct >= 100
+      ? "bg-green-500"
+      : instance.progress_pct >= 50
+        ? "bg-blue-500"
+        : "bg-neutral-400";
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg font-medium">{instance.template_name}</CardTitle>
+            <CardTitle className="text-lg font-medium">
+              {instance.template_name}
+            </CardTitle>
             <div className="text-sm text-neutral-600">
-              {instance.cliente_nome} • {instance.processo_numero_cnj && `Processo ${instance.processo_numero_cnj}`}
+              {instance.cliente_nome} •{" "}
+              {instance.processo_numero_cnj &&
+                `Processo ${instance.processo_numero_cnj}`}
             </div>
           </div>
-          <Badge variant={instance.status === "active" ? "default" : "secondary"} className="text-xs">
-            {instance.status === "active" ? "Ativa" : instance.status === "completed" ? "Concluída" : "Pausada"}
+          <Badge
+            variant={instance.status === "active" ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {instance.status === "active"
+              ? "Ativa"
+              : instance.status === "completed"
+                ? "Concluída"
+                : "Pausada"}
           </Badge>
         </div>
       </CardHeader>
@@ -334,8 +443,8 @@ const InstanceCard: React.FC<{ instance: JourneyInstance }> = ({ instance }) => 
             <span className="font-medium">{instance.progress_pct}%</span>
           </div>
           <div className="w-full bg-neutral-200 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full transition-all ${progressColor}`} 
+            <div
+              className={`h-2 rounded-full transition-all ${progressColor}`}
               style={{ width: `${instance.progress_pct}%` }}
             />
           </div>
@@ -343,8 +452,12 @@ const InstanceCard: React.FC<{ instance: JourneyInstance }> = ({ instance }) => 
 
         {instance.next_action && (
           <div className="p-3 bg-neutral-50 rounded-lg">
-            <div className="text-sm font-medium text-neutral-900">{instance.next_action.title}</div>
-            <div className="text-xs text-neutral-600 mt-1">{instance.next_action.description}</div>
+            <div className="text-sm font-medium text-neutral-900">
+              {instance.next_action.title}
+            </div>
+            <div className="text-xs text-neutral-600 mt-1">
+              {instance.next_action.description}
+            </div>
             <Button size="sm" className="mt-2 w-full">
               {instance.next_action.cta}
             </Button>
@@ -358,7 +471,9 @@ const InstanceCard: React.FC<{ instance: JourneyInstance }> = ({ instance }) => 
           </div>
           <div className="flex items-center gap-2">
             <Avatar className="w-5 h-5">
-              <AvatarFallback className="text-xs">{instance.owner_nome?.charAt(0)}</AvatarFallback>
+              <AvatarFallback className="text-xs">
+                {instance.owner_nome?.charAt(0)}
+              </AvatarFallback>
             </Avatar>
             <span>{instance.owner_nome}</span>
           </div>
@@ -374,10 +489,17 @@ export default function Jornadas() {
   const [selectedNiche, setSelectedNiche] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("modelos");
 
-  const { data: templates, isLoading: templatesLoading, refetch: refetchTemplates } = useQuery({
+  const {
+    data: templates,
+    isLoading: templatesLoading,
+    refetch: refetchTemplates,
+  } = useQuery({
     queryKey: ["journey-templates", searchTerm, selectedNiche],
     queryFn: async () => {
-      let query = lf.from("journey_templates").select("*").order("created_at", { ascending: false });
+      let query = lf
+        .from("journey_templates")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (searchTerm) {
         query = query.ilike("name", `%${searchTerm}%`);
@@ -413,7 +535,7 @@ export default function Jornadas() {
         .select("niche")
         .not("niche", "is", null);
       if (error) throw error;
-      return [...new Set(data.map(item => item.niche))];
+      return [...new Set(data.map((item) => item.niche))];
     },
   });
 
@@ -422,9 +544,14 @@ export default function Jornadas() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900">Jornadas</h1>
-          <p className="text-neutral-600">Gerencie templates e instâncias de jornada</p>
+          <p className="text-neutral-600">
+            Gerencie templates e instâncias de jornada
+          </p>
         </div>
-        <Button className="gap-2" onClick={() => navigate("/jornadas/designer")}>
+        <Button
+          className="gap-2"
+          onClick={() => navigate("/jornadas/designer")}
+        >
           <Plus className="w-4 h-4" />
           Novo Template
         </Button>
@@ -455,7 +582,11 @@ export default function Jornadas() {
         </Select>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="modelos">Modelos</TabsTrigger>
           <TabsTrigger value="instancias">Instâncias</TabsTrigger>
@@ -482,22 +613,23 @@ export default function Jornadas() {
           ) : templates && templates.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {templates.map((template) => (
-                <TemplateCard 
-                  key={template.id} 
-                  template={template} 
-                  onRefresh={() => refetchTemplates()} 
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  onRefresh={() => refetchTemplates()}
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
               <Target className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-neutral-900 mb-2">Nenhum template encontrado</h3>
+              <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                Nenhum template encontrado
+              </h3>
               <p className="text-neutral-600 mb-4">
-                {searchTerm || selectedNiche !== "all" 
+                {searchTerm || selectedNiche !== "all"
                   ? "Tente ajustar os filtros de busca."
-                  : "Comece criando seu primeiro template de jornada."
-                }
+                  : "Comece criando seu primeiro template de jornada."}
               </p>
               <Button onClick={() => navigate("/jornadas/designer")}>
                 <Plus className="w-4 h-4 mr-2" />
@@ -534,7 +666,9 @@ export default function Jornadas() {
           ) : (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-neutral-900 mb-2">Nenhuma instância ativa</h3>
+              <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                Nenhuma instância ativa
+              </h3>
               <p className="text-neutral-600 mb-4">
                 Inicie uma jornada a partir de um template para começar.
               </p>

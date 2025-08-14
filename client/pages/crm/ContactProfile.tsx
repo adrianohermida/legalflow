@@ -1,20 +1,44 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Badge } from '../../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Textarea } from '../../components/ui/textarea';
-import { useSupabaseQuery } from '../../hooks/useSupabaseQuery';
-import { supabase } from '../../lib/supabase';
-import { useToast } from '../../hooks/use-toast';
-import { EmptyState, ErrorState, LoadingState } from '../../components/states';
-import { locale } from '../../lib/locale';
-import { 
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Badge } from "../../components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { Textarea } from "../../components/ui/textarea";
+import { useSupabaseQuery } from "../../hooks/useSupabaseQuery";
+import { supabase } from "../../lib/supabase";
+import { useToast } from "../../hooks/use-toast";
+import { EmptyState, ErrorState, LoadingState } from "../../components/states";
+import { locale } from "../../lib/locale";
+import {
   User,
   Building,
   Mail,
@@ -34,8 +58,8 @@ import {
   Clock,
   TrendingUp,
   Edit,
-  Share
-} from 'lucide-react';
+  Share,
+} from "lucide-react";
 
 interface Contact {
   id: string;
@@ -97,26 +121,31 @@ const ContactProfile: React.FC = () => {
   const [isNewTicketOpen, setIsNewTicketOpen] = useState(false);
   const [isNewDealOpen, setIsNewDealOpen] = useState(false);
   const [activityForm, setActivityForm] = useState<ActivityFormData>({
-    title: '',
-    description: '',
-    due_date: '',
-    status: 'pending'
+    title: "",
+    description: "",
+    due_date: "",
+    status: "pending",
   });
   const [ticketForm, setTicketForm] = useState<TicketFormData>({
-    title: '',
-    description: '',
-    priority: 'medium'
+    title: "",
+    description: "",
+    priority: "medium",
   });
   const [dealForm, setDealForm] = useState<DealFormData>({
-    title: '',
-    value: '',
-    probability: '50'
+    title: "",
+    value: "",
+    probability: "50",
   });
   const { toast } = useToast();
 
   // Fetch contact details
-  const { data: contact, isLoading, error, refetch } = useSupabaseQuery<Contact>(
-    ['contact-profile', id],
+  const {
+    data: contact,
+    isLoading,
+    error,
+    refetch,
+  } = useSupabaseQuery<Contact>(
+    ["contact-profile", id],
     `
     select id, kind, name, email, phone, whatsapp, cpfcnpj,
            public_cliente_cpfcnpj, stripe_customer_id, properties,
@@ -124,12 +153,14 @@ const ContactProfile: React.FC = () => {
     from legalflow.contacts
     where id = $1
     `,
-    [id]
+    [id],
   );
 
   // Fetch contact activities
-  const { data: activities, refetch: refetchActivities } = useSupabaseQuery<Activity[]>(
-    ['contact-activities', id],
+  const { data: activities, refetch: refetchActivities } = useSupabaseQuery<
+    Activity[]
+  >(
+    ["contact-activities", id],
     `
     select id, title, description, status, due_date, created_at
     from legalflow.activities
@@ -137,12 +168,12 @@ const ContactProfile: React.FC = () => {
     order by created_at desc
     limit 20
     `,
-    [id]
+    [id],
   );
 
   // Fetch contact deals
   const { data: deals, refetch: refetchDeals } = useSupabaseQuery<Deal[]>(
-    ['contact-deals', id],
+    ["contact-deals", id],
     `
     select d.id, d.title, d.value, d.currency, d.stage, d.probability, d.created_at,
            ps.name as stage_name
@@ -152,12 +183,12 @@ const ContactProfile: React.FC = () => {
     order by d.created_at desc
     limit 10
     `,
-    [id]
+    [id],
   );
 
   // Fetch contact tickets
   const { data: tickets, refetch: refetchTickets } = useSupabaseQuery(
-    ['contact-tickets', id],
+    ["contact-tickets", id],
     `
     select id, title, description, status, priority, created_at
     from legalflow.tickets
@@ -165,24 +196,24 @@ const ContactProfile: React.FC = () => {
     order by created_at desc
     limit 20
     `,
-    [id]
+    [id],
   );
 
   // Fetch linked client info
   const { data: linkedClient } = useSupabaseQuery(
-    ['contact-linked-client', contact?.public_cliente_cpfcnpj],
+    ["contact-linked-client", contact?.public_cliente_cpfcnpj],
     `
     select cpfcnpj, nome, created_at
     from public.clientes
     where cpfcnpj = $1
     `,
     [contact?.public_cliente_cpfcnpj],
-    { enabled: !!contact?.public_cliente_cpfcnpj }
+    { enabled: !!contact?.public_cliente_cpfcnpj },
   );
 
   // Fetch contact stats
   const { data: contactStats } = useSupabaseQuery(
-    ['contact-stats', id],
+    ["contact-stats", id],
     `
     select
       (select count(*) from legalflow.activities where contact_id = $1) as total_activities,
@@ -192,137 +223,142 @@ const ContactProfile: React.FC = () => {
       (select count(*) from legalflow.tickets where contact_id = $1) as total_tickets,
       (select count(*) from legalflow.tickets where contact_id = $1 and status = 'resolved') as resolved_tickets
     `,
-    [id]
+    [id],
   );
 
   const handleCreateActivity = async () => {
     try {
-      const { error } = await supabase
-        .from('legalflow.activities')
-        .insert({
-          title: activityForm.title,
-          description: activityForm.description || null,
-          status: activityForm.status,
-          due_date: activityForm.due_date || null,
-          contact_id: id,
-          properties: { contact_id: id }
-        });
+      const { error } = await supabase.from("legalflow.activities").insert({
+        title: activityForm.title,
+        description: activityForm.description || null,
+        status: activityForm.status,
+        due_date: activityForm.due_date || null,
+        contact_id: id,
+        properties: { contact_id: id },
+      });
 
       if (error) throw error;
 
       toast({
-        title: 'Atividade criada',
-        description: 'Nova atividade adicionada ao contato'
+        title: "Atividade criada",
+        description: "Nova atividade adicionada ao contato",
       });
 
       setIsNewActivityOpen(false);
-      setActivityForm({ title: '', description: '', due_date: '', status: 'pending' });
+      setActivityForm({
+        title: "",
+        description: "",
+        due_date: "",
+        status: "pending",
+      });
       refetchActivities();
     } catch (error) {
-      console.error('Error creating activity:', error);
+      console.error("Error creating activity:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao criar atividade',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao criar atividade",
+        variant: "destructive",
       });
     }
   };
 
   const handleCreateTicket = async () => {
     try {
-      const { error } = await supabase
-        .from('legalflow.tickets')
-        .insert({
-          title: ticketForm.title,
-          description: ticketForm.description,
-          priority: ticketForm.priority,
-          status: 'open',
-          contact_id: id,
-          properties: { contact_id: id }
-        });
+      const { error } = await supabase.from("legalflow.tickets").insert({
+        title: ticketForm.title,
+        description: ticketForm.description,
+        priority: ticketForm.priority,
+        status: "open",
+        contact_id: id,
+        properties: { contact_id: id },
+      });
 
       if (error) throw error;
 
       toast({
-        title: 'Ticket criado',
-        description: 'Novo ticket de suporte criado'
+        title: "Ticket criado",
+        description: "Novo ticket de suporte criado",
       });
 
       setIsNewTicketOpen(false);
-      setTicketForm({ title: '', description: '', priority: 'medium' });
+      setTicketForm({ title: "", description: "", priority: "medium" });
       refetchTickets();
     } catch (error) {
-      console.error('Error creating ticket:', error);
+      console.error("Error creating ticket:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao criar ticket',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao criar ticket",
+        variant: "destructive",
       });
     }
   };
 
   const handleCreateDeal = async () => {
     try {
-      const { error } = await supabase
-        .from('legalflow.deals')
-        .insert({
-          title: dealForm.title,
-          value: parseFloat(dealForm.value) || 0,
-          currency: 'BRL',
-          stage: 'novo',
-          probability: parseInt(dealForm.probability) || 50,
-          contact_id: id,
-          pipeline_id: 1 // Sales pipeline
-        });
+      const { error } = await supabase.from("legalflow.deals").insert({
+        title: dealForm.title,
+        value: parseFloat(dealForm.value) || 0,
+        currency: "BRL",
+        stage: "novo",
+        probability: parseInt(dealForm.probability) || 50,
+        contact_id: id,
+        pipeline_id: 1, // Sales pipeline
+      });
 
       if (error) throw error;
 
       toast({
-        title: 'Deal criado',
-        description: 'Nova oportunidade criada para o contato'
+        title: "Deal criado",
+        description: "Nova oportunidade criada para o contato",
       });
 
       setIsNewDealOpen(false);
-      setDealForm({ title: '', value: '', probability: '50' });
+      setDealForm({ title: "", value: "", probability: "50" });
       refetchDeals();
     } catch (error) {
-      console.error('Error creating deal:', error);
+      console.error("Error creating deal:", error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao criar deal',
-        variant: 'destructive'
+        title: "Erro",
+        description: "Falha ao criar deal",
+        variant: "destructive",
       });
     }
   };
 
-  const getStatusBadge = (status: string, type: 'activity' | 'ticket' | 'deal') => {
+  const getStatusBadge = (
+    status: string,
+    type: "activity" | "ticket" | "deal",
+  ) => {
     const configs = {
       activity: {
-        pending: 'bg-yellow-100 text-yellow-800',
-        in_progress: 'bg-blue-100 text-blue-800',
-        completed: 'bg-green-100 text-green-800',
-        cancelled: 'bg-red-100 text-red-800'
+        pending: "bg-yellow-100 text-yellow-800",
+        in_progress: "bg-blue-100 text-blue-800",
+        completed: "bg-green-100 text-green-800",
+        cancelled: "bg-red-100 text-red-800",
       },
       ticket: {
-        open: 'bg-red-100 text-red-800',
-        in_progress: 'bg-blue-100 text-blue-800',
-        resolved: 'bg-green-100 text-green-800',
-        closed: 'bg-gray-100 text-gray-800'
+        open: "bg-red-100 text-red-800",
+        in_progress: "bg-blue-100 text-blue-800",
+        resolved: "bg-green-100 text-green-800",
+        closed: "bg-gray-100 text-gray-800",
       },
       deal: {
-        novo: 'bg-blue-100 text-blue-800',
-        qualificado: 'bg-yellow-100 text-yellow-800',
-        proposta: 'bg-purple-100 text-purple-800',
-        ganho: 'bg-green-100 text-green-800',
-        perdido: 'bg-red-100 text-red-800'
-      }
+        novo: "bg-blue-100 text-blue-800",
+        qualificado: "bg-yellow-100 text-yellow-800",
+        proposta: "bg-purple-100 text-purple-800",
+        ganho: "bg-green-100 text-green-800",
+        perdido: "bg-red-100 text-red-800",
+      },
     };
 
-    const color = configs[type][status as keyof typeof configs[typeof type]] || 'bg-gray-100 text-gray-800';
+    const color =
+      configs[type][status as keyof (typeof configs)[typeof type]] ||
+      "bg-gray-100 text-gray-800";
     return <Badge className={color}>{status}</Badge>;
   };
 
-  if (isLoading) return <LoadingState type="detail" title="Carregando perfil..." />;
+  if (isLoading)
+    return <LoadingState type="detail" title="Carregando perfil..." />;
   if (error || !contact) return <ErrorState error={error} onRetry={refetch} />;
 
   return (
@@ -331,21 +367,23 @@ const ContactProfile: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="bg-blue-100 rounded-full p-3">
-              {contact.kind === 'org' ? (
+              {contact.kind === "org" ? (
                 <Building className="h-8 w-8 text-blue-600" />
               ) : (
                 <User className="h-8 w-8 text-blue-600" />
               )}
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{contact.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {contact.name}
+              </h1>
               <p className="text-gray-600">
-                {contact.kind === 'org' ? 'Organização' : 'Pessoa'} • 
-                Criado {locale.formatRelativeTime(contact.created_at)}
+                {contact.kind === "org" ? "Organização" : "Pessoa"} • Criado{" "}
+                {locale.formatRelativeTime(contact.created_at)}
               </p>
             </div>
           </div>
-          
+
           <div className="flex space-x-2">
             <Button variant="outline">
               <Edit className="h-4 w-4 mr-2" />
@@ -377,17 +415,19 @@ const ContactProfile: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               {contact.phone && (
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-gray-400" />
                   <div>
-                    <div className="font-medium">{locale.formatPhoneNumber(contact.phone)}</div>
+                    <div className="font-medium">
+                      {locale.formatPhoneNumber(contact.phone)}
+                    </div>
                     <div className="text-sm text-gray-600">Telefone</div>
                   </div>
                 </div>
               )}
-              
+
               {contact.whatsapp && (
                 <div className="flex items-center space-x-3">
                   <MessageCircle className="h-4 w-4 text-gray-400" />
@@ -397,12 +437,14 @@ const ContactProfile: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               {contact.cpfcnpj && (
                 <div className="flex items-center space-x-3">
                   <FileText className="h-4 w-4 text-gray-400" />
                   <div>
-                    <div className="font-medium">{locale.formatCpfCnpj(contact.cpfcnpj)}</div>
+                    <div className="font-medium">
+                      {locale.formatCpfCnpj(contact.cpfcnpj)}
+                    </div>
                     <div className="text-sm text-gray-600">CPF/CNPJ</div>
                   </div>
                 </div>
@@ -422,7 +464,9 @@ const ContactProfile: React.FC = () => {
                     <Link className="h-4 w-4 text-blue-600" />
                     <div>
                       <div className="font-medium">{linkedClient.nome}</div>
-                      <div className="text-sm text-gray-600">Cliente (public)</div>
+                      <div className="text-sm text-gray-600">
+                        Cliente (public)
+                      </div>
                     </div>
                   </div>
                   <Button variant="ghost" size="sm">
@@ -430,14 +474,18 @@ const ContactProfile: React.FC = () => {
                   </Button>
                 </div>
               )}
-              
+
               {contact.stripe_customer_id && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <CreditCard className="h-4 w-4 text-purple-600" />
                     <div>
-                      <div className="font-medium">{contact.stripe_customer_id}</div>
-                      <div className="text-sm text-gray-600">Stripe Customer</div>
+                      <div className="font-medium">
+                        {contact.stripe_customer_id}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Stripe Customer
+                      </div>
                     </div>
                   </div>
                   <Button variant="ghost" size="sm">
@@ -445,7 +493,7 @@ const ContactProfile: React.FC = () => {
                   </Button>
                 </div>
               )}
-              
+
               {!linkedClient && !contact.stripe_customer_id && (
                 <div className="text-center py-4 text-sm text-gray-500">
                   Nenhuma vinculação ativa
@@ -513,18 +561,35 @@ const ContactProfile: React.FC = () => {
                   <div className="space-y-4">
                     {/* Combined timeline from activities, deals, tickets */}
                     {[
-                      ...(activities?.map(a => ({ ...a, type: 'activity' })) || []),
-                      ...(deals?.map(d => ({ ...d, type: 'deal' })) || []),
-                      ...(tickets?.map(t => ({ ...t, type: 'ticket' })) || [])
+                      ...(activities?.map((a) => ({
+                        ...a,
+                        type: "activity",
+                      })) || []),
+                      ...(deals?.map((d) => ({ ...d, type: "deal" })) || []),
+                      ...(tickets?.map((t) => ({ ...t, type: "ticket" })) ||
+                        []),
                     ]
-                      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                      .sort(
+                        (a, b) =>
+                          new Date(b.created_at).getTime() -
+                          new Date(a.created_at).getTime(),
+                      )
                       .slice(0, 20)
                       .map((item: any) => (
-                        <div key={`${item.type}-${item.id}`} className="flex items-start space-x-3 p-3 border rounded-lg">
+                        <div
+                          key={`${item.type}-${item.id}`}
+                          className="flex items-start space-x-3 p-3 border rounded-lg"
+                        >
                           <div className="mt-1">
-                            {item.type === 'activity' && <Activity className="h-4 w-4 text-blue-600" />}
-                            {item.type === 'deal' && <Target className="h-4 w-4 text-green-600" />}
-                            {item.type === 'ticket' && <Ticket className="h-4 w-4 text-orange-600" />}
+                            {item.type === "activity" && (
+                              <Activity className="h-4 w-4 text-blue-600" />
+                            )}
+                            {item.type === "deal" && (
+                              <Target className="h-4 w-4 text-green-600" />
+                            )}
+                            {item.type === "ticket" && (
+                              <Ticket className="h-4 w-4 text-orange-600" />
+                            )}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
@@ -534,14 +599,18 @@ const ContactProfile: React.FC = () => {
                               </div>
                             </div>
                             <div className="text-sm text-gray-600 mt-1">
-                              {item.type === 'activity' && item.description}
-                              {item.type === 'deal' && `${locale.formatCurrency(item.value)} - ${item.stage_name || item.stage}`}
-                              {item.type === 'ticket' && item.description}
+                              {item.type === "activity" && item.description}
+                              {item.type === "deal" &&
+                                `${locale.formatCurrency(item.value)} - ${item.stage_name || item.stage}`}
+                              {item.type === "ticket" && item.description}
                             </div>
                             <div className="mt-2">
-                              {item.type === 'activity' && getStatusBadge(item.status, 'activity')}
-                              {item.type === 'deal' && getStatusBadge(item.stage, 'deal')}
-                              {item.type === 'ticket' && getStatusBadge(item.status, 'ticket')}
+                              {item.type === "activity" &&
+                                getStatusBadge(item.status, "activity")}
+                              {item.type === "deal" &&
+                                getStatusBadge(item.stage, "deal")}
+                              {item.type === "ticket" &&
+                                getStatusBadge(item.status, "ticket")}
                             </div>
                           </div>
                         </div>
@@ -562,7 +631,10 @@ const ContactProfile: React.FC = () => {
                         Tarefas e compromissos relacionados ao contato
                       </CardDescription>
                     </div>
-                    <Dialog open={isNewActivityOpen} onOpenChange={setIsNewActivityOpen}>
+                    <Dialog
+                      open={isNewActivityOpen}
+                      onOpenChange={setIsNewActivityOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button>
                           <Plus className="h-4 w-4 mr-2" />
@@ -582,50 +654,89 @@ const ContactProfile: React.FC = () => {
                             <Input
                               id="activity-title"
                               value={activityForm.title}
-                              onChange={(e) => setActivityForm(prev => ({ ...prev, title: e.target.value }))}
+                              onChange={(e) =>
+                                setActivityForm((prev) => ({
+                                  ...prev,
+                                  title: e.target.value,
+                                }))
+                              }
                               placeholder="Título da atividade"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="activity-description">Descrição</Label>
+                            <Label htmlFor="activity-description">
+                              Descrição
+                            </Label>
                             <Textarea
                               id="activity-description"
                               value={activityForm.description}
-                              onChange={(e) => setActivityForm(prev => ({ ...prev, description: e.target.value }))}
+                              onChange={(e) =>
+                                setActivityForm((prev) => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
                               placeholder="Detalhes da atividade"
                               rows={3}
                             />
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label htmlFor="activity-due-date">Data de Vencimento</Label>
+                              <Label htmlFor="activity-due-date">
+                                Data de Vencimento
+                              </Label>
                               <Input
                                 id="activity-due-date"
                                 type="date"
                                 value={activityForm.due_date}
-                                onChange={(e) => setActivityForm(prev => ({ ...prev, due_date: e.target.value }))}
+                                onChange={(e) =>
+                                  setActivityForm((prev) => ({
+                                    ...prev,
+                                    due_date: e.target.value,
+                                  }))
+                                }
                               />
                             </div>
                             <div>
                               <Label htmlFor="activity-status">Status</Label>
-                              <Select value={activityForm.status} onValueChange={(value) => setActivityForm(prev => ({ ...prev, status: value }))}>
+                              <Select
+                                value={activityForm.status}
+                                onValueChange={(value) =>
+                                  setActivityForm((prev) => ({
+                                    ...prev,
+                                    status: value,
+                                  }))
+                                }
+                              >
                                 <SelectTrigger>
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="pending">Pendente</SelectItem>
-                                  <SelectItem value="in_progress">Em Andamento</SelectItem>
-                                  <SelectItem value="completed">Concluída</SelectItem>
+                                  <SelectItem value="pending">
+                                    Pendente
+                                  </SelectItem>
+                                  <SelectItem value="in_progress">
+                                    Em Andamento
+                                  </SelectItem>
+                                  <SelectItem value="completed">
+                                    Concluída
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                           </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-4">
-                          <Button variant="outline" onClick={() => setIsNewActivityOpen(false)}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsNewActivityOpen(false)}
+                          >
                             Cancelar
                           </Button>
-                          <Button onClick={handleCreateActivity} disabled={!activityForm.title.trim()}>
+                          <Button
+                            onClick={handleCreateActivity}
+                            disabled={!activityForm.title.trim()}
+                          >
                             Criar Atividade
                           </Button>
                         </div>
@@ -645,14 +756,19 @@ const ContactProfile: React.FC = () => {
                   ) : (
                     <div className="space-y-3">
                       {activities.map((activity) => (
-                        <div key={activity.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div
+                          key={activity.id}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
                           <div className="flex-1">
                             <div className="font-medium">{activity.title}</div>
                             {activity.description && (
-                              <div className="text-sm text-gray-600 mt-1">{activity.description}</div>
+                              <div className="text-sm text-gray-600 mt-1">
+                                {activity.description}
+                              </div>
                             )}
                             <div className="flex items-center space-x-4 mt-2">
-                              {getStatusBadge(activity.status, 'activity')}
+                              {getStatusBadge(activity.status, "activity")}
                               {activity.due_date && (
                                 <div className="flex items-center gap-1 text-sm text-gray-500">
                                   <Calendar className="h-3 w-3" />
@@ -683,7 +799,10 @@ const ContactProfile: React.FC = () => {
                         Oportunidades de negócio relacionadas ao contato
                       </CardDescription>
                     </div>
-                    <Dialog open={isNewDealOpen} onOpenChange={setIsNewDealOpen}>
+                    <Dialog
+                      open={isNewDealOpen}
+                      onOpenChange={setIsNewDealOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button>
                           <Plus className="h-4 w-4 mr-2" />
@@ -703,7 +822,12 @@ const ContactProfile: React.FC = () => {
                             <Input
                               id="deal-title"
                               value={dealForm.title}
-                              onChange={(e) => setDealForm(prev => ({ ...prev, title: e.target.value }))}
+                              onChange={(e) =>
+                                setDealForm((prev) => ({
+                                  ...prev,
+                                  title: e.target.value,
+                                }))
+                              }
                               placeholder="Nome da oportunidade"
                             />
                           </div>
@@ -715,28 +839,46 @@ const ContactProfile: React.FC = () => {
                                 type="number"
                                 step="0.01"
                                 value={dealForm.value}
-                                onChange={(e) => setDealForm(prev => ({ ...prev, value: e.target.value }))}
+                                onChange={(e) =>
+                                  setDealForm((prev) => ({
+                                    ...prev,
+                                    value: e.target.value,
+                                  }))
+                                }
                                 placeholder="0,00"
                               />
                             </div>
                             <div>
-                              <Label htmlFor="deal-probability">Probabilidade (%)</Label>
+                              <Label htmlFor="deal-probability">
+                                Probabilidade (%)
+                              </Label>
                               <Input
                                 id="deal-probability"
                                 type="number"
                                 min="0"
                                 max="100"
                                 value={dealForm.probability}
-                                onChange={(e) => setDealForm(prev => ({ ...prev, probability: e.target.value }))}
+                                onChange={(e) =>
+                                  setDealForm((prev) => ({
+                                    ...prev,
+                                    probability: e.target.value,
+                                  }))
+                                }
                               />
                             </div>
                           </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-4">
-                          <Button variant="outline" onClick={() => setIsNewDealOpen(false)}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsNewDealOpen(false)}
+                          >
                             Cancelar
                           </Button>
-                          <Button onClick={handleCreateDeal} disabled={!dealForm.title.trim()}>
+                          <Button
+                            onClick={handleCreateDeal}
+                            disabled={!dealForm.title.trim()}
+                          >
                             Criar Deal
                           </Button>
                         </div>
@@ -756,14 +898,17 @@ const ContactProfile: React.FC = () => {
                   ) : (
                     <div className="space-y-3">
                       {deals.map((deal) => (
-                        <div key={deal.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div
+                          key={deal.id}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
                           <div className="flex-1">
                             <div className="font-medium">{deal.title}</div>
                             <div className="flex items-center space-x-4 mt-2">
                               <div className="text-lg font-semibold text-green-600">
                                 {locale.formatCurrency(deal.value)}
                               </div>
-                              {getStatusBadge(deal.stage, 'deal')}
+                              {getStatusBadge(deal.stage, "deal")}
                               <div className="flex items-center gap-1 text-sm text-gray-500">
                                 <Target className="h-3 w-3" />
                                 {deal.probability}%
@@ -792,7 +937,10 @@ const ContactProfile: React.FC = () => {
                         Solicitações de suporte relacionadas ao contato
                       </CardDescription>
                     </div>
-                    <Dialog open={isNewTicketOpen} onOpenChange={setIsNewTicketOpen}>
+                    <Dialog
+                      open={isNewTicketOpen}
+                      onOpenChange={setIsNewTicketOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button>
                           <Plus className="h-4 w-4 mr-2" />
@@ -812,23 +960,43 @@ const ContactProfile: React.FC = () => {
                             <Input
                               id="ticket-title"
                               value={ticketForm.title}
-                              onChange={(e) => setTicketForm(prev => ({ ...prev, title: e.target.value }))}
+                              onChange={(e) =>
+                                setTicketForm((prev) => ({
+                                  ...prev,
+                                  title: e.target.value,
+                                }))
+                              }
                               placeholder="Assunto do ticket"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="ticket-description">Descrição</Label>
+                            <Label htmlFor="ticket-description">
+                              Descrição
+                            </Label>
                             <Textarea
                               id="ticket-description"
                               value={ticketForm.description}
-                              onChange={(e) => setTicketForm(prev => ({ ...prev, description: e.target.value }))}
+                              onChange={(e) =>
+                                setTicketForm((prev) => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
                               placeholder="Detalhes da solicitação"
                               rows={3}
                             />
                           </div>
                           <div>
                             <Label htmlFor="ticket-priority">Prioridade</Label>
-                            <Select value={ticketForm.priority} onValueChange={(value) => setTicketForm(prev => ({ ...prev, priority: value }))}>
+                            <Select
+                              value={ticketForm.priority}
+                              onValueChange={(value) =>
+                                setTicketForm((prev) => ({
+                                  ...prev,
+                                  priority: value,
+                                }))
+                              }
+                            >
                               <SelectTrigger>
                                 <SelectValue />
                               </SelectTrigger>
@@ -842,10 +1010,16 @@ const ContactProfile: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-4">
-                          <Button variant="outline" onClick={() => setIsNewTicketOpen(false)}>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsNewTicketOpen(false)}
+                          >
                             Cancelar
                           </Button>
-                          <Button onClick={handleCreateTicket} disabled={!ticketForm.title.trim()}>
+                          <Button
+                            onClick={handleCreateTicket}
+                            disabled={!ticketForm.title.trim()}
+                          >
                             Criar Ticket
                           </Button>
                         </div>
@@ -865,14 +1039,19 @@ const ContactProfile: React.FC = () => {
                   ) : (
                     <div className="space-y-3">
                       {tickets.map((ticket: any) => (
-                        <div key={ticket.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div
+                          key={ticket.id}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
                           <div className="flex-1">
                             <div className="font-medium">{ticket.title}</div>
                             {ticket.description && (
-                              <div className="text-sm text-gray-600 mt-1">{ticket.description}</div>
+                              <div className="text-sm text-gray-600 mt-1">
+                                {ticket.description}
+                              </div>
                             )}
                             <div className="flex items-center space-x-4 mt-2">
-                              {getStatusBadge(ticket.status, 'ticket')}
+                              {getStatusBadge(ticket.status, "ticket")}
                               <Badge variant="outline" className="text-xs">
                                 {ticket.priority}
                               </Badge>

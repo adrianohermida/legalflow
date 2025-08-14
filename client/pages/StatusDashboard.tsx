@@ -1,13 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Progress } from '../components/ui/progress';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import { supabase } from '../lib/supabase';
-import { 
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { Progress } from "../components/ui/progress";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { useSupabaseQuery } from "../hooks/useSupabaseQuery";
+import { supabase } from "../lib/supabase";
+import {
   Activity,
   Database,
   Cpu,
@@ -21,12 +32,12 @@ import {
   Minus,
   Shield,
   Globe,
-  Zap
-} from 'lucide-react';
+  Zap,
+} from "lucide-react";
 
 interface HealthMetric {
   metric_name: string;
-  status: 'healthy' | 'warning' | 'critical';
+  status: "healthy" | "warning" | "critical";
   metric_value: number;
   metric_unit: string;
   details: any;
@@ -57,8 +68,10 @@ const StatusDashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Health metrics query
-  const { data: healthMetrics, refetch: refetchHealth } = useSupabaseQuery<HealthMetric[]>(
-    'system-health',
+  const { data: healthMetrics, refetch: refetchHealth } = useSupabaseQuery<
+    HealthMetric[]
+  >(
+    "system-health",
     `
     select metric_name, status, metric_value, metric_unit, details, created_at
     from legalflow.vw_system_health_summary
@@ -69,53 +82,56 @@ const StatusDashboard: React.FC = () => {
         when 'healthy' then 3 
       end,
       metric_name
-    `
+    `,
   );
 
   // Performance metrics query (24h)
-  const { data: performanceMetrics, refetch: refetchPerformance } = useSupabaseQuery<PerformanceMetric[]>(
-    'performance-24h',
-    `
+  const { data: performanceMetrics, refetch: refetchPerformance } =
+    useSupabaseQuery<PerformanceMetric[]>(
+      "performance-24h",
+      `
     select route, requests, avg_response_ms, p95_response_ms, p99_response_ms, error_count, error_rate
     from legalflow.vw_performance_24h
     order by requests desc
     limit 10
-    `
-  );
+    `,
+    );
 
   // Recent events (last 2 hours)
-  const { data: recentEvents, refetch: refetchEvents } = useSupabaseQuery<AppEvent[]>(
-    'recent-events',
+  const { data: recentEvents, refetch: refetchEvents } = useSupabaseQuery<
+    AppEvent[]
+  >(
+    "recent-events",
     `
     select id, event, payload, created_at, user_id, ip_address
     from legalflow.app_events 
     where created_at >= now() - interval '2 hours'
     order by created_at desc
     limit 50
-    `
+    `,
   );
 
   // Event counts by type
   const { data: eventCounts } = useSupabaseQuery(
-    'event-counts',
+    "event-counts",
     `
     select event, count(*) as count
     from legalflow.vw_recent_events
     order by count desc
     limit 10
-    `
+    `,
   );
 
   // System overview stats
   const { data: systemStats } = useSupabaseQuery(
-    'system-stats',
+    "system-stats",
     `
     select 
       (select count(*) from legalflow.processos) as total_processos,
       (select count(*) from legalflow.tickets where status != 'resolved') as active_tickets,
       (select count(*) from legalflow.journey_instances where status = 'active') as active_journeys,
       (select count(*) from auth.users where last_sign_in_at >= now() - interval '24 hours') as active_users_24h
-    `
+    `,
   );
 
   const refreshAll = async () => {
@@ -123,18 +139,18 @@ const StatusDashboard: React.FC = () => {
     try {
       await Promise.all([
         refetchHealth(),
-        refetchPerformance(), 
-        refetchEvents()
+        refetchPerformance(),
+        refetchEvents(),
       ]);
       setLastUpdate(new Date());
-      
+
       // Log refresh event
-      await supabase.from('legalflow.app_events').insert({
-        event: 'status_dashboard_refresh',
-        payload: { timestamp: new Date().toISOString() }
+      await supabase.from("legalflow.app_events").insert({
+        event: "status_dashboard_refresh",
+        payload: { timestamp: new Date().toISOString() },
       });
     } catch (error) {
-      console.error('Error refreshing status:', error);
+      console.error("Error refreshing status:", error);
     } finally {
       setIsRefreshing(false);
     }
@@ -148,11 +164,11 @@ const StatusDashboard: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'healthy':
+      case "healthy":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'critical':
+      case "critical":
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
         return <Minus className="h-4 w-4 text-gray-400" />;
@@ -161,62 +177,71 @@ const StatusDashboard: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const colors = {
-      healthy: 'bg-green-100 text-green-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      critical: 'bg-red-100 text-red-800'
+      healthy: "bg-green-100 text-green-800",
+      warning: "bg-yellow-100 text-yellow-800",
+      critical: "bg-red-100 text-red-800",
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   const getResponseTimeColor = (ms: number) => {
-    if (ms < 500) return 'text-green-600';
-    if (ms < 1000) return 'text-yellow-600';
-    return 'text-red-600';
+    if (ms < 500) return "text-green-600";
+    if (ms < 1000) return "text-yellow-600";
+    return "text-red-600";
   };
 
   const formatEventTime = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffMinutes < 1) return 'agora';
+    const diffMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60),
+    );
+
+    if (diffMinutes < 1) return "agora";
     if (diffMinutes < 60) return `${diffMinutes}m atrás`;
-    
+
     const diffHours = Math.floor(diffMinutes / 60);
     if (diffHours < 24) return `${diffHours}h atrás`;
-    
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  const overallHealth = healthMetrics?.every(h => h.status === 'healthy') ? 'healthy' : 
-                       healthMetrics?.some(h => h.status === 'critical') ? 'critical' : 'warning';
+  const overallHealth = healthMetrics?.every((h) => h.status === "healthy")
+    ? "healthy"
+    : healthMetrics?.some((h) => h.status === "critical")
+      ? "critical"
+      : "warning";
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Status do Sistema</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Status do Sistema
+            </h1>
             <p className="text-gray-600">
               Observabilidade e saúde da plataforma em tempo real
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-600">
-              Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+              Última atualização: {lastUpdate.toLocaleTimeString("pt-BR")}
             </div>
-            <Button 
-              onClick={refreshAll} 
+            <Button
+              onClick={refreshAll}
               disabled={isRefreshing}
               size="sm"
               variant="outline"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+              />
               Atualizar
             </Button>
           </div>
@@ -232,8 +257,11 @@ const StatusDashboard: React.FC = () => {
               <div>
                 <div className="text-sm font-medium">Status Geral</div>
                 <Badge className={getStatusBadge(overallHealth)}>
-                  {overallHealth === 'healthy' ? 'Saudável' : 
-                   overallHealth === 'warning' ? 'Atenção' : 'Crítico'}
+                  {overallHealth === "healthy"
+                    ? "Saudável"
+                    : overallHealth === "warning"
+                      ? "Atenção"
+                      : "Crítico"}
                 </Badge>
               </div>
             </div>
@@ -302,34 +330,53 @@ const StatusDashboard: React.FC = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {healthMetrics?.map((metric) => (
-                  <div key={metric.metric_name} className="p-4 border rounded-lg">
+                  <div
+                    key={metric.metric_name}
+                    className="p-4 border rounded-lg"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
-                        {metric.metric_name === 'supabase_connection' && <Database className="h-4 w-4" />}
-                        {metric.metric_name === 'rls_enabled' && <Shield className="h-4 w-4" />}
-                        {metric.metric_name === 'query_performance' && <Zap className="h-4 w-4" />}
-                        {!['supabase_connection', 'rls_enabled', 'query_performance'].includes(metric.metric_name) && 
-                          <Cpu className="h-4 w-4" />}
+                        {metric.metric_name === "supabase_connection" && (
+                          <Database className="h-4 w-4" />
+                        )}
+                        {metric.metric_name === "rls_enabled" && (
+                          <Shield className="h-4 w-4" />
+                        )}
+                        {metric.metric_name === "query_performance" && (
+                          <Zap className="h-4 w-4" />
+                        )}
+                        {![
+                          "supabase_connection",
+                          "rls_enabled",
+                          "query_performance",
+                        ].includes(metric.metric_name) && (
+                          <Cpu className="h-4 w-4" />
+                        )}
                         <span className="font-medium capitalize">
-                          {metric.metric_name.replace(/_/g, ' ')}
+                          {metric.metric_name.replace(/_/g, " ")}
                         </span>
                       </div>
                       {getStatusIcon(metric.status)}
                     </div>
-                    
+
                     <div className="text-2xl font-bold mb-1">
                       {metric.metric_value} {metric.metric_unit}
                     </div>
-                    
+
                     <Badge className={getStatusBadge(metric.status)} size="sm">
                       {metric.status}
                     </Badge>
-                    
-                    {metric.details && Object.keys(metric.details).length > 0 && (
-                      <div className="mt-2 text-xs text-gray-600">
-                        {JSON.stringify(metric.details, null, 2).slice(0, 100)}...
-                      </div>
-                    )}
+
+                    {metric.details &&
+                      Object.keys(metric.details).length > 0 && (
+                        <div className="mt-2 text-xs text-gray-600">
+                          {JSON.stringify(metric.details, null, 2).slice(
+                            0,
+                            100,
+                          )}
+                          ...
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>
@@ -354,41 +401,53 @@ const StatusDashboard: React.FC = () => {
                       <div className="font-mono text-sm font-medium">
                         {metric.route}
                       </div>
-                      <Badge variant={metric.error_rate > 5 ? 'destructive' : 'default'}>
+                      <Badge
+                        variant={
+                          metric.error_rate > 5 ? "destructive" : "default"
+                        }
+                      >
                         {metric.requests} reqs
                       </Badge>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <div className="text-gray-600">Média</div>
-                        <div className={`font-bold ${getResponseTimeColor(metric.avg_response_ms)}`}>
+                        <div
+                          className={`font-bold ${getResponseTimeColor(metric.avg_response_ms)}`}
+                        >
                           {metric.avg_response_ms}ms
                         </div>
                       </div>
-                      
+
                       <div>
                         <div className="text-gray-600">P95</div>
-                        <div className={`font-bold ${getResponseTimeColor(metric.p95_response_ms)}`}>
+                        <div
+                          className={`font-bold ${getResponseTimeColor(metric.p95_response_ms)}`}
+                        >
                           {metric.p95_response_ms}ms
                         </div>
                       </div>
-                      
+
                       <div>
                         <div className="text-gray-600">P99</div>
-                        <div className={`font-bold ${getResponseTimeColor(metric.p99_response_ms)}`}>
+                        <div
+                          className={`font-bold ${getResponseTimeColor(metric.p99_response_ms)}`}
+                        >
                           {metric.p99_response_ms}ms
                         </div>
                       </div>
-                      
+
                       <div>
                         <div className="text-gray-600">Erro</div>
-                        <div className={`font-bold ${metric.error_rate > 5 ? 'text-red-600' : 'text-green-600'}`}>
+                        <div
+                          className={`font-bold ${metric.error_rate > 5 ? "text-red-600" : "text-green-600"}`}
+                        >
                           {metric.error_rate}%
                         </div>
                       </div>
                     </div>
-                    
+
                     {metric.p95_response_ms > 1000 && (
                       <Alert className="mt-3 border-yellow-200 bg-yellow-50">
                         <AlertTriangle className="h-4 w-4 text-yellow-600" />
@@ -415,7 +474,10 @@ const StatusDashboard: React.FC = () => {
               <CardContent>
                 <div className="space-y-2">
                   {eventCounts?.map((event: any) => (
-                    <div key={event.event} className="flex items-center justify-between text-sm">
+                    <div
+                      key={event.event}
+                      className="flex items-center justify-between text-sm"
+                    >
                       <span className="font-mono truncate">{event.event}</span>
                       <Badge variant="outline">{event.count}</Badge>
                     </div>
@@ -428,14 +490,15 @@ const StatusDashboard: React.FC = () => {
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Stream de Eventos (2h)</CardTitle>
-                <CardDescription>
-                  Eventos em tempo quase real
-                </CardDescription>
+                <CardDescription>Eventos em tempo quase real</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {recentEvents?.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between text-sm p-2 border rounded">
+                    <div
+                      key={event.id}
+                      className="flex items-center justify-between text-sm p-2 border rounded"
+                    >
                       <div className="flex items-center space-x-3">
                         <Activity className="h-3 w-3 text-gray-400" />
                         <span className="font-mono text-xs">{event.event}</span>

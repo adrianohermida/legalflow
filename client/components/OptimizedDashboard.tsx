@@ -1,45 +1,46 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { 
-  FileText, 
-  Users, 
-  AlertTriangle, 
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import {
+  FileText,
+  Users,
+  AlertTriangle,
   CheckCircle,
   Clock,
   TrendingUp,
   Activity,
-  Zap
-} from 'lucide-react';
-import { 
-  useDashboardStats, 
-  useRecentActivities, 
+  Zap,
+} from "lucide-react";
+import {
+  useDashboardStats,
+  useRecentActivities,
   useStageInstancesSLA,
-  useQueryPerformanceStats 
-} from '../hooks/useOptimizedQueries';
-import OptimizedGlobalSearch from './OptimizedGlobalSearch';
+  useQueryPerformanceStats,
+} from "../hooks/useOptimizedQueries";
+import OptimizedGlobalSearch from "./OptimizedGlobalSearch";
 
 const OptimizedDashboard = () => {
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: recentActivities, isLoading: activitiesLoading } = useRecentActivities(8);
+  const { data: recentActivities, isLoading: activitiesLoading } =
+    useRecentActivities(8);
   const { data: slaInstances, isLoading: slaLoading } = useStageInstancesSLA();
   const { data: performanceStats } = useQueryPerformanceStats();
 
   const handleSearchSelect = (result: any) => {
-    console.log('Resultado selecionado:', result);
+    console.log("Resultado selecionado:", result);
     // Implementar navegação baseada no tipo
     switch (result.type) {
-      case 'processo':
+      case "processo":
         window.location.href = `/processos/${result.id}`;
         break;
-      case 'cliente':
+      case "cliente":
         window.location.href = `/clientes?search=${result.id}`;
         break;
-      case 'contact':
+      case "contact":
         window.location.href = `/crm/contatos?id=${result.id}`;
         break;
-      case 'ticket':
+      case "ticket":
         window.location.href = `/tickets/${result.id}`;
         break;
     }
@@ -47,11 +48,15 @@ const OptimizedDashboard = () => {
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'high':
+      case "high":
         return <Badge variant="destructive">Alta</Badge>;
-      case 'medium':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Média</Badge>;
-      case 'low':
+      case "medium":
+        return (
+          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+            Média
+          </Badge>
+        );
+      case "low":
         return <Badge variant="outline">Baixa</Badge>;
       default:
         return <Badge variant="outline">Normal</Badge>;
@@ -60,13 +65,13 @@ const OptimizedDashboard = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'done':
-      case 'completed':
+      case "done":
+      case "completed":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'todo':
-      case 'pending':
+      case "todo":
+      case "pending":
         return <Clock className="h-4 w-4 text-yellow-600" />;
-      case 'in_progress':
+      case "in_progress":
         return <Activity className="h-4 w-4 text-blue-600" />;
       default:
         return <AlertTriangle className="h-4 w-4 text-gray-600" />;
@@ -91,9 +96,9 @@ const OptimizedDashboard = () => {
             Performance aprimorada com índices e queries otimizadas
           </p>
         </div>
-        
+
         <div className="w-full lg:w-96">
-          <OptimizedGlobalSearch 
+          <OptimizedGlobalSearch
             onSelect={handleSearchSelect}
             placeholder="Busca rápida otimizada..."
           />
@@ -120,7 +125,9 @@ const OptimizedDashboard = () => {
                 <div className="flex items-center">
                   <FileText className="h-8 w-8 text-blue-600" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Processos</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Processos
+                    </p>
                     <p className="text-2xl font-bold text-gray-900">
                       {stats?.total_processos || 0}
                     </p>
@@ -134,7 +141,9 @@ const OptimizedDashboard = () => {
                 <div className="flex items-center">
                   <Users className="h-8 w-8 text-green-600" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Clientes</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Clientes
+                    </p>
                     <p className="text-2xl font-bold text-gray-900">
                       {stats?.total_clientes || 0}
                     </p>
@@ -148,7 +157,9 @@ const OptimizedDashboard = () => {
                 <div className="flex items-center">
                   <AlertTriangle className="h-8 w-8 text-orange-600" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Tickets Abertos</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Tickets Abertos
+                    </p>
                     <p className="text-2xl font-bold text-gray-900">
                       {stats?.tickets_abertos || 0}
                     </p>
@@ -162,7 +173,9 @@ const OptimizedDashboard = () => {
                 <div className="flex items-center">
                   <Clock className="h-8 w-8 text-purple-600" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Tarefas Pendentes</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Tarefas Pendentes
+                    </p>
                     <p className="text-2xl font-bold text-gray-900">
                       {stats?.tarefas_pendentes || 0}
                     </p>
@@ -190,7 +203,10 @@ const OptimizedDashboard = () => {
             {activitiesLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="animate-pulse flex items-center space-x-3">
+                  <div
+                    key={i}
+                    className="animate-pulse flex items-center space-x-3"
+                  >
                     <div className="h-8 w-8 bg-gray-200 rounded"></div>
                     <div className="flex-1">
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
@@ -202,7 +218,10 @@ const OptimizedDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {recentActivities?.slice(0, 8).map((activity: any) => (
-                  <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={activity.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(activity.status)}
                       <div>
@@ -215,12 +234,14 @@ const OptimizedDashboard = () => {
                     <div className="text-right">
                       {getPriorityBadge(activity.priority)}
                       <p className="text-xs text-gray-500 mt-1">
-                        {new Date(activity.created_at).toLocaleDateString('pt-BR')}
+                        {new Date(activity.created_at).toLocaleDateString(
+                          "pt-BR",
+                        )}
                       </p>
                     </div>
                   </div>
                 ))}
-                
+
                 {(!recentActivities || recentActivities.length === 0) && (
                   <p className="text-center text-gray-500 py-8">
                     Nenhuma atividade recente encontrada
@@ -257,10 +278,20 @@ const OptimizedDashboard = () => {
                 {slaInstances?.slice(0, 6).map((instance: any) => (
                   <div key={instance.id} className="p-3 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-sm">{instance.stage_name}</span>
-                      <Badge 
-                        variant={instance.hours_remaining < 24 ? "destructive" : "secondary"}
-                        className={instance.hours_remaining < 24 ? "" : "bg-yellow-100 text-yellow-800"}
+                      <span className="font-medium text-sm">
+                        {instance.stage_name}
+                      </span>
+                      <Badge
+                        variant={
+                          instance.hours_remaining < 24
+                            ? "destructive"
+                            : "secondary"
+                        }
+                        className={
+                          instance.hours_remaining < 24
+                            ? ""
+                            : "bg-yellow-100 text-yellow-800"
+                        }
                       >
                         {formatTimeRemaining(instance.hours_remaining)}
                       </Badge>
@@ -269,19 +300,22 @@ const OptimizedDashboard = () => {
                       {instance.template_name} - {instance.cliente_cpfcnpj}
                     </div>
                     <div className="mt-2 bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className={`h-2 rounded-full ${
-                          instance.hours_remaining < 24 ? 'bg-red-600' : 
-                          instance.hours_remaining < 72 ? 'bg-yellow-600' : 'bg-green-600'
+                          instance.hours_remaining < 24
+                            ? "bg-red-600"
+                            : instance.hours_remaining < 72
+                              ? "bg-yellow-600"
+                              : "bg-green-600"
                         }`}
                         style={{
-                          width: `${Math.max(10, Math.min(100, (instance.hours_remaining / 168) * 100))}%`
+                          width: `${Math.max(10, Math.min(100, (instance.hours_remaining / 168) * 100))}%`,
                         }}
                       ></div>
                     </div>
                   </div>
                 ))}
-                
+
                 {(!slaInstances || slaInstances.length === 0) && (
                   <p className="text-center text-gray-500 py-8">
                     ✅ Todos os SLAs estão em dia
@@ -305,7 +339,10 @@ const OptimizedDashboard = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {performanceStats.map((stat: any) => (
-                <div key={stat.table_name} className="p-4 bg-blue-50 rounded-lg">
+                <div
+                  key={stat.table_name}
+                  className="p-4 bg-blue-50 rounded-lg"
+                >
                   <h4 className="font-medium capitalize">{stat.table_name}</h4>
                   <p className="text-sm text-gray-600">
                     {stat.total_records.toLocaleString()} registros

@@ -1,8 +1,11 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { announceToScreenReader, createFocusManager } from '../lib/accessibility';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  announceToScreenReader,
+  createFocusManager,
+} from "../lib/accessibility";
 
 interface Props {
   children: ReactNode;
@@ -25,7 +28,7 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     };
   }
 
@@ -33,21 +36,21 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error for debugging
-    console.error('Error Boundary caught an error:', error, errorInfo);
-    
+    console.error("Error Boundary caught an error:", error, errorInfo);
+
     // Call custom error handler
     this.props.onError?.(error, errorInfo);
-    
+
     // Announce error to screen readers
     announceToScreenReader(
-      'Ocorreu um erro na aplicação. Informações sobre o erro e opções de recuperação estão disponíveis na tela.',
-      'assertive'
+      "Ocorreu um erro na aplicação. Informações sobre o erro e opções de recuperação estão disponíveis na tela.",
+      "assertive",
     );
   }
 
@@ -62,23 +65,23 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
 
   handleRetry = () => {
     // Announce retry attempt
-    announceToScreenReader('Tentando recarregar o componente...', 'polite');
-    
+    announceToScreenReader("Tentando recarregar o componente...", "polite");
+
     this.setState({
       hasError: false,
       error: null,
-      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     });
   };
 
   handleReload = () => {
-    announceToScreenReader('Recarregando a página...', 'polite');
+    announceToScreenReader("Recarregando a página...", "polite");
     window.location.reload();
   };
 
   handleGoHome = () => {
-    announceToScreenReader('Navegando para a página inicial...', 'polite');
-    window.location.href = '/';
+    announceToScreenReader("Navegando para a página inicial...", "polite");
+    window.location.href = "/";
   };
 
   render() {
@@ -90,7 +93,7 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
 
       // Default accessible error UI
       return (
-        <div 
+        <div
           className="min-h-screen flex items-center justify-center p-4 bg-neutral-50"
           role="alert"
           aria-live="assertive"
@@ -100,26 +103,27 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
           <Card className="max-w-md w-full border-red-200 bg-red-50">
             <CardHeader className="text-center">
               <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <AlertTriangle 
-                  className="w-8 h-8 text-red-600" 
+                <AlertTriangle
+                  className="w-8 h-8 text-red-600"
                   aria-hidden="true"
                 />
               </div>
-              <CardTitle 
+              <CardTitle
                 id={`${this.state.errorId}-title`}
                 className="text-red-900"
               >
                 Ops! Algo deu errado
               </CardTitle>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <div
                 id={`${this.state.errorId}-description`}
                 className="text-sm text-red-700 text-center"
               >
                 <p>
-                  Ocorreu um erro inesperado na aplicação. Você pode tentar uma das opções abaixo para continuar.
+                  Ocorreu um erro inesperado na aplicação. Você pode tentar uma
+                  das opções abaixo para continuar.
                 </p>
               </div>
 
@@ -135,14 +139,16 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
                   {this.state.error?.stack && (
                     <div className="mt-2" aria-label="Stack trace">
                       <strong>Stack:</strong>
-                      <pre className="whitespace-pre-wrap">{this.state.error.stack}</pre>
+                      <pre className="whitespace-pre-wrap">
+                        {this.state.error.stack}
+                      </pre>
                     </div>
                   )}
                 </div>
               </details>
 
               {/* Recovery actions */}
-              <div 
+              <div
                 className="flex flex-col gap-2 pt-4"
                 role="group"
                 aria-label="Opções de recuperação"
@@ -155,7 +161,7 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
                   <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
                   Tentar Novamente
                 </Button>
-                <div 
+                <div
                   id={`${this.state.errorId}-retry-help`}
                   className="sr-only"
                 >
@@ -171,7 +177,7 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
                   <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
                   Recarregar Página
                 </Button>
-                <div 
+                <div
                   id={`${this.state.errorId}-reload-help`}
                   className="sr-only"
                 >
@@ -187,10 +193,7 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
                   <Home className="w-4 h-4 mr-2" aria-hidden="true" />
                   Ir para Início
                 </Button>
-                <div 
-                  id={`${this.state.errorId}-home-help`}
-                  className="sr-only"
-                >
+                <div id={`${this.state.errorId}-home-help`} className="sr-only">
                   Navega para a página inicial da aplicação
                 </div>
               </div>
@@ -198,7 +201,8 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
               {/* Support information */}
               <div className="pt-4 border-t border-red-200">
                 <p className="text-xs text-red-600 text-center">
-                  Se o problema persistir, entre em contato com o suporte técnico.
+                  Se o problema persistir, entre em contato com o suporte
+                  técnico.
                 </p>
               </div>
             </CardContent>
@@ -214,7 +218,7 @@ export class AccessibleErrorBoundary extends Component<Props, State> {
 // Higher-order component for easier usage
 export const withAccessibleErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
-  errorHandler?: (error: Error, errorInfo: ErrorInfo) => void
+  errorHandler?: (error: Error, errorInfo: ErrorInfo) => void,
 ) => {
   return React.forwardRef<any, P>((props, ref) => (
     <AccessibleErrorBoundary onError={errorHandler}>

@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { X, MessageSquare, Send, Paperclip, Minimize2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
-import { Avatar, AvatarFallback } from './ui/avatar';
-import { cn } from '../lib/utils';
+import React, { useState } from "react";
+import { X, MessageSquare, Send, Paperclip, Minimize2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { cn } from "../lib/utils";
 
 interface ChatDockProps {
   isOpen: boolean;
   onClose: () => void;
-  userType: 'advogado' | 'cliente';
+  userType: "advogado" | "cliente";
 }
 
 // Mock data removed - using real queries from ChatDockController
 
 export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
   const [activeThread, setActiveThread] = useState(mockThreads[0].id);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
 
   if (!isOpen) return null;
@@ -24,25 +24,30 @@ export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
-    
+
     // TODO: Implement real message sending
-    console.log('Sending message:', message);
-    setMessage('');
+    console.log("Sending message:", message);
+    setMessage("");
   };
 
   return (
-    <div className={cn(
-      'fixed bottom-0 right-4 bg-white shadow-strong rounded-t-lg border border-b-0 z-50 transition-all duration-200',
-      isMinimized ? 'h-12' : 'h-96',
-      'w-80'
-    )}>
+    <div
+      className={cn(
+        "fixed bottom-0 right-4 bg-white shadow-strong rounded-t-lg border border-b-0 z-50 transition-all duration-200",
+        isMinimized ? "h-12" : "h-96",
+        "w-80",
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border bg-brand-700 text-white rounded-t-lg">
         <div className="flex items-center space-x-2">
           <MessageSquare className="w-4 h-4" />
           <span className="font-medium text-sm">Chat</span>
-          {mockThreads.some(t => t.unread > 0) && (
-            <Badge variant="secondary" className="bg-white text-brand-700 text-xs">
+          {mockThreads.some((t) => t.unread > 0) && (
+            <Badge
+              variant="secondary"
+              className="bg-white text-brand-700 text-xs"
+            >
               {mockThreads.reduce((sum, t) => sum + t.unread, 0)}
             </Badge>
           )}
@@ -77,10 +82,10 @@ export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
                   key={thread.id}
                   onClick={() => setActiveThread(thread.id)}
                   className={cn(
-                    'p-2 rounded cursor-pointer transition-colors text-sm',
-                    activeThread === thread.id 
-                      ? 'bg-brand-50 border border-brand-200'
-                      : 'hover:bg-neutral-50'
+                    "p-2 rounded cursor-pointer transition-colors text-sm",
+                    activeThread === thread.id
+                      ? "bg-brand-50 border border-brand-200"
+                      : "hover:bg-neutral-50",
                   )}
                 >
                   <div className="flex items-center justify-between">
@@ -88,9 +93,14 @@ export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
                       {thread.title}
                     </span>
                     <div className="flex items-center space-x-1">
-                      <span className="text-xs text-neutral-500">{thread.time}</span>
+                      <span className="text-xs text-neutral-500">
+                        {thread.time}
+                      </span>
                       {thread.unread > 0 && (
-                        <Badge variant="destructive" className="text-xs h-4 w-4 p-0 rounded-full">
+                        <Badge
+                          variant="destructive"
+                          className="text-xs h-4 w-4 p-0 rounded-full"
+                        >
                           {thread.unread}
                         </Badge>
                       )}
@@ -110,21 +120,27 @@ export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
               <div
                 key={msg.id}
                 className={cn(
-                  'flex',
-                  msg.role === 'user' ? 'justify-end' : 'justify-start'
+                  "flex",
+                  msg.role === "user" ? "justify-end" : "justify-start",
                 )}
               >
-                <div className={cn(
-                  'max-w-[70%] rounded-lg p-2 text-sm',
-                  msg.role === 'user'
-                    ? 'bg-brand-600 text-white'
-                    : 'bg-neutral-100 text-neutral-900'
-                )}>
+                <div
+                  className={cn(
+                    "max-w-[70%] rounded-lg p-2 text-sm",
+                    msg.role === "user"
+                      ? "bg-brand-600 text-white"
+                      : "bg-neutral-100 text-neutral-900",
+                  )}
+                >
                   <p>{msg.content}</p>
-                  <div className={cn(
-                    'flex items-center justify-between mt-1 text-xs',
-                    msg.role === 'user' ? 'text-brand-100' : 'text-neutral-500'
-                  )}>
+                  <div
+                    className={cn(
+                      "flex items-center justify-between mt-1 text-xs",
+                      msg.role === "user"
+                        ? "text-brand-100"
+                        : "text-neutral-500",
+                    )}
+                  >
                     <span>{msg.author}</span>
                     <span>{msg.time}</span>
                   </div>
@@ -134,7 +150,10 @@ export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
           </div>
 
           {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="p-3 border-t border-border">
+          <form
+            onSubmit={handleSendMessage}
+            className="p-3 border-t border-border"
+          >
             <div className="flex items-center space-x-2">
               <Button
                 type="button"

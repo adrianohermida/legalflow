@@ -476,9 +476,7 @@ export default function ProcessosV2() {
         <CardContent className="p-0">
           {processosLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2
-                className="w-8 h-8 animate-spin text-neutral-700"
-              />
+              <Loader2 className="w-8 h-8 animate-spin text-neutral-700" />
               <span className="ml-2 text-neutral-600">
                 Carregando processos...
               </span>

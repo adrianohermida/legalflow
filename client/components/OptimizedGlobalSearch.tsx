@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Search, FileText, User, Ticket, Calendar } from 'lucide-react';
-import { Input } from './ui/input';
-import { Card, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
-import { useGlobalSearch } from '../hooks/useOptimizedQueries';
-import { debounce } from 'lodash';
+import React, { useState, useEffect, useCallback } from "react";
+import { Search, FileText, User, Ticket, Calendar } from "lucide-react";
+import { Input } from "./ui/input";
+import { Card, CardContent } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { useGlobalSearch } from "../hooks/useOptimizedQueries";
+import { debounce } from "lodash";
 
 interface SearchResult {
   type: string;
@@ -19,13 +19,13 @@ interface OptimizedGlobalSearchProps {
   className?: string;
 }
 
-const OptimizedGlobalSearch = ({ 
-  onSelect, 
+const OptimizedGlobalSearch = ({
+  onSelect,
   placeholder = "Buscar processos, clientes, contatos...",
-  className = ""
+  className = "",
 }: OptimizedGlobalSearchProps) => {
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
   // Debounce da query para evitar muitas requisições
@@ -33,7 +33,7 @@ const OptimizedGlobalSearch = ({
     debounce((value: string) => {
       setDebouncedQuery(value);
     }, 300),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -50,18 +50,18 @@ const OptimizedGlobalSearch = ({
 
   const handleSelectResult = (result: SearchResult) => {
     setIsOpen(false);
-    setQuery('');
+    setQuery("");
     onSelect?.(result);
   };
 
   const getResultIcon = (type: string) => {
     switch (type) {
-      case 'processo':
+      case "processo":
         return <FileText className="h-4 w-4 text-blue-600" />;
-      case 'cliente':
-      case 'contact':
+      case "cliente":
+      case "contact":
         return <User className="h-4 w-4 text-green-600" />;
-      case 'ticket':
+      case "ticket":
         return <Ticket className="h-4 w-4 text-orange-600" />;
       default:
         return <Calendar className="h-4 w-4 text-gray-600" />;
@@ -70,15 +70,15 @@ const OptimizedGlobalSearch = ({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Processo':
-        return 'bg-blue-100 text-blue-800';
-      case 'Cliente':
-      case 'Contato':
-        return 'bg-green-100 text-green-800';
-      case 'Ticket':
-        return 'bg-orange-100 text-orange-800';
+      case "Processo":
+        return "bg-blue-100 text-blue-800";
+      case "Cliente":
+      case "Contato":
+        return "bg-green-100 text-green-800";
+      case "Ticket":
+        return "bg-orange-100 text-orange-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -106,11 +106,14 @@ const OptimizedGlobalSearch = ({
               </div>
             )}
 
-            {!isLoading && results && results.length === 0 && debouncedQuery.length >= 2 && (
-              <div className="p-4 text-center text-gray-500">
-                Nenhum resultado encontrado para "{debouncedQuery}"
-              </div>
-            )}
+            {!isLoading &&
+              results &&
+              results.length === 0 &&
+              debouncedQuery.length >= 2 && (
+                <div className="p-4 text-center text-gray-500">
+                  Nenhum resultado encontrado para "{debouncedQuery}"
+                </div>
+              )}
 
             {!isLoading && results && results.length > 0 && (
               <div className="py-2">
@@ -121,25 +124,25 @@ const OptimizedGlobalSearch = ({
                     onClick={() => handleSelectResult(result)}
                   >
                     {getResultIcon(result.type)}
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-gray-900 truncate">
                           {result.title}
                         </span>
-                        <Badge 
-                          variant="secondary" 
+                        <Badge
+                          variant="secondary"
                           className={`text-xs ${getCategoryColor(result.category)}`}
                         >
                           {result.category}
                         </Badge>
                       </div>
-                      
+
                       <div className="text-sm text-gray-500 truncate">
-                        {result.type === 'processo' && `CNJ: ${result.id}`}
-                        {result.type === 'cliente' && `CPF/CNPJ: ${result.id}`}
-                        {result.type === 'contact' && `ID: ${result.id}`}
-                        {result.type === 'ticket' && `Ticket #${result.id}`}
+                        {result.type === "processo" && `CNJ: ${result.id}`}
+                        {result.type === "cliente" && `CPF/CNPJ: ${result.id}`}
+                        {result.type === "contact" && `ID: ${result.id}`}
+                        {result.type === "ticket" && `Ticket #${result.id}`}
                       </div>
                     </div>
                   </div>
@@ -158,10 +161,7 @@ const OptimizedGlobalSearch = ({
 
       {/* Overlay para fechar */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-40" 
-          onClick={() => setIsOpen(false)}
-        />
+        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
       )}
     </div>
   );

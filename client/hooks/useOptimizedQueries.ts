@@ -1,10 +1,10 @@
-import { useSupabaseQuery } from './useSupabaseQuery';
-import { supabase, lf } from '../lib/supabase';
+import { useSupabaseQuery } from "./useSupabaseQuery";
+import { supabase, lf } from "../lib/supabase";
 
 // Hook para busca rápida de contatos com índice trigram
 export const useContactSearch = (searchTerm: string) => {
   return useSupabaseQuery(
-    ['contact-search', searchTerm],
+    ["contact-search", searchTerm],
     `
       SELECT 
         id,
@@ -23,14 +23,14 @@ export const useContactSearch = (searchTerm: string) => {
     {
       enabled: searchTerm.length >= 2,
       staleTime: 30000, // Cache por 30 segundos
-    }
+    },
   );
 };
 
 // Hook para dashboard stats otimizado com índices
 export const useDashboardStats = () => {
   return useSupabaseQuery(
-    'dashboard-stats',
+    "dashboard-stats",
     `
       SELECT 
         (SELECT COUNT(*) FROM public.processos) as total_processos,
@@ -44,14 +44,14 @@ export const useDashboardStats = () => {
     {
       staleTime: 60000, // Cache por 1 minuto
       refetchInterval: 300000, // Refetch a cada 5 minutos
-    }
+    },
   );
 };
 
 // Hook para activities recentes otimizado
 export const useRecentActivities = (limit: number = 10) => {
   return useSupabaseQuery(
-    ['recent-activities', limit],
+    ["recent-activities", limit],
     `
       SELECT 
         a.id,
@@ -69,14 +69,14 @@ export const useRecentActivities = (limit: number = 10) => {
     [limit],
     {
       staleTime: 30000,
-    }
+    },
   );
 };
 
 // Hook para deals por pipeline otimizado
 export const useDealsByPipeline = (pipelineId?: string) => {
   return useSupabaseQuery(
-    ['deals-by-pipeline', pipelineId],
+    ["deals-by-pipeline", pipelineId],
     `
       SELECT 
         d.id,
@@ -95,14 +95,14 @@ export const useDealsByPipeline = (pipelineId?: string) => {
     [pipelineId || null],
     {
       staleTime: 30000,
-    }
+    },
   );
 };
 
 // Hook para tickets por cliente otimizado
 export const useTicketsByClient = (clienteCpfCnpj?: string) => {
   return useSupabaseQuery(
-    ['tickets-by-client', clienteCpfCnpj],
+    ["tickets-by-client", clienteCpfCnpj],
     `
       SELECT 
         t.id,
@@ -121,18 +121,18 @@ export const useTicketsByClient = (clienteCpfCnpj?: string) => {
     [clienteCpfCnpj || null],
     {
       staleTime: 30000,
-    }
+    },
   );
 };
 
 // Hook para time entries por usuário e período otimizado
 export const useTimeEntriesByUser = (
-  userId?: string, 
-  startDate?: string, 
-  endDate?: string
+  userId?: string,
+  startDate?: string,
+  endDate?: string,
 ) => {
   return useSupabaseQuery(
-    ['time-entries-user', userId, startDate, endDate],
+    ["time-entries-user", userId, startDate, endDate],
     `
       SELECT 
         te.id,
@@ -153,14 +153,14 @@ export const useTimeEntriesByUser = (
     {
       staleTime: 60000,
       enabled: Boolean(userId),
-    }
+    },
   );
 };
 
 // Hook para stage instances com SLA próximo do vencimento
 export const useStageInstancesSLA = () => {
   return useSupabaseQuery(
-    'stage-instances-sla',
+    "stage-instances-sla",
     `
       SELECT 
         si.id,
@@ -185,14 +185,14 @@ export const useStageInstancesSLA = () => {
     {
       staleTime: 300000, // Cache por 5 minutos
       refetchInterval: 600000, // Refetch a cada 10 minutos
-    }
+    },
   );
 };
 
 // Hook para busca global otimizada
 export const useGlobalSearch = (query: string) => {
   return useSupabaseQuery(
-    ['global-search', query],
+    ["global-search", query],
     `
       SELECT 'processo' as type, numero_cnj as id, titulo_polo_ativo as title, 'Processo' as category
       FROM public.processos 
@@ -228,14 +228,14 @@ export const useGlobalSearch = (query: string) => {
     {
       enabled: query.length >= 2,
       staleTime: 30000,
-    }
+    },
   );
 };
 
 // Hook para analytics de performance de queries
 export const useQueryPerformanceStats = () => {
   return useSupabaseQuery(
-    'query-performance-stats',
+    "query-performance-stats",
     `
       SELECT 
         'contacts' as table_name,
@@ -259,6 +259,6 @@ export const useQueryPerformanceStats = () => {
     [],
     {
       staleTime: 600000, // Cache por 10 minutos
-    }
+    },
   );
 };

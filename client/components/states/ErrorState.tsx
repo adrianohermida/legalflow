@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
-import { Alert, AlertDescription } from '../ui/alert';
-import { 
+import React, { useState } from "react";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Alert, AlertDescription } from "../ui/alert";
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '../ui/collapsible';
-import { 
-  AlertTriangle, 
-  RefreshCw, 
+} from "../ui/collapsible";
+import {
+  AlertTriangle,
+  RefreshCw,
   ChevronDown,
   ChevronUp,
   Wifi,
   Database,
   Shield,
-  Bug
-} from 'lucide-react';
+  Bug,
+} from "lucide-react";
 
 interface ErrorStateProps {
   title?: string;
@@ -24,7 +24,7 @@ interface ErrorStateProps {
   error?: Error | string;
   onRetry?: () => void;
   retryLabel?: string;
-  type?: 'network' | 'database' | 'permission' | 'generic';
+  type?: "network" | "database" | "permission" | "generic";
   showDetails?: boolean;
   className?: string;
 }
@@ -32,23 +32,24 @@ interface ErrorStateProps {
 const errorTypeConfig = {
   network: {
     icon: <Wifi className="h-5 w-5" />,
-    title: 'Erro de Conexão',
-    message: 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+    title: "Erro de Conexão",
+    message: "Não foi possível conectar ao servidor. Verifique sua conexão.",
   },
   database: {
     icon: <Database className="h-5 w-5" />,
-    title: 'Erro no Banco de Dados',
-    message: 'Problema ao acessar os dados. Tente novamente em alguns instantes.',
+    title: "Erro no Banco de Dados",
+    message:
+      "Problema ao acessar os dados. Tente novamente em alguns instantes.",
   },
   permission: {
     icon: <Shield className="h-5 w-5" />,
-    title: 'Acesso Negado',
-    message: 'Você não tem permissão para acessar este recurso.',
+    title: "Acesso Negado",
+    message: "Você não tem permissão para acessar este recurso.",
   },
   generic: {
     icon: <Bug className="h-5 w-5" />,
-    title: 'Algo deu errado',
-    message: 'Ocorreu um erro inesperado. Nossa equipe foi notificada.',
+    title: "Algo deu errado",
+    message: "Ocorreu um erro inesperado. Nossa equipe foi notificada.",
   },
 };
 
@@ -57,32 +58,33 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   message,
   error,
   onRetry,
-  retryLabel = 'Tentar Novamente',
-  type = 'generic',
+  retryLabel = "Tentar Novamente",
+  type = "generic",
   showDetails = true,
-  className = '',
+  className = "",
 }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const config = errorTypeConfig[type];
-  
-  const errorMessage = error instanceof Error ? error.message : error?.toString();
+
+  const errorMessage =
+    error instanceof Error ? error.message : error?.toString();
   const errorStack = error instanceof Error ? error.stack : undefined;
-  
+
   return (
     <Card className={`border-red-200 ${className}`}>
       <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
         <div className="mb-4 p-3 bg-red-100 rounded-full">
           <AlertTriangle className="h-8 w-8 text-red-600" />
         </div>
-        
+
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {title || config.title}
         </h3>
-        
+
         <p className="text-sm text-gray-600 mb-6 max-w-md">
           {message || config.message}
         </p>
-        
+
         <div className="flex flex-col items-center gap-4 w-full max-w-md">
           {onRetry && (
             <Button onClick={onRetry} className="flex items-center gap-2">
@@ -90,14 +92,14 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
               {retryLabel}
             </Button>
           )}
-          
+
           {showDetails && (error || errorMessage) && (
             <div className="w-full">
               <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
                 <CollapsibleTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
                   >
                     {config.icon}
@@ -109,7 +111,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
                     )}
                   </Button>
                 </CollapsibleTrigger>
-                
+
                 <CollapsibleContent className="mt-4">
                   <Alert variant="destructive" className="text-left">
                     <AlertTriangle className="h-4 w-4" />
@@ -123,7 +125,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
                             </pre>
                           </div>
                         )}
-                        
+
                         {errorStack && (
                           <div>
                             <strong>Stack Trace:</strong>
@@ -132,10 +134,11 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
                             </pre>
                           </div>
                         )}
-                        
+
                         <div className="text-xs text-gray-600 pt-2 border-t border-red-200">
-                          <strong>Dica:</strong> Se o problema persistir, entre em contato com o suporte
-                          incluindo estas informações de erro.
+                          <strong>Dica:</strong> Se o problema persistir, entre
+                          em contato com o suporte incluindo estas informações
+                          de erro.
                         </div>
                       </div>
                     </AlertDescription>
@@ -151,16 +154,16 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
 };
 
 // Quick error helpers for common scenarios
-export const NetworkError: React.FC<Omit<ErrorStateProps, 'type'>> = (props) => (
-  <ErrorState {...props} type="network" />
-);
+export const NetworkError: React.FC<Omit<ErrorStateProps, "type">> = (
+  props,
+) => <ErrorState {...props} type="network" />;
 
-export const DatabaseError: React.FC<Omit<ErrorStateProps, 'type'>> = (props) => (
-  <ErrorState {...props} type="database" />
-);
+export const DatabaseError: React.FC<Omit<ErrorStateProps, "type">> = (
+  props,
+) => <ErrorState {...props} type="database" />;
 
-export const PermissionError: React.FC<Omit<ErrorStateProps, 'type'>> = (props) => (
-  <ErrorState {...props} type="permission" />
-);
+export const PermissionError: React.FC<Omit<ErrorStateProps, "type">> = (
+  props,
+) => <ErrorState {...props} type="permission" />;
 
 export default ErrorState;

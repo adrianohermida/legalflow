@@ -82,7 +82,12 @@ import { Switch } from "../components/ui/switch";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Progress } from "../components/ui/progress";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../components/ui/accordion";
 import {
   Select,
   SelectContent,
@@ -205,7 +210,6 @@ export default function ProcessoDetailV2() {
       return data as Parte[];
     },
   });
-
 
   // Query movimentações
   const {
@@ -429,8 +433,8 @@ export default function ProcessoDetailV2() {
   // Mutation para sincronizar processo
   const syncProcessoMutation = useMutation({
     mutationFn: async () => {
-      const { data: jobId, error } = await lf.rpc('lf_run_sync', {
-        p_numero_cnj: numero_cnj
+      const { data: jobId, error } = await lf.rpc("lf_run_sync", {
+        p_numero_cnj: numero_cnj,
       });
 
       if (error) throw error;
@@ -439,21 +443,21 @@ export default function ProcessoDetailV2() {
     onSuccess: (jobId) => {
       toast({
         title: "Sync enfileirado",
-        description: `Job #${jobId} iniciado. Dados serão atualizados em breve.`
+        description: `Job #${jobId} iniciado. Dados serão atualizados em breve.`,
       });
 
       // Invalidar queries para refresh
       queryClient.invalidateQueries({
-        queryKey: ['processo', numero_cnj]
+        queryKey: ["processo", numero_cnj],
       });
     },
     onError: (error: any) => {
       toast({
         title: "Erro na sincronização",
         description: error.message || "Falha ao iniciar sincronização",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const handleCopyCNJ = () => {
@@ -858,7 +862,8 @@ export default function ProcessoDetailV2() {
                     <div>
                       <h3 className="font-medium">Sincronizar Partes</h3>
                       <p className="text-sm text-neutral-600">
-                        Extrair partes do processo a partir dos dados do Advise/Escavador
+                        Extrair partes do processo a partir dos dados do
+                        Advise/Escavador
                       </p>
                     </div>
                     <Button
@@ -1370,15 +1375,19 @@ export default function ProcessoDetailV2() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Fonte Ativa:</span>
                 <Badge variant="outline">
-                  {monitoringSettings?.provider === 'escavador' ? 'Escavador Premium' : 'Advise'}
+                  {monitoringSettings?.provider === "escavador"
+                    ? "Escavador Premium"
+                    : "Advise"}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-neutral-600">Status:</span>
                 <div className="flex items-center gap-2">
-                  <Radio className={`w-3 h-3 ${monitoringSettings?.active ? 'text-green-500' : 'text-gray-400'}`} />
+                  <Radio
+                    className={`w-3 h-3 ${monitoringSettings?.active ? "text-green-500" : "text-gray-400"}`}
+                  />
                   <span className="text-xs">
-                    {monitoringSettings?.active ? 'Ativo' : 'Inativo'}
+                    {monitoringSettings?.active ? "Ativo" : "Inativo"}
                   </span>
                 </div>
               </div>
@@ -1388,8 +1397,12 @@ export default function ProcessoDetailV2() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="premium" className="font-medium">Monitoramento Premium</Label>
-                  <p className="text-xs text-neutral-600">Usar Escavador para dados mais completos</p>
+                  <Label htmlFor="premium" className="font-medium">
+                    Monitoramento Premium
+                  </Label>
+                  <p className="text-xs text-neutral-600">
+                    Usar Escavador para dados mais completos
+                  </p>
                 </div>
                 <Switch
                   id="premium"
@@ -1398,28 +1411,28 @@ export default function ProcessoDetailV2() {
                     setPremiumEnabled(checked);
                     // Chamar RPC imediatamente
                     try {
-                      await lf.rpc('lf_set_monitoring', {
+                      await lf.rpc("lf_set_monitoring", {
                         p_numero_cnj: numero_cnj,
-                        p_provider: checked ? 'escavador' : 'advise',
+                        p_provider: checked ? "escavador" : "advise",
                         p_active: true,
-                        p_premium: checked
+                        p_premium: checked,
                       });
 
                       // Atualizar estado local
                       queryClient.invalidateQueries({
-                        queryKey: ['monitoring-settings', numero_cnj]
+                        queryKey: ["monitoring-settings", numero_cnj],
                       });
 
                       toast({
                         title: "Configuração atualizada",
-                        description: `Fonte alterada para ${checked ? 'Escavador Premium' : 'Advise'}`
+                        description: `Fonte alterada para ${checked ? "Escavador Premium" : "Advise"}`,
                       });
                     } catch (error) {
-                      console.error('Erro ao atualizar monitoramento:', error);
+                      console.error("Erro ao atualizar monitoramento:", error);
                       toast({
                         title: "Erro",
                         description: "Falha ao atualizar configuração",
-                        variant: "destructive"
+                        variant: "destructive",
                       });
                     }
                   }}
@@ -1437,13 +1450,13 @@ export default function ProcessoDetailV2() {
               <Button
                 onClick={async () => {
                   try {
-                    const { data: jobId } = await lf.rpc('lf_run_sync', {
-                      p_numero_cnj: numero_cnj
+                    const { data: jobId } = await lf.rpc("lf_run_sync", {
+                      p_numero_cnj: numero_cnj,
                     });
 
                     toast({
                       title: "Sync enfileirado",
-                      description: `Job #${jobId} iniciado. Dados serão atualizados em breve.`
+                      description: `Job #${jobId} iniciado. Dados serão atualizados em breve.`,
                     });
 
                     // Fechar dialog
@@ -1451,15 +1464,14 @@ export default function ProcessoDetailV2() {
 
                     // Invalidar queries para refresh
                     queryClient.invalidateQueries({
-                      queryKey: ['processo', numero_cnj]
+                      queryKey: ["processo", numero_cnj],
                     });
-
                   } catch (error) {
-                    console.error('Erro ao executar sync:', error);
+                    console.error("Erro ao executar sync:", error);
                     toast({
                       title: "Erro",
                       description: "Falha ao iniciar sincronização",
-                      variant: "destructive"
+                      variant: "destructive",
                     });
                   }
                 }}

@@ -2,7 +2,7 @@ import { lf } from "./supabase";
 
 /**
  * AdvogaAI Tools HTTP v2 for Journey Management
- * 
+ *
  * These endpoints allow the AI agent to interact with journey management
  * directly from chat contexts within the application.
  */
@@ -50,36 +50,38 @@ export interface AdvogaAIJourneyToolsResponse {
  * Complete a stage instance
  * POST /api/v1/agent/tools/stage.complete
  */
-export async function completeStage(request: StageCompleteRequest): Promise<AdvogaAIJourneyToolsResponse> {
+export async function completeStage(
+  request: StageCompleteRequest,
+): Promise<AdvogaAIJourneyToolsResponse> {
   try {
     const { error } = await lf
-      .from('stage_instances')
+      .from("stage_instances")
       .update({
-        status: 'completed',
-        completed_at: new Date().toISOString()
+        status: "completed",
+        completed_at: new Date().toISOString(),
       })
-      .eq('id', request.stage_instance_id);
+      .eq("id", request.stage_instance_id);
 
     if (error) throw error;
 
     // Optionally add notes to stage history
     if (request.notes) {
-      await lf.from('stage_notes').insert({
+      await lf.from("stage_notes").insert({
         stage_instance_id: request.stage_instance_id,
         content: request.notes,
-        created_by: 'advogaai'
+        created_by: "advogaai",
       });
     }
 
     return {
       success: true,
       message: "Etapa marcada como concluída",
-      data: { stage_instance_id: request.stage_instance_id }
+      data: { stage_instance_id: request.stage_instance_id },
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Falha ao concluir etapa"
+      error: error.message || "Falha ao concluir etapa",
     };
   }
 }
@@ -88,14 +90,16 @@ export async function completeStage(request: StageCompleteRequest): Promise<Advo
  * Create a new stage instance
  * POST /api/v1/agent/tools/stage.create
  */
-export async function createStage(request: StageCreateRequest): Promise<AdvogaAIJourneyToolsResponse> {
+export async function createStage(
+  request: StageCreateRequest,
+): Promise<AdvogaAIJourneyToolsResponse> {
   try {
     let templateStageId = request.template_stage_id;
 
     // If no template stage provided, create a custom one
     if (!templateStageId) {
       const { data: templateStage, error: templateError } = await lf
-        .from('journey_template_stages')
+        .from("journey_template_stages")
         .insert({
           template_id: null, // Custom stage
           position: 999,
@@ -103,7 +107,7 @@ export async function createStage(request: StageCreateRequest): Promise<AdvogaAI
           description: request.description,
           type_id: request.type_id,
           mandatory: request.mandatory || false,
-          sla_hours: request.sla_hours || 24
+          sla_hours: request.sla_hours || 24,
         })
         .select()
         .single();
@@ -114,14 +118,18 @@ export async function createStage(request: StageCreateRequest): Promise<AdvogaAI
 
     // Create the stage instance
     const { data: stageInstance, error } = await lf
-      .from('stage_instances')
+      .from("stage_instances")
       .insert({
         instance_id: request.instance_id,
         template_stage_id: templateStageId,
-        status: 'pending',
+        status: "pending",
         mandatory: request.mandatory || false,
-        sla_at: request.due_at || new Date(Date.now() + (request.sla_hours || 24) * 60 * 60 * 1000).toISOString(),
-        assigned_oab: request.assigned_oab
+        sla_at:
+          request.due_at ||
+          new Date(
+            Date.now() + (request.sla_hours || 24) * 60 * 60 * 1000,
+          ).toISOString(),
+        assigned_oab: request.assigned_oab,
       })
       .select()
       .single();
@@ -131,12 +139,12 @@ export async function createStage(request: StageCreateRequest): Promise<AdvogaAI
     return {
       success: true,
       message: "Nova etapa criada na jornada",
-      data: stageInstance
+      data: stageInstance,
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Falha ao criar etapa"
+      error: error.message || "Falha ao criar etapa",
     };
   }
 }
@@ -145,16 +153,18 @@ export async function createStage(request: StageCreateRequest): Promise<AdvogaAI
  * Submit form responses for a stage
  * POST /api/v1/agent/tools/form.submit
  */
-export async function submitForm(request: FormSubmitRequest): Promise<AdvogaAIJourneyToolsResponse> {
+export async function submitForm(
+  request: FormSubmitRequest,
+): Promise<AdvogaAIJourneyToolsResponse> {
   try {
     const { data: formResponse, error } = await lf
-      .from('form_responses')
+      .from("form_responses")
       .insert({
         stage_instance_id: request.stage_instance_id,
         form_key: request.form_key,
         answers: request.answers_json,
-        submitted_by: request.submitted_by || 'advogaai',
-        submitted_at: new Date().toISOString()
+        submitted_by: request.submitted_by || "advogaai",
+        submitted_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -163,19 +173,19 @@ export async function submitForm(request: FormSubmitRequest): Promise<AdvogaAIJo
 
     // Optionally mark stage as completed if form submission completes it
     await lf
-      .from('stage_instances')
-      .update({ status: 'completed', completed_at: new Date().toISOString() })
-      .eq('id', request.stage_instance_id);
+      .from("stage_instances")
+      .update({ status: "completed", completed_at: new Date().toISOString() })
+      .eq("id", request.stage_instance_id);
 
     return {
       success: true,
       message: "Formulário submetido com sucesso",
-      data: formResponse
+      data: formResponse,
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Falha ao submeter formulário"
+      error: error.message || "Falha ao submeter formulário",
     };
   }
 }
@@ -184,16 +194,18 @@ export async function submitForm(request: FormSubmitRequest): Promise<AdvogaAIJo
  * Request document for a stage
  * POST /api/v1/agent/tools/document.request
  */
-export async function requestDocument(request: DocumentRequestRequest): Promise<AdvogaAIJourneyToolsResponse> {
+export async function requestDocument(
+  request: DocumentRequestRequest,
+): Promise<AdvogaAIJourneyToolsResponse> {
   try {
     const { data: documentRequirement, error } = await lf
-      .from('document_requirements')
+      .from("document_requirements")
       .insert({
         template_stage_id: request.template_stage_id,
         name: request.name,
         required: request.required !== false, // Default to true
-        file_types: request.file_types || ['pdf'],
-        max_size_mb: request.max_size_mb || 10
+        file_types: request.file_types || ["pdf"],
+        max_size_mb: request.max_size_mb || 10,
       })
       .select()
       .single();
@@ -203,12 +215,12 @@ export async function requestDocument(request: DocumentRequestRequest): Promise<
     return {
       success: true,
       message: "Requisito de documento criado",
-      data: documentRequirement
+      data: documentRequirement,
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Falha ao criar requisito de documento"
+      error: error.message || "Falha ao criar requisito de documento",
     };
   }
 }
@@ -217,20 +229,23 @@ export async function requestDocument(request: DocumentRequestRequest): Promise<
  * Get journey instance details
  * GET /api/v1/agent/tools/journey.get
  */
-export async function getJourneyInstance(instanceId: string): Promise<AdvogaAIJourneyToolsResponse> {
+export async function getJourneyInstance(
+  instanceId: string,
+): Promise<AdvogaAIJourneyToolsResponse> {
   try {
     const { data: instance, error } = await lf
-      .from('vw_process_journey')
-      .select('*')
-      .eq('id', instanceId)
+      .from("vw_process_journey")
+      .select("*")
+      .eq("id", instanceId)
       .single();
 
     if (error) throw error;
 
     // Get stage instances
     const { data: stages, error: stagesError } = await lf
-      .from('stage_instances')
-      .select(`
+      .from("stage_instances")
+      .select(
+        `
         id,
         status,
         mandatory,
@@ -244,9 +259,10 @@ export async function getJourneyInstance(instanceId: string): Promise<AdvogaAIJo
             label
           )
         )
-      `)
-      .eq('instance_id', instanceId)
-      .order('sla_at');
+      `,
+      )
+      .eq("instance_id", instanceId)
+      .order("sla_at");
 
     if (stagesError) throw stagesError;
 
@@ -254,7 +270,7 @@ export async function getJourneyInstance(instanceId: string): Promise<AdvogaAIJo
       success: true,
       data: {
         instance,
-        stages: stages.map(stage => ({
+        stages: stages.map((stage) => ({
           id: stage.id,
           title: stage.journey_template_stages?.title,
           description: stage.journey_template_stages?.description,
@@ -262,14 +278,14 @@ export async function getJourneyInstance(instanceId: string): Promise<AdvogaAIJo
           status: stage.status,
           mandatory: stage.mandatory,
           due_at: stage.sla_at,
-          completed_at: stage.completed_at
-        }))
-      }
+          completed_at: stage.completed_at,
+        })),
+      },
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Falha ao buscar instância da jornada"
+      error: error.message || "Falha ao buscar instância da jornada",
     };
   }
 }
@@ -278,25 +294,27 @@ export async function getJourneyInstance(instanceId: string): Promise<AdvogaAIJo
  * List active journeys for a process
  * GET /api/v1/agent/tools/journey.list
  */
-export async function listJourneysByProcess(numeroCnj: string): Promise<AdvogaAIJourneyToolsResponse> {
+export async function listJourneysByProcess(
+  numeroCnj: string,
+): Promise<AdvogaAIJourneyToolsResponse> {
   try {
     const { data: journeys, error } = await lf
-      .from('vw_process_journey')
-      .select('*')
-      .eq('numero_cnj', numeroCnj)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+      .from("vw_process_journey")
+      .select("*")
+      .eq("numero_cnj", numeroCnj)
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 
     return {
       success: true,
-      data: journeys
+      data: journeys,
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Falha ao listar jornadas"
+      error: error.message || "Falha ao listar jornadas",
     };
   }
 }
@@ -305,24 +323,28 @@ export async function listJourneysByProcess(numeroCnj: string): Promise<AdvogaAI
  * Tool registry for easy access in chat contexts
  */
 export const advogaAIJourneyTools = {
-  'stage.complete': completeStage,
-  'stage.create': createStage,
-  'form.submit': submitForm,
-  'document.request': requestDocument,
-  'journey.get': getJourneyInstance,
-  'journey.list': listJourneysByProcess
+  "stage.complete": completeStage,
+  "stage.create": createStage,
+  "form.submit": submitForm,
+  "document.request": requestDocument,
+  "journey.get": getJourneyInstance,
+  "journey.list": listJourneysByProcess,
 };
 
 /**
  * Execute a tool by name with request data
  */
-export async function executeJourneyTool(toolName: string, request: any): Promise<AdvogaAIJourneyToolsResponse> {
-  const tool = advogaAIJourneyTools[toolName as keyof typeof advogaAIJourneyTools];
-  
+export async function executeJourneyTool(
+  toolName: string,
+  request: any,
+): Promise<AdvogaAIJourneyToolsResponse> {
+  const tool =
+    advogaAIJourneyTools[toolName as keyof typeof advogaAIJourneyTools];
+
   if (!tool) {
     return {
       success: false,
-      error: `Tool '${toolName}' not found`
+      error: `Tool '${toolName}' not found`,
     };
   }
 
@@ -331,7 +353,7 @@ export async function executeJourneyTool(toolName: string, request: any): Promis
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Erro interno da ferramenta"
+      error: error.message || "Erro interno da ferramenta",
     };
   }
 }
@@ -342,22 +364,25 @@ export async function executeJourneyTool(toolName: string, request: any): Promis
 export async function handleJourneyToolRequest(
   method: string,
   toolPath: string,
-  body: any
+  body: any,
 ): Promise<Response> {
-  if (method !== 'POST') {
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Method not allowed'
-    }), { 
-      status: 405,
-      headers: { 'Content-Type': 'application/json' }
-    });
+  if (method !== "POST") {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Method not allowed",
+      }),
+      {
+        status: 405,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   const result = await executeJourneyTool(toolPath, body);
-  
+
   return new Response(JSON.stringify(result), {
     status: result.success ? 200 : 400,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" },
   });
 }

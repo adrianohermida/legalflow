@@ -1,42 +1,39 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import React from "react";
+import { Loader2 } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface LoadingProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   text?: string;
-  variant?: 'spinner' | 'dots' | 'pulse';
+  variant?: "spinner" | "dots" | "pulse";
   className?: string;
   fullScreen?: boolean;
   ariaLabel?: string;
 }
 
 export const Loading: React.FC<LoadingProps> = ({
-  size = 'md',
+  size = "md",
   text,
-  variant = 'spinner',
+  variant = "spinner",
   className,
   fullScreen = false,
-  ariaLabel
+  ariaLabel,
 }) => {
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8'
+    sm: "w-4 h-4",
+    md: "w-6 h-6",
+    lg: "w-8 h-8",
   };
 
   const textSizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg'
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg",
   };
 
   const Spinner = () => (
-    <Loader2 
-      className={cn(
-        'animate-spin text-neutral-600',
-        sizeClasses[size]
-      )}
+    <Loader2
+      className={cn("animate-spin text-neutral-600", sizeClasses[size])}
       aria-hidden="true"
     />
   );
@@ -47,12 +44,12 @@ export const Loading: React.FC<LoadingProps> = ({
         <div
           key={i}
           className={cn(
-            'bg-neutral-600 rounded-full animate-pulse',
-            size === 'sm' ? 'w-1 h-1' : size === 'md' ? 'w-2 h-2' : 'w-3 h-3'
+            "bg-neutral-600 rounded-full animate-pulse",
+            size === "sm" ? "w-1 h-1" : size === "md" ? "w-2 h-2" : "w-3 h-3",
           )}
           style={{
             animationDelay: `${i * 0.2}s`,
-            animationDuration: '1.4s'
+            animationDuration: "1.4s",
           }}
         />
       ))}
@@ -62,8 +59,8 @@ export const Loading: React.FC<LoadingProps> = ({
   const Pulse = () => (
     <div
       className={cn(
-        'bg-neutral-200 rounded animate-pulse',
-        size === 'sm' ? 'w-16 h-4' : size === 'md' ? 'w-24 h-6' : 'w-32 h-8'
+        "bg-neutral-200 rounded animate-pulse",
+        size === "sm" ? "w-16 h-4" : size === "md" ? "w-24 h-6" : "w-32 h-8",
       )}
       aria-hidden="true"
     />
@@ -71,9 +68,9 @@ export const Loading: React.FC<LoadingProps> = ({
 
   const renderVariant = () => {
     switch (variant) {
-      case 'dots':
+      case "dots":
         return <Dots />;
-      case 'pulse':
+      case "pulse":
         return <Pulse />;
       default:
         return <Spinner />;
@@ -81,31 +78,31 @@ export const Loading: React.FC<LoadingProps> = ({
   };
 
   const loadingContent = (
-    <div 
+    <div
       className={cn(
-        'flex flex-col items-center justify-center gap-3',
+        "flex flex-col items-center justify-center gap-3",
         textSizeClasses[size],
-        className
+        className,
       )}
       role="status"
       aria-live="polite"
-      aria-label={ariaLabel || (text ? `Carregando: ${text}` : 'Carregando conteúdo')}
+      aria-label={
+        ariaLabel || (text ? `Carregando: ${text}` : "Carregando conteúdo")
+      }
     >
       {renderVariant()}
-      {text && (
-        <span className="text-neutral-600 font-medium">
-          {text}
-        </span>
-      )}
+      {text && <span className="text-neutral-600 font-medium">{text}</span>}
       <span className="sr-only">
-        {text ? `Carregando ${text}. Aguarde.` : 'Carregando conteúdo. Aguarde.'}
+        {text
+          ? `Carregando ${text}. Aguarde.`
+          : "Carregando conteúdo. Aguarde."}
       </span>
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div 
+      <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
         aria-modal="true"
         aria-labelledby="loading-title"
@@ -124,36 +121,33 @@ export const Loading: React.FC<LoadingProps> = ({
 // Skeleton loader for content placeholders
 interface SkeletonProps {
   className?: string;
-  variant?: 'text' | 'rectangle' | 'circle';
+  variant?: "text" | "rectangle" | "circle";
   width?: string | number;
   height?: string | number;
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({
   className,
-  variant = 'text',
+  variant = "text",
   width,
-  height
+  height,
 }) => {
-  const baseClasses = 'animate-pulse bg-neutral-200 rounded';
-  
+  const baseClasses = "animate-pulse bg-neutral-200 rounded";
+
   const variantClasses = {
-    text: 'h-4 w-full',
-    rectangle: 'w-full h-24',
-    circle: 'w-10 h-10 rounded-full'
+    text: "h-4 w-full",
+    rectangle: "w-full h-24",
+    circle: "w-10 h-10 rounded-full",
   };
 
   const style: React.CSSProperties = {};
-  if (width) style.width = typeof width === 'number' ? `${width}px` : width;
-  if (height) style.height = typeof height === 'number' ? `${height}px` : height;
+  if (width) style.width = typeof width === "number" ? `${width}px` : width;
+  if (height)
+    style.height = typeof height === "number" ? `${height}px` : height;
 
   return (
     <div
-      className={cn(
-        baseClasses,
-        variantClasses[variant],
-        className
-      )}
+      className={cn(baseClasses, variantClasses[variant], className)}
       style={style}
       aria-hidden="true"
       role="presentation"
@@ -162,17 +156,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 };
 
 // Loading table component
-export const LoadingTable: React.FC<{ 
-  rows?: number; 
+export const LoadingTable: React.FC<{
+  rows?: number;
   columns?: number;
   className?: string;
-}> = ({ 
-  rows = 5, 
-  columns = 4,
-  className 
-}) => (
-  <div 
-    className={cn('space-y-3', className)}
+}> = ({ rows = 5, columns = 4, className }) => (
+  <div
+    className={cn("space-y-3", className)}
     role="status"
     aria-label="Carregando dados da tabela"
   >
@@ -180,10 +170,10 @@ export const LoadingTable: React.FC<{
     {Array.from({ length: rows }).map((_, rowIndex) => (
       <div key={rowIndex} className="flex space-x-4">
         {Array.from({ length: columns }).map((_, colIndex) => (
-          <Skeleton 
-            key={colIndex} 
-            className="flex-1" 
-            variant={rowIndex === 0 ? 'text' : 'text'}
+          <Skeleton
+            key={colIndex}
+            className="flex-1"
+            variant={rowIndex === 0 ? "text" : "text"}
           />
         ))}
       </div>
@@ -192,9 +182,11 @@ export const LoadingTable: React.FC<{
 );
 
 // Loading card component
-export const LoadingCard: React.FC<{ className?: string }> = ({ className }) => (
-  <div 
-    className={cn('p-4 border rounded-lg space-y-3', className)}
+export const LoadingCard: React.FC<{ className?: string }> = ({
+  className,
+}) => (
+  <div
+    className={cn("p-4 border rounded-lg space-y-3", className)}
     role="status"
     aria-label="Carregando cartão de conteúdo"
   >

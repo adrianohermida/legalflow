@@ -1,20 +1,23 @@
-import React from 'react';
-import { Card, CardContent, CardHeader } from '../ui/card';
-import { Skeleton } from '../ui/skeleton';
-import { Loader2 } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 interface LoadingStateProps {
-  type?: 'list' | 'table' | 'card' | 'form' | 'detail' | 'spinner';
+  type?: "list" | "table" | "card" | "form" | "detail" | "spinner";
   rows?: number;
   columns?: number;
   showTitle?: boolean;
   title?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 }
 
 // Skeleton components for different layouts
-const ListSkeleton: React.FC<{ rows: number; showTitle: boolean }> = ({ rows, showTitle }) => (
+const ListSkeleton: React.FC<{ rows: number; showTitle: boolean }> = ({
+  rows,
+  showTitle,
+}) => (
   <div className="space-y-4">
     {showTitle && <Skeleton className="h-6 w-48 mb-6" />}
     {Array.from({ length: rows }).map((_, i) => (
@@ -34,28 +37,34 @@ const ListSkeleton: React.FC<{ rows: number; showTitle: boolean }> = ({ rows, sh
   </div>
 );
 
-const TableSkeleton: React.FC<{ rows: number; columns: number; showTitle: boolean }> = ({ 
-  rows, 
-  columns, 
-  showTitle 
-}) => (
+const TableSkeleton: React.FC<{
+  rows: number;
+  columns: number;
+  showTitle: boolean;
+}> = ({ rows, columns, showTitle }) => (
   <div className="space-y-4">
     {showTitle && <Skeleton className="h-6 w-48 mb-6" />}
     <Card>
       <CardContent className="p-0">
         {/* Table Header */}
         <div className="border-b p-4">
-          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+          <div
+            className="grid gap-4"
+            style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+          >
             {Array.from({ length: columns }).map((_, i) => (
               <Skeleton key={i} className="h-4 w-full" />
             ))}
           </div>
         </div>
-        
+
         {/* Table Rows */}
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <div key={rowIndex} className="border-b last:border-0 p-4">
-            <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+            <div
+              className="grid gap-4"
+              style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+            >
               {Array.from({ length: columns }).map((_, colIndex) => (
                 <Skeleton key={colIndex} className="h-4 w-full" />
               ))}
@@ -67,7 +76,10 @@ const TableSkeleton: React.FC<{ rows: number; columns: number; showTitle: boolea
   </div>
 );
 
-const CardSkeleton: React.FC<{ rows: number; showTitle: boolean }> = ({ rows, showTitle }) => (
+const CardSkeleton: React.FC<{ rows: number; showTitle: boolean }> = ({
+  rows,
+  showTitle,
+}) => (
   <div className="space-y-4">
     {showTitle && <Skeleton className="h-6 w-48 mb-6" />}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -114,12 +126,12 @@ const FormSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-20 w-full" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Skeleton className="h-4 w-16" />
@@ -134,7 +146,7 @@ const FormSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
-        
+
         <div className="flex justify-end space-x-2 pt-4">
           <Skeleton className="h-10 w-20" />
           <Skeleton className="h-10 w-24" />
@@ -147,7 +159,7 @@ const FormSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
 const DetailSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
   <div className="space-y-6">
     {showTitle && <Skeleton className="h-8 w-64 mb-6" />}
-    
+
     {/* Header section */}
     <Card>
       <CardHeader>
@@ -176,7 +188,7 @@ const DetailSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
         </div>
       </CardContent>
     </Card>
-    
+
     {/* Content sections */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
@@ -185,7 +197,10 @@ const DetailSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
         </CardHeader>
         <CardContent className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center space-x-3 p-2 border rounded">
+            <div
+              key={i}
+              className="flex items-center space-x-3 p-2 border rounded"
+            >
               <Skeleton className="h-8 w-8 rounded-full" />
               <div className="space-y-1 flex-1">
                 <Skeleton className="h-3 w-3/4" />
@@ -195,7 +210,7 @@ const DetailSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
           ))}
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <Skeleton className="h-5 w-28" />
@@ -214,67 +229,76 @@ const DetailSkeleton: React.FC<{ showTitle: boolean }> = ({ showTitle }) => (
   </div>
 );
 
-const SpinnerLoader: React.FC<{ title?: string; size: 'sm' | 'md' | 'lg' }> = ({ title, size }) => {
+const SpinnerLoader: React.FC<{ title?: string; size: "sm" | "md" | "lg" }> = ({
+  title,
+  size,
+}) => {
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-12 w-12'
+    sm: "h-6 w-6",
+    md: "h-8 w-8",
+    lg: "h-12 w-12",
   };
-  
+
   return (
     <div className="flex flex-col items-center justify-center py-12">
-      <Loader2 className={`animate-spin text-brand-600 ${sizeClasses[size]} mb-4`} />
-      {title && (
-        <p className="text-sm text-gray-600">{title}</p>
-      )}
+      <Loader2
+        className={`animate-spin text-brand-600 ${sizeClasses[size]} mb-4`}
+      />
+      {title && <p className="text-sm text-gray-600">{title}</p>}
     </div>
   );
 };
 
 export const LoadingState: React.FC<LoadingStateProps> = ({
-  type = 'spinner',
+  type = "spinner",
   rows = 5,
   columns = 4,
   showTitle = true,
-  title = 'Carregando...',
-  className = '',
-  size = 'md'
+  title = "Carregando...",
+  className = "",
+  size = "md",
 }) => {
   return (
-    <div className={`w-full ${className}`} aria-busy="true" aria-label="Carregando conteúdo">
-      {type === 'list' && <ListSkeleton rows={rows} showTitle={showTitle} />}
-      {type === 'table' && <TableSkeleton rows={rows} columns={columns} showTitle={showTitle} />}
-      {type === 'card' && <CardSkeleton rows={rows} showTitle={showTitle} />}
-      {type === 'form' && <FormSkeleton showTitle={showTitle} />}
-      {type === 'detail' && <DetailSkeleton showTitle={showTitle} />}
-      {type === 'spinner' && <SpinnerLoader title={title} size={size} />}
+    <div
+      className={`w-full ${className}`}
+      aria-busy="true"
+      aria-label="Carregando conteúdo"
+    >
+      {type === "list" && <ListSkeleton rows={rows} showTitle={showTitle} />}
+      {type === "table" && (
+        <TableSkeleton rows={rows} columns={columns} showTitle={showTitle} />
+      )}
+      {type === "card" && <CardSkeleton rows={rows} showTitle={showTitle} />}
+      {type === "form" && <FormSkeleton showTitle={showTitle} />}
+      {type === "detail" && <DetailSkeleton showTitle={showTitle} />}
+      {type === "spinner" && <SpinnerLoader title={title} size={size} />}
     </div>
   );
 };
 
 // Convenience components for common loading states
-export const LoadingList: React.FC<Omit<LoadingStateProps, 'type'>> = (props) => (
-  <LoadingState {...props} type="list" />
-);
+export const LoadingList: React.FC<Omit<LoadingStateProps, "type">> = (
+  props,
+) => <LoadingState {...props} type="list" />;
 
-export const LoadingTable: React.FC<Omit<LoadingStateProps, 'type'>> = (props) => (
-  <LoadingState {...props} type="table" />
-);
+export const LoadingTable: React.FC<Omit<LoadingStateProps, "type">> = (
+  props,
+) => <LoadingState {...props} type="table" />;
 
-export const LoadingCards: React.FC<Omit<LoadingStateProps, 'type'>> = (props) => (
-  <LoadingState {...props} type="card" />
-);
+export const LoadingCards: React.FC<Omit<LoadingStateProps, "type">> = (
+  props,
+) => <LoadingState {...props} type="card" />;
 
-export const LoadingForm: React.FC<Omit<LoadingStateProps, 'type'>> = (props) => (
-  <LoadingState {...props} type="form" />
-);
+export const LoadingForm: React.FC<Omit<LoadingStateProps, "type">> = (
+  props,
+) => <LoadingState {...props} type="form" />;
 
-export const LoadingDetail: React.FC<Omit<LoadingStateProps, 'type'>> = (props) => (
-  <LoadingState {...props} type="detail" />
-);
+export const LoadingDetail: React.FC<Omit<LoadingStateProps, "type">> = (
+  props,
+) => <LoadingState {...props} type="detail" />;
 
-export const LoadingSpinner: React.FC<Omit<LoadingStateProps, 'type'>> = (props) => (
-  <LoadingState {...props} type="spinner" />
-);
+export const LoadingSpinner: React.FC<Omit<LoadingStateProps, "type">> = (
+  props,
+) => <LoadingState {...props} type="spinner" />;
 
 export default LoadingState;

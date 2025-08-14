@@ -126,7 +126,7 @@ export default function InboxLegalV2() {
   const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
   const [isVincularAdviseOpen, setIsVincularAdviseOpen] = useState(false);
   const [selectedPublicacao, setSelectedPublicacao] = useState<any>(null);
-  const [cnjDetectado, setCnjDetectado] = useState('');
+  const [cnjDetectado, setCnjDetectado] = useState("");
 
   const itemsPerPage = 20;
 
@@ -297,8 +297,8 @@ export default function InboxLegalV2() {
           data_distribuicao: new Date().toISOString(),
           situacao: "Em Andamento",
           instancia: "1ª Instância",
-          grau: 1
-        }
+          grau: 1,
+        },
       };
 
       // Upsert processo no banco
@@ -320,7 +320,7 @@ export default function InboxLegalV2() {
     onSuccess: (processo) => {
       toast({
         title: "Processo criado",
-        description: `Capa obtida via Advise. Processo ${formatCNJ(processo.numero_cnj)} criado com sucesso`
+        description: `Capa obtida via Advise. Processo ${formatCNJ(processo.numero_cnj)} criado com sucesso`,
       });
       setIsVincularAdviseOpen(false);
       // Deep-link para página do processo
@@ -330,16 +330,16 @@ export default function InboxLegalV2() {
       toast({
         title: "Erro ao buscar capa",
         description: error.message || "Falha na comunicação com Advise",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   // Função para detectar CNJ no texto
   const detectarCNJ = (texto: string): string => {
     const cnjRegex = /\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}/g;
     const matches = texto.match(cnjRegex);
-    return matches ? matches[0] : '';
+    return matches ? matches[0] : "";
   };
 
   // Mutation para vincular ao CNJ
@@ -816,7 +816,8 @@ export default function InboxLegalV2() {
                                 onSuccess={() => {
                                   toast({
                                     title: "Etapa criada",
-                                    description: "Etapa de jornada criada a partir da publicação.",
+                                    description:
+                                      "Etapa de jornada criada a partir da publicação.",
                                   });
                                 }}
                                 trigger={
@@ -959,7 +960,8 @@ export default function InboxLegalV2() {
                                 onSuccess={() => {
                                   toast({
                                     title: "Etapa criada",
-                                    description: "Etapa de jornada criada a partir da movimentação.",
+                                    description:
+                                      "Etapa de jornada criada a partir da movimentação.",
                                   });
                                 }}
                                 trigger={
@@ -1255,7 +1257,10 @@ export default function InboxLegalV2() {
       </Dialog>
 
       {/* Dialog Vincular/Criar Processo via Advise */}
-      <Dialog open={isVincularAdviseOpen} onOpenChange={setIsVincularAdviseOpen}>
+      <Dialog
+        open={isVincularAdviseOpen}
+        onOpenChange={setIsVincularAdviseOpen}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Vincular/Criar Processo via Advise</DialogTitle>
@@ -1274,14 +1279,18 @@ export default function InboxLegalV2() {
                 className="font-mono"
               />
               <p className="text-xs text-neutral-600 mt-1">
-                {cnjDetectado ? 'CNJ válido detectado' : 'Nenhum CNJ encontrado no texto. Digite manualmente.'}
+                {cnjDetectado
+                  ? "CNJ válido detectado"
+                  : "Nenhum CNJ encontrado no texto. Digite manualmente."}
               </p>
             </div>
 
             {/* Preview da publicação */}
             {selectedPublicacao && (
               <div className="p-3 bg-neutral-50 rounded-lg">
-                <h4 className="font-medium text-sm mb-2">Preview da Publicação:</h4>
+                <h4 className="font-medium text-sm mb-2">
+                  Preview da Publicação:
+                </h4>
                 <p className="text-sm text-neutral-700 line-clamp-3">
                   {getResumo(selectedPublicacao)}
                 </p>
@@ -1297,7 +1306,9 @@ export default function InboxLegalV2() {
               <Button
                 onClick={() => {
                   if (cnjDetectado) {
-                    buscarCapaAdviseMutation.mutate({ numero_cnj: cnjDetectado });
+                    buscarCapaAdviseMutation.mutate({
+                      numero_cnj: cnjDetectado,
+                    });
                   }
                 }}
                 disabled={!cnjDetectado || buscarCapaAdviseMutation.isPending}

@@ -1,11 +1,30 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { DollarSign, Link, CheckCircle, Calendar, Trash2, Plus } from "lucide-react";
+import {
+  DollarSign,
+  Link,
+  CheckCircle,
+  Calendar,
+  Trash2,
+  Plus,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 import { toast } from "../hooks/use-toast";
@@ -16,7 +35,7 @@ interface StagePaymentLink {
   stage_instance_id: string;
   plano_pagamento_id: string;
   parcela_numero: number;
-  trigger_on_status: 'started' | 'completed';
+  trigger_on_status: "started" | "completed";
   stage_title?: string;
   valor_parcela?: number;
 }
@@ -57,7 +76,7 @@ const LinkStageToPaymentDialog: React.FC<{
     stageInstanceId: "",
     planoPagamentoId: "",
     parcelaNumero: 1,
-    triggerOnStatus: 'completed' as 'started' | 'completed'
+    triggerOnStatus: "completed" as "started" | "completed",
   });
 
   const { data: stageInstances } = useQuery({
@@ -65,21 +84,23 @@ const LinkStageToPaymentDialog: React.FC<{
     queryFn: async () => {
       const { data, error } = await lf
         .from("stage_instances")
-        .select(`
+        .select(
+          `
           id,
           status,
           journey_template_stages (
             title
           )
-        `)
+        `,
+        )
         .eq("instance_id", journeyInstance.id)
         .order("sla_at");
-      
+
       if (error) throw error;
-      return data.map(stage => ({
+      return data.map((stage) => ({
         id: stage.id,
         title: stage.journey_template_stages?.title || "Etapa",
-        status: stage.status
+        status: stage.status,
       })) as StageInstance[];
     },
     enabled: open,
@@ -90,8 +111,9 @@ const LinkStageToPaymentDialog: React.FC<{
     queryFn: async () => {
       // Fetch real payment plans from database
       const { data, error } = await lf
-        .from('planos_pagamento')
-        .select(`
+        .from("planos_pagamento")
+        .select(
+          `
           id,
           cliente_cpfcnpj,
           amount_total,
@@ -99,8 +121,9 @@ const LinkStageToPaymentDialog: React.FC<{
           paid_amount,
           status,
           parcelas_pagamento(*)
-        `)
-        .eq('cliente_cpfcnpj', journeyInstance.cliente_cpfcnpj);
+        `,
+        )
+        .eq("cliente_cpfcnpj", journeyInstance.cliente_cpfcnpj);
 
       if (error) throw error;
       return data || [];
@@ -110,15 +133,13 @@ const LinkStageToPaymentDialog: React.FC<{
 
   const linkMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await lf
-        .from("stage_payment_links")
-        .insert({
-          stage_instance_id: formData.stageInstanceId,
-          plano_pagamento_id: formData.planoPagamentoId,
-          parcela_numero: formData.parcelaNumero,
-          trigger_on_status: formData.triggerOnStatus
-        });
-      
+      const { error } = await lf.from("stage_payment_links").insert({
+        stage_instance_id: formData.stageInstanceId,
+        plano_pagamento_id: formData.planoPagamentoId,
+        parcela_numero: formData.parcelaNumero,
+        trigger_on_status: formData.triggerOnStatus,
+      });
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -138,9 +159,15 @@ const LinkStageToPaymentDialog: React.FC<{
     },
   });
 
-  const selectedPlan = paymentPlans?.find(p => p.id === formData.planoPagamentoId);
-  const selectedParcela = selectedPlan?.parcelas.find(p => p.numero === formData.parcelaNumero);
-  const selectedStage = stageInstances?.find(s => s.id === formData.stageInstanceId);
+  const selectedPlan = paymentPlans?.find(
+    (p) => p.id === formData.planoPagamentoId,
+  );
+  const selectedParcela = selectedPlan?.parcelas.find(
+    (p) => p.numero === formData.parcelaNumero,
+  );
+  const selectedStage = stageInstances?.find(
+    (s) => s.id === formData.stageInstanceId,
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -157,13 +184,15 @@ const LinkStageToPaymentDialog: React.FC<{
             Vincular Etapa ao Pagamento
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label>Etapa da Jornada</Label>
-            <Select 
-              value={formData.stageInstanceId} 
-              onValueChange={(value) => setFormData({...formData, stageInstanceId: value})}
+            <Select
+              value={formData.stageInstanceId}
+              onValueChange={(value) =>
+                setFormData({ ...formData, stageInstanceId: value })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a etapa" />
@@ -185,9 +214,11 @@ const LinkStageToPaymentDialog: React.FC<{
 
           <div className="space-y-2">
             <Label>Plano de Pagamento</Label>
-            <Select 
-              value={formData.planoPagamentoId} 
-              onValueChange={(value) => setFormData({...formData, planoPagamentoId: value})}
+            <Select
+              value={formData.planoPagamentoId}
+              onValueChange={(value) =>
+                setFormData({ ...formData, planoPagamentoId: value })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o plano" />
@@ -195,7 +226,11 @@ const LinkStageToPaymentDialog: React.FC<{
               <SelectContent>
                 {paymentPlans?.map((plan) => (
                   <SelectItem key={plan.id} value={plan.id}>
-                    {plan.descricao} (R$ {plan.valor_total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})
+                    {plan.descricao} (R${" "}
+                    {plan.valor_total.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -205,18 +240,28 @@ const LinkStageToPaymentDialog: React.FC<{
           {selectedPlan && (
             <div className="space-y-2">
               <Label>Parcela</Label>
-              <Select 
-                value={formData.parcelaNumero.toString()} 
-                onValueChange={(value) => setFormData({...formData, parcelaNumero: parseInt(value)})}
+              <Select
+                value={formData.parcelaNumero.toString()}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parcelaNumero: parseInt(value) })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a parcela" />
                 </SelectTrigger>
                 <SelectContent>
                   {selectedPlan.parcelas.map((parcela) => (
-                    <SelectItem key={parcela.numero} value={parcela.numero.toString()}>
-                      Parcela {parcela.numero} - R$ {parcela.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} 
-                      ({new Date(parcela.vencimento).toLocaleDateString("pt-BR")})
+                    <SelectItem
+                      key={parcela.numero}
+                      value={parcela.numero.toString()}
+                    >
+                      Parcela {parcela.numero} - R${" "}
+                      {parcela.valor.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                      (
+                      {new Date(parcela.vencimento).toLocaleDateString("pt-BR")}
+                      )
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -226,9 +271,11 @@ const LinkStageToPaymentDialog: React.FC<{
 
           <div className="space-y-2">
             <Label>Gatilho</Label>
-            <Select 
-              value={formData.triggerOnStatus} 
-              onValueChange={(value: 'started' | 'completed') => setFormData({...formData, triggerOnStatus: value})}
+            <Select
+              value={formData.triggerOnStatus}
+              onValueChange={(value: "started" | "completed") =>
+                setFormData({ ...formData, triggerOnStatus: value })
+              }
             >
               <SelectTrigger>
                 <SelectValue />
@@ -242,23 +289,45 @@ const LinkStageToPaymentDialog: React.FC<{
 
           {selectedStage && selectedParcela && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="text-sm font-medium text-green-900 mb-1">Vínculo Configurado</div>
+              <div className="text-sm font-medium text-green-900 mb-1">
+                Vínculo Configurado
+              </div>
               <div className="text-sm text-green-700">
-                <div>🎯 <strong>{selectedStage.title}</strong></div>
-                <div>💰 Parcela {selectedParcela.numero}: R$ {selectedParcela.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
-                <div>⚡ Ação: {formData.triggerOnStatus === 'completed' ? 'Ativar cobrança ao concluir' : 'Ativar cobrança ao iniciar'}</div>
+                <div>
+                  🎯 <strong>{selectedStage.title}</strong>
+                </div>
+                <div>
+                  💰 Parcela {selectedParcela.numero}: R${" "}
+                  {selectedParcela.valor.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+                <div>
+                  ⚡ Ação:{" "}
+                  {formData.triggerOnStatus === "completed"
+                    ? "Ativar cobrança ao concluir"
+                    : "Ativar cobrança ao iniciar"}
+                </div>
               </div>
             </div>
           )}
         </div>
 
         <div className="flex gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={() => setOpen(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="flex-1"
+          >
             Cancelar
           </Button>
-          <Button 
+          <Button
             onClick={() => linkMutation.mutate()}
-            disabled={!formData.stageInstanceId || !formData.planoPagamentoId || linkMutation.isPending}
+            disabled={
+              !formData.stageInstanceId ||
+              !formData.planoPagamentoId ||
+              linkMutation.isPending
+            }
             className="flex-1"
           >
             {linkMutation.isPending ? "Vinculando..." : "Criar Vínculo"}
@@ -279,20 +348,23 @@ export const FinancialMilestones: React.FC<{
     queryFn: async () => {
       const { data, error } = await lf
         .from("stage_payment_links")
-        .select(`
+        .select(
+          `
           *,
           stage_instances (
             journey_template_stages (
               title
             )
           )
-        `)
+        `,
+        )
         .eq("stage_instance_id", journeyInstance.id);
-      
+
       if (error) throw error;
-      return data.map(link => ({
+      return data.map((link) => ({
         ...link,
-        stage_title: link.stage_instances?.journey_template_stages?.title || "Etapa"
+        stage_title:
+          link.stage_instances?.journey_template_stages?.title || "Etapa",
       })) as StagePaymentLink[];
     },
   });
@@ -303,7 +375,7 @@ export const FinancialMilestones: React.FC<{
         .from("stage_payment_links")
         .delete()
         .eq("id", linkId);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -330,7 +402,7 @@ export const FinancialMilestones: React.FC<{
             <DollarSign className="w-5 h-5" />
             Marcos Financeiros
           </CardTitle>
-          <LinkStageToPaymentDialog 
+          <LinkStageToPaymentDialog
             journeyInstance={journeyInstance}
             onSuccess={() => refetch()}
           />
@@ -340,7 +412,9 @@ export const FinancialMilestones: React.FC<{
         {!stagePaymentLinks || stagePaymentLinks.length === 0 ? (
           <div className="text-center py-8">
             <DollarSign className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-            <h3 className="font-medium text-neutral-900 mb-2">Nenhum marco financeiro</h3>
+            <h3 className="font-medium text-neutral-900 mb-2">
+              Nenhum marco financeiro
+            </h3>
             <p className="text-neutral-600 text-sm">
               Vincule etapas da jornada a parcelas do plano de pagamento.
             </p>
@@ -348,22 +422,32 @@ export const FinancialMilestones: React.FC<{
         ) : (
           <div className="space-y-3">
             {stagePaymentLinks.map((link) => (
-              <div key={link.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={link.id}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm">{link.stage_title}</div>
+                    <div className="font-medium text-sm">
+                      {link.stage_title}
+                    </div>
                     <div className="text-xs text-neutral-600">
-                      Parcela {link.parcela_numero} • 
-                      {link.trigger_on_status === 'completed' ? ' Ao concluir' : ' Ao iniciar'}
+                      Parcela {link.parcela_numero} •
+                      {link.trigger_on_status === "completed"
+                        ? " Ao concluir"
+                        : " Ao iniciar"}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs">
-                    R$ {link.valor_parcela?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "---"}
+                    R${" "}
+                    {link.valor_parcela?.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    }) || "---"}
                   </Badge>
                   <Button
                     variant="ghost"

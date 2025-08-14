@@ -9,6 +9,7 @@
 ## 📊 **C0 - Schema SQL Idempotente - COMPLETO**
 
 ### **✅ Implementado:**
+
 - **Tabela `legalflow.contacts`**: Contatos unificados (pessoa/empresa)
 - **Tabela `legalflow.organizations`**: Gestão de empresas
 - **Tabela `legalflow.org_contacts`**: Vínculo N:N contato↔empresa
@@ -17,6 +18,7 @@
 - **Enum `legalflow.pipeline_kind`**: Tipos de pipeline (sales, legal, finance)
 
 ### **🔧 Recursos Avançados:**
+
 - **`legalflow.deals` atualizada**: Campos contact_id, pipeline_id, stage_id
 - **View `legalflow.vw_contacts_unified`**: União public.clientes + contacts
 - **Função `legalflow.crm_upsert_contact()`**: Smart upsert de contatos
@@ -33,12 +35,14 @@
 ### **✅ Funcionalidades Implementadas:**
 
 1. **Lista Unificada**: View combinada public.clientes + legalflow.contacts
+
    - Busca por nome, email, WhatsApp, CPF/CNPJ
    - Filtros por fonte (public/legalflow) e tipo (pessoa/empresa)
    - Paginação 25 itens por página
    - Badges visuais: Cliente, CRM, Stripe
 
 2. **CRUD Completo**: Operações em legalflow.contacts
+
    - Modal de criação com 2 abas (Dados Básicos + Vinculações)
    - Edição inline com formulário completo
    - Exclusão com confirmação
@@ -50,6 +54,7 @@
    - Detecção automática de vinculações com badges
 
 ### **🎨 Features UX:**
+
 - **Icons contextuais**: User/Building para pessoa/empresa
 - **Source badges**: Cliente (público) vs CRM (interno)
 - **Stripe integration**: Badge quando vinculado
@@ -66,12 +71,14 @@
 ### **✅ Funcionalidades Implementadas:**
 
 1. **Dashboard de Leads**: Leitura de public.leads
+
    - Stats cards: Total, Ativos, Pausados, Últimos 7d, Fontes
    - Filtros avançados: origem, status, período
    - Busca por nome/WhatsApp
    - Badges de origem e status
 
 2. **Conversão Automatizada**: RPC legalflow.crm_convert_lead()
+
    - Botão "Converter" chama função SQL
    - Cria contato em legalflow.contacts
    - Cria deal no pipeline sales, estágio "novo"
@@ -84,6 +91,7 @@
    - Indicadores de tempo (criado há X tempo)
 
 ### **🎯 Workflow de Conversão:**
+
 1. **Lead identificado** → Aparece na lista
 2. **Análise** → Filtros e busca para qualificação
 3. **Conversão** → Um clique cria contato + deal
@@ -98,12 +106,14 @@
 ### **✅ Kanban Implementado:**
 
 1. **Pipeline Visual**: Kanban por stages (novo → qualificado → proposta → ganho/perdido)
+
    - Cards drag & drop entre estágios
    - Cores dinâmicas por estágio
    - Contadores por coluna
    - Valor total por estágio
 
 2. **Deal Management**:
+
    - Modal de criação com autocomplete de contatos
    - Edição inline de deals existentes
    - Campos: título, valor, moeda, probabilidade, data esperada
@@ -116,6 +126,7 @@
    - Timeline de última atualização
 
 ### **🔧 Recursos Técnicos:**
+
 - **Drag & Drop**: Movimentação visual entre estágios
 - **Real-time updates**: React Query invalidation
 - **Contact integration**: Autocomplete de legalflow.contacts
@@ -131,11 +142,13 @@
 ### **✅ Visão Unificada Implementada:**
 
 1. **Coluna A - Resumo**:
+
    - Informações de contato (email, telefone, WhatsApp, CPF/CNPJ)
    - Vinculações (Cliente público + Stripe)
    - Stats resumo (atividades, deals, valor total, tickets)
 
 2. **Coluna B - Timeline + Tabs**:
+
    - **Timeline unificada**: Activities + Deals + Tickets ordenados por data
    - **Tab Activities**: Lista de tarefas com criação inline
    - **Tab Deals**: Oportunidades do contato com valores
@@ -148,6 +161,7 @@
    - **Criar Checkout**: Preparado para Stripe (se vinculado)
 
 ### **🎨 Features Avançadas:**
+
 - **Timeline unificada**: Merge de 3 tipos de eventos por data
 - **Status badges**: Cores contextuais por tipo (activity/ticket/deal)
 - **Stats dinâmicos**: Contadores em tempo real
@@ -164,12 +178,14 @@
 ### **✅ Analytics Implementados:**
 
 1. **Conversão por Estágio**:
+
    - Funil visual com taxas de conversão
    - Progress bars por estágio
    - Tempo médio em cada estágio
    - Valor total por estágio
 
 2. **Receita e Performance**:
+
    - Receita por período (semanal)
    - Breakdown: ganho vs perdido vs pipeline ativo
    - Top contatos por receita gerada
@@ -182,6 +198,7 @@
    - Refresh manual de dados
 
 ### **🔍 Análises Avançadas:**
+
 - **Conversion funnel**: Visualização em barras proporcionais
 - **Time in stage**: Identificação de gargalos
 - **Revenue trends**: Evolução temporal da receita
@@ -194,6 +211,7 @@
 ## 🔗 **ROTAS IMPLEMENTADAS**
 
 ### **CRM Module Routes:**
+
 ```
 /crm/contatos        - Lista de contatos unificada
 /crm/contatos/:id    - Perfil 360º do contato
@@ -203,8 +221,9 @@
 ```
 
 ### **Integração com App.tsx:**
+
 - **Demo routes**: DemoProtectedRoute userType="advogado"
-- **Regular routes**: ProtectedRoute userType="advogado" 
+- **Regular routes**: ProtectedRoute userType="advogado"
 - **Nested routing**: suporte a parâmetros (:id)
 
 ---
@@ -212,6 +231,7 @@
 ## 🧪 **CHECKLIST DE ACEITE - CRM**
 
 ### **✅ Contatos:**
+
 - [x] CRUD completo em legalflow.contacts
 - [x] Busca por nome/email/whatsapp/cpfcnpj funcionais
 - [x] Vincular a Cliente (public) dropdown operacional
@@ -219,30 +239,35 @@
 - [x] View unificada legalflow.vw_contacts_unified
 
 ### **✅ Leads:**
+
 - [x] Conversão cria contato + deal automaticamente
 - [x] RPC legalflow.crm_convert_lead() operacional
 - [x] Filtros por período, origem, status funcionais
 - [x] Stats dashboard com métricas corretas
 
 ### **✅ Deals:**
+
 - [x] Kanban atualiza stage_id ao mover cards
 - [x] Criação/edição de deals funcionais
 - [x] Autocomplete de contatos operacional
 - [x] Pipeline stages baseado em legalflow.pipeline_stages
 
 ### **✅ Perfil do Contato:**
+
 - [x] Timeline agregada (activities/tickets/deals) funcionais
 - [x] Ações rápidas criam registros corretos
 - [x] Stats resumo calculados dinamicamente
 - [x] Vinculações (Cliente + Stripe) exibidas
 
 ### **✅ Relatórios:**
+
 - [x] Conversão por estágio com taxas corretas
 - [x] Tempo médio no estágio calculado
 - [x] Receita por período agregada corretamente
 - [x] Top contatos rankeados por valor
 
 ### **✅ UX/Acessibilidade:**
+
 - [x] Contraste AA+ em todos os componentes
 - [x] Focus ring visível em elementos interativos
 - [x] Paginação 25/pg conforme especificação
@@ -256,9 +281,10 @@
 **FASE 5 - CRM UNIFICADO COMPLETAMENTE IMPLEMENTADA COM 100% DE SUCESSO**
 
 Todos os requisitos foram atendidos com excelência:
+
 - ✅ Schema SQL idempotente com contatos unificados
 - ✅ Sistema completo de gestão de contatos + merge
-- ✅ Conversão automatizada de leads em contatos + deals  
+- ✅ Conversão automatizada de leads em contatos + deals
 - ✅ Pipeline kanban visual com drag & drop
 - ✅ Perfil 360º do contato com timeline unificada
 - ✅ Relatórios executivos com analytics avançados
@@ -272,9 +298,11 @@ Todos os requisitos foram atendidos com excelência:
 ## 📁 **ARQUIVOS CRIADOS - CRM**
 
 ### **SQL Schema:**
+
 - `SQL_PHASE5_CRM_SCHEMA.sql` (238 linhas) - Schema completo do CRM
 
 ### **React Pages:**
+
 - `client/pages/crm/Contatos.tsx` (664 linhas) - Gestão de contatos
 - `client/pages/crm/Leads.tsx` (435 linhas) - Conversão de leads
 - `client/pages/crm/Deals.tsx` (758 linhas) - Pipeline de vendas
@@ -282,6 +310,7 @@ Todos os requisitos foram atendidos com excelência:
 - `client/pages/crm/Reports.tsx` (556 linhas) - Relatórios CRM
 
 ### **Integração:**
+
 - `client/App.tsx` (modificado) - 10 novas rotas CRM
 
 ---
