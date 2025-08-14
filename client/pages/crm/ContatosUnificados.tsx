@@ -104,7 +104,7 @@ const ContatosUnificados = () => {
 
   // Query para estatísticas
   const { data: stats } = useSupabaseQuery(
-    'contacts-stats',
+    ['contacts-stats'],
     `
       SELECT 
         COUNT(*) as total,
