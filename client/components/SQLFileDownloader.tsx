@@ -358,32 +358,43 @@ export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className 
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                onClick={downloadSQL}
+                variant="outline"
+                className="flex-1 text-xs"
+              >
+                <Download className="mr-2 h-3 w-3" />
+                Baixar SQL
+              </Button>
+
+              <Button
+                onClick={copyToClipboard}
+                variant="outline"
+                className="flex-1 text-xs"
+              >
+                <Copy className="mr-2 h-3 w-3" />
+                Copiar
+              </Button>
+
+              <Button
+                onClick={openSupabase}
+                variant="outline"
+                className="flex-1 text-xs"
+              >
+                <ExternalLink className="mr-2 h-3 w-3" />
+                Abrir Supabase
+              </Button>
+            </div>
+
             <Button
-              onClick={downloadSQL}
-              variant="outline"
-              className="flex-1 text-xs"
+              onClick={downloadCleanupSQL}
+              variant="destructive"
+              size="sm"
+              className="w-full text-xs"
             >
-              <Download className="mr-2 h-3 w-3" />
-              Baixar SQL
-            </Button>
-            
-            <Button
-              onClick={copyToClipboard}
-              variant="outline"
-              className="flex-1 text-xs"
-            >
-              <Copy className="mr-2 h-3 w-3" />
-              Copiar
-            </Button>
-            
-            <Button
-              onClick={openSupabase}
-              variant="outline"
-              className="flex-1 text-xs"
-            >
-              <ExternalLink className="mr-2 h-3 w-3" />
-              Abrir Supabase
+              🧹 Baixar Script de Limpeza (Remove tudo)
             </Button>
           </div>
 
