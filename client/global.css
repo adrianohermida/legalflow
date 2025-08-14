@@ -150,12 +150,218 @@ select {
   transition: border-color 0.2s ease-out;
 }
 
+/* ============================
+   PHASE 5 - ACCESSIBILITY ENHANCEMENTS
+============================ */
+
+/* Focus styles for all interactive elements */
+*:focus {
+  outline: var(--focus-ring) !important;
+  outline-offset: var(--focus-offset) !important;
+}
+
+/* Specific focus for form elements */
 input:focus,
 textarea:focus,
 select:focus {
   outline: var(--focus-ring);
   outline-offset: 2px;
   border-color: var(--brand-700);
+}
+
+/* Button focus styles */
+button:focus,
+[role="button"]:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Link focus styles */
+a:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  text-decoration: underline;
+}
+
+/* Focus for custom components */
+[tabindex]:focus,
+[role="tab"]:focus,
+[role="tabpanel"]:focus,
+[role="dialog"]:focus,
+[role="menu"]:focus,
+[role="menuitem"]:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--neutral-900);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: 600;
+}
+
+.skip-to-content:focus {
+  top: 6px;
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: #000000;
+    --neutral-600: #000000;
+    --focus-ring: 3px solid #000000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast colors for better accessibility */
+.high-contrast {
+  --neutral-900: #000000;
+  --neutral-100: #ffffff;
+  --border: #000000;
+}
+
+/* ARIA live regions */
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[aria-live][aria-live="polite"]:not(:empty),
+[aria-live][aria-live="assertive"]:not(:empty) {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* Loading states accessibility */
+[aria-busy="true"] {
+  cursor: wait;
+}
+
+[aria-busy="true"] * {
+  pointer-events: none;
+}
+
+/* Error states */
+[aria-invalid="true"] {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+
+/* Required field indicator */
+[aria-required="true"]::after {
+  content: " *";
+  color: #dc2626;
+  font-weight: bold;
+}
+
+/* Disabled state */
+[aria-disabled="true"],
+[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Focus within for containers */
+.focus-within:focus-within {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* Tooltip accessibility */
+[role="tooltip"] {
+  background: var(--neutral-900);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  z-index: 1000;
+}
+
+/* Table accessibility */
+table[role="table"] {
+  border-collapse: collapse;
+}
+
+table[role="table"] th,
+table[role="table"] td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+}
+
+table[role="table"] th {
+  background: var(--neutral-100);
+  font-weight: 600;
+}
+
+/* Form validation messages */
+.field-error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+.field-help {
+  color: var(--neutral-600);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+/* ============================
+   PT-BR LOCALE & TIMEZONE
+============================ */
+
+/* Date/time formatting for pt-BR */
+.datetime-br {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Currency formatting for BRL */
+.currency-br::before {
+  content: "R$ ";
+}
+
+/* Phone number formatting for Brazil */
+.phone-br {
+  font-variant-numeric: tabular-nums;
 }
 
 .card {
