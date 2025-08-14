@@ -148,6 +148,12 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
   const [createActivity, setCreateActivity] = useState(false);
   const [selectedSource, setSelectedSource] = useState<'advise' | 'escavador'>('advise');
 
+  // Saved views and accessibility
+  const [savedViews, setSavedViews] = useState<SF4SavedView[]>([]);
+  const [showSaveViewDialog, setShowSaveViewDialog] = useState(false);
+  const [saveViewName, setSaveViewName] = useState('');
+  const anyDialogOpen = showVincularDialog || showCriarEtapaDialog || showNotificarDialog || showBuscarCadastrarDialog || showSaveViewDialog;
+
   const pageSize = 25;
 
   // Update URL params when filters change
