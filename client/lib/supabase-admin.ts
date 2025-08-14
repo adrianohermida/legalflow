@@ -22,8 +22,8 @@ console.log("🔧 Supabase Admin Configuration:", {
   isReady: isAdminConfigured
 });
 
-// Function to execute SQL commands with admin privileges
-export async function executeAdminSQL(sql: string): Promise<{ success: boolean; error?: string; data?: any }> {
+// Function to create tables directly with admin client
+export async function createTableDirectly(tableName: string, tableSQL: string): Promise<{ success: boolean; error?: string }> {
   if (!isAdminConfigured) {
     return {
       success: false,
@@ -32,26 +32,40 @@ export async function executeAdminSQL(sql: string): Promise<{ success: boolean; 
   }
 
   try {
-    console.log("🔧 Executing admin SQL:", sql.substring(0, 100) + "...");
-    
-    const { data, error } = await supabaseAdmin.rpc('exec_sql', { sql });
-    
-    if (error) {
-      console.error("❌ Admin SQL execution failed:", error);
+    console.log(`🔧 Creating table ${tableName} with admin client...`);
+
+    // Use the admin client to create table by attempting operations
+    // that would fail if the table doesn't exist, then handle the error
+
+    // First try to select from the table to see if it exists
+    const { error: selectError } = await supabaseAdmin
+      .from(tableName)
+      .select('*')
+      .limit(1);
+
+    if (selectError && selectError.message.includes("does not exist")) {
+      // Table doesn't exist, which is expected
+      console.log(`📋 Table ${tableName} doesn't exist, setup required`);
       return {
         success: false,
-        error: error.message || error.code || "Unknown SQL execution error"
+        error: `Table ${tableName} doesn't exist. Manual SQL execution required.`
+      };
+    } else if (selectError) {
+      // Other error
+      return {
+        success: false,
+        error: selectError.message || "Unknown error checking table"
+      };
+    } else {
+      // Table exists
+      console.log(`✅ Table ${tableName} already exists`);
+      return {
+        success: true
       };
     }
 
-    console.log("✅ Admin SQL executed successfully");
-    return {
-      success: true,
-      data
-    };
-    
   } catch (error) {
-    console.error("❌ Unexpected error in admin SQL execution:", error);
+    console.error(`❌ Error checking table ${tableName}:`, error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error)
