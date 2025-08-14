@@ -22,7 +22,10 @@ import {
   Building,
   Settings,
   Key,
-  RefreshCw
+  RefreshCw,
+  Zap,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { routeCoverageSystem, RouteTest, RouteCoverageStats } from "../lib/route-coverage-system";
@@ -63,7 +66,7 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
       });
 
       toast({
-        title: "Teste de Rotas Conclu��do",
+        title: "Teste de Rotas Concluído",
         description: "Todos os testes de rota foram executados com sucesso",
         variant: "default",
       });
