@@ -547,9 +547,9 @@ const AutofixTesting: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">🧪 Autofix System Testing</h1>
+          <h1 className="text-3xl font-bold">🧪 Autofix System Testing + SF-1 Routes</h1>
           <p className="text-muted-foreground">
-            Suite completa de testes para o módulo autofix com integração Builder.io
+            Suite completa de testes para o módulo autofix + QA visual de rotas com health check e deeplinks
           </p>
           <div className="flex gap-2 items-center text-sm">
             <Badge variant={credentials?.public_key_configured && credentials?.private_key_configured ? "default" : "secondary"}>
