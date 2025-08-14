@@ -809,6 +809,23 @@ export default function InboxLegalV2() {
                                 <Bell className="w-4 h-4 mr-1" />
                                 Notificar
                               </Button>
+                              <CreateStageDialog
+                                numeroCnj={item.numero_cnj || undefined}
+                                defaultTitle={`Analisar publicação: ${getResumo(item)?.substring(0, 50)}...`}
+                                defaultDescription={`Publicação recebida em ${formatDate(item.occured_at)}`}
+                                onSuccess={() => {
+                                  toast({
+                                    title: "Etapa criada",
+                                    description: "Etapa de jornada criada a partir da publicação.",
+                                  });
+                                }}
+                                trigger={
+                                  <Button variant="ghost" size="sm">
+                                    <Target className="w-4 h-4 mr-1" />
+                                    Criar Etapa
+                                  </Button>
+                                }
+                              />
                               {item.payload?.url && (
                                 <Button
                                   variant="ghost"
