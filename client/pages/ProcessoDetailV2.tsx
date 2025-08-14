@@ -92,8 +92,7 @@ import { supabase, lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
 import ProcessoChatDrawer from "../components/ProcessoChatDrawer";
-import { useProcessoRealtimeUpdates } from "../hooks/useRealtimeUpdates";
-import { useSyncJobsRealtime } from "../hooks/useSyncJobsRealtime";
+import { useProcessoRealtimeComplete } from "../hooks/useProcessoRealtimeComplete";
 
 interface Processo {
   numero_cnj: string;
