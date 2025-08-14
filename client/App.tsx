@@ -640,6 +640,14 @@ function RegularAppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/config/flags"
+        element={
+          <ProtectedRoute userType="advogado">
+            <FeatureFlags />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
