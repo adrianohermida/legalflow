@@ -317,6 +317,7 @@ class AutofixHistoryManager {
     request: BuilderPromptRequest,
     promptId: string
   ): Promise<BuilderPromptResponse> {
+    // Wrap everything in ultimate try-catch to prevent any errors from propagating
     try {
       console.log("🔗 Attempting to call Builder.io API...");
 
