@@ -10,7 +10,7 @@ import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { CheckCircle, XCircle, AlertCircle, Play, Database, Key, Settings, TestTube } from "lucide-react";
 import { autofixHistory, BuilderPromptRequest } from "../lib/autofix-history";
-import { createAutofixTables, insertSampleData } from "../lib/supabase-setup-helper";
+import { createAutofixTables, insertSampleData, validateDatabaseSetup, getSetupInstructions, checkTablesExist } from "../lib/supabase-setup-helper";
 import { useToast } from "../hooks/use-toast";
 
 interface TestResult {
