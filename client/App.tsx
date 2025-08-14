@@ -63,6 +63,13 @@ import FeatureFlags from "./pages/FeatureFlags";
 import DevTools from "./pages/DevTools";
 import LaunchPlan from "./pages/LaunchPlan";
 
+// CRM pages
+import CRMContatos from "./pages/crm/Contatos";
+import CRMLeads from "./pages/crm/Leads";
+import CRMDeals from "./pages/crm/Deals";
+import ContactProfile from "./pages/crm/ContactProfile";
+import CRMReports from "./pages/crm/Reports";
+
 // Portal do Cliente pages
 import { PortalChat } from "./pages/portal/PortalChat";
 import { PortalJornada } from "./pages/portal/PortalJornada";
