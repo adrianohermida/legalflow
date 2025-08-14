@@ -19,6 +19,8 @@ import {
 import { useToast } from "../hooks/use-toast";
 import { supabase } from "../lib/supabase";
 import { implAudit, implAutofix } from "../lib/audit-rpcs";
+import { AutofixHistoryPanel } from "../components/AutofixHistoryPanel";
+import { autofixHistory } from "../lib/autofix-history";
 import {
   Shield,
   CheckCircle,
@@ -359,7 +361,7 @@ const DevAuditoria: React.FC = () => {
           ? "✅ Sistema Íntegro"
           : hasCriticalIssues
             ? "⚠️ Pendências Detectadas"
-            : "🔄 Verificação Parcial",
+            : "��� Verificação Parcial",
         description: `${okModules} OK • ${errorModules} pendências • ${pendingModules} aguardando${
           hasCriticalIssues ? " - Use Autofix para corrigir" : ""
         }`,
