@@ -1,870 +1,629 @@
-import React, { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import {
+import React, { useState, useRef } from 'react';
+import { 
+  Upload, 
+  FileText, 
+  Download, 
+  Eye, 
+  Edit2, 
+  Trash2, 
   Search,
-  Upload,
-  FileText,
-  Download,
-  Eye,
-  Plus,
-  Wand2,
-  CheckCircle,
-  Clock,
-  AlertCircle,
   Filter,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  AlertTriangle,
-  Trash2,
-  File,
-} from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
-import { useToast } from "../hooks/use-toast";
+  Plus,
+  FolderOpen,
+  History,
+  ScanText,
+  Share,
+  Lock,
+  Unlock,
+  Star,
+  Copy,
+  RotateCcw,
+  Archive
+} from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
+import { supabase, lf } from '../lib/supabase';
+import { useToast } from '../hooks/use-toast';
 
 interface Documento {
   id: string;
-  numero_cnj: string | null;
   file_name: string;
-  file_path: string;
   file_size: number;
-  metadata: any | null;
+  file_type: string;
+  file_path: string;
+  content_type: string;
+  status: 'draft' | 'active' | 'archived';
+  visibility: 'public' | 'private' | 'restricted';
+  category: string;
+  tags: string[];
+  description?: string;
+  ocr_text?: string;
+  ocr_status: 'pending' | 'processing' | 'completed' | 'failed';
+  version: number;
+  parent_id?: string;
+  created_by: string;
   created_at: string;
+  updated_at: string;
+  processo_cnj?: string;
+  cliente_cpfcnpj?: string;
+  favorited: boolean;
+  download_count: number;
+  access_count: number;
 }
 
-interface Peticao {
-  id: string;
-  numero_cnj: string | null;
-  tipo: string | null;
-  conteudo: string | null;
-  created_at: string;
-}
-
-export function Documentos() {
-  const [activeTab, setActiveTab] = useState("biblioteca");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterCNJ, setFilterCNJ] = useState("todos");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [isPeticaoDialogOpen, setIsPeticaoDialogOpen] = useState(false);
-
+const Documentos = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const itemsPerPage = 20;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedDocument, setSelectedDocument] = useState<Documento | null>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // P2.6 - Buscar documentos (uploads livres)
-  const {
-    data: documentosData = { data: [], total: 0, totalPages: 0 },
-    isLoading: documentosLoading,
-    error: documentosError,
-  } = useQuery({
-    queryKey: ["documentos", searchTerm, filterCNJ, currentPage],
-    queryFn: async () => {
-      let query = supabase
-        .from("documents")
-        .select("*", { count: "exact" })
-        .order("created_at", { ascending: false });
+  // Queries
+  const { data: documentos = [], isLoading, refetch } = useSupabaseQuery(
+    'documentos-avancados',
+    `
+      SELECT 
+        d.*,
+        u.email as created_by_email,
+        COUNT(DISTINCT dv.id) as version_count,
+        COUNT(DISTINCT da.id) as access_count
+      FROM legalflow.documentos d
+      LEFT JOIN auth.users u ON u.id = d.created_by
+      LEFT JOIN legalflow.documento_versions dv ON dv.document_id = d.id
+      LEFT JOIN legalflow.documento_access da ON da.document_id = d.id
+      WHERE d.status != 'deleted'
+      GROUP BY d.id, u.email
+      ORDER BY d.updated_at DESC
+    `,
+    []
+  );
 
-      // Aplicar filtros
-      if (searchTerm) {
-        query = query.or(
-          `file_name.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
-        );
+  const { data: categorias = [] } = useSupabaseQuery(
+    'documento-categorias',
+    `
+      SELECT 
+        category as name,
+        COUNT(*) as count
+      FROM legalflow.documentos
+      WHERE status != 'deleted'
+      GROUP BY category
+      ORDER BY count DESC
+    `,
+    []
+  );
+
+  const { data: stats } = useSupabaseQuery(
+    'documentos-stats',
+    `
+      SELECT 
+        COUNT(*) as total,
+        COUNT(*) FILTER (WHERE status = 'active') as active,
+        COUNT(*) FILTER (WHERE status = 'draft') as drafts,
+        COUNT(*) FILTER (WHERE status = 'archived') as archived,
+        COUNT(*) FILTER (WHERE ocr_status = 'completed') as ocr_completed,
+        SUM(file_size) as total_size,
+        COUNT(*) FILTER (WHERE favorited = true) as favorited
+      FROM legalflow.documentos
+      WHERE status != 'deleted'
+    `,
+    []
+  );
+
+  // Filtros
+  const filteredDocumentos = documentos?.filter(doc => {
+    const matchesSearch = doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.ocr_text?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
+    const matchesStatus = selectedStatus === 'all' || doc.status === selectedStatus;
+    
+    return matchesSearch && matchesCategory && matchesStatus;
+  }) || [];
+
+  // Upload de arquivo
+  const handleFileUpload = async (file: File, metadata: any) => {
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // 1. Upload do arquivo para Supabase Storage
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = `documentos/${fileName}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file, {
+          onUploadProgress: (progress) => {
+            setUploadProgress((progress.loaded / progress.total) * 100);
+          }
+        });
+
+      if (uploadError) throw uploadError;
+
+      // 2. Criar registro no banco
+      const { data: docData, error: docError } = await lf
+        .from('documentos')
+        .insert({
+          file_name: file.name,
+          file_size: file.size,
+          file_type: file.type,
+          file_path: filePath,
+          content_type: file.type,
+          status: metadata.status || 'active',
+          visibility: metadata.visibility || 'private',
+          category: metadata.category,
+          description: metadata.description,
+          tags: metadata.tags || [],
+          processo_cnj: metadata.processo_cnj,
+          cliente_cpfcnpj: metadata.cliente_cpfcnpj,
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+          version: 1,
+          ocr_status: file.type.includes('pdf') || file.type.includes('image') ? 'pending' : 'completed'
+        })
+        .select()
+        .single();
+
+      if (docError) throw docError;
+
+      // 3. Iniciar OCR se aplicável
+      if (file.type.includes('pdf') || file.type.includes('image')) {
+        await initiateOCR(docData.id, filePath);
       }
 
-      if (filterCNJ !== "todos") {
-        if (filterCNJ === "com-cnj") {
-          query = query.not("numero_cnj", "is", null);
-        } else if (filterCNJ === "sem-cnj") {
-          query = query.is("numero_cnj", null);
-        } else {
-          query = query.eq("numero_cnj", filterCNJ);
-        }
-      }
-
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query.range(
-        startIndex,
-        startIndex + itemsPerPage - 1,
-      );
-
-      if (error) throw error;
-
-      return {
-        data: data || [],
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / itemsPerPage),
-      };
-    },
-    enabled: activeTab === "biblioteca",
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // P2.6 - Buscar peções (IA)
-  const {
-    data: peticoesData = { data: [], total: 0, totalPages: 0 },
-    isLoading: peticoesLoading,
-    error: peticoesError,
-  } = useQuery({
-    queryKey: ["peticoes", searchTerm, filterCNJ, currentPage],
-    queryFn: async () => {
-      let query = supabase
-        .from("peticoes")
-        .select("*", { count: "exact" })
-        .order("created_at", { ascending: false });
-
-      // Aplicar filtros
-      if (searchTerm) {
-        query = query.or(
-          `tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
-        );
-      }
-
-      if (filterCNJ !== "todos") {
-        if (filterCNJ === "com-cnj") {
-          query = query.not("numero_cnj", "is", null);
-        } else if (filterCNJ === "sem-cnj") {
-          query = query.is("numero_cnj", null);
-        } else {
-          query = query.eq("numero_cnj", filterCNJ);
-        }
-      }
-
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const { data, error, count } = await query.range(
-        startIndex,
-        startIndex + itemsPerPage - 1,
-      );
-
-      if (error) throw error;
-
-      return {
-        data: data || [],
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / itemsPerPage),
-      };
-    },
-    enabled: activeTab === "pecas",
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Buscar processos para filtro
-  const { data: processos = [] } = useQuery({
-    queryKey: ["processos-para-filtro"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("processos")
-        .select("numero_cnj")
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // P2.6 - Mutation para upload de documento
-  const uploadMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const file = formData.get("file") as File;
-      const numero_cnj = formData.get("numero_cnj") as string;
-      const metadata = {
-        originalName: file.name,
-        size: file.size,
-        type: file.type,
-        uploadedAt: new Date().toISOString(),
-      };
-
-      // Simular upload (na implementação real, usar Supabase Storage)
-      const file_path = `documents/${Date.now()}-${file.name}`;
-
-      const { data, error } = await supabase
-        .from("documents")
-        .insert([
-          {
-            numero_cnj: numero_cnj || null,
-            file_name: file.name,
-            file_path,
-            file_size: file.size,
-            metadata,
-          },
-        ])
-        .select();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documentos"] });
-      setIsUploadDialogOpen(false);
       toast({
-        title: "Documento enviado",
-        description: "Documento adicionado à biblioteca",
+        title: 'Documento enviado com sucesso!',
+        description: `${file.name} foi adicionado à biblioteca.`
       });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao enviar documento",
-        variant: "destructive",
-      });
-    },
-  });
 
-  // P2.6 - Mutation para criar petição
-  const peticaoMutation = useMutation({
-    mutationFn: async (data: {
-      tipo: string;
-      numero_cnj: string;
-      conteudo: string;
-    }) => {
-      const { data: result, error } = await supabase
-        .from("peticoes")
-        .insert([
-          {
-            tipo: data.tipo,
-            numero_cnj: data.numero_cnj || null,
-            conteudo: data.conteudo,
-          },
-        ])
-        .select();
-
-      if (error) throw error;
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["peticoes"] });
-      setIsPeticaoDialogOpen(false);
+      setIsUploadOpen(false);
+      refetch();
+      
+    } catch (error) {
+      console.error('Erro no upload:', error);
       toast({
-        title: "Petição criada",
-        description: "Nova petição adicionada com sucesso",
+        title: 'Erro no upload',
+        description: 'Não foi possível enviar o documento.',
+        variant: 'destructive'
       });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao criar petição",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUpload = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    uploadMutation.mutate(formData);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
-  const handleCreatePeticao = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
+  // Iniciar OCR
+  const initiateOCR = async (documentId: string, filePath: string) => {
+    try {
+      // Chamar função Edge para processar OCR
+      const response = await fetch('/.netlify/functions/process-ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documentId, filePath })
+      });
 
-    peticaoMutation.mutate({
-      tipo: formData.get("tipo") as string,
-      numero_cnj: formData.get("numero_cnj") as string,
-      conteudo: formData.get("conteudo") as string,
-    });
+      if (!response.ok) {
+        throw new Error('Falha ao iniciar OCR');
+      }
+
+      // Atualizar status
+      await lf
+        .from('documentos')
+        .update({ ocr_status: 'processing' })
+        .eq('id', documentId);
+
+    } catch (error) {
+      console.error('Erro ao iniciar OCR:', error);
+      await lf
+        .from('documentos')
+        .update({ ocr_status: 'failed' })
+        .eq('id', documentId);
+    }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
+  // Favoritar documento
+  const toggleFavorite = async (documentId: string, currentStatus: boolean) => {
+    try {
+      await lf
+        .from('documentos')
+        .update({ favorited: !currentStatus })
+        .eq('id', documentId);
+      
+      refetch();
+      toast({
+        title: !currentStatus ? 'Documento favoritado' : 'Removido dos favoritos',
+        description: 'Documento atualizado com sucesso.'
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar o documento.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Download de documento
+  const downloadDocument = async (documento: Documento) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .download(documento.file_path);
+
+      if (error) throw error;
+
+      // Criar link de download
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = documento.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Incrementar contador de downloads
+      await lf
+        .from('documentos')
+        .update({ download_count: documento.download_count + 1 })
+        .eq('id', documento.id);
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: 'Erro no download',
+        description: 'Não foi possível baixar o documento.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Criar nova versão
+  const createNewVersion = async (originalDoc: Documento, file: File) => {
+    try {
+      const fileName = `${Date.now()}-v${originalDoc.version + 1}-${file.name}`;
+      const filePath = `documentos/${fileName}`;
+      
+      // Upload da nova versão
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Criar nova versão
+      const { error: versionError } = await lf
+        .from('documentos')
+        .insert({
+          ...originalDoc,
+          id: undefined, // Novo ID será gerado
+          file_name: file.name,
+          file_size: file.size,
+          file_path: filePath,
+          parent_id: originalDoc.parent_id || originalDoc.id,
+          version: originalDoc.version + 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          ocr_status: file.type.includes('pdf') || file.type.includes('image') ? 'pending' : 'completed'
+        });
+
+      if (versionError) throw versionError;
+
+      toast({
+        title: 'Nova versão criada',
+        description: `Versão ${originalDoc.version + 1} do documento foi criada.`
+      });
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível criar nova versão.',
+        variant: 'destructive'
+      });
+    }
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const formatCNJ = (cnj: string | null) => {
-    if (!cnj) return null;
-    const clean = cnj.replace(/\D/g, "");
-    if (clean.length === 20) {
-      return clean.replace(
-        /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
-        "$1-$2.$3.$4.$5.$6",
-      );
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="secondary" className="bg-green-100 text-green-800">Ativo</Badge>;
+      case 'draft':
+        return <Badge variant="outline">Rascunho</Badge>;
+      case 'archived':
+        return <Badge variant="secondary" className="bg-gray-100 text-gray-800">Arquivado</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
-    return cnj;
   };
 
-  const currentData =
-    activeTab === "biblioteca" ? documentosData : peticoesData;
-  const currentLoading =
-    activeTab === "biblioteca" ? documentosLoading : peticoesLoading;
-  const currentError =
-    activeTab === "biblioteca" ? documentosError : peticoesError;
+  const getOCRBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">OCR Concluído</Badge>;
+      case 'processing':
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Processando</Badge>;
+      case 'pending':
+        return <Badge variant="outline">OCR Pendente</Badge>;
+      case 'failed':
+        return <Badge variant="destructive">OCR Falhou</Badge>;
+      default:
+        return null;
+    }
+  };
 
-  if (currentError) {
-    return (
-      <div className="space-y-6 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-heading font-semibold">
-              Documentos & Peças
-            </h1>
-            <p className="text-neutral-600 mt-1">
-              Centralizar entregáveis e preparar jornada
-            </p>
-          </div>
+  return (
+    <div className="container mx-auto py-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            📁 Gestão de Documentos
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Biblioteca avançada com versionamento, OCR e controle de acesso
+          </p>
         </div>
+        
+        <Button onClick={() => setIsUploadOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Documento
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6">
-            <div className="text-center">
-              <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                Erro ao carregar dados
-              </h3>
-              <p className="text-neutral-600 mb-4">{currentError.message}</p>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <FileText className="h-8 w-8 text-blue-600" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Total</p>
+                <p className="text-2xl font-bold">{stats?.total || 0}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
 
-  return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-heading font-semibold">
-            Documentos & Peças
-          </h1>
-          <p className="text-neutral-600 mt-1">
-            Centralizar entregáveis e preparar jornada
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Dialog
-            open={isUploadDialogOpen}
-            onOpenChange={setIsUploadDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Upload className="w-4 h-4 mr-2" />
-                Upload
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <form onSubmit={handleUpload}>
-                <DialogHeader>
-                  <DialogTitle>Upload de Documento</DialogTitle>
-                  <DialogDescription>
-                    Adicione um documento à biblioteca
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Arquivo *
-                    </label>
-                    <Input name="file" type="file" required />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Processo (CNJ)
-                    </label>
-                    <Select name="numero_cnj">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um processo (opcional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Nenhum processo</SelectItem>
-                        {processos.map((processo) => (
-                          <SelectItem
-                            key={processo.numero_cnj}
-                            value={processo.numero_cnj}
-                          >
-                            {formatCNJ(processo.numero_cnj)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsUploadDialogOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={uploadMutation.isPending}>
-                    {uploadMutation.isPending && (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    )}
-                    Upload
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <ScanText className="h-8 w-8 text-green-600" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Com OCR</p>
+                <p className="text-2xl font-bold">{stats?.ocr_completed || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Dialog
-            open={isPeticaoDialogOpen}
-            onOpenChange={setIsPeticaoDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button
-                style={{ backgroundColor: "var(--brand-700)", color: "white" }}
-              >
-                <Wand2 className="w-4 h-4 mr-2" />
-                Nova Petição
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <form onSubmit={handleCreatePeticao}>
-                <DialogHeader>
-                  <DialogTitle>Nova Petição (IA)</DialogTitle>
-                  <DialogDescription>
-                    Crie uma nova petição com assistência de IA
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Tipo *
-                    </label>
-                    <Select name="tipo" required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="inicial">Petição Inicial</SelectItem>
-                        <SelectItem value="contestacao">Contestação</SelectItem>
-                        <SelectItem value="recurso">Recurso</SelectItem>
-                        <SelectItem value="manifestacao">
-                          Manifestação
-                        </SelectItem>
-                        <SelectItem value="alegacoes">
-                          Alegações Finais
-                        </SelectItem>
-                        <SelectItem value="outro">Outro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Processo (CNJ)
-                    </label>
-                    <Select name="numero_cnj">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um processo (opcional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Nenhum processo</SelectItem>
-                        {processos.map((processo) => (
-                          <SelectItem
-                            key={processo.numero_cnj}
-                            value={processo.numero_cnj}
-                          >
-                            {formatCNJ(processo.numero_cnj)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Conteúdo *
-                    </label>
-                    <textarea
-                      name="conteudo"
-                      className="w-full min-h-48 p-3 border rounded-lg"
-                      placeholder="Digite o conteúdo da petição ou solicite ajuda da IA..."
-                      required
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsPeticaoDialogOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={peticaoMutation.isPending}>
-                    {peticaoMutation.isPending && (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    )}
-                    Criar Petição
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Star className="h-8 w-8 text-yellow-600" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Favoritos</p>
+                <p className="text-2xl font-bold">{stats?.favorited || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Archive className="h-8 w-8 text-purple-600" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-600">Armazenamento</p>
+                <p className="text-2xl font-bold">
+                  {stats?.total_size ? formatFileSize(stats.total_size) : '0 MB'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filtros */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <Input
-                placeholder={
-                  activeTab === "biblioteca"
-                    ? "Buscar documentos..."
-                    : "Buscar petições..."
-                }
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="pl-10"
-              />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Buscar documentos (nome, descrição, conteúdo OCR)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            <Select
-              value={filterCNJ}
-              onValueChange={(value) => {
-                setFilterCNJ(value);
-                setCurrentPage(1);
-              }}
-            >
+            
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-48">
-                <SelectValue />
+                <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todos">Todos os itens</SelectItem>
-                <SelectItem value="com-cnj">Com CNJ</SelectItem>
-                <SelectItem value="sem-cnj">Sem CNJ</SelectItem>
-                {processos.slice(0, 10).map((processo) => (
-                  <SelectItem
-                    key={processo.numero_cnj}
-                    value={processo.numero_cnj}
-                  >
-                    {formatCNJ(processo.numero_cnj)}
+                <SelectItem value="all">Todas Categorias</SelectItem>
+                {categorias.map(cat => (
+                  <SelectItem key={cat.name} value={cat.name}>
+                    {cat.name} ({cat.count})
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="active">Ativo</SelectItem>
+                <SelectItem value="draft">Rascunho</SelectItem>
+                <SelectItem value="archived">Arquivado</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </CardContent>
       </Card>
 
-      {/* P2.6 - Abas Biblioteca e Peças */}
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => {
-          setActiveTab(value);
-          setCurrentPage(1);
-        }}
-      >
-        <TabsList>
-          <TabsTrigger value="biblioteca" className="flex items-center gap-2">
-            <Upload className="w-4 h-4" />
-            Biblioteca ({documentosData.total})
-          </TabsTrigger>
-          <TabsTrigger value="pecas" className="flex items-center gap-2">
-            <Wand2 className="w-4 h-4" />
-            Peças (IA) ({peticoesData.total})
-          </TabsTrigger>
-          {/* P2.6 - "Entregáveis da Etapa" só aparece quando houver Jornada (F3) */}
-          <TabsTrigger
-            value="entregaveis"
-            className="flex items-center gap-2"
-            disabled
-          >
-            <CheckCircle className="w-4 h-4" />
-            Entregáveis (F3)
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="biblioteca">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Biblioteca de Documentos ({documentosData.total})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {currentLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2
-                    className="w-8 h-8 animate-spin"
-                    style={{ color: "var(--brand-700)" }}
-                  />
-                  <span className="ml-2 text-neutral-600">
-                    Carregando documentos...
-                  </span>
+      {/* Lista de Documentos */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Documentos ({filteredDocumentos.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="grid gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="animate-pulse flex items-center space-x-4 p-4 border rounded-lg">
+                  <div className="h-12 w-12 bg-gray-200 rounded"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
                 </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Arquivo</TableHead>
-                      <TableHead>Processo</TableHead>
-                      <TableHead>Tamanho</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentData.data?.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
-                          <div className="text-neutral-500">
-                            <FileText className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
-                            <p>Nenhum documento encontrado</p>
-                            <p className="text-sm">
-                              Faça upload do primeiro documento
-                            </p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      currentData.data?.map((item: Documento) => (
-                        <TableRow key={item.id} className="hover:bg-neutral-50">
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <File className="w-4 h-4 text-neutral-400" />
-                              <span className="font-medium">
-                                {item.file_name}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {item.numero_cnj ? (
-                              <Badge
-                                style={{
-                                  backgroundColor: "var(--brand-700)",
-                                  color: "white",
-                                }}
-                              >
-                                {formatCNJ(item.numero_cnj)}
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary">Geral</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-sm text-neutral-600">
-                            {formatFileSize(item.file_size)}
-                          </TableCell>
-                          <TableCell className="text-sm text-neutral-600">
-                            {formatDate(item.created_at)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm">
-                                <Eye className="w-4 h-4 mr-1" />
-                                Ver
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Download className="w-4 h-4 mr-1" />
-                                Download
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              ))}
+            </div>
+          ) : filteredDocumentos.length > 0 ? (
+            <div className="grid gap-4">
+              {filteredDocumentos.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <FileText className="h-12 w-12 text-blue-600" />
+                      {doc.favorited && (
+                        <Star className="absolute -top-1 -right-1 h-4 w-4 text-yellow-500 fill-current" />
+                      )}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium">{doc.file_name}</h3>
+                        {getStatusBadge(doc.status)}
+                        {getOCRBadge(doc.ocr_status)}
+                        {doc.version > 1 && (
+                          <Badge variant="outline">v{doc.version}</Badge>
+                        )}
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-1">
+                        {doc.description || 'Sem descrição'}
+                      </p>
+                      
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <span>{formatFileSize(doc.file_size)}</span>
+                        <span>{doc.category}</span>
+                        <span>{doc.download_count} downloads</span>
+                        <span>Por {doc.created_by_email}</span>
+                        <span>{new Date(doc.created_at).toLocaleDateString('pt-BR')}</span>
+                      </div>
+                    </div>
+                  </div>
 
-        <TabsContent value="pecas">
-          <Card>
-            <CardHeader>
-              <CardTitle>Peças Jurídicas (IA) ({peticoesData.total})</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {currentLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2
-                    className="w-8 h-8 animate-spin"
-                    style={{ color: "var(--brand-700)" }}
-                  />
-                  <span className="ml-2 text-neutral-600">
-                    Carregando peças...
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleFavorite(doc.id, doc.favorited)}
+                    >
+                      <Star className={`h-4 w-4 ${doc.favorited ? 'text-yellow-500 fill-current' : 'text-gray-400'}`} />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedDocument(doc);
+                        setIsViewerOpen(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => downloadDocument(doc)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        // Implementar upload de nova versão
+                        if (fileInputRef.current) {
+                          fileInputRef.current.onchange = (e) => {
+                            const file = (e.target as HTMLInputElement).files?.[0];
+                            if (file) {
+                              createNewVersion(doc, file);
+                            }
+                          };
+                          fileInputRef.current.click();
+                        }
+                      }}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Processo</TableHead>
-                      <TableHead>Conteúdo</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentData.data?.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
-                          <div className="text-neutral-500">
-                            <Wand2 className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
-                            <p>Nenhuma petição criada</p>
-                            <p className="text-sm">
-                              Crie sua primeira petição com IA
-                            </p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      currentData.data?.map((item: Peticao) => (
-                        <TableRow key={item.id} className="hover:bg-neutral-50">
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Wand2 className="w-4 h-4 text-neutral-400" />
-                              <span className="font-medium">
-                                {item.tipo || "Não especificado"}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {item.numero_cnj ? (
-                              <Badge
-                                style={{
-                                  backgroundColor: "var(--brand-700)",
-                                  color: "white",
-                                }}
-                              >
-                                {formatCNJ(item.numero_cnj)}
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary">Geral</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-md">
-                              <p className="text-sm text-neutral-700 line-clamp-2">
-                                {item.conteudo
-                                  ? item.conteudo.substring(0, 100) + "..."
-                                  : "Sem conteúdo"}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-neutral-600">
-                            {formatDate(item.created_at)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm">
-                                <Eye className="w-4 h-4 mr-1" />
-                                Ver
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Download className="w-4 h-4 mr-1" />
-                                Baixar
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <FolderOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-600 mb-2">
+                Nenhum documento encontrado
+              </h3>
+              <p className="text-gray-500 mb-4">
+                {searchTerm ? 'Tente ajustar os filtros de busca' : 'Faça upload do primeiro documento'}
+              </p>
+              <Button onClick={() => setIsUploadOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar Documento
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        <TabsContent value="entregaveis">
-          <Card>
-            <CardHeader>
-              <CardTitle>Entregáveis da Etapa</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <CheckCircle className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-neutral-900 mb-2">
-                  Disponível na Fase 3
-                </h3>
-                <p className="text-neutral-600 max-w-md mx-auto">
-                  Os entregáveis da etapa estarão disponíveis quando uma jornada
-                  estiver ativa. Esta funcionalidade será implementada na Fase 3
-                  - Jornadas.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Paginação */}
-      {currentData.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-neutral-600">
-            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
-            {Math.min(currentPage * itemsPerPage, currentData.total)} de{" "}
-            {currentData.total} itens
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
-            <span className="text-sm text-neutral-600">
-              Página {currentPage} de {currentData.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === currentData.totalPages}
-            >
-              Próximo
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Input oculto para upload de nova versão */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+        style={{ display: 'none' }}
+      />
     </div>
   );
-}
+};
+
+export default Documentos;
