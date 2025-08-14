@@ -283,7 +283,8 @@ class AutofixHistoryManager {
       .select("*");
 
     if (error) {
-      throw error;
+      console.error("Failed to fetch system stats:", error.message || error);
+      throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
     }
 
     const modifications = allMods || [];
