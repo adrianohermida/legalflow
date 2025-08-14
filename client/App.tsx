@@ -456,7 +456,7 @@ function DemoAppRoutes() {
         path="/crm/deals"
         element={
           <DemoProtectedRoute userType="advogado">
-            <CRMDeals />
+            <DealsKanban />
           </DemoProtectedRoute>
         }
       />
