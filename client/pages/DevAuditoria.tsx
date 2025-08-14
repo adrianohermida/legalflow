@@ -167,7 +167,7 @@ const DevAuditoria: React.FC = () => {
     {
       id: "inbox-legal",
       name: "Inbox Legal",
-      description: "Vínculo de publicaç��es",
+      description: "Vínculo de publicações",
       icon: <Inbox className="h-5 w-5" />,
       status: "pending",
       checks: [
@@ -382,26 +382,35 @@ const DevAuditoria: React.FC = () => {
 
   const runAutofix = async (patchCode: string) => {
     setIsRunningAutofix(true);
-    
+
     try {
+      // Try to call real RPC function first
       const { data: autofixResult, error } = await supabase.rpc("legalflow.impl_autofix", {
         patch_code: patchCode
       });
-      
+
+      let finalAutofixResult;
+
       if (error) {
-        console.error("Autofix RPC error:", error);
-        toast({
-          title: "Erro no Autofix",
-          description: `Falha ao executar patch ${patchCode}`,
-          variant: "destructive",
-        });
-        return;
+        console.log("RPC not available, using local implementation:", error.message);
+        // Use local implementation
+        finalAutofixResult = await implAutofix(patchCode);
+      } else {
+        finalAutofixResult = autofixResult;
       }
 
-      toast({
-        title: "Autofix Executado",
-        description: autofixResult?.message || `Patch ${patchCode} aplicado com sucesso`,
-      });
+      if (finalAutofixResult?.success) {
+        toast({
+          title: "Autofix Executado",
+          description: finalAutofixResult.message,
+        });
+      } else {
+        toast({
+          title: "Autofix Falhou",
+          description: finalAutofixResult?.message || `Falha ao executar patch ${patchCode}`,
+          variant: "destructive",
+        });
+      }
 
       // Re-run audit after autofix
       setTimeout(() => {
