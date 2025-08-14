@@ -195,11 +195,38 @@ export default function ProcessoDetailV2() {
       const { data, error } = await lf
         .from("partes_processo")
         .select("*")
-        .eq("numero_cnj", numero_cnj);
+        .eq("numero_cnj", numero_cnj)
+        .order("polo, nome");
 
       if (error) throw error;
       return data as Parte[];
     },
+  });
+
+  // Mutation para sincronizar partes via RPC
+  const syncPartesMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await lf.rpc('lf_sync_partes', {
+        p_cnj: numero_cnj
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (count) => {
+      refetchPartes();
+      toast({
+        title: "Partes sincronizadas",
+        description: `${count} partes processadas com sucesso`
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao sincronizar partes",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   });
 
   // Query movimentações
