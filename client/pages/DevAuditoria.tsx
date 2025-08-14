@@ -167,7 +167,7 @@ const DevAuditoria: React.FC = () => {
     {
       id: "inbox-legal",
       name: "Inbox Legal",
-      description: "Vínculo de publicações",
+      description: "Vínculo de publicaç��es",
       icon: <Inbox className="h-5 w-5" />,
       status: "pending",
       checks: [
@@ -288,29 +288,26 @@ const DevAuditoria: React.FC = () => {
     const currentModules = modulesToAudit || modules;
     
     try {
-      // Call RPC function to perform audit
+      // Try to call real RPC function first
       const { data: auditResult, error } = await supabase.rpc("legalflow.impl_audit");
-      
+
+      let finalAuditResult;
+
       if (error) {
-        console.error("Audit RPC error:", error);
-        toast({
-          title: "Erro na Auditoria",
-          description: "Falha ao executar auditoria automática. Simulando resultados...",
-          variant: "destructive",
-        });
-        
-        // Simulate audit results if RPC fails
-        await simulateAudit(currentModules);
-        return;
+        console.log("RPC not available, using local implementation:", error.message);
+        // Use local implementation
+        finalAuditResult = await implAudit();
+      } else {
+        finalAuditResult = auditResult;
       }
 
-      // Process real audit results
+      // Process audit results
       const updatedModules = currentModules.map(module => {
-        const moduleResult = auditResult?.[module.id];
+        const moduleResult = finalAuditResult?.[module.id];
         if (moduleResult) {
           const hasErrors = moduleResult.checks?.some((check: any) => check.status === "error");
           const allOk = moduleResult.checks?.every((check: any) => check.status === "ok");
-          
+
           return {
             ...module,
             status: hasErrors ? "error" : allOk ? "ok" : "pending",
@@ -322,11 +319,11 @@ const DevAuditoria: React.FC = () => {
       });
 
       setModules(updatedModules);
-      
+
       const totalModules = updatedModules.length;
       const okModules = updatedModules.filter(m => m.status === "ok").length;
       const errorModules = updatedModules.filter(m => m.status === "error").length;
-      
+
       toast({
         title: "Auditoria Concluída",
         description: `${okModules}/${totalModules} módulos OK, ${errorModules} com pendências`,
@@ -336,11 +333,9 @@ const DevAuditoria: React.FC = () => {
       console.error("Error running audit:", error);
       toast({
         title: "Erro na Auditoria",
-        description: "Falha ao executar auditoria. Simulando resultados...",
+        description: "Falha crítica ao executar auditoria",
         variant: "destructive",
       });
-      
-      await simulateAudit(currentModules);
     } finally {
       setIsRunningAudit(false);
       setAuditProgress(100);
