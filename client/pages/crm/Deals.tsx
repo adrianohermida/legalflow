@@ -25,7 +25,12 @@ import {
   ChevronRight,
   MoreHorizontal,
   Edit,
-  Trash2
+  Trash2,
+  CreditCard,
+  ShoppingCart,
+  ExternalLink,
+  Loader2,
+  CheckCircle
 } from 'lucide-react';
 
 interface Deal {
@@ -46,6 +51,7 @@ interface Deal {
   stage_order: number;
   is_won: boolean;
   is_lost: boolean;
+  properties?: any;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +70,7 @@ interface Contact {
   name: string;
   email?: string;
   whatsapp?: string;
+  stripe_customer_id?: string;
 }
 
 interface DealFormData {
@@ -76,10 +83,39 @@ interface DealFormData {
   description: string;
 }
 
-const CRMDeals: React.FC = () => {
+interface StripePrice {
+  id: string;
+  product_id: string;
+  product_name: string;
+  unit_amount: number;
+  currency: string;
+  recurring_interval?: string;
+  interval_count?: number;
+  active: boolean;
+}
+
+interface CheckoutData {
+  deal_id: string;
+  price_id: string;
+  quantity: number;
+  mode: 'payment' | 'subscription';
+  metadata: Record<string, string>;
+}
+
+const CRMDealsWithStripe: React.FC = () => {
   const [isNewDealOpen, setIsNewDealOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [checkoutDeal, setCheckoutDeal] = useState<Deal | null>(null);
+  const [checkoutData, setCheckoutData] = useState<CheckoutData>({
+    deal_id: '',
+    price_id: '',
+    quantity: 1,
+    mode: 'payment',
+    metadata: {}
+  });
+  const [creatingCheckout, setCreatingCheckout] = useState(false);
   const [formData, setFormData] = useState<DealFormData>({
     title: '',
     value: '',
@@ -109,7 +145,7 @@ const CRMDeals: React.FC = () => {
     `
     select 
       d.id, d.title, d.value, d.currency, d.stage, d.probability,
-      d.expected_close_date, d.contact_id, d.pipeline_id, d.stage_id,
+      d.expected_close_date, d.contact_id, d.pipeline_id, d.stage_id, d.properties,
       d.created_at, d.updated_at,
       c.name as contact_name, c.email as contact_email, c.whatsapp as contact_whatsapp,
       ps.name as stage_name, ps.order_index as stage_order, ps.is_won, ps.is_lost
@@ -126,10 +162,25 @@ const CRMDeals: React.FC = () => {
   const { data: contacts } = useSupabaseQuery<Contact[]>(
     'contacts-for-deals',
     `
-    select id, name, email, whatsapp
+    select id, name, email, whatsapp, stripe_customer_id
     from legalflow.contacts
     order by name
     limit 100
+    `
+  );
+
+  // Fetch Stripe prices for checkout
+  const { data: stripePrices } = useSupabaseQuery<StripePrice[]>(
+    'stripe-prices-active',
+    `
+    select 
+      sp.id, sp.product_id, sp.unit_amount, sp.currency, 
+      sp.recurring_interval, sp.interval_count, sp.active,
+      spr.name as product_name
+    from legalflow.stripe_prices sp
+    left join legalflow.stripe_products spr on spr.id = sp.product_id
+    where sp.active = true
+    order by spr.name, sp.unit_amount
     `
   );
 
@@ -165,22 +216,20 @@ const CRMDeals: React.FC = () => {
 
   const handleCreateDeal = async () => {
     try {
-      const salesPipelineId = stages?.find(s => s.code === 'novo')?.id;
-      const novoStageId = stages?.find(s => s.code === 'novo')?.id;
-
       const { error } = await supabase
         .from('legalflow.deals')
         .insert({
           title: formData.title,
-          value: parseFloat(formData.value) || 0,
+          value: parseFloat(formData.value),
           currency: formData.currency,
-          stage: 'novo',
-          probability: parseInt(formData.probability) || 50,
-          expected_close_date: formData.expected_close_date || null,
           contact_id: formData.contact_id || null,
-          pipeline_id: salesPipelineId,
-          stage_id: novoStageId,
-          description: formData.description || null
+          probability: parseInt(formData.probability),
+          expected_close_date: formData.expected_close_date || null,
+          description: formData.description || null,
+          stage: 'novo',
+          pipeline_id: stages?.find(s => s.code === 'novo')?.id,
+          stage_id: stages?.find(s => s.code === 'novo')?.id,
+          properties: {}
         });
 
       if (error) throw error;
@@ -211,11 +260,11 @@ const CRMDeals: React.FC = () => {
         .from('legalflow.deals')
         .update({
           title: formData.title,
-          value: parseFloat(formData.value) || 0,
+          value: parseFloat(formData.value),
           currency: formData.currency,
-          probability: parseInt(formData.probability) || 50,
-          expected_close_date: formData.expected_close_date || null,
           contact_id: formData.contact_id || null,
+          probability: parseInt(formData.probability),
+          expected_close_date: formData.expected_close_date || null,
           description: formData.description || null
         })
         .eq('id', editingDeal.id);
@@ -253,7 +302,7 @@ const CRMDeals: React.FC = () => {
 
       toast({
         title: 'Deal excluído',
-        description: 'Oportunidade removida do pipeline'
+        description: 'Oportunidade removida com sucesso'
       });
 
       refetch();
@@ -267,27 +316,18 @@ const CRMDeals: React.FC = () => {
     }
   };
 
-  const handleStageChange = async (dealId: string, newStage: PipelineStage) => {
+  const handleStageChange = async (dealId: string, newStageId: number) => {
     try {
       const { error } = await supabase
         .from('legalflow.deals')
-        .update({
-          stage: newStage.code,
-          stage_id: newStage.id,
-          probability: newStage.is_won ? 100 : newStage.is_lost ? 0 : undefined
-        })
+        .update({ stage_id: newStageId })
         .eq('id', dealId);
 
       if (error) throw error;
 
-      toast({
-        title: 'Deal movido',
-        description: `Movido para ${newStage.name}`
-      });
-
       refetch();
     } catch (error) {
-      console.error('Error moving deal:', error);
+      console.error('Error updating deal stage:', error);
       toast({
         title: 'Erro',
         description: 'Falha ao mover deal',
@@ -305,27 +345,106 @@ const CRMDeals: React.FC = () => {
       contact_id: deal.contact_id || '',
       probability: deal.probability.toString(),
       expected_close_date: deal.expected_close_date || '',
-      description: ''
+      description: deal.properties?.description || ''
     });
   };
 
+  const openCheckout = (deal: Deal) => {
+    setCheckoutDeal(deal);
+    setCheckoutData({
+      deal_id: deal.id,
+      price_id: '',
+      quantity: 1,
+      mode: 'payment',
+      metadata: {
+        deal_id: deal.id,
+        deal_title: deal.title,
+        contact_email: deal.contact_email || ''
+      }
+    });
+    setIsCheckoutOpen(true);
+  };
+
+  const handleCreateCheckout = async () => {
+    if (!checkoutDeal || !checkoutData.price_id) return;
+
+    setCreatingCheckout(true);
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contact_id: checkoutDeal.contact_id,
+          price_id: checkoutData.price_id,
+          quantity: checkoutData.quantity,
+          mode: checkoutData.mode,
+          metadata: checkoutData.metadata,
+          success_url: `${window.location.origin}/deals?session_id={CHECKOUT_SESSION_ID}&deal_id=${checkoutDeal.id}`,
+          cancel_url: `${window.location.origin}/deals?canceled=true&deal_id=${checkoutDeal.id}`
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        // Update deal with checkout session info
+        await supabase
+          .from('legalflow.deals')
+          .update({
+            properties: {
+              ...checkoutDeal.properties,
+              stripe_checkout_session_id: result.session_id,
+              checkout_created_at: new Date().toISOString()
+            }
+          })
+          .eq('id', checkoutDeal.id);
+
+        // Open checkout URL
+        window.open(result.url, '_blank');
+        
+        toast({
+          title: 'Checkout criado',
+          description: 'Link de pagamento gerado com sucesso'
+        });
+
+        setIsCheckoutOpen(false);
+        refetch();
+      } else {
+        toast({
+          title: 'Erro',
+          description: result.error || 'Falha ao criar checkout',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      toast({
+        title: 'Erro',
+        description: 'Falha ao conectar com Stripe',
+        variant: 'destructive'
+      });
+    } finally {
+      setCreatingCheckout(false);
+    }
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'BRL') => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: currency
+    }).format(amount);
+  };
+
   const getStageColor = (stage: PipelineStage) => {
-    if (stage.is_won) return 'bg-green-100 border-green-300 text-green-800';
-    if (stage.is_lost) return 'bg-red-100 border-red-300 text-red-800';
-    if (stage.code === 'novo') return 'bg-blue-100 border-blue-300 text-blue-800';
-    if (stage.code === 'qualificado') return 'bg-yellow-100 border-yellow-300 text-yellow-800';
-    if (stage.code === 'proposta') return 'bg-purple-100 border-purple-300 text-purple-800';
-    return 'bg-gray-100 border-gray-300 text-gray-800';
+    if (stage.is_won) return 'bg-green-100 text-green-800 border-green-200';
+    if (stage.is_lost) return 'bg-red-100 text-red-800 border-red-200';
+    return 'bg-blue-100 text-blue-800 border-blue-200';
   };
 
-  const getDealsForStage = (stage: PipelineStage) => {
-    return deals?.filter(deal => 
-      deal.stage_id === stage.id || 
-      (stage.code === 'novo' && !deal.stage_id)
-    ) || [];
+  const getDealsByStage = (stageId: number) => {
+    return deals?.filter(deal => deal.stage_id === stageId) || [];
   };
 
-  if (isLoading) return <LoadingState type="list" title="Carregando pipeline..." />;
+  if (isLoading) return <LoadingState type="kanban" title="Carregando pipeline..." />;
   if (error) return <ErrorState error={error} onRetry={refetch} />;
 
   return (
@@ -335,10 +454,9 @@ const CRMDeals: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Pipeline de Vendas</h1>
             <p className="text-gray-600">
-              Acompanhe oportunidades até o fechamento
+              Gerencie oportunidades com checkout Stripe integrado
             </p>
           </div>
-          
           <Dialog open={isNewDealOpen} onOpenChange={setIsNewDealOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -350,7 +468,7 @@ const CRMDeals: React.FC = () => {
               <DialogHeader>
                 <DialogTitle>Novo Deal</DialogTitle>
                 <DialogDescription>
-                  Adicione uma nova oportunidade ao pipeline
+                  Criar nova oportunidade no pipeline de vendas
                 </DialogDescription>
               </DialogHeader>
               
@@ -366,16 +484,17 @@ const CRMDeals: React.FC = () => {
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="value">Valor</Label>
+                    <Label htmlFor="value">Valor *</Label>
                     <Input
                       id="value"
                       type="number"
                       step="0.01"
                       value={formData.value}
                       onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
-                      placeholder="0,00"
+                      placeholder="0.00"
+                      required
                     />
                   </div>
                   <div>
@@ -391,26 +510,6 @@ const CRMDeals: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="contact">Contato</Label>
-                  <Select value={formData.contact_id} onValueChange={(value) => setFormData(prev => ({ ...prev, contact_id: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar contato..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Sem contato vinculado</SelectItem>
-                      {contacts?.map((contact) => (
-                        <SelectItem key={contact.id} value={contact.id}>
-                          {contact.name} {contact.email && `(${contact.email})`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="probability">Probabilidade (%)</Label>
                     <Input
@@ -422,10 +521,28 @@ const CRMDeals: React.FC = () => {
                       onChange={(e) => setFormData(prev => ({ ...prev, probability: e.target.value }))}
                     />
                   </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="expected_close_date">Previsão de Fechamento</Label>
+                    <Label htmlFor="contact">Contato</Label>
+                    <Select value={formData.contact_id} onValueChange={(value) => setFormData(prev => ({ ...prev, contact_id: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecionar contato..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {contacts?.map((contact) => (
+                          <SelectItem key={contact.id} value={contact.id}>
+                            {contact.name} {contact.email && `(${contact.email})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="expected_close">Data prevista de fechamento</Label>
                     <Input
-                      id="expected_close_date"
+                      id="expected_close"
                       type="date"
                       value={formData.expected_close_date}
                       onChange={(e) => setFormData(prev => ({ ...prev, expected_close_date: e.target.value }))}
@@ -449,7 +566,7 @@ const CRMDeals: React.FC = () => {
                 <Button variant="outline" onClick={() => setIsNewDealOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleCreateDeal} disabled={!formData.title.trim()}>
+                <Button onClick={handleCreateDeal} disabled={!formData.title.trim() || !formData.value}>
                   Criar Deal
                 </Button>
               </div>
@@ -459,199 +576,264 @@ const CRMDeals: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Target className="h-4 w-4 text-blue-600" />
-              <div>
-                <div className="text-2xl font-bold">{dealStats?.total_deals || 0}</div>
-                <div className="text-xs text-gray-600">Total Deals</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              <div>
-                <div className="text-2xl font-bold">
-                  {locale.formatCurrency(dealStats?.total_value || 0)}
+      {dealStats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Target className="h-8 w-8 text-blue-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total de Deals</p>
+                  <p className="text-2xl font-bold text-gray-900">{dealStats.total_deals}</p>
                 </div>
-                <div className="text-xs text-gray-600">Valor Total</div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-purple-600" />
-              <div>
-                <div className="text-2xl font-bold">{dealStats?.won_deals || 0}</div>
-                <div className="text-xs text-gray-600">Fechados</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Target className="h-4 w-4 text-orange-600" />
-              <div>
-                <div className="text-2xl font-bold">
-                  {Math.round(dealStats?.avg_probability || 0)}%
-                </div>
-                <div className="text-xs text-gray-600">Prob. Média</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Kanban Pipeline */}
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        {stages?.map((stage) => {
-          const stageDeals = getDealsForStage(stage);
-          const stageValue = stageDeals.reduce((sum, deal) => sum + deal.value, 0);
+            </CardContent>
+          </Card>
           
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <DollarSign className="h-8 w-8 text-green-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Valor Total</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {formatCurrency(dealStats.total_value || 0)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <TrendingUp className="h-8 w-8 text-green-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Deals Ganhos</p>
+                  <p className="text-2xl font-bold text-gray-900">{dealStats.won_deals}</p>
+                  <p className="text-sm text-gray-500">
+                    {formatCurrency(dealStats.won_value || 0)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <User className="h-8 w-8 text-purple-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Prob. Média</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {Math.round(dealStats.avg_probability || 0)}%
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Kanban Board */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {stages?.map((stage) => {
+          const stageDeals = getDealsByStage(stage.id);
           return (
-            <Card key={stage.id} className={`min-w-80 ${getStageColor(stage)}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">
-                    {stage.name}
-                  </CardTitle>
-                  <Badge variant="outline" className="text-xs">
+            <Card key={stage.id} className={`${getStageColor(stage)} border-2`}>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm font-medium">
+                  {stage.name}
+                  <Badge variant="secondary" className="ml-2">
                     {stageDeals.length}
                   </Badge>
-                </div>
-                <div className="text-xs opacity-75">
-                  {locale.formatCurrency(stageValue)}
-                </div>
+                </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {stageDeals.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-gray-500">
-                      Nenhum deal neste estágio
-                    </div>
-                  ) : (
-                    stageDeals.map((deal) => (
-                      <Card 
-                        key={deal.id} 
-                        className="bg-white border cursor-pointer hover:shadow-md transition-shadow"
-                        draggable
-                        onDragStart={() => setDraggedDeal(deal)}
-                        onDragEnd={() => setDraggedDeal(null)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between">
-                              <h4 className="font-medium text-sm line-clamp-2">
-                                {deal.title}
-                              </h4>
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => startEdit(deal)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteDeal(deal.id)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                            
-                            <div className="text-lg font-semibold text-green-600">
-                              {locale.formatCurrency(deal.value)}
-                            </div>
-                            
-                            {deal.contact_name && (
-                              <div className="flex items-center gap-1 text-xs text-gray-600">
-                                <User className="h-3 w-3" />
-                                <span className="truncate">{deal.contact_name}</span>
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-1">
-                                <Target className="h-3 w-3" />
-                                <span>{deal.probability}%</span>
-                              </div>
-                              <div className="flex items-center gap-1 text-gray-500">
-                                <Calendar className="h-3 w-3" />
-                                <span>{locale.formatRelativeTime(deal.updated_at)}</span>
-                              </div>
-                            </div>
-                            
-                            {deal.expected_close_date && (
-                              <div className="text-xs text-orange-600">
-                                Previsão: {locale.formatDate(deal.expected_close_date)}
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </div>
-                
-                {/* Stage navigation */}
-                <div className="mt-3 pt-3 border-t">
-                  <div className="flex justify-between items-center">
-                    {stage.order_index > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs"
-                        onClick={() => {
-                          const prevStage = stages.find(s => s.order_index === stage.order_index - 1);
-                          if (prevStage && draggedDeal) {
-                            handleStageChange(draggedDeal.id, prevStage);
-                          }
-                        }}
-                        disabled={!draggedDeal}
-                      >
-                        ← Anterior
-                      </Button>
-                    )}
-                    
-                    {stage.order_index < Math.max(...stages.map(s => s.order_index)) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs ml-auto"
-                        onClick={() => {
-                          const nextStage = stages.find(s => s.order_index === stage.order_index + 1);
-                          if (nextStage && draggedDeal) {
-                            handleStageChange(draggedDeal.id, nextStage);
-                          }
-                        }}
-                        disabled={!draggedDeal}
-                      >
-                        Próximo →
-                      </Button>
-                    )}
+              <CardContent className="space-y-3">
+                {stageDeals.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Nenhum deal</p>
                   </div>
-                </div>
+                ) : (
+                  stageDeals.map((deal) => (
+                    <Card key={deal.id} className="cursor-move border shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-medium text-sm leading-tight">{deal.title}</h4>
+                          <div className="flex items-center space-x-1">
+                            {deal.properties?.stripe_checkout_session_id && (
+                              <Badge variant="outline" className="text-xs">
+                                <CreditCard className="h-3 w-3 mr-1" />
+                                Checkout
+                              </Badge>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => {
+                                const dropdown = document.createElement('div');
+                                // Simple dropdown menu would go here
+                              }}
+                            >
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-green-600">
+                              {formatCurrency(deal.value, deal.currency)}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {deal.probability}%
+                            </span>
+                          </div>
+                          
+                          {deal.contact_name && (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <User className="h-3 w-3 mr-1" />
+                              {deal.contact_name}
+                            </div>
+                          )}
+                          
+                          {deal.expected_close_date && (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              {new Date(deal.expected_close_date).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex justify-between items-center mt-3 pt-2 border-t">
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => startEdit(deal)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => handleDeleteDeal(deal.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          
+                          {deal.contact_id && stripePrices && stripePrices.length > 0 && !stage.is_won && !stage.is_lost && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => openCheckout(deal)}
+                            >
+                              <ShoppingCart className="h-3 w-3 mr-1" />
+                              Checkout
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
+
+      {/* Stripe Checkout Dialog */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Gerar Checkout Stripe</DialogTitle>
+            <DialogDescription>
+              Criar link de pagamento para: {checkoutDeal?.title}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="price">Produto/Preço</Label>
+              <Select value={checkoutData.price_id} onValueChange={(value) => setCheckoutData(prev => ({ ...prev, price_id: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecionar produto..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {stripePrices?.map((price) => (
+                    <SelectItem key={price.id} value={price.id}>
+                      {price.product_name} - {formatCurrency(price.unit_amount / 100, price.currency)}
+                      {price.recurring_interval && ` / ${price.recurring_interval}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="quantity">Quantidade</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={checkoutData.quantity}
+                  onChange={(e) => setCheckoutData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="mode">Modo</Label>
+                <Select value={checkoutData.mode} onValueChange={(value: 'payment' | 'subscription') => setCheckoutData(prev => ({ ...prev, mode: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="payment">Pagamento único</SelectItem>
+                    <SelectItem value="subscription">Assinatura</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Informações do Cliente</h4>
+              <div className="text-sm text-gray-600 space-y-1">
+                <p><strong>Nome:</strong> {checkoutDeal?.contact_name}</p>
+                <p><strong>Email:</strong> {checkoutDeal?.contact_email}</p>
+                <p><strong>Deal:</strong> {checkoutDeal?.title} ({formatCurrency(checkoutDeal?.value || 0)})</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button variant="outline" onClick={() => setIsCheckoutOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleCreateCheckout} 
+              disabled={!checkoutData.price_id || creatingCheckout}
+            >
+              {creatingCheckout ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Criando...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Gerar Checkout
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Deal Dialog */}
       <Dialog open={!!editingDeal} onOpenChange={(open) => !open && setEditingDeal(null)}>
@@ -674,15 +856,16 @@ const CRMDeals: React.FC = () => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="edit-value">Valor</Label>
+                <Label htmlFor="edit-value">Valor *</Label>
                 <Input
                   id="edit-value"
                   type="number"
                   step="0.01"
                   value={formData.value}
                   onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
+                  required
                 />
               </div>
               <div>
@@ -698,26 +881,6 @@ const CRMDeals: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="edit-contact">Contato</Label>
-              <Select value={formData.contact_id} onValueChange={(value) => setFormData(prev => ({ ...prev, contact_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecionar contato..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Sem contato vinculado</SelectItem>
-                  {contacts?.map((contact) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {contact.name} {contact.email && `(${contact.email})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="edit-probability">Probabilidade (%)</Label>
                 <Input
@@ -729,15 +892,44 @@ const CRMDeals: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, probability: e.target.value }))}
                 />
               </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="edit-expected-close-date">Previsão de Fechamento</Label>
+                <Label htmlFor="edit-contact">Contato</Label>
+                <Select value={formData.contact_id} onValueChange={(value) => setFormData(prev => ({ ...prev, contact_id: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar contato..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Remover contato</SelectItem>
+                    {contacts?.map((contact) => (
+                      <SelectItem key={contact.id} value={contact.id}>
+                        {contact.name} {contact.email && `(${contact.email})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-expected-close">Data prevista de fechamento</Label>
                 <Input
-                  id="edit-expected-close-date"
+                  id="edit-expected-close"
                   type="date"
                   value={formData.expected_close_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, expected_close_date: e.target.value }))}
                 />
               </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-description">Descrição</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
+              />
             </div>
           </div>
           
@@ -745,7 +937,7 @@ const CRMDeals: React.FC = () => {
             <Button variant="outline" onClick={() => setEditingDeal(null)}>
               Cancelar
             </Button>
-            <Button onClick={handleUpdateDeal} disabled={!formData.title.trim()}>
+            <Button onClick={handleUpdateDeal} disabled={!formData.title.trim() || !formData.value}>
               Salvar Alterações
             </Button>
           </div>
@@ -755,4 +947,4 @@ const CRMDeals: React.FC = () => {
   );
 };
 
-export default CRMDeals;
+export default CRMDealsWithStripe;
