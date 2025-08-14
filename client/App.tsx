@@ -436,6 +436,14 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      <Route
+        path="/autofix-testing"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <AutofixTesting />
+          </DemoProtectedRoute>
+        }
+      />
 
       {/* CRM Routes */}
       <Route
