@@ -1649,12 +1649,11 @@ export default function ProcessoDetailV2() {
         </DialogContent>
       </Dialog>
 
-      {/* Chat Drawer */}
-      <ProcessoChatDrawer
+      {/* SF-2: Multi-Thread Chat */}
+      <ProcessoChatMultiThread
         numero_cnj={numero_cnj}
         isOpen={showChatDrawer}
         onClose={() => setShowChatDrawer(false)}
-        onNovaConversa={() => setIsNovaConversaOpen(true)}
       />
     </div>
   );
