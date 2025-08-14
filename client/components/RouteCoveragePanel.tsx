@@ -400,6 +400,34 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                             </div>
                           </TableCell>
                           <TableCell>
+                            {route.performanceScore !== undefined ? (
+                              <div className="flex flex-col">
+                                <div className="flex items-center gap-1">
+                                  <span className={`text-sm font-medium ${
+                                    route.performanceStatus === 'excellent' ? 'text-green-600' :
+                                    route.performanceStatus === 'good' ? 'text-blue-600' :
+                                    route.performanceStatus === 'acceptable' ? 'text-yellow-600' :
+                                    'text-red-600'
+                                  }`}>
+                                    {route.performanceScore}
+                                  </span>
+                                  {route.performanceStatus === 'excellent' && <TrendingUp className="h-3 w-3 text-green-500" />}
+                                  {route.performanceStatus === 'poor' && <TrendingDown className="h-3 w-3 text-red-500" />}
+                                </div>
+                                <Badge variant="outline" className={`text-xs ${
+                                  route.performanceStatus === 'excellent' ? 'border-green-500' :
+                                  route.performanceStatus === 'good' ? 'border-blue-500' :
+                                  route.performanceStatus === 'acceptable' ? 'border-yellow-500' :
+                                  'border-red-500'
+                                }`}>
+                                  {route.performanceStatus}
+                                </Badge>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
                             <span className="text-sm">
                               {route.lastTested !== 'never' 
                                 ? new Date(route.lastTested).toLocaleString()
