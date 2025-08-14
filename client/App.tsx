@@ -61,6 +61,7 @@ import QAConsole from "./pages/QAConsole";
 import StatusDashboard from "./pages/StatusDashboard";
 import FeatureFlags from "./pages/FeatureFlags";
 import DevTools from "./pages/DevTools";
+import AdminIntegrity from "./pages/AdminIntegrity";
 import LaunchPlan from "./pages/LaunchPlan";
 
 // CRM pages
