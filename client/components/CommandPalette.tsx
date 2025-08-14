@@ -14,55 +14,11 @@ interface CommandPaletteProps {
 
 type SearchCategory = 'processos' | 'clientes' | 'assuntos';
 
+// Mock data removed - implement real search functionality
 const mockResults = {
-  processos: [
-    {
-      id: '1',
-      title: '1000123-45.2024.8.26.0001',
-      subtitle: 'João Silva vs Empresa XYZ',
-      href: '/processos/1',
-      type: 'processo'
-    },
-    {
-      id: '2',
-      title: '2000456-78.2024.8.26.0002',
-      subtitle: 'Empresa ABC vs Fornecedor DEF',
-      href: '/processos/2',
-      type: 'processo'
-    },
-  ],
-  clientes: [
-    {
-      id: '1',
-      title: 'João Silva',
-      subtitle: 'CPF: 123.456.789-00',
-      href: '/clientes/1',
-      type: 'cliente'
-    },
-    {
-      id: '2',
-      title: 'Empresa ABC Ltda',
-      subtitle: 'CNPJ: 12.345.678/0001-90',
-      href: '/clientes/2',
-      type: 'cliente'
-    },
-  ],
-  assuntos: [
-    {
-      id: '1',
-      title: 'Despacho - Petição inicial',
-      subtitle: 'Processo 1000123-45.2024.8.26.0001 • 2 dias atrás',
-      href: '/processos/1/movimentacoes/1',
-      type: 'movimentacao'
-    },
-    {
-      id: '2',
-      title: 'Publicação - Intimação',
-      subtitle: 'Processo 2000456-78.2024.8.26.0002 • 1 semana atrás',
-      href: '/processos/2/publicacoes/1',
-      type: 'publicacao'
-    },
-  ],
+  processos: [],
+  clientes: [],
+  assuntos: [],
 };
 
 const categories = [
