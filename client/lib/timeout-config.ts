@@ -60,17 +60,21 @@ class TimeoutManager {
   private detectSlowEnvironment(): boolean {
     // Check various indicators of a slow environment
     const indicators = {
-      // CI environments often have these variables
-      hasCI: !!(process.env.CI || process.env.CONTINUOUS_INTEGRATION),
-      
+      // CI environments - safely check for CI variables
+      hasCI: !!(
+        (typeof globalThis !== 'undefined' && globalThis.process?.env?.CI) ||
+        import.meta.env?.VITE_CI ||
+        import.meta.env?.CI
+      ),
+
       // Check for slow hardware indicators
-      hasLimitedMemory: typeof navigator !== 'undefined' && 
-                       'deviceMemory' in navigator && 
+      hasLimitedMemory: typeof navigator !== 'undefined' &&
+                       'deviceMemory' in navigator &&
                        (navigator as any).deviceMemory < 4,
-      
+
       // Check connection speed if available
-      hasSlowConnection: typeof navigator !== 'undefined' && 
-                        'connection' in navigator && 
+      hasSlowConnection: typeof navigator !== 'undefined' &&
+                        'connection' in navigator &&
                         (navigator as any).connection?.effectiveType === 'slow-2g',
     };
 
