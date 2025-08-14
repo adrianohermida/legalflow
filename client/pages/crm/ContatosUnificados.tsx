@@ -98,9 +98,8 @@ const ContatosUnificados = () => {
 
   // Query para clientes públicos (para vinculação)
   const { data: publicClientes = [] } = useSupabaseQuery(
-    'public-clientes',
-    `SELECT cpfcnpj, nome FROM public.clientes ORDER BY nome`,
-    []
+    ['public-clientes'],
+    () => clientesApi.getAll()
   );
 
   // Query para estatísticas
