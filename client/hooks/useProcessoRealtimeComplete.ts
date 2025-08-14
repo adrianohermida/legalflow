@@ -136,7 +136,7 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
     subscriptions.push(activitiesChannel);
 
     // 5. Eventos da agenda
-    const eventosChannel = lf
+    const eventosChannel = supabase
       .channel('eventos_agenda_processo')
       .on(
         'postgres_changes',
@@ -151,7 +151,7 @@ export function useProcessoRealtimeComplete(numero_cnj: string) {
           queryClient.invalidateQueries({
             queryKey: ['eventos-agenda', numero_cnj]
           });
-          
+
           if (payload.eventType === 'INSERT') {
             toast({
               title: "Evento agendado",
