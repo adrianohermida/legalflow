@@ -330,10 +330,18 @@ const DevAuditoria: React.FC = () => {
       const totalModules = updatedModules.length;
       const okModules = updatedModules.filter(m => m.status === "ok").length;
       const errorModules = updatedModules.filter(m => m.status === "error").length;
+      const pendingModules = updatedModules.filter(m => m.status === "pending").length;
+
+      // Enhanced toast with detailed summary
+      const isAllOk = errorModules === 0 && pendingModules === 0;
+      const hasCriticalIssues = errorModules > 0;
 
       toast({
-        title: "Auditoria Concluída",
-        description: `${okModules}/${totalModules} módulos OK, ${errorModules} com pendências`,
+        title: isAllOk ? "✅ Sistema Íntegro" : hasCriticalIssues ? "⚠️ Pendências Detectadas" : "🔄 Verificação Parcial",
+        description: `${okModules} OK • ${errorModules} pendências • ${pendingModules} aguardando${
+          hasCriticalIssues ? " - Use Autofix para corrigir" : ""
+        }`,
+        variant: hasCriticalIssues ? "destructive" : "default",
       });
 
     } catch (error) {
