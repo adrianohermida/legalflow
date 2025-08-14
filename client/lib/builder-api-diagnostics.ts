@@ -46,16 +46,18 @@ export class BuilderAPIDiagnostics {
 
   private static async checkSingleEndpoint(endpoint: string): Promise<APIEndpointStatus> {
     const startTime = Date.now();
-    
+
     try {
       console.log(`🔍 Checking endpoint: ${endpoint}`);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // Shorter timeout for diagnostics
+
+      // Try a simple GET request first to avoid CORS preflight
       const response = await fetch(endpoint, {
-        method: 'HEAD', // Use HEAD to avoid CORS preflight issues
+        method: 'GET',
         signal: controller.signal,
+        mode: 'no-cors', // This will avoid CORS but limit response info
         headers: {
           'User-Agent': 'Autofix-Diagnostics/1.0',
         },
@@ -64,23 +66,26 @@ export class BuilderAPIDiagnostics {
       clearTimeout(timeoutId);
       const responseTime = Date.now() - startTime;
 
+      // For no-cors mode, we can't check status but if we get here, the endpoint is reachable
       return {
         endpoint,
         accessible: true,
-        status_code: response.status,
+        status_code: response.status || 0, // no-cors returns 0
         response_time: responseTime,
-        cors_enabled: response.headers.get('access-control-allow-origin') !== null,
+        cors_enabled: response.type === 'cors',
       };
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
       let errorMessage = 'Unknown error';
-      
+
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          errorMessage = 'Request timeout (>5s)';
+          errorMessage = 'Request timeout (>3s)';
         } else if (error.message.includes('Failed to fetch')) {
-          errorMessage = 'Network error or CORS blocked';
+          errorMessage = 'Network unreachable or blocked';
+        } else if (error.message.includes('NetworkError')) {
+          errorMessage = 'Network connectivity issue';
         } else {
           errorMessage = error.message;
         }
