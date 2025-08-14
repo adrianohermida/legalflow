@@ -323,12 +323,12 @@ class AutofixHistoryManager {
       // Check if we have valid API credentials
       if (!this.builderPrivateKey || this.builderPrivateKey.length < 20) {
         console.warn("⚠️ Builder.io private key appears invalid, using mock implementation");
-        return this.mockBuilderAPI(request, promptId);
+        return this.mockBuilderAPI(request, promptId, "Invalid API credentials");
       }
 
       // Real Builder.io API integration with timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
       try {
         const response = await fetch('https://builder.io/api/v1/ai-code-gen', {
@@ -337,6 +337,7 @@ class AutofixHistoryManager {
             'Authorization': `Bearer ${this.builderPrivateKey}`,
             'Content-Type': 'application/json',
             'User-Agent': 'Autofix-System/1.0',
+            'Accept': 'application/json',
           },
           body: JSON.stringify({
             prompt: request.prompt,
@@ -363,13 +364,26 @@ class AutofixHistoryManager {
           }
 
           console.warn("📋 API Error details:", errorDetails);
-          return this.mockBuilderAPI(request, promptId);
+
+          // Determine specific error reason
+          let reason = "API endpoint returned error";
+          if (response.status === 401) {
+            reason = "Authentication failed (401)";
+          } else if (response.status === 403) {
+            reason = "Access forbidden (403)";
+          } else if (response.status === 404) {
+            reason = "API endpoint not found (404)";
+          } else if (response.status >= 500) {
+            reason = "Server error (" + response.status + ")";
+          }
+
+          return this.mockBuilderAPI(request, promptId, reason);
         }
 
         const data = await response.json();
         console.log("✅ Builder.io API response received successfully");
 
-        const mockModifications: ModificationEntry[] = [
+        const realApiModifications: ModificationEntry[] = [
           {
             id: crypto.randomUUID(),
             timestamp: new Date().toISOString(),
@@ -385,10 +399,12 @@ class AutofixHistoryManager {
               builder_prompt_id: promptId,
               files_modified: data.files_changed || request.expected_files || [],
               api_response: true,
+              real_api_used: true,
             },
             metadata: {
               builder_response: data,
               execution_time: data.execution_time || 'unknown',
+              api_status: 'success',
             },
           },
         ];
@@ -397,7 +413,7 @@ class AutofixHistoryManager {
           id: promptId,
           status: "completed",
           result: {
-            modifications: mockModifications,
+            modifications: realApiModifications,
             files_changed: data.files_changed || request.expected_files || [],
             summary: data.summary || `Successfully processed ${request.category} via Builder.io API`,
           },
@@ -410,19 +426,27 @@ class AutofixHistoryManager {
 
     } catch (error) {
       // Enhanced error logging
+      let reason = "Unknown error";
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          console.warn("⏰ Builder.io API request timed out after 10 seconds, using mock implementation");
+          console.warn("⏰ Builder.io API request timed out after 8 seconds");
+          reason = "Request timeout";
         } else if (error.message.includes('Failed to fetch')) {
-          console.warn("🌐 Network error calling Builder.io API (possibly CORS or network issue), using mock implementation");
+          console.warn("🌐 Network error calling Builder.io API (possibly CORS or network issue)");
+          reason = "Network connectivity issue";
+        } else if (error.message.includes('NetworkError')) {
+          console.warn("🌐 Network error calling Builder.io API");
+          reason = "Network error";
         } else {
-          console.warn("❌ Builder.io API error:", error.message, "- using mock implementation");
+          console.warn("❌ Builder.io API error:", error.message);
+          reason = error.message;
         }
       } else {
-        console.warn("❌ Unknown error calling Builder.io API:", error, "- using mock implementation");
+        console.warn("❌ Unknown error calling Builder.io API:", error);
+        reason = String(error);
       }
 
-      return this.mockBuilderAPI(request, promptId);
+      return this.mockBuilderAPI(request, promptId, reason);
     }
   }
 
