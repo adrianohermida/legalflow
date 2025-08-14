@@ -109,6 +109,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
           description: `Erro ao acessar banco: ${error.message}`,
           variant: "destructive",
         });
+        setTablesExist(false);
         return false;
       }
 
@@ -400,7 +401,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
                     <Textarea
                       value={builderContext}
                       onChange={(e) => setBuilderContext(e.target.value)}
-                      placeholder="Forneça contexto adicional sobre a modifica��ão..."
+                      placeholder="Forneça contexto adicional sobre a modificação..."
                       rows={2}
                     />
                   </div>
