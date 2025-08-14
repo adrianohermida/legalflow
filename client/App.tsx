@@ -409,6 +409,48 @@ function DemoAppRoutes() {
         }
       />
 
+      {/* CRM Routes */}
+      <Route
+        path="/crm/contatos"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <CRMContatos />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/contatos/:id"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <ContactProfile />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/leads"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <CRMLeads />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/deals"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <CRMDeals />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm/relatorios"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <CRMReports />
+          </DemoProtectedRoute>
+        }
+      />
+
       {/* Portal do Cliente */}
       <Route
         path="/portal/chat"
