@@ -423,6 +423,36 @@ export default function ProcessoDetailV2() {
     },
   });
 
+  // Mutation para sincronizar processo
+  const syncProcessoMutation = useMutation({
+    mutationFn: async () => {
+      const { data: jobId, error } = await lf.rpc('lf_run_sync', {
+        p_numero_cnj: numero_cnj
+      });
+
+      if (error) throw error;
+      return jobId;
+    },
+    onSuccess: (jobId) => {
+      toast({
+        title: "Sync enfileirado",
+        description: `Job #${jobId} iniciado. Dados serão atualizados em breve.`
+      });
+
+      // Invalidar queries para refresh
+      queryClient.invalidateQueries({
+        queryKey: ['processo', numero_cnj]
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro na sincronização",
+        description: error.message || "Falha ao iniciar sincronização",
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleCopyCNJ = () => {
     navigator.clipboard.writeText(numero_cnj);
     toast({
