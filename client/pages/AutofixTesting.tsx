@@ -216,9 +216,11 @@ const AutofixTesting: React.FC = () => {
     });
 
     try {
+      console.log("🧪 Starting database operations test...");
+
       // Test recording a modification
-      const modId = await autofixHistory.recordModification({
-        type: "manual",
+      const testEntry = {
+        type: "manual" as const,
         module: "testing",
         description: "Test modification entry for validation",
         changes: ["Test change 1", "Test change 2"],
@@ -230,26 +232,54 @@ const AutofixTesting: React.FC = () => {
           test_timestamp: new Date().toISOString(),
           test_user: "Adriano Hermida Maia",
         },
-      });
+      };
+
+      console.log("📝 Recording test modification...", testEntry);
+      const modId = await autofixHistory.recordModification(testEntry);
+      console.log("✅ Modification recorded with ID:", modId);
 
       // Test retrieving modifications
+      console.log("📋 Retrieving modification history...");
       const history = await autofixHistory.getModificationHistory(5);
+      console.log("✅ History retrieved, count:", history.length);
 
       addTestResult({
         name: "Database Operations",
         status: "success",
-        message: `Database operations successful. Created modification ID: ${modId}`,
+        message: `✅ Database operations successful. Created modification ID: ${modId}`,
         details: {
           modification_id: modId,
           history_count: history.length,
           latest_entry: history[0],
+          test_entry: testEntry,
         },
       });
     } catch (error) {
+      console.error("❌ Database operations test failed:", error);
+
+      // Enhanced error logging and display
+      let errorMessage = "Unknown error occurred";
+      let errorDetails = null;
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        errorDetails = {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.split('\n').slice(0, 3) // First few lines of stack
+        };
+      } else if (typeof error === 'object' && error !== null) {
+        errorMessage = JSON.stringify(error);
+        errorDetails = error;
+      } else {
+        errorMessage = String(error);
+      }
+
       addTestResult({
         name: "Database Operations",
         status: "error",
-        message: `Database operations failed: ${error instanceof Error ? error.message : String(error)}`,
+        message: `❌ Database operations failed: ${errorMessage}`,
+        details: errorDetails,
       });
     }
   };
