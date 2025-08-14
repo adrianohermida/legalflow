@@ -512,10 +512,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       if (error) throw error;
       
       // Track telemetry
-      await supabase.from('telemetry_events').insert({
-        event_name: 'sf4_notificar',
-        properties: { item_id: itemId, tab: filters.tab }
-      });
+      await sf4Telemetry.trackNotificar(itemId, filters.tab, !!message);
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Notificação enviada!" });
