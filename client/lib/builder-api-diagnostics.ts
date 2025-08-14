@@ -196,23 +196,26 @@ export async function quickBuilderAPIDiagnostic(): Promise<{
 }> {
   try {
     // Get credentials from environment
-    const publicKey = import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY || "";
-    const privateKey = import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY || "";
+    const publicKey = import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY || "8e0d76d5073b4c34837809cac5eca825";
+    const privateKey = import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY || "bpk-c334462169634b3f8157b6074848b012";
 
+    console.log("🔍 Running Builder.io API diagnostics...");
     const diagnostics = await BuilderAPIDiagnostics.runCompleteDiagnostics(publicKey, privateKey);
 
     let message = "";
     switch (diagnostics.overall_status) {
       case 'healthy':
-        message = "✅ Builder.io API appears to be working correctly";
+        message = "✅ Builder.io API is accessible and configured correctly";
         break;
       case 'issues':
-        message = "⚠️ Builder.io API has some issues but should work with fallbacks";
+        message = "⚠️ Builder.io API has minor issues - will use fallback when needed";
         break;
       case 'critical':
         message = "❌ Builder.io API has critical issues - using mock implementation";
         break;
     }
+
+    console.log(`🎯 Diagnostic result: ${diagnostics.overall_status} - ${message}`);
 
     return {
       status: diagnostics.overall_status,
@@ -220,10 +223,16 @@ export async function quickBuilderAPIDiagnostic(): Promise<{
       recommendations: diagnostics.recommendations,
     };
   } catch (error) {
+    console.error("❌ Builder.io diagnostic failed:", error);
     return {
       status: 'critical',
       message: `❌ Diagnostic check failed: ${error instanceof Error ? error.message : String(error)}`,
-      recommendations: ["🔧 Check network connectivity", "🔍 Verify API credentials"],
+      recommendations: [
+        "🔧 Check network connectivity",
+        "🔍 Verify API credentials",
+        "🌐 Ensure Builder.io endpoints are accessible",
+        "🔄 System will use mock API as fallback"
+      ],
     };
   }
 }
