@@ -381,7 +381,7 @@ export function PortalJornada() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ProgressIcon className="w-5 h-5" />
+            <TrendingUp className="w-5 h-5" />
             Progresso Geral
           </CardTitle>
         </CardHeader>
