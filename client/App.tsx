@@ -70,6 +70,10 @@ import CRMDeals from "./pages/crm/Deals";
 import ContactProfile from "./pages/crm/ContactProfile";
 import CRMReports from "./pages/crm/Reports";
 
+// Stripe integration pages
+import StripeSettings from "./pages/StripeSettings";
+import StripeCenter from "./pages/StripeCenter";
+
 // Portal do Cliente pages
 import { PortalChat } from "./pages/portal/PortalChat";
 import { PortalJornada } from "./pages/portal/PortalJornada";
