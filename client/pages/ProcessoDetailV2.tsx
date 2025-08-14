@@ -916,6 +916,34 @@ export default function ProcessoDetailV2() {
             </Card>
           </TabsContent>
 
+          {/* Timeline Tab */}
+          <TabsContent value="timeline">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                    Timeline Unificada
+                    <Badge className="bg-green-100 text-green-800 text-xs">SF-3</Badge>
+                  </CardTitle>
+                  <div className="text-sm text-gray-600">
+                    Eventos recentes e histórico completo
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {numero_cnj ? (
+                  <ProcessoTimelineUnificada numeroCnj={numero_cnj} />
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Número CNJ não disponível</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Audiências Tab */}
           <TabsContent value="audiencias">
             <Card>
