@@ -62,6 +62,7 @@ import StatusDashboard from "./pages/StatusDashboard";
 import FeatureFlags from "./pages/FeatureFlags";
 import DevTools from "./pages/DevTools";
 import AdminIntegrity from "./pages/AdminIntegrity";
+import Documentos from "./pages/Documentos";
 import LaunchPlan from "./pages/LaunchPlan";
 
 // CRM pages
