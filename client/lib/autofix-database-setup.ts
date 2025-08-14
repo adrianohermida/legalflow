@@ -79,7 +79,19 @@ export const AUTOFIX_SQL_SCRIPTS = {
     CREATE OR REPLACE FUNCTION create_autofix_history_table()
     RETURNS void AS $$
     BEGIN
-      ${AUTOFIX_SQL_SCRIPTS.CREATE_HISTORY_TABLE}
+      CREATE TABLE IF NOT EXISTS autofix_history (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        type TEXT NOT NULL CHECK (type IN ('autofix', 'manual', 'builder_prompt', 'git_import')),
+        module TEXT NOT NULL,
+        description TEXT NOT NULL,
+        changes JSONB NOT NULL DEFAULT '[]'::jsonb,
+        success BOOLEAN NOT NULL DEFAULT false,
+        context JSONB DEFAULT '{}'::jsonb,
+        metadata JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
     END;
     $$ LANGUAGE plpgsql;
 
@@ -87,7 +99,19 @@ export const AUTOFIX_SQL_SCRIPTS = {
     CREATE OR REPLACE FUNCTION create_builder_prompts_table()
     RETURNS void AS $$
     BEGIN
-      ${AUTOFIX_SQL_SCRIPTS.CREATE_BUILDER_PROMPTS_TABLE}
+      CREATE TABLE IF NOT EXISTS builder_prompts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        prompt TEXT NOT NULL,
+        context TEXT,
+        priority TEXT NOT NULL CHECK (priority IN ('low', 'medium', 'high')),
+        category TEXT NOT NULL CHECK (category IN ('bug_fix', 'feature', 'improvement', 'refactor')),
+        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+        result JSONB DEFAULT '{}'::jsonb,
+        error_message TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        completed_at TIMESTAMPTZ
+      );
     END;
     $$ LANGUAGE plpgsql;
 
@@ -95,7 +119,12 @@ export const AUTOFIX_SQL_SCRIPTS = {
     CREATE OR REPLACE FUNCTION create_autofix_indexes()
     RETURNS void AS $$
     BEGIN
-      ${AUTOFIX_SQL_SCRIPTS.CREATE_INDEXES}
+      CREATE INDEX IF NOT EXISTS idx_autofix_history_timestamp ON autofix_history(timestamp DESC);
+      CREATE INDEX IF NOT EXISTS idx_autofix_history_type ON autofix_history(type);
+      CREATE INDEX IF NOT EXISTS idx_autofix_history_module ON autofix_history(module);
+      CREATE INDEX IF NOT EXISTS idx_autofix_history_success ON autofix_history(success);
+      CREATE INDEX IF NOT EXISTS idx_builder_prompts_status ON builder_prompts(status);
+      CREATE INDEX IF NOT EXISTS idx_builder_prompts_created_at ON builder_prompts(created_at DESC);
     END;
     $$ LANGUAGE plpgsql;
 
