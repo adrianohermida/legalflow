@@ -76,7 +76,7 @@ export function Header({
             size="sm"
             onClick={onAppLauncherToggle}
             className="text-neutral-600 hover:text-neutral-900"
-            title="Apps (Alt+A)"
+            title="Módulos do Escritório (Alt+A)"
           >
             <Grid3X3 className="w-5 h-5" />
           </Button>
