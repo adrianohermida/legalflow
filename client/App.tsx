@@ -765,7 +765,7 @@ function RegularAppRoutes() {
         path="/crm/contatos"
         element={
           <ProtectedRoute userType="advogado">
-            <CRMContatos />
+            <ContatosUnificados />
           </ProtectedRoute>
         }
       />
