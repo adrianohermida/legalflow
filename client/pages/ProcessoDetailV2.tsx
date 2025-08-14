@@ -1067,8 +1067,15 @@ export default function ProcessoDetailV2() {
                     <p className="text-neutral-500 mb-4">
                       Nenhuma parte encontrada
                     </p>
-                    <Button onClick={() => syncPartesMutation.mutate()}>
-                      <Users className="w-4 h-4 mr-2" />
+                    <Button
+                      onClick={() => syncPartesMutation.mutate()}
+                      disabled={syncPartesMutation.isPending}
+                    >
+                      {syncPartesMutation.isPending ? (
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Users className="w-4 h-4 mr-2" />
+                      )}
                       Sincronizar Partes
                     </Button>
                   </CardContent>
