@@ -432,7 +432,7 @@ function DemoAppRoutes() {
         path="/crm/contatos"
         element={
           <DemoProtectedRoute userType="advogado">
-            <CRMContatos />
+            <ContatosUnificados />
           </DemoProtectedRoute>
         }
       />
