@@ -12,6 +12,7 @@ import { CheckCircle, XCircle, AlertCircle, Play, Database, Key, Settings, TestT
 import { autofixHistory, BuilderPromptRequest } from "../lib/autofix-history";
 import { createAutofixTables, insertSampleData, validateDatabaseSetup, getSetupInstructions, checkTablesExist } from "../lib/supabase-setup-helper";
 import { quickDiagnostic, autofixDiagnostics } from "../lib/autofix-diagnostics";
+import { quickBuilderAPIDiagnostic } from "../lib/builder-api-diagnostics";
 import { useToast } from "../hooks/use-toast";
 import SQLFileDownloader from "../components/SQLFileDownloader";
 
