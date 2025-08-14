@@ -1,548 +1,748 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  DragDropContext, 
+  Droppable, 
+  Draggable, 
+  DropResult 
+} from "@hello-pangea/dnd";
+import { 
+  Plus, 
+  Save, 
+  BookOpen, 
+  FileText, 
+  Upload, 
+  Calendar, 
+  GitBranch, 
+  CheckCircle,
+  Settings,
+  Trash2,
+  GripVertical,
+  Clock,
+  Star,
+  AlertCircle
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Switch } from "./ui/switch";
-import {
-  Plus,
-  BookOpen,
-  FileText,
-  Upload,
-  Calendar,
-  CheckCircle,
-  Clipboard,
-  Edit,
-  Trash2,
-  GripVertical,
-  Save,
-} from "lucide-react";
-import { StageType, JourneyTemplateStage } from "../types/journey";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Badge } from "./ui/badge";
+import { Separator } from "./ui/separator";
+import { toast } from "../hooks/use-toast";
+import { lf } from "../lib/supabase";
 
-interface StageTypeConfig {
-  type: StageType;
-  icon: React.ReactNode;
+interface StageType {
+  id: string;
+  code: string;
   label: string;
-  description: string;
+  icon: React.ReactNode;
   color: string;
 }
 
-const stageTypes: StageTypeConfig[] = [
-  {
-    type: "lesson",
-    icon: <BookOpen className="h-4 w-4" />,
-    label: "Aula/Conteúdo",
-    description: "Conteúdo educacional (vídeo, texto, quiz)",
-    color: "bg-brand-100 text-brand-700 border-brand-200",
-  },
-  {
-    type: "form",
-    icon: <FileText className="h-4 w-4" />,
-    label: "Formulário",
-    description: "Formulário para preenchimento",
-    color: "bg-success-100 text-success-700 border-success",
-  },
-  {
-    type: "upload",
-    icon: <Upload className="h-4 w-4" />,
-    label: "Upload",
-    description: "Upload de documentos/arquivos",
-    color: "bg-brand-100 text-brand-700 border-brand-200",
-  },
-  {
-    type: "meeting",
-    icon: <Calendar className="h-4 w-4" />,
-    label: "Reunião",
-    description: "Agendamento de reunião/audiência",
-    color: "bg-warning-100 text-warning-700 border-warning",
-  },
-  {
-    type: "gate",
-    icon: <CheckCircle className="h-4 w-4" />,
-    label: "Portão",
-    description: "Validação/aprovação obrigatória",
-    color: "bg-danger-100 text-danger-700 border-danger",
-  },
-  {
-    type: "task",
-    icon: <Clipboard className="h-4 w-4" />,
-    label: "Tarefa",
-    description: "Tarefa geral/checklist",
-    color: "bg-neutral-100 text-neutral-800 border-neutral-200",
-  },
-];
-
-interface JourneyDesignerProps {
-  template?: {
-    id?: string;
-    name: string;
-    description: string;
-    nicho: string;
-    estimated_days: number;
-    stages: JourneyTemplateStage[];
-  };
-  onSave: (template: any) => void;
+interface JourneyStage {
+  id: string;
+  template_id?: string;
+  position: number;
+  title: string;
+  description?: string;
+  type_id: string;
+  mandatory: boolean;
+  sla_hours: number;
+  config?: any;
 }
 
-export function JourneyDesigner({ template, onSave }: JourneyDesignerProps) {
-  const [templateData, setTemplateData] = useState({
-    name: template?.name || "",
-    description: template?.description || "",
-    nicho: template?.nicho || "",
-    estimated_days: template?.estimated_days || 30,
-    stages: template?.stages || [],
-  });
+interface StageRule {
+  id: string;
+  stage_id: string;
+  rule_type: 'on_enter' | 'on_done';
+  conditions?: any;
+  actions: {
+    type: 'notify' | 'schedule' | 'create_task' | 'webhook';
+    config: any;
+  }[];
+}
 
-  const [selectedStage, setSelectedStage] =
-    useState<JourneyTemplateStage | null>(null);
-  const [isStageDialogOpen, setIsStageDialogOpen] = useState(false);
-  const dragItemIndex = useRef<number | null>(null);
+interface JourneyTemplate {
+  id?: string;
+  name: string;
+  niche: string;
+  steps_count: number;
+  eta_days: number;
+  tags: string[];
+}
 
-  const getStageTypeConfig = (type: StageType) => {
-    return stageTypes.find((st) => st.type === type) || stageTypes[0];
-  };
+const STAGE_TYPES: StageType[] = [
+  { id: 'lesson', code: 'lesson', label: 'Aula', icon: <BookOpen className="w-4 h-4" />, color: 'bg-blue-500' },
+  { id: 'form', code: 'form', label: 'Formulário', icon: <FileText className="w-4 h-4" />, color: 'bg-green-500' },
+  { id: 'upload', code: 'upload', label: 'Upload', icon: <Upload className="w-4 h-4" />, color: 'bg-orange-500' },
+  { id: 'meeting', code: 'meeting', label: 'Reunião', icon: <Calendar className="w-4 h-4" />, color: 'bg-purple-500' },
+  { id: 'gate', code: 'gate', label: 'Aprovação', icon: <GitBranch className="w-4 h-4" />, color: 'bg-red-500' },
+  { id: 'task', code: 'task', label: 'Tarefa', icon: <CheckCircle className="w-4 h-4" />, color: 'bg-neutral-500' }
+];
 
-  const addStage = (type: StageType) => {
-    const newStage: JourneyTemplateStage = {
-      id: `stage-${Date.now()}`,
-      template_id: template?.id || "new",
-      name: `Nova ${getStageTypeConfig(type).label}`,
+const StageBlock: React.FC<{
+  stage: JourneyStage;
+  index: number;
+  onEdit: (stage: JourneyStage) => void;
+  onDelete: (stageId: string) => void;
+}> = ({ stage, index, onEdit, onDelete }) => {
+  const stageType = STAGE_TYPES.find(t => t.id === stage.type_id);
+  
+  return (
+    <Draggable draggableId={stage.id} index={index}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          className={`
+            group relative bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow
+            ${snapshot.isDragging ? 'shadow-lg ring-2 ring-blue-500' : ''}
+          `}
+        >
+          <div className="flex items-start gap-3">
+            <div 
+              {...provided.dragHandleProps}
+              className="flex-shrink-0 mt-1 opacity-50 group-hover:opacity-100 transition-opacity"
+            >
+              <GripVertical className="w-4 h-4 text-neutral-400" />
+            </div>
+            
+            <div className={`flex-shrink-0 w-8 h-8 rounded-lg ${stageType?.color} flex items-center justify-center text-white`}>
+              {stageType?.icon}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="font-medium text-neutral-900 truncate">{stage.title}</h4>
+                {stage.mandatory && <Star className="w-3 h-3 text-amber-500" />}
+              </div>
+              
+              {stage.description && (
+                <p className="text-sm text-neutral-600 mb-2 line-clamp-2">{stage.description}</p>
+              )}
+              
+              <div className="flex items-center gap-3 text-xs text-neutral-500">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {stage.sla_hours}h
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {stageType?.label}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => onEdit(stage)}>
+                  <Settings className="w-3 h-3" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => onDelete(stage.id)}>
+                  <Trash2 className="w-3 h-3 text-red-500" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </Draggable>
+  );
+};
+
+const StageConfigDialog: React.FC<{
+  stage: JourneyStage | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (stage: JourneyStage) => void;
+}> = ({ stage, open, onOpenChange, onSave }) => {
+  const [formData, setFormData] = useState<JourneyStage>(
+    stage || {
+      id: crypto.randomUUID(),
+      position: 0,
+      title: "",
       description: "",
-      stage_type: type,
-      sequence_order: templateData.stages.length + 1,
-      is_required: true,
+      type_id: "task",
+      mandatory: false,
       sla_hours: 24,
-      estimated_days: 1,
-      rules: [],
-    };
+      config: {}
+    }
+  );
 
-    setTemplateData((prev) => ({
-      ...prev,
-      stages: [...prev.stages, newStage],
-    }));
-  };
+  React.useEffect(() => {
+    if (stage) {
+      setFormData(stage);
+    }
+  }, [stage]);
 
-  const updateStage = (
-    stageId: string,
-    updates: Partial<JourneyTemplateStage>,
-  ) => {
-    setTemplateData((prev) => ({
-      ...prev,
-      stages: prev.stages.map((stage) =>
-        stage.id === stageId ? { ...stage, ...updates } : stage,
-      ),
-    }));
-  };
-
-  const removeStage = (stageId: string) => {
-    setTemplateData((prev) => ({
-      ...prev,
-      stages: prev.stages
-        .filter((stage) => stage.id !== stageId)
-        .map((stage, index) => ({ ...stage, sequence_order: index + 1 })),
-    }));
-  };
-
-  const handleDragStart = (index: number) => {
-    dragItemIndex.current = index;
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-
-    if (dragItemIndex.current === null) return;
-
-    const dragIndex = dragItemIndex.current;
-    const newStages = [...templateData.stages];
-    const draggedStage = newStages[dragIndex];
-
-    // Remove from old position
-    newStages.splice(dragIndex, 1);
-    // Insert at new position
-    newStages.splice(dropIndex, 0, draggedStage);
-
-    // Update sequence orders
-    const updatedStages = newStages.map((stage, index) => ({
-      ...stage,
-      sequence_order: index + 1,
-    }));
-
-    setTemplateData((prev) => ({
-      ...prev,
-      stages: updatedStages,
-    }));
-
-    dragItemIndex.current = null;
-  };
+  const selectedStageType = STAGE_TYPES.find(t => t.id === formData.type_id);
 
   const handleSave = () => {
-    if (!templateData.name || !templateData.nicho) {
-      alert("Preencha nome e nicho do template");
+    if (!formData.title.trim()) {
+      toast({
+        title: "Erro",
+        description: "O título da etapa é obrigatório.",
+        variant: "destructive",
+      });
       return;
     }
-
-    onSave(templateData);
+    onSave(formData);
+    onOpenChange(false);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Template Basic Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do Template</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{stage ? 'Editar Etapa' : 'Nova Etapa'}</DialogTitle>
+        </DialogHeader>
+
+        <Tabs defaultValue="basic" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="basic">Configuração Básica</TabsTrigger>
+            <TabsTrigger value="rules">Regras e Automação</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="basic" className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Título *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  placeholder="Ex: Enviar documentos iniciais"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="type">Tipo da Etapa</Label>
+                <Select value={formData.type_id} onValueChange={(value) => setFormData({...formData, type_id: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STAGE_TYPES.map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        <div className="flex items-center gap-2">
+                          {type.icon}
+                          {type.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="name">Nome do Template</Label>
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="Descreva o que o cliente deve fazer nesta etapa..."
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sla">SLA (horas)</Label>
+                <Input
+                  id="sla"
+                  type="number"
+                  min="1"
+                  value={formData.sla_hours}
+                  onChange={(e) => setFormData({...formData, sla_hours: parseInt(e.target.value) || 24})}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2 pt-6">
+                <Switch
+                  id="mandatory"
+                  checked={formData.mandatory}
+                  onCheckedChange={(checked) => setFormData({...formData, mandatory: checked})}
+                />
+                <Label htmlFor="mandatory">Etapa obrigatória</Label>
+              </div>
+            </div>
+
+            {selectedStageType && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    {selectedStageType.icon}
+                    Configurações de {selectedStageType.label}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {formData.type_id === 'lesson' && (
+                    <div className="space-y-2">
+                      <Label>URL do Vídeo</Label>
+                      <Input 
+                        placeholder="https://..." 
+                        value={formData.config?.video_url || ""}
+                        onChange={(e) => setFormData({
+                          ...formData, 
+                          config: {...formData.config, video_url: e.target.value}
+                        })}
+                      />
+                    </div>
+                  )}
+
+                  {formData.type_id === 'form' && (
+                    <div className="space-y-2">
+                      <Label>Campos do Formulário (JSON)</Label>
+                      <Textarea 
+                        placeholder='[{"name": "campo1", "type": "text", "required": true}]'
+                        value={JSON.stringify(formData.config?.fields || [], null, 2)}
+                        onChange={(e) => {
+                          try {
+                            const fields = JSON.parse(e.target.value);
+                            setFormData({
+                              ...formData, 
+                              config: {...formData.config, fields}
+                            });
+                          } catch {}
+                        }}
+                        rows={4}
+                      />
+                    </div>
+                  )}
+
+                  {formData.type_id === 'upload' && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Tipos de arquivo aceitos</Label>
+                        <Input 
+                          placeholder="pdf,doc,docx"
+                          value={formData.config?.accepted_types?.join(',') || ""}
+                          onChange={(e) => setFormData({
+                            ...formData, 
+                            config: {
+                              ...formData.config, 
+                              accepted_types: e.target.value.split(',').map(t => t.trim())
+                            }
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Tamanho máximo (MB)</Label>
+                        <Input 
+                          type="number"
+                          value={formData.config?.max_size_mb || 10}
+                          onChange={(e) => setFormData({
+                            ...formData, 
+                            config: {
+                              ...formData.config, 
+                              max_size_mb: parseInt(e.target.value) || 10
+                            }
+                          })}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.type_id === 'meeting' && (
+                    <div className="space-y-2">
+                      <Label>Duração padrão (minutos)</Label>
+                      <Input 
+                        type="number"
+                        value={formData.config?.duration_minutes || 60}
+                        onChange={(e) => setFormData({
+                          ...formData, 
+                          config: {
+                            ...formData.config, 
+                            duration_minutes: parseInt(e.target.value) || 60
+                          }
+                        })}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="rules" className="space-y-6">
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
+              <h3 className="font-medium text-neutral-900 mb-2">Regras e Automação</h3>
+              <p className="text-sm text-neutral-600 mb-4">
+                Configure ações que devem ser executadas automaticamente quando esta etapa for iniciada ou concluída.
+              </p>
+              <Button variant="outline" disabled>
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Regra
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex gap-2 pt-4 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} className="flex-1">
+            {stage ? 'Salvar Alterações' : 'Adicionar Etapa'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const JourneyDesigner: React.FC<{
+  templateId?: string;
+  onSave?: () => void;
+}> = ({ templateId, onSave }) => {
+  const queryClient = useQueryClient();
+  const [template, setTemplate] = useState<JourneyTemplate>({
+    name: "",
+    niche: "",
+    steps_count: 0,
+    eta_days: 0,
+    tags: []
+  });
+  const [stages, setStages] = useState<JourneyStage[]>([]);
+  const [editingStage, setEditingStage] = useState<JourneyStage | null>(null);
+  const [stageDialogOpen, setStageDialogOpen] = useState(false);
+
+  // Load existing template if editing
+  useQuery({
+    queryKey: ["journey-template", templateId],
+    queryFn: async () => {
+      if (!templateId) return null;
+      
+      const { data, error } = await lf
+        .from("journey_templates")
+        .select("*")
+        .eq("id", templateId)
+        .single();
+      
+      if (error) throw error;
+      setTemplate(data);
+      return data;
+    },
+    enabled: !!templateId,
+  });
+
+  // Load template stages
+  useQuery({
+    queryKey: ["journey-template-stages", templateId],
+    queryFn: async () => {
+      if (!templateId) return [];
+      
+      const { data, error } = await lf
+        .from("journey_template_stages")
+        .select("*")
+        .eq("template_id", templateId)
+        .order("position");
+      
+      if (error) throw error;
+      setStages(data);
+      return data;
+    },
+    enabled: !!templateId,
+  });
+
+  const saveTemplateMutation = useMutation({
+    mutationFn: async () => {
+      let savedTemplate;
+      
+      if (templateId) {
+        // Update existing template
+        const { data, error } = await lf
+          .from("journey_templates")
+          .update({
+            name: template.name,
+            niche: template.niche,
+            steps_count: stages.length,
+            eta_days: template.eta_days,
+            tags: template.tags
+          })
+          .eq("id", templateId)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        savedTemplate = data;
+      } else {
+        // Create new template
+        const { data, error } = await lf
+          .from("journey_templates")
+          .insert({
+            name: template.name,
+            niche: template.niche,
+            steps_count: stages.length,
+            eta_days: template.eta_days,
+            tags: template.tags
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        savedTemplate = data;
+      }
+
+      // Save stages
+      if (stages.length > 0) {
+        // Delete existing stages if updating
+        if (templateId) {
+          await lf.from("journey_template_stages").delete().eq("template_id", templateId);
+        }
+
+        // Insert new stages
+        const { error: stagesError } = await lf.from("journey_template_stages").insert(
+          stages.map((stage, index) => ({
+            template_id: savedTemplate.id,
+            position: index,
+            title: stage.title,
+            description: stage.description,
+            type_id: stage.type_id,
+            mandatory: stage.mandatory,
+            sla_hours: stage.sla_hours,
+            config: stage.config
+          }))
+        );
+
+        if (stagesError) throw stagesError;
+      }
+
+      return savedTemplate;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Template salvo",
+        description: "O template foi salvo com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["journey-templates"] });
+      onSave?.();
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Falha ao salvar template: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const newStages = Array.from(stages);
+    const [reorderedStage] = newStages.splice(result.source.index, 1);
+    newStages.splice(result.destination.index, 0, reorderedStage);
+
+    setStages(newStages);
+  };
+
+  const handleStageAdd = () => {
+    setEditingStage(null);
+    setStageDialogOpen(true);
+  };
+
+  const handleStageEdit = (stage: JourneyStage) => {
+    setEditingStage(stage);
+    setStageDialogOpen(true);
+  };
+
+  const handleStageSave = (stage: JourneyStage) => {
+    if (editingStage) {
+      setStages(prev => prev.map(s => s.id === stage.id ? stage : s));
+    } else {
+      setStages(prev => [...prev, { ...stage, position: prev.length }]);
+    }
+  };
+
+  const handleStageDelete = (stageId: string) => {
+    setStages(prev => prev.filter(s => s.id !== stageId));
+  };
+
+  const addStageType = (typeId: string) => {
+    const stageType = STAGE_TYPES.find(t => t.id === typeId);
+    if (!stageType) return;
+
+    const newStage: JourneyStage = {
+      id: crypto.randomUUID(),
+      position: stages.length,
+      title: `Nova ${stageType.label}`,
+      type_id: typeId,
+      mandatory: false,
+      sla_hours: 24,
+      config: {}
+    };
+
+    setStages(prev => [...prev, newStage]);
+  };
+
+  const canSave = template.name.trim() && template.niche.trim() && stages.length > 0;
+
+  return (
+    <div className="flex-1 space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-neutral-900">
+            {templateId ? 'Editar Template' : 'Novo Template'}
+          </h1>
+          <p className="text-neutral-600">Configure etapas e automações da jornada</p>
+        </div>
+        <Button 
+          onClick={() => saveTemplateMutation.mutate()}
+          disabled={!canSave || saveTemplateMutation.isPending}
+          className="gap-2"
+        >
+          <Save className="w-4 h-4" />
+          {saveTemplateMutation.isPending ? 'Salvando...' : 'Salvar Template'}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        {/* Template Configuration */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Configuração do Template</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="template-name">Nome do Template</Label>
               <Input
-                id="name"
-                value={templateData.name}
-                onChange={(e) =>
-                  setTemplateData((prev) => ({ ...prev, name: e.target.value }))
-                }
-                placeholder="Ex: Onboarding Trabalhista"
+                id="template-name"
+                value={template.name}
+                onChange={(e) => setTemplate({...template, name: e.target.value})}
+                placeholder="Ex: Consultoria Trabalhista"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nicho">Nicho Jurídico</Label>
-              <Select
-                value={templateData.nicho}
-                onValueChange={(value) =>
-                  setTemplateData((prev) => ({ ...prev, nicho: value }))
-                }
-              >
+              <Label htmlFor="template-niche">Área de Atuação</Label>
+              <Select value={template.niche} onValueChange={(value) => setTemplate({...template, niche: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o nicho" />
+                  <SelectValue placeholder="Selecione a área" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Trabalhista">Trabalhista</SelectItem>
-                  <SelectItem value="Família">Família</SelectItem>
-                  <SelectItem value="Empresarial">Empresarial</SelectItem>
-                  <SelectItem value="Criminal">Criminal</SelectItem>
-                  <SelectItem value="Cível">Cível</SelectItem>
-                  <SelectItem value="Tributário">Tributário</SelectItem>
+                  <SelectItem value="trabalhista">Trabalhista</SelectItem>
+                  <SelectItem value="civil">Civil</SelectItem>
+                  <SelectItem value="criminal">Criminal</SelectItem>
+                  <SelectItem value="empresarial">Empresarial</SelectItem>
+                  <SelectItem value="tributario">Tributário</SelectItem>
+                  <SelectItem value="previdenciario">Previdenciário</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={templateData.description}
-              onChange={(e) =>
-                setTemplateData((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
-              placeholder="Descreva o objetivo e escopo desta jornada..."
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="estimated_days">Duração Estimada (dias)</Label>
-            <Input
-              id="estimated_days"
-              type="number"
-              value={templateData.estimated_days}
-              onChange={(e) =>
-                setTemplateData((prev) => ({
-                  ...prev,
-                  estimated_days: parseInt(e.target.value) || 30,
-                }))
-              }
-              min="1"
-              max="365"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stage Types Palette */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Tipos de Etapas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {stageTypes.map((stageType) => (
-              <Button
-                key={stageType.type}
-                variant="outline"
-                className="h-auto p-3 flex flex-col items-center gap-2"
-                onClick={() => addStage(stageType.type)}
-              >
-                {stageType.icon}
-                <span className="text-xs text-center">{stageType.label}</span>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Journey Canvas */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>
-              Fluxo da Jornada ({templateData.stages.length} etapas)
-            </CardTitle>
-            <Button onClick={handleSave}>
-              <Save className="h-4 w-4 mr-2" />
-              Salvar Template
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {templateData.stages.length === 0 ? (
-            <div className="text-center py-12 text-neutral-500">
-              <Clipboard className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
-              <p>Adicione etapas ao template usando os botões acima.</p>
+            <div className="space-y-2">
+              <Label htmlFor="template-eta">ETA (dias)</Label>
+              <Input
+                id="template-eta"
+                type="number"
+                min="1"
+                value={template.eta_days}
+                onChange={(e) => setTemplate({...template, eta_days: parseInt(e.target.value) || 0})}
+              />
             </div>
-          ) : (
-            <div className="space-y-4">
-              {templateData.stages
-                .sort((a, b) => a.sequence_order - b.sequence_order)
-                .map((stage, index) => {
-                  const config = getStageTypeConfig(stage.stage_type);
-                  return (
-                    <div
-                      key={stage.id}
-                      draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, index)}
-                      className="border rounded-lg p-4 bg-white hover:shadow-sm transition-shadow cursor-move"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-neutral-400" />
-                          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                            {stage.sequence_order}
-                          </div>
-                        </div>
 
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge className={config.color}>
-                              {config.icon}
-                              <span className="ml-1">{config.label}</span>
-                            </Badge>
-                            {stage.is_required && (
-                              <Badge variant="destructive" className="text-xs">
-                                Obrigatório
-                              </Badge>
-                            )}
-                          </div>
-
-                          <h4 className="font-medium">{stage.name}</h4>
-                          {stage.description && (
-                            <p className="text-sm text-neutral-600 mt-1">
-                              {stage.description}
-                            </p>
-                          )}
-
-                          <div className="flex gap-4 mt-2 text-xs text-neutral-500">
-                            <span>SLA: {stage.sla_hours}h</span>
-                            <span>Duração: {stage.estimated_days} dias</span>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedStage(stage);
-                              setIsStageDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => removeStage(stage.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  );
+            <div className="space-y-2">
+              <Label htmlFor="template-tags">Tags (separadas por vírgula)</Label>
+              <Input
+                id="template-tags"
+                value={template.tags.join(', ')}
+                onChange={(e) => setTemplate({
+                  ...template, 
+                  tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
                 })}
+                placeholder="urgente, premium, complexo"
+              />
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Stage Edit Dialog */}
-      <Dialog open={isStageDialogOpen} onOpenChange={setIsStageDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Editar Etapa</DialogTitle>
-            <DialogDescription>
-              Configure os detalhes e regras desta etapa
-            </DialogDescription>
-          </DialogHeader>
+            <Separator />
 
-          {selectedStage && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="stage-name">Nome da Etapa</Label>
-                  <Input
-                    id="stage-name"
-                    value={selectedStage.name}
-                    onChange={(e) => {
-                      const updated = {
-                        ...selectedStage,
-                        name: e.target.value,
-                      };
-                      setSelectedStage(updated);
-                      updateStage(selectedStage.id, { name: e.target.value });
-                    }}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="stage-type">Tipo</Label>
-                  <Select
-                    value={selectedStage.stage_type}
-                    onValueChange={(value: StageType) => {
-                      const updated = { ...selectedStage, stage_type: value };
-                      setSelectedStage(updated);
-                      updateStage(selectedStage.id, { stage_type: value });
-                    }}
+            <div className="space-y-3">
+              <Label>Tipos de Etapa</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {STAGE_TYPES.map((type) => (
+                  <Button
+                    key={type.id}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addStageType(type.id)}
+                    className="justify-start gap-2"
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stageTypes.map((type) => (
-                        <SelectItem key={type.type} value={type.type}>
-                          <div className="flex items-center gap-2">
-                            {type.icon}
-                            {type.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {type.icon}
+                    {type.label}
+                  </Button>
+                ))}
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="stage-description">Descrição</Label>
-                <Textarea
-                  id="stage-description"
-                  value={selectedStage.description}
-                  onChange={(e) => {
-                    const updated = {
-                      ...selectedStage,
-                      description: e.target.value,
-                    };
-                    setSelectedStage(updated);
-                    updateStage(selectedStage.id, {
-                      description: e.target.value,
-                    });
-                  }}
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sla-hours">SLA (horas)</Label>
-                  <Input
-                    id="sla-hours"
-                    type="number"
-                    value={selectedStage.sla_hours}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 24;
-                      const updated = { ...selectedStage, sla_hours: value };
-                      setSelectedStage(updated);
-                      updateStage(selectedStage.id, { sla_hours: value });
-                    }}
-                    min="1"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="estimated-days">Duração (dias)</Label>
-                  <Input
-                    id="estimated-days"
-                    type="number"
-                    value={selectedStage.estimated_days}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1;
-                      const updated = {
-                        ...selectedStage,
-                        estimated_days: value,
-                      };
-                      setSelectedStage(updated);
-                      updateStage(selectedStage.id, { estimated_days: value });
-                    }}
-                    min="1"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Switch
-                      checked={selectedStage.is_required}
-                      onCheckedChange={(checked) => {
-                        const updated = {
-                          ...selectedStage,
-                          is_required: checked,
-                        };
-                        setSelectedStage(updated);
-                        updateStage(selectedStage.id, { is_required: checked });
-                      }}
-                    />
-                    Obrigatória
-                  </Label>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsStageDialogOpen(false)}
-                >
-                  Fechar
+        {/* Canvas Area */}
+        <Card className="col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Fluxo da Jornada</CardTitle>
+              <Button variant="outline" size="sm" onClick={handleStageAdd}>
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Etapa
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {stages.length === 0 ? (
+              <div className="text-center py-12">
+                <GitBranch className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-neutral-900 mb-2">Canvas vazio</h3>
+                <p className="text-neutral-600 mb-4">
+                  Adicione etapas ao seu template para começar a desenhar a jornada.
+                </p>
+                <Button onClick={handleStageAdd}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Primeira Etapa
                 </Button>
               </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            ) : (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="stages">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="space-y-4"
+                    >
+                      {stages.map((stage, index) => (
+                        <StageBlock
+                          key={stage.id}
+                          stage={stage}
+                          index={index}
+                          onEdit={handleStageEdit}
+                          onDelete={handleStageDelete}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <StageConfigDialog
+        stage={editingStage}
+        open={stageDialogOpen}
+        onOpenChange={setStageDialogOpen}
+        onSave={handleStageSave}
+      />
     </div>
   );
-}
+};
+
+export default JourneyDesigner;
