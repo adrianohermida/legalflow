@@ -30,7 +30,7 @@ export const useContactSearch = (searchTerm: string) => {
 // Hook para dashboard stats otimizado com índices
 export const useDashboardStats = () => {
   return useSupabaseQuery(
-    "dashboard-stats",
+    ["dashboard-stats"],
     `
       SELECT 
         (SELECT COUNT(*) FROM public.processos) as total_processos,
