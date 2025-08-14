@@ -108,28 +108,42 @@ export class ImprovedBuilderAPI {
   }
 
   async makeAPICall(request: any): Promise<{ success: boolean; data?: any; usedMock: boolean; reason?: string }> {
-    if (!this.healthStatus) {
-      await this.performHealthCheck();
+    try {
+      if (!this.healthStatus) {
+        await this.performHealthCheck();
+      }
+
+      // If credentials are invalid, use mock immediately
+      if (!this.healthStatus!.credentials_valid) {
+        return this.useMockAPI(request, "Invalid or missing API credentials");
+      }
+
+      // Try real API call with optimized approach in safe wrapper
+      try {
+        const response = await this.attemptRealAPICall(request);
+
+        if (response.success) {
+          console.log("✅ Using real Builder.io API");
+          return { success: true, data: response.data, usedMock: false };
+        }
+
+        // Real API failed, use mock fallback
+        const reason = response.error || "Real API unavailable";
+        console.log(`🔄 Real API failed (${reason}), using mock fallback`);
+
+        return this.useMockAPI(request, reason);
+      } catch (apiError) {
+        // Catch any errors from attemptRealAPICall
+        const reason = apiError instanceof Error ? apiError.message : String(apiError);
+        console.log(`🔄 API call threw error (${reason}), using mock fallback`);
+        return this.useMockAPI(request, `API error: ${reason}`);
+      }
+    } catch (outerError) {
+      // Ultimate fallback - should never happen but ensures no errors propagate
+      const reason = outerError instanceof Error ? outerError.message : String(outerError);
+      console.log(`🛡️ Ultimate fallback activated (${reason}), using mock`);
+      return this.useMockAPI(request, `Ultimate fallback: ${reason}`);
     }
-
-    // If credentials are invalid, use mock immediately
-    if (!this.healthStatus!.credentials_valid) {
-      return this.useMockAPI(request, "Invalid or missing API credentials");
-    }
-
-    // Try real API call with optimized approach
-    const response = await this.attemptRealAPICall(request);
-
-    if (response.success) {
-      console.log("✅ Using real Builder.io API");
-      return { success: true, data: response.data, usedMock: false };
-    }
-
-    // Real API failed, use mock fallback
-    const reason = response.error || "Real API unavailable";
-    console.log(`🔄 Real API failed (${reason}), using mock fallback`);
-
-    return this.useMockAPI(request, reason);
   }
 
   private async attemptRealAPICall(request: any): Promise<{ success: boolean; data?: any; error?: string }> {
