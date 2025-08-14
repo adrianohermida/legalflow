@@ -465,6 +465,43 @@ const AutofixTesting: React.FC = () => {
         </div>
       </div>
 
+      {/* Status Summary Card */}
+      <Card className="border-l-4 border-l-blue-500">
+        <CardContent className="pt-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {credentials?.public_key_configured && credentials?.private_key_configured ? "✅" : "⚠️"}
+              </div>
+              <p className="text-sm font-medium">API Credentials</p>
+              <p className="text-xs text-muted-foreground">
+                {credentials?.public_key_configured && credentials?.private_key_configured
+                  ? "Configuradas"
+                  : "Pendentes"}
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {databaseSetup?.success ? "✅" : "🔧"}
+              </div>
+              <p className="text-sm font-medium">Database Setup</p>
+              <p className="text-xs text-muted-foreground">
+                {databaseSetup?.success ? "Configurado" : "Pendente"}
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {testResults.filter(r => r.status === "success").length}/{testResults.length}
+              </div>
+              <p className="text-sm font-medium">Tests Passed</p>
+              <p className="text-xs text-muted-foreground">
+                {testResults.length > 0 ? "Executados" : "Não executados"}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="results" className="space-y-4">
         <TabsList>
           <TabsTrigger value="results">Test Results</TabsTrigger>
