@@ -58,6 +58,7 @@ import { Servicos } from "./pages/Servicos";
 import { Tickets } from "./pages/Tickets";
 import { PlanosPagamento } from "./pages/PlanosPagamento";
 import QAConsole from "./pages/QAConsole";
+import StatusDashboard from "./pages/StatusDashboard";
 
 // Portal do Cliente pages
 import { PortalChat } from "./pages/portal/PortalChat";
