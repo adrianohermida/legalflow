@@ -616,6 +616,4 @@ export type {
 };
 
 // Export all APIs for easier use
-export {
-  contactsUnifiedApi
-};
+// Note: contactsUnifiedApi is already exported above
