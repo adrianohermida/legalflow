@@ -1378,6 +1378,54 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Save View Dialog */}
+      <Dialog open={showSaveViewDialog} onOpenChange={setShowSaveViewDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Salvar Visualização</DialogTitle>
+            <DialogDescription>
+              Salvar os filtros atuais como uma visualização personalizada
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="view-name">Nome da visualização</Label>
+              <Input
+                id="view-name"
+                value={saveViewName}
+                onChange={(e) => setSaveViewName(e.target.value)}
+                placeholder="Ex: Publicações últimos 7 dias"
+              />
+            </div>
+
+            <div className="p-3 bg-neutral-50 rounded-lg text-sm">
+              <p className="font-medium mb-2">Filtros que serão salvos:</p>
+              <ul className="space-y-1 text-neutral-600">
+                <li>• Período: {format(new Date(filters.dateFrom), 'dd/MM/yyyy')} - {format(new Date(filters.dateTo), 'dd/MM/yyyy')}</li>
+                <li>• Tribunal: {filters.tribunal === 'all' ? 'Todos' : filters.tribunal}</li>
+                <li>• Busca: {filters.searchText || 'Nenhuma'}</li>
+                <li>• Aba: {filters.tab === 'publicacoes' ? 'Publicações' : 'Movimentações'}</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveViewDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (saveViewName.trim()) {
+                  saveViewMutation.mutate({ name: saveViewName.trim() });
+                }
+              }}
+              disabled={!saveViewName.trim() || saveViewMutation.isPending}
+            >
+              {saveViewMutation.isPending ? 'Salvando...' : 'Salvar Visualização'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
