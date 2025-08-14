@@ -15,6 +15,7 @@ import { quickDiagnostic, autofixDiagnostics } from "../lib/autofix-diagnostics"
 import { quickBuilderAPIDiagnostic } from "../lib/builder-api-diagnostics";
 import { useToast } from "../hooks/use-toast";
 import SQLFileDownloader from "../components/SQLFileDownloader";
+import RouteCoveragePanel from "../components/RouteCoveragePanel";
 
 interface TestResult {
   name: string;
@@ -548,7 +549,7 @@ const AutofixTesting: React.FC = () => {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">🧪 Autofix System Testing</h1>
           <p className="text-muted-foreground">
-            Suite completa de testes para o módulo autofix com integração Builder.io
+            Suite completa de testes para o módulo autofix com integra��ão Builder.io
           </p>
           <div className="flex gap-2 items-center text-sm">
             <Badge variant={credentials?.public_key_configured && credentials?.private_key_configured ? "default" : "secondary"}>
