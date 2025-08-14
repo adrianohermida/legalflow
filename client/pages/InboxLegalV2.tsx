@@ -123,6 +123,9 @@ export default function InboxLegalV2() {
   const [dadosProcessoAdvise, setDadosProcessoAdvise] = useState<any>(null);
   const [isPrazoDialogOpen, setIsPrazoDialogOpen] = useState(false);
   const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
+  const [isVincularAdviseOpen, setIsVincularAdviseOpen] = useState(false);
+  const [selectedPublicacao, setSelectedPublicacao] = useState<any>(null);
+  const [cnjDetectado, setCnjDetectado] = useState('');
 
   const itemsPerPage = 20;
 
