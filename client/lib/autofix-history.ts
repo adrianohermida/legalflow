@@ -51,6 +51,18 @@ class AutofixHistoryManager {
   private builderPublicKey = import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY || "8e0d76d5073b4c34837809cac5eca825";
   private builderPrivateKey = import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY || "bpk-c334462169634b3f8157b6074848b012";
 
+  constructor() {
+    // Debug environment variables on initialization
+    console.log("🔧 AutofixHistoryManager initialized with:", {
+      publicKey: this.builderPublicKey ? `${this.builderPublicKey.substring(0, 8)}...` : "Not set",
+      privateKey: this.builderPrivateKey ? `${this.builderPrivateKey.substring(0, 8)}...` : "Not set",
+      envVars: {
+        VITE_BUILDER_IO_PUBLIC_KEY: import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY ? "Set" : "Not set",
+        VITE_BUILDER_IO_PRIVATE_KEY: import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY ? "Set" : "Not set",
+      }
+    });
+  }
+
   async recordModification(entry: Omit<ModificationEntry, "id" | "timestamp">): Promise<string> {
     try {
       const modificationEntry: ModificationEntry = {
