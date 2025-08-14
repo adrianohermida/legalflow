@@ -42,6 +42,7 @@ import {
   ModificationEntry,
   BuilderPromptRequest,
 } from "../lib/autofix-history";
+import { createAutofixTables, insertSampleData } from "../lib/supabase-setup-helper";
 // import { initializeAutofixDatabase } from "../lib/autofix-database-setup";
 import {
   History,
