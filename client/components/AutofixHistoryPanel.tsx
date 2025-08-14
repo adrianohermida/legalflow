@@ -107,9 +107,12 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
       setModifications(history);
     } catch (error) {
       console.error("Failed to load modification history:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       toast({
         title: "Erro ao carregar histórico",
-        description: "Não foi possível carregar o histórico de modificações",
+        description: errorMessage.includes("relation") && errorMessage.includes("does not exist")
+          ? "Tabelas não encontradas. Execute o script SQL no Supabase."
+          : `Erro: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
