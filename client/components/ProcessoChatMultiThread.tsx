@@ -53,6 +53,7 @@ import { supabase, lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate } from "../lib/utils";
 import { advogaAIToolsClient, ToolRequest } from "../lib/advogaai-tools";
+import { SF2ChatOperations } from "../lib/sf2-chat-operations";
 
 interface ThreadLink {
   id: string;
