@@ -796,6 +796,24 @@ function RegularAppRoutes() {
         }
       />
 
+      {/* Stripe Integration */}
+      <Route
+        path="/settings/stripe"
+        element={
+          <ProtectedRoute userType="advogado">
+            <StripeSettings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/financeiro/stripe"
+        element={
+          <ProtectedRoute userType="advogado">
+            <StripeCenter />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Portal do Cliente */}
       <Route
         path="/portal/chat"
