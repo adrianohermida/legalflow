@@ -12,41 +12,7 @@ interface ChatDockProps {
   userType: 'advogado' | 'cliente';
 }
 
-const mockThreads = [
-  {
-    id: '1',
-    title: 'Processo 1000123-45.2024',
-    lastMessage: 'Enviamos a contestação hoje',
-    time: '14:30',
-    unread: 2,
-    contact: 'João Silva'
-  },
-  {
-    id: '2',
-    title: 'Consulta Geral',
-    lastMessage: 'Obrigado pelo esclarecimento',
-    time: '12:15',
-    unread: 0,
-    contact: 'Maria Santos'
-  },
-];
-
-const mockMessages = [
-  {
-    id: '1',
-    role: 'user',
-    content: 'Olá, gostaria de saber sobre o andamento do processo',
-    time: '14:25',
-    author: 'João Silva'
-  },
-  {
-    id: '2',
-    role: 'agent',
-    content: 'Oi João! O processo está na fase de contestação. Enviamos a contestação hoje pela manhã.',
-    time: '14:30',
-    author: 'Dr. Adriano'
-  },
-];
+// Mock data removed - using real queries from ChatDockController
 
 export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
   const [activeThread, setActiveThread] = useState(mockThreads[0].id);
