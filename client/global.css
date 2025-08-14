@@ -47,6 +47,10 @@
   --brand-100: var(--neutral-100);
   --brand-50: var(--neutral-50);
 
+  /* Accessibility focus ring for Phase 5 */
+  --focus-ring: 2px solid #374151;
+  --focus-offset: 2px;
+
   /* Mapear cores específicas para compatibilidade */
   color: var(--on-surface);
   background-color: var(--surface);
