@@ -83,9 +83,19 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
 
   const initializeDatabase = async () => {
     try {
-      await initializeAutofixDatabase();
+      // Simple check if tables exist - initialize directly in the component
+      const { error } = await supabase.from("autofix_history").select("id").limit(1);
+
+      if (error && error.message.includes("relation") && error.message.includes("does not exist")) {
+        console.log("Autofix tables don't exist. Please run the SQL setup script in Supabase.");
+        toast({
+          title: "Configuração necessária",
+          description: "Execute o script SQL AUTOFIX_DATABASE_SETUP.sql no Supabase",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
-      console.warn("Could not initialize autofix database:", error);
+      console.warn("Could not verify autofix tables:", error);
     }
   };
 
