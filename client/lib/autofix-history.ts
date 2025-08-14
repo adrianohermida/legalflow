@@ -422,8 +422,12 @@ class AutofixHistoryManager {
 
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        // Don't re-throw, let it fall through to outer catch for proper handling
-        throw fetchError;
+        // Convert fetch error to our handled error format
+        const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        console.log(`🔄 Fetch failed: ${errorMessage}, using mock fallback`);
+
+        // Return mock instead of throwing
+        return this.mockBuilderAPI(request, promptId, `Fetch error: ${errorMessage}`);
       }
 
     } catch (error) {
