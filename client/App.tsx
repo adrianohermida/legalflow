@@ -357,6 +357,14 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      <Route
+        path="/qa"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <QAConsole />
+          </DemoProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
