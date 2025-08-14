@@ -9,6 +9,9 @@ import {
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Settings, Zap } from 'lucide-react';
+import EnhancedAutofixPanel from './EnhancedAutofixPanel';
 import { Textarea } from "./ui/textarea";
 import {
   Dialog,
