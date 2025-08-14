@@ -314,70 +314,114 @@ class AutofixHistoryManager {
   }
 
   private async callBuilderAPI(
-    request: BuilderPromptRequest, 
+    request: BuilderPromptRequest,
     promptId: string
   ): Promise<BuilderPromptResponse> {
     try {
-      // Real Builder.io API integration
-      const response = await fetch('https://builder.io/api/v1/ai-code-gen', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.builderPrivateKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: request.prompt,
-          context: request.context,
-          priority: request.priority,
-          category: request.category,
-          expected_files: request.expected_files,
-        }),
-      });
+      console.log("🔗 Attempting to call Builder.io API...");
 
-      if (!response.ok) {
-        // If API fails, fallback to mock implementation
-        console.warn(`Builder.io API failed (${response.status}), using mock implementation`);
+      // Check if we have valid API credentials
+      if (!this.builderPrivateKey || this.builderPrivateKey.length < 20) {
+        console.warn("⚠️ Builder.io private key appears invalid, using mock implementation");
         return this.mockBuilderAPI(request, promptId);
       }
 
-      const data = await response.json();
-      
-      const mockModifications: ModificationEntry[] = [
-        {
-          id: crypto.randomUUID(),
-          timestamp: new Date().toISOString(),
-          type: "builder_prompt",
-          module: "builder_api_integration",
-          description: `Builder.io API response: ${request.prompt}`,
-          changes: data.modifications || [
-            "Applied Builder.io generated modifications",
-            "Updated files based on prompt analysis",
-          ],
-          success: true,
-          context: {
-            builder_prompt_id: promptId,
-            files_modified: data.files_changed || request.expected_files || [],
-            api_response: true,
-          },
-          metadata: {
-            builder_response: data,
-            execution_time: data.execution_time || 'unknown',
-          },
-        },
-      ];
+      // Real Builder.io API integration with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      return {
-        id: promptId,
-        status: "completed",
-        result: {
-          modifications: mockModifications,
-          files_changed: data.files_changed || request.expected_files || [],
-          summary: data.summary || `Successfully processed ${request.category} via Builder.io API`,
-        },
-      };
+      try {
+        const response = await fetch('https://builder.io/api/v1/ai-code-gen', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.builderPrivateKey}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'Autofix-System/1.0',
+          },
+          body: JSON.stringify({
+            prompt: request.prompt,
+            context: request.context,
+            priority: request.priority,
+            category: request.category,
+            expected_files: request.expected_files,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          console.warn(`🔥 Builder.io API failed with status ${response.status}: ${response.statusText}`);
+
+          // Try to get error details
+          let errorDetails = "Unknown error";
+          try {
+            const errorData = await response.text();
+            errorDetails = errorData || `HTTP ${response.status}`;
+          } catch (e) {
+            errorDetails = `HTTP ${response.status} - ${response.statusText}`;
+          }
+
+          console.warn("📋 API Error details:", errorDetails);
+          return this.mockBuilderAPI(request, promptId);
+        }
+
+        const data = await response.json();
+        console.log("✅ Builder.io API response received successfully");
+
+        const mockModifications: ModificationEntry[] = [
+          {
+            id: crypto.randomUUID(),
+            timestamp: new Date().toISOString(),
+            type: "builder_prompt",
+            module: "builder_api_integration",
+            description: `Builder.io API response: ${request.prompt}`,
+            changes: data.modifications || [
+              "Applied Builder.io generated modifications",
+              "Updated files based on prompt analysis",
+            ],
+            success: true,
+            context: {
+              builder_prompt_id: promptId,
+              files_modified: data.files_changed || request.expected_files || [],
+              api_response: true,
+            },
+            metadata: {
+              builder_response: data,
+              execution_time: data.execution_time || 'unknown',
+            },
+          },
+        ];
+
+        return {
+          id: promptId,
+          status: "completed",
+          result: {
+            modifications: mockModifications,
+            files_changed: data.files_changed || request.expected_files || [],
+            summary: data.summary || `Successfully processed ${request.category} via Builder.io API`,
+          },
+        };
+
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError; // Re-throw to be caught by outer catch
+      }
 
     } catch (error) {
-      console.warn("Builder.io API error, using mock implementation:", error);
+      // Enhanced error logging
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.warn("⏰ Builder.io API request timed out after 10 seconds, using mock implementation");
+        } else if (error.message.includes('Failed to fetch')) {
+          console.warn("🌐 Network error calling Builder.io API (possibly CORS or network issue), using mock implementation");
+        } else {
+          console.warn("❌ Builder.io API error:", error.message, "- using mock implementation");
+        }
+      } else {
+        console.warn("❌ Unknown error calling Builder.io API:", error, "- using mock implementation");
+      }
+
       return this.mockBuilderAPI(request, promptId);
     }
   }
