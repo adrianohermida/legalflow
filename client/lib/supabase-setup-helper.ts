@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { createTablesWithAdmin, isAdminConfigured } from "./supabase-admin";
 
 export interface DatabaseSetupResult {
   success: boolean;
