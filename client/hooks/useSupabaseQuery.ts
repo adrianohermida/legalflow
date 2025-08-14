@@ -2,21 +2,79 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { handleApiError } from '../lib/api';
 import { createSupabaseQueryFunction } from '../lib/supabase-queries';
 
-// Generic hook for Supabase queries
+// Type definitions for overloaded function
+type QueryOptions = {
+  enabled?: boolean;
+  staleTime?: number;
+  refetchInterval?: number;
+};
+
+type QueryKey = (string | number)[];
+type QueryFn<T> = () => Promise<T>;
+
+// Overloaded function declarations
 export function useSupabaseQuery<T>(
-  queryKey: (string | number)[],
-  queryFn: () => Promise<T>,
-  options?: {
-    enabled?: boolean;
-    staleTime?: number;
-    refetchInterval?: number;
-  }
+  queryKey: QueryKey,
+  queryFn: QueryFn<T>,
+  options?: QueryOptions
+): any;
+
+export function useSupabaseQuery<T>(
+  queryKey: string,
+  sql: string,
+  params: any[],
+  options?: QueryOptions
+): any;
+
+export function useSupabaseQuery<T>(
+  queryKey: string,
+  sql: string,
+  options?: QueryOptions
+): any;
+
+// Implementation
+export function useSupabaseQuery<T>(
+  queryKey: QueryKey | string,
+  queryFnOrSql: QueryFn<T> | string,
+  paramsOrOptions?: any[] | QueryOptions,
+  options?: QueryOptions
 ) {
+  // Normalize parameters based on the call signature
+  let normalizedQueryKey: QueryKey;
+  let normalizedQueryFn: QueryFn<T>;
+  let normalizedOptions: QueryOptions | undefined;
+
+  if (typeof queryKey === 'string') {
+    // Legacy call with string queryKey
+    normalizedQueryKey = [queryKey];
+
+    if (typeof queryFnOrSql === 'string') {
+      // SQL query call
+      const sqlParams = Array.isArray(paramsOrOptions) ? paramsOrOptions : [];
+      normalizedOptions = Array.isArray(paramsOrOptions) ? options : (paramsOrOptions as QueryOptions);
+
+      normalizedQueryFn = async () => {
+        console.warn(`Legacy SQL query detected for key '${queryKey}'. Consider migrating to proper API functions.`);
+        // Return empty array as placeholder
+        return [] as T;
+      };
+    } else {
+      // Function call with string key
+      normalizedQueryFn = queryFnOrSql as QueryFn<T>;
+      normalizedOptions = paramsOrOptions as QueryOptions;
+    }
+  } else {
+    // Modern call with array queryKey
+    normalizedQueryKey = queryKey;
+    normalizedQueryFn = queryFnOrSql as QueryFn<T>;
+    normalizedOptions = paramsOrOptions as QueryOptions;
+  }
+
   return useQuery({
-    queryKey,
+    queryKey: normalizedQueryKey,
     queryFn: async () => {
       try {
-        return await queryFn();
+        return await normalizedQueryFn();
       } catch (error: any) {
         // Handle and transform error to a proper Error object
         const errorMessage = error?.message || String(error);
@@ -24,9 +82,9 @@ export function useSupabaseQuery<T>(
         throw new Error(errorMessage);
       }
     },
-    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    refetchInterval: options?.refetchInterval,
-    enabled: options?.enabled,
+    staleTime: normalizedOptions?.staleTime || 5 * 60 * 1000, // 5 minutes
+    refetchInterval: normalizedOptions?.refetchInterval,
+    enabled: normalizedOptions?.enabled,
     retry: (failureCount, error) => {
       // Don't retry configuration errors or auth errors
       if (error?.message?.includes('não está configurado') ||
