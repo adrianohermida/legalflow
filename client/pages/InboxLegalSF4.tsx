@@ -413,14 +413,11 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
         .from('movimentacoes')
         .update({ numero_cnj: cnj })
         .eq('id', itemId);
-      
+
       if (error) throw error;
-      
-      // Track telemetry
-      await supabase.from('telemetry_events').insert({
-        event_name: 'sf4_vincular_cnj',
-        properties: { item_id: itemId, cnj, tab: filters.tab }
-      });
+
+      // Track telemetry with enhanced data
+      await sf4Telemetry.trackVincularCnj(itemId, cnj, filters.tab);
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Item vinculado ao processo com sucesso!" });
