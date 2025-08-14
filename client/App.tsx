@@ -366,6 +366,14 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      <Route
+        path="/status"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <StatusDashboard />
+          </DemoProtectedRoute>
+        }
+      />
 
       {/* Portal do Cliente */}
       <Route
