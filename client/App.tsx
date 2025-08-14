@@ -455,6 +455,24 @@ function DemoAppRoutes() {
         }
       />
 
+      {/* Stripe Integration */}
+      <Route
+        path="/settings/stripe"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <StripeSettings />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/financeiro/stripe"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <StripeCenter />
+          </DemoProtectedRoute>
+        }
+      />
+
       {/* Portal do Cliente */}
       <Route
         path="/portal/chat"
