@@ -685,8 +685,12 @@ export default function ProcessoDetailV2() {
       {/* Main Content */}
       <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-7 mb-6">
             <TabsTrigger value="capa">Capa</TabsTrigger>
+            <TabsTrigger value="timeline">
+              <Clock className="w-4 h-4 mr-2" />
+              Timeline
+            </TabsTrigger>
             <TabsTrigger value="audiencias">
               Audiências ({audiencias.length})
             </TabsTrigger>
