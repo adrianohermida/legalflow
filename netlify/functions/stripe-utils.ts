@@ -284,7 +284,8 @@ async function createCheckoutSession(event: any, headers: any) {
   try {
     // Get contact info
     const { data: contact } = await supabase
-      .from('legalflow.contacts')
+      .schema('legalflow')
+      .from('contacts')
       .select('*')
       .eq('id', contact_id)
       .single();
