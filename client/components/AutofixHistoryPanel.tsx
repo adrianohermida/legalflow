@@ -68,6 +68,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
   const [modifications, setModifications] = useState<ModificationEntry[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [tablesExist, setTablesExist] = useState<boolean | null>(null);
   const [isBuilderDialogOpen, setIsBuilderDialogOpen] = useState(false);
   const [builderPrompt, setBuilderPrompt] = useState("");
   const [builderContext, setBuilderContext] = useState("");
@@ -95,7 +96,7 @@ export function AutofixHistoryPanel({ onPromptExecuted }: AutofixHistoryPanelPro
       if (error && error.message.includes("relation") && error.message.includes("does not exist")) {
         console.log("Autofix tables don't exist. Please run the SQL setup script in Supabase.");
         toast({
-          title: "��️ Configuração Necessária",
+          title: "⚠️ Configuração Necessária",
           description: "As tabelas de histórico não existem. Execute o script AUTOFIX_DATABASE_SETUP.sql no Supabase SQL Editor.",
           variant: "destructive",
         });
