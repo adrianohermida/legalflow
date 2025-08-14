@@ -1,18 +1,34 @@
 import { useState, useEffect } from "react";
 import {
-  NEUTRAL_THEME,
+  MONOCHROMATIC_THEME,
   FORBIDDEN_COLORS,
-  type NeutralThemeMode,
-  type AdminBrandConfig,
-  DEFAULT_ADMIN_BRAND,
+  applyMonochromaticTheme,
 } from "../lib/neutral-theme";
 
+// Types for the monocromatic theme
+type MonochromaticMode = "light" | "dark";
+
+type AdminBrandConfig = {
+  enabled: boolean;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+};
+
+// Default admin config for monocromatic theme
+const DEFAULT_ADMIN_BRAND: AdminBrandConfig = {
+  enabled: false, // Disabled by default for pure monocromatic
+  primaryColor: "#111827",  // Gray-900
+  secondaryColor: "#6b7280", // Gray-500
+  accentColor: "#1f2937",   // Gray-800
+};
+
 /**
- * Hook Neutro Absoluto - Sem Dependência de Context
- * Funciona independentemente e garante zero amarelo
+ * Hook Monocromático - Zero Color Policy
+ * Funciona com sistema 100% preto/branco/cinza
  */
 export function useNeutralTheme() {
-  const [mode, setMode] = useState<NeutralThemeMode>("light");
+  const [mode, setMode] = useState<MonochromaticMode>("light");
   const [adminConfig, setAdminConfig] =
     useState<AdminBrandConfig>(DEFAULT_ADMIN_BRAND);
 
@@ -44,7 +60,8 @@ export function useNeutralTheme() {
 
   // Aplica tema ao CSS
   useEffect(() => {
-    applyNeutralTheme(mode, adminConfig);
+    applyMonochromaticTheme(mode);
+    applyAdminConfig(adminConfig);
   }, [mode, adminConfig]);
 
   const toggleMode = () => {
@@ -55,12 +72,12 @@ export function useNeutralTheme() {
   const updateAdminConfig = (config: Partial<AdminBrandConfig>) => {
     const newConfig = { ...adminConfig, ...config };
 
-    // Valida cores antes de aplicar
+    // Valida cores antes de aplicar - apenas tons de cinza permitidos
     const validatedConfig = {
       ...newConfig,
       primaryColor: isColorSafe(newConfig.primaryColor)
         ? newConfig.primaryColor
-        : "#000000",
+        : "#111827",
       secondaryColor: isColorSafe(newConfig.secondaryColor)
         ? newConfig.secondaryColor
         : "#6b7280",
@@ -81,7 +98,7 @@ export function useNeutralTheme() {
     }
   };
 
-  const colors = NEUTRAL_THEME[mode];
+  const colors = MONOCHROMATIC_THEME[mode];
 
   return {
     mode,
@@ -95,7 +112,7 @@ export function useNeutralTheme() {
   };
 }
 
-// Validação rigorosa de cores
+// Validação rigorosa de cores - APENAS tons de cinza puros
 export function isColorSafe(color: string): boolean {
   if (!color) return false;
 
@@ -107,109 +124,59 @@ export function isColorSafe(color: string): boolean {
     return false;
   }
 
-  // Verifica termos proibidos
-  const forbiddenTerms = [
-    "yellow",
-    "amber",
-    "gold",
-    "lime",
-    "chartreuse",
-    "beige",
-    "cream",
-  ];
-  if (forbiddenTerms.some((term) => normalizedColor.includes(term))) {
-    console.warn(`🚫 Termo proibido detectado na cor: ${color}`);
+  // Verifica se é hexadecimal válido
+  if (!normalizedColor.startsWith("#") || normalizedColor.length !== 7) {
+    console.warn(`🚫 Formato de cor inválido: ${color}`);
     return false;
   }
 
-  // Verifica valores RGB que podem ser amarelos
-  if (normalizedColor.startsWith("#")) {
-    const hex = normalizedColor.substring(1);
-    if (hex.length === 6) {
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
+  // Verifica se é um tom de cinza puro (R = G = B)
+  const hex = normalizedColor.substring(1);
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
 
-      // Detecta tons amarelados (muito vermelho + verde, pouco azul)
-      if (r > 200 && g > 200 && b < 100) {
-        console.warn(
-          `🚫 Tom amarelado detectado: ${color} (R:${r}, G:${g}, B:${b})`,
-        );
-        return false;
-      }
-    }
+  // ZERO COLOR POLICY: Apenas R = G = B permitido
+  if (r !== g || g !== b) {
+    console.warn(
+      `🚫 Cor não monocromática detectada: ${color} (R:${r}, G:${g}, B:${b}) - Apenas tons de cinza puros são permitidos`,
+    );
+    return false;
   }
 
   return true;
 }
 
-// Retorna cor segura ou fallback
+// Retorna cor segura ou fallback monocromático
 export function getSafeColor(
   requestedColor: string,
-  fallback: string = "#000000",
+  fallback: string = "#111827",
 ): string {
   return isColorSafe(requestedColor) ? requestedColor : fallback;
 }
 
-// Aplica tema neutro ao CSS
-export function applyNeutralTheme(
-  mode: NeutralThemeMode,
-  adminConfig: AdminBrandConfig,
-) {
-  const colors = NEUTRAL_THEME[mode];
+// Aplica configuração admin ao CSS
+function applyAdminConfig(adminConfig: AdminBrandConfig) {
+  if (!adminConfig.enabled) return;
+
   const root = document.documentElement;
 
-  // Aplica cores neutras base
-  root.style.setProperty(
-    "--theme-primary",
-    adminConfig.enabled
-      ? getSafeColor(adminConfig.primaryColor, colors.primary)
-      : colors.primary,
-  );
-  root.style.setProperty("--theme-primary-hover", colors.primaryHover);
-  root.style.setProperty("--theme-primary-light", colors.primaryLight);
-  root.style.setProperty("--theme-background", colors.background);
-  root.style.setProperty(
-    "--theme-background-secondary",
-    colors.backgroundSecondary,
-  );
-  root.style.setProperty(
-    "--theme-background-tertiary",
-    colors.backgroundTertiary,
-  );
-  root.style.setProperty("--theme-text", colors.text);
-  root.style.setProperty("--theme-text-secondary", colors.textSecondary);
-  root.style.setProperty("--theme-text-muted", colors.textMuted);
-  root.style.setProperty("--theme-border", colors.border);
-  root.style.setProperty("--theme-border-hover", colors.borderHover);
-  root.style.setProperty("--theme-success", colors.success);
-  root.style.setProperty("--theme-danger", colors.danger);
-  root.style.setProperty("--theme-warning", colors.warning);
-  root.style.setProperty("--theme-info", colors.info);
+  // Aplica apenas se as cores passarem na validação monocromática
+  const safePrimary = getSafeColor(adminConfig.primaryColor, "#111827");
+  const safeSecondary = getSafeColor(adminConfig.secondaryColor, "#6b7280");
+  const safeAccent = getSafeColor(adminConfig.accentColor, "#1f2937");
 
-  // FORÇA todas as variáveis brand para neutro
-  root.style.setProperty(
-    "--brand-50",
-    mode === "light" ? "249 250 251" : "31 41 55",
-  );
-  root.style.setProperty(
-    "--brand-100",
-    mode === "light" ? "243 244 246" : "55 65 81",
-  );
-  root.style.setProperty(
-    "--brand-700",
-    mode === "light" ? "0 0 0" : "255 255 255",
-  );
-  root.style.setProperty(
-    "--brand-900",
-    mode === "light" ? "31 41 55" : "243 244 246",
-  );
+  root.style.setProperty("--mono-primary-override", safePrimary);
+  root.style.setProperty("--mono-secondary-override", safeSecondary);
+  root.style.setProperty("--mono-accent-override", safeAccent);
 
-  // Aplica classe do tema
-  document.body.className = document.body.className.replace(/theme-\w+/g, "");
-  document.body.classList.add(`theme-${mode}`);
-
-  console.log(`✅ Tema neutro aplicado: ${mode}`, {
-    adminEnabled: adminConfig.enabled,
+  console.log(`✅ Configuração admin aplicada (monocromática):`, {
+    primary: safePrimary,
+    secondary: safeSecondary,
+    accent: safeAccent,
   });
 }
+
+// Export do default para compatibilidade
+export { DEFAULT_ADMIN_BRAND };
+export type { AdminBrandConfig, MonochromaticMode as NeutralThemeMode };
