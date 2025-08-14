@@ -569,10 +569,7 @@ export default function ProcessosV2() {
                         {processo.responsavel_oab ? (
                           <Badge
                             variant="default"
-                            style={{
-                              backgroundColor: "var(--brand-700)",
-                              color: "white",
-                            }}
+                            className="bg-neutral-800 text-white"
                           >
                             {processo.responsavel_nome ||
                               `OAB ${processo.responsavel_oab}`}
