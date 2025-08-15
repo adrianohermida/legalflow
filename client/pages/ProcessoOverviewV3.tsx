@@ -190,16 +190,8 @@ export default function ProcessoOverviewV3() {
   // Mutations for quick actions
   const addAndamentoMutation = useMutation({
     mutationFn: async (conteudo: string) => {
-      const { data, error } = await supabase
-        .from("movimentacoes")
-        .insert([{
-          numero_cnj,
-          data: { texto: conteudo, tipo: "andamento_manual" },
-          data_movimentacao: new Date().toISOString(),
-        }]);
-
-      if (error) throw error;
-      return data;
+      if (!numero_cnj) throw new Error("CNJ não informado");
+      return createAndamento(numero_cnj, conteudo);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["timeline-recente", numero_cnj] });
