@@ -3,6 +3,172 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-First Responsive Utilities */
+@layer utilities {
+  /* Container utilities */
+  .container-responsive {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-responsive {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-responsive {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Responsive text utilities */
+  .text-responsive-xs {
+    font-size: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-xs {
+      font-size: 0.875rem;
+    }
+  }
+
+  .text-responsive-sm {
+    font-size: 0.875rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-sm {
+      font-size: 1rem;
+    }
+  }
+
+  .text-responsive-base {
+    font-size: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-base {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* Responsive spacing utilities */
+  .space-responsive-y > * + * {
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .space-responsive-y > * + * {
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .space-responsive-y > * + * {
+      margin-top: 2rem;
+    }
+  }
+
+  /* Mobile-first grid utilities */
+  .grid-responsive-cards {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .grid-responsive-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-responsive-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .grid-responsive-cards {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Touch-friendly utilities */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile-specific utilities */
+  .mobile-only {
+    display: block;
+  }
+
+  @media (min-width: 640px) {
+    .mobile-only {
+      display: none;
+    }
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .desktop-only {
+      display: block;
+    }
+  }
+
+  /* Responsive padding utilities */
+  .px-responsive {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .px-responsive {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .px-responsive {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  .py-responsive {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .py-responsive {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .py-responsive {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+}
+
 /* ============================
    ADVOGAAI THEME - BRAND COLORS
    F1 APPROVED DESIGN SYSTEM
