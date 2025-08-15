@@ -958,6 +958,14 @@ function RegularAppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/examples"
+          element={
+            <ProtectedRoute userType="advogado">
+              <Examples />
+            </ProtectedRoute>
+          }
+        />
 
         {/* CRM Routes */}
         <Route
