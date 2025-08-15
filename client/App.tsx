@@ -448,7 +448,7 @@ function DemoAppRoutes() {
         path="/autofix-testing"
         element={
           <DemoProtectedRoute userType="advogado">
-            <AutofixTesting />
+            <DevAuditoria />
           </DemoProtectedRoute>
         }
       />
