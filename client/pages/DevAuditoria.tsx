@@ -1172,6 +1172,10 @@ const DevAuditoria: React.FC = () => {
               <CompletionPackAudit />
             </TabsContent>
 
+            <TabsContent value="flow-a0" className="space-y-4">
+              <FlowA0AuditoriaAutofix />
+            </TabsContent>
+
             <TabsContent value="testing" className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Suite de Testes</h3>
