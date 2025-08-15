@@ -5,7 +5,7 @@
  * Implementação completa conforme especificação:
  * - Cards específicos para cada área
  * - Botões Executar Auditoria → rpc legalflow.impl_audit()
- * - Botões Autofix → rpc legalflow.impl_autofix(patch_code)
+ * - Botões Autofix �� rpc legalflow.impl_autofix(patch_code)
  * - Bindings: supabaseLF.rpc
  */
 
@@ -73,12 +73,7 @@ interface AuditResults {
   };
 }
 
-interface AutofixResult {
-  success: boolean;
-  message: string;
-  changes: string[];
-  errors: string[];
-}
+// Interface movida para flow-a0-rpcs.ts
 
 export function FlowA0AuditoriaAutofix() {
   const [modules, setModules] = useState<AuditModuleStatus[]>([]);
