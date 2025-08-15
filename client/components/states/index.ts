@@ -16,6 +16,7 @@ export {
   LoadingSpinner,
 } from "./LoadingState";
 
-// Re-export for convenience
-export type {} from // Add type exports when needed
-"./EmptyState";
+// Type exports for convenience
+export type { EmptyStateProps } from "./EmptyState";
+export type { ErrorStateProps } from "./ErrorState";
+export type { LoadingStateProps } from "./LoadingState";
