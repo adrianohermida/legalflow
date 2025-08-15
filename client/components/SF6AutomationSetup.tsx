@@ -317,6 +317,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
   });
 
   return (
+    <div className="space-y-6">
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -398,5 +399,9 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
         </div>
       </CardContent>
     </Card>
+
+    {/* SF-6 Bridge Manager */}
+    <SF6BridgeManager />
+    </div>
   );
 }
