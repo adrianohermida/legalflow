@@ -503,213 +503,32 @@ const DocumentosC6 = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Upload Dialog */}
-      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Novo Documento</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Título</Label>
-              <Input
-                id="title"
-                value={uploadForm.title}
-                onChange={(e) =>
-                  setUploadForm({ ...uploadForm, title: e.target.value })
-                }
-                placeholder="Nome do documento"
-              />
-            </div>
+      {/* Enhanced Upload Component */}
+      <DocumentoUploaderC6
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        onSuccess={() => {
+          // Refresh documents
+          queryClient.invalidateQueries({ queryKey: ["documents-biblioteca"] });
+        }}
+      />
 
-            <div>
-              <Label htmlFor="description">Descrição</Label>
-              <Textarea
-                id="description"
-                value={uploadForm.description}
-                onChange={(e) =>
-                  setUploadForm({ ...uploadForm, description: e.target.value })
-                }
-                placeholder="Descrição opcional"
-              />
-            </div>
+      {/* Enhanced Document Viewer */}
+      <DocumentViewerC6
+        document={selectedDocument}
+        isOpen={isViewerOpen}
+        onClose={() => {
+          setIsViewerOpen(false);
+          setSelectedDocument(null);
+        }}
+        documents={documents}
+      />
 
-            <div>
-              <Label htmlFor="numero_cnj">CNJ do Processo</Label>
-              <Input
-                id="numero_cnj"
-                value={uploadForm.numero_cnj}
-                onChange={(e) =>
-                  setUploadForm({ ...uploadForm, numero_cnj: e.target.value })
-                }
-                placeholder="Ex: 0000000-00.0000.0.00.0000"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="document_type">Tipo do Documento</Label>
-              <Select
-                value={uploadForm.document_type}
-                onValueChange={(value) =>
-                  setUploadForm({ ...uploadForm, document_type: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="peticao">Petição</SelectItem>
-                  <SelectItem value="contrato">Contrato</SelectItem>
-                  <SelectItem value="procuracao">Procuração</SelectItem>
-                  <SelectItem value="documento_pessoal">Documento Pessoal</SelectItem>
-                  <SelectItem value="comprovante">Comprovante</SelectItem>
-                  <SelectItem value="laudo">Laudo</SelectItem>
-                  <SelectItem value="parecer">Parecer</SelectItem>
-                  <SelectItem value="sentenca">Sentença</SelectItem>
-                  <SelectItem value="despacho">Despacho</SelectItem>
-                  <SelectItem value="oficio">Ofício</SelectItem>
-                  <SelectItem value="ata">Ata</SelectItem>
-                  <SelectItem value="protocolo">Protocolo</SelectItem>
-                  <SelectItem value="outros">Outros</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="file">Arquivo</Label>
-              <Input
-                id="file"
-                type="file"
-                ref={fileInputRef}
-                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleFileUpload(file);
-                  }
-                }}
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsUploadOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                {isUploading ? "Enviando..." : "Selecionar Arquivo"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Flipbook Dialog */}
-      <Dialog open={isFlipbookOpen} onOpenChange={setIsFlipbookOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>Flipbook - Documentos por CNJ</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Digite o número CNJ do processo"
-                value={flipbookCNJ}
-                onChange={(e) => setFlipbookCNJ(e.target.value)}
-              />
-              <Button
-                onClick={() => {
-                  if (!flipbookCNJ) {
-                    toast({
-                      title: "CNJ requerido",
-                      description: "Digite um número CNJ para buscar documentos.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {flipbookCNJ && (
-              <div className="max-h-96 overflow-y-auto">
-                <h4 className="font-medium mb-2">Documentos do Processo</h4>
-                {loadingProcessoDocs ? (
-                  <div className="space-y-2">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="animate-pulse h-12 bg-gray-200 rounded"
-                      ></div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {processoDocuments.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="flex items-center justify-between p-2 border rounded"
-                      >
-                        <div className="flex items-center gap-2">
-                          {getDocumentIcon(doc.file_name)}
-                          <span className="text-sm">{doc.file_name}</span>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => viewDocument(doc)}
-                          >
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => downloadDocument(doc)}
-                          >
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    {processoPeticoes.map((peticao) => (
-                      <div
-                        key={peticao.id}
-                        className="flex items-center justify-between p-2 border rounded"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Gavel className="h-4 w-4 text-purple-600" />
-                          <span className="text-sm">{peticao.tipo || "Petição"}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            // View petition content
-                          }}
-                        >
-                          <Eye className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                    {processoDocuments.length === 0 && processoPeticoes.length === 0 && (
-                      <p className="text-gray-500 text-center py-4">
-                        Nenhum documento encontrado para este CNJ
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Flipbook Viewer */}
+      <FlipbookViewerC6
+        isOpen={isFlipbookOpen}
+        onClose={() => setIsFlipbookOpen(false)}
+      />
     </div>
   );
 };
