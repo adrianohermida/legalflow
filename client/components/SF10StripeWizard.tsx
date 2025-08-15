@@ -221,7 +221,7 @@ export const SF10StripeWizard: React.FC = () => {
 
       setSubscriptions(formatted);
     } catch (error) {
-      console.error("Error loading subscriptions:", error);
+      console.error("Error loading subscriptions:", error instanceof Error ? error.message : String(error));
     }
   };
 
