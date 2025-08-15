@@ -1090,7 +1090,7 @@ const DevAuditoria: React.FC = () => {
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as typeof activeTab)}
       >
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
             Auditoria
@@ -1114,6 +1114,10 @@ const DevAuditoria: React.FC = () => {
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="w-4 h-4" />
             Histórico
+          </TabsTrigger>
+          <TabsTrigger value="sf5" className="flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            SF-5
           </TabsTrigger>
         </TabsList>
 
