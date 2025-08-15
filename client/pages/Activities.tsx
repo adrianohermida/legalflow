@@ -1078,6 +1078,33 @@ export function Activities() {
                             <Eye className="w-4 h-4 mr-1" />
                             Ver
                           </Button>
+                          {/* SF-6: Botão "Gerar ticket" */}
+                          {!activity.ticket_id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedActivity(activity);
+                                setIsTicketDialogOpen(true);
+                              }}
+                              style={{ color: "var(--brand-700)" }}
+                            >
+                              <ArrowRight className="w-4 h-4 mr-1" />
+                              Gerar ticket
+                            </Button>
+                          )}
+                          {/* Mostrar se já tem ticket vinculado */}
+                          {activity.ticket_id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => navigate(`/tickets/${activity.ticket_id}`)}
+                              style={{ color: "var(--brand-700)" }}
+                            >
+                              <Link2 className="w-4 h-4 mr-1" />
+                              Ver ticket
+                            </Button>
+                          )}
                           {activity.status !== "done" && (
                             <Button
                               variant="ghost"
