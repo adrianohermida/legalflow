@@ -291,11 +291,12 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      {/* Consolidated journey routes */}
       <Route
         path="/jornadas"
         element={
           <DemoProtectedRoute userType="advogado">
-            <Jornadas />
+            <JourneysD1 />
           </DemoProtectedRoute>
         }
       />
@@ -303,12 +304,12 @@ function DemoAppRoutes() {
         path="/jornadas/designer/:templateId?"
         element={
           <DemoProtectedRoute userType="advogado">
-            <JourneyDesignerPage />
+            <JourneyDesignerD2 />
           </DemoProtectedRoute>
         }
       />
       <Route
-        path="/jornadas/nova"
+        path="/jornadas/new"
         element={
           <DemoProtectedRoute userType="advogado">
             <NovaJornada />
@@ -316,7 +317,7 @@ function DemoAppRoutes() {
         }
       />
       <Route
-        path="/jornadas/iniciar"
+        path="/jornadas/start"
         element={
           <DemoProtectedRoute userType="advogado">
             <IniciarJornada />
