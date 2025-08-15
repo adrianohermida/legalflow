@@ -255,6 +255,7 @@ export default function SF5JourneyCard({
         description: "A etapa foi marcada como em progresso.",
       });
 
+      queryClient.invalidateQueries({ queryKey: ["sf5-journey", numeroCnj] });
       queryClient.invalidateQueries({
         queryKey: ["sf5-journey-stages", journey?.id],
       });
