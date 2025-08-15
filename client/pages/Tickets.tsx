@@ -877,6 +877,19 @@ export function Tickets() {
                             <Eye className="w-4 h-4 mr-1" />
                             Ver
                           </Button>
+                          {/* SF-6: Botão "Criar Activity espelho" */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedTicket(ticket);
+                              setIsActivityDialogOpen(true);
+                            }}
+                            style={{ color: "var(--brand-700)" }}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Activity espelho
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
