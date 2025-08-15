@@ -589,29 +589,11 @@ const DevAuditoria: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              🔹 Painel de Auditoria & Autofix
+              🔹 Sistema Integrado de Auditoria & Desenvolvimento
             </h1>
             <p className="text-gray-600">
-              Sistema integrado com histórico completo e integração Builder.io
+              Plataforma unificada com auditoria, testes, backlog e cobertura de rotas
             </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={activeTab === "audit" ? "default" : "outline"}
-              onClick={() => setActiveTab("audit")}
-              className="flex items-center gap-2"
-            >
-              <Shield className="w-4 h-4" />
-              Auditoria
-            </Button>
-            <Button
-              variant={activeTab === "history" ? "default" : "outline"}
-              onClick={() => setActiveTab("history")}
-              className="flex items-center gap-2"
-            >
-              <Inbox className="w-4 h-4" />
-              Histórico
-            </Button>
           </div>
         </div>
       </div>
