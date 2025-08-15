@@ -3,6 +3,7 @@
  * Launcher "Apps" abre overlay com cards 3×N dos módulos
  * Preview de módulos permite adicionar e remover páginas do sidebar
  * INCLUI: Modo de personalização discreto do sidebar (conforme Flow C2)
+ * CORES: Harmonização monocromática com acentos da marca
  */
 
 import React, { useState, useEffect } from "react";
@@ -46,6 +47,7 @@ import {
   PanelLeft,
 } from "lucide-react";
 import { SidebarItem, defaultAdvogadoItems, defaultClienteItems } from "./SidebarCustomizable";
+import { themeUtils, colors } from "../lib/theme-colors";
 
 interface AppLauncherMosaicProps {
   isOpen: boolean;
@@ -68,7 +70,7 @@ interface AppModule {
   isBeta?: boolean;
 }
 
-// Todos os módulos disponíveis
+// Todos os módulos disponíveis - cores harmonizadas
 const allAdvogadoModules: AppModule[] = [
   // Módulos principais (padrão no sidebar)
   {
@@ -77,7 +79,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Visão geral do escritório",
     href: "/",
     icon: LayoutDashboard,
-    color: "bg-blue-500",
+    color: colors.neutral[700],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -88,7 +90,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Gestão de processos",
     href: "/processos-v2",
     icon: FileText,
-    color: "bg-green-500",
+    color: colors.brand.primary,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -99,7 +101,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Base de clientes",
     href: "/clientes",
     icon: Users,
-    color: "bg-purple-500",
+    color: colors.neutral[600],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -110,7 +112,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Compromissos e prazos",
     href: "/agenda",
     icon: Calendar,
-    color: "bg-indigo-500",
+    color: colors.neutral[500],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -121,7 +123,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Jornadas do cliente",
     href: "/jornadas",
     icon: Target,
-    color: "bg-teal-500",
+    color: colors.brand.accent,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -132,7 +134,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Triagem de publicações",
     href: "/inbox-v2",
     icon: Inbox,
-    color: "bg-orange-500",
+    color: colors.semantic.warning,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -143,7 +145,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Gestão de documentos",
     href: "/documentos",
     icon: FolderOpen,
-    color: "bg-yellow-500",
+    color: colors.neutral[600],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -154,7 +156,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Controle financeiro",
     href: "/financeiro",
     icon: DollarSign,
-    color: "bg-emerald-500",
+    color: colors.semantic.success,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -165,7 +167,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Relatórios e análises",
     href: "/relatorios",
     icon: BarChart3,
-    color: "bg-cyan-500",
+    color: colors.neutral[700],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -176,7 +178,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Central de ajuda",
     href: "/helpdesk",
     icon: HeadphonesIcon,
-    color: "bg-pink-500",
+    color: colors.neutral[500],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -187,7 +189,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Gestão de serviços",
     href: "/servicos",
     icon: ShoppingBag,
-    color: "bg-rose-500",
+    color: colors.neutral[600],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -200,7 +202,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Análise avançada de dados",
     href: "/analytics",
     icon: Activity,
-    color: "bg-violet-500",
+    color: colors.brand.primary,
     category: "Avançado",
     inSidebar: false,
     isDefault: false,
@@ -212,7 +214,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Integrações com sistemas externos",
     href: "/api-integrations",
     icon: Zap,
-    color: "bg-amber-500",
+    color: colors.semantic.warning,
     category: "Avançado",
     inSidebar: false,
     isDefault: false,
@@ -224,7 +226,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Exportação e backup de dados",
     href: "/data-export",
     icon: Database,
-    color: "bg-slate-500",
+    color: colors.neutral[500],
     category: "Utilitários",
     inSidebar: false,
     isDefault: false,
@@ -235,7 +237,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Log de auditoria do sistema",
     href: "/audit-log",
     icon: TestTube,
-    color: "bg-stone-500",
+    color: colors.neutral[600],
     category: "Utilitários",
     inSidebar: false,
     isDefault: false,
@@ -246,7 +248,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Configurações do sistema",
     href: "/settings",
     icon: Settings,
-    color: "bg-zinc-500",
+    color: colors.neutral[700],
     category: "Sistema",
     inSidebar: false,
     isDefault: false,
@@ -260,7 +262,7 @@ const allClienteModules: AppModule[] = [
     description: "Fale com seu advogado",
     href: "/portal/chat",
     icon: MessageSquare,
-    color: "bg-blue-500",
+    color: colors.brand.primary,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -271,7 +273,7 @@ const allClienteModules: AppModule[] = [
     description: "Acompanhe seu processo",
     href: "/portal/jornada",
     icon: Target,
-    color: "bg-green-500",
+    color: colors.brand.accent,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -282,7 +284,7 @@ const allClienteModules: AppModule[] = [
     description: "Seus processos ativos",
     href: "/portal/processos",
     icon: FileText,
-    color: "bg-purple-500",
+    color: colors.neutral[700],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -293,7 +295,7 @@ const allClienteModules: AppModule[] = [
     description: "Agenda e prazos",
     href: "/portal/compromissos",
     icon: CalendarCheck,
-    color: "bg-indigo-500",
+    color: colors.neutral[600],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -304,7 +306,7 @@ const allClienteModules: AppModule[] = [
     description: "Faturas e pagamentos",
     href: "/portal/financeiro",
     icon: Receipt,
-    color: "bg-emerald-500",
+    color: colors.semantic.success,
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -315,7 +317,7 @@ const allClienteModules: AppModule[] = [
     description: "Central de ajuda",
     href: "/portal/helpdesk",
     icon: HeadphonesIcon,
-    color: "bg-pink-500",
+    color: colors.neutral[500],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -326,7 +328,7 @@ const allClienteModules: AppModule[] = [
     description: "Contratar serviços",
     href: "/portal/servicos",
     icon: ShoppingBag,
-    color: "bg-rose-500",
+    color: colors.neutral[600],
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -468,13 +470,21 @@ export function AppLauncherMosaic({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+    <div 
+      className="fixed inset-0 flex items-center justify-center z-50" 
+      style={{ backgroundColor: colors.surface.overlay }}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+        style={themeUtils.elevatedCardShadow}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: colors.neutral[200] }}>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Módulos do Sistema</h2>
-            <p className="text-gray-600 mt-1">
+            <h2 className="text-2xl font-bold" style={{ color: colors.neutral[900] }}>
+              Módulos do Sistema
+            </h2>
+            <p className="mt-1" style={{ color: colors.neutral[600] }}>
               Escolha os módulos para acessar funcionalidades do AdvogaAI
             </p>
           </div>
@@ -500,7 +510,7 @@ export function AppLauncherMosaic({
                       onClick={saveSidebarChanges}
                       disabled={!hasChanges}
                       className="text-xs"
-                      style={hasChanges ? { backgroundColor: "var(--gray-700)", color: "white" } : {}}
+                      style={hasChanges ? themeUtils.primaryButton : {}}
                     >
                       <Save className="w-3 h-3 mr-1" />
                       Salvar
@@ -533,7 +543,7 @@ export function AppLauncherMosaic({
         </div>
 
         {/* Search and Filters */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b" style={{ borderColor: colors.neutral[200] }}>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -541,7 +551,11 @@ export function AppLauncherMosaic({
                 placeholder="Buscar módulos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent"
+                style={{ 
+                  borderColor: colors.neutral[300],
+                  boxShadow: `0 0 0 2px ${colors.brand.primaryLight}`
+                }}
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -553,7 +567,7 @@ export function AppLauncherMosaic({
                   onClick={() => setSelectedCategory(category)}
                   style={
                     selectedCategory === category 
-                      ? { backgroundColor: "var(--gray-700)", color: "white" }
+                      ? themeUtils.primaryButton
                       : {}
                   }
                 >
@@ -565,14 +579,20 @@ export function AppLauncherMosaic({
 
           {/* Status do modo de personalização */}
           {isSidebarCustomizing && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center gap-2 text-blue-800">
+            <div 
+              className="mt-4 p-3 rounded-lg border"
+              style={{ 
+                backgroundColor: colors.brand.primaryLight,
+                borderColor: colors.brand.primary 
+              }}
+            >
+              <div className="flex items-center gap-2" style={{ color: colors.brand.primaryDark }}>
                 <Settings className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   Modo Personalização Ativo
                 </span>
               </div>
-              <p className="text-blue-700 text-xs mt-1">
+              <p className="text-xs mt-1" style={{ color: colors.brand.primary }}>
                 Clique nos ícones de olho para adicionar/remover módulos do menu lateral
               </p>
             </div>
@@ -588,9 +608,10 @@ export function AppLauncherMosaic({
                 <div
                   key={module.id}
                   className={cn(
-                    "relative group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200",
+                    "relative group bg-white border rounded-lg p-4 hover:shadow-md transition-all duration-200",
                     isSidebarCustomizing && "hover:border-gray-400 cursor-pointer"
                   )}
+                  style={{ borderColor: colors.neutral[200], ...themeUtils.cardShadow }}
                 >
                   {/* Badge de status no sidebar */}
                   {isSidebarCustomizing && (
@@ -610,21 +631,24 @@ export function AppLauncherMosaic({
                         }
                       >
                         {module.inSidebar ? (
-                          <Eye className="w-3 h-3 text-green-600" />
+                          <Eye className="w-3 h-3" style={{ color: colors.semantic.success }} />
                         ) : (
-                          <EyeOff className="w-3 h-3 text-gray-400" />
+                          <EyeOff className="w-3 h-3" style={{ color: colors.neutral[400] }} />
                         )}
                       </Button>
                     </div>
                   )}
 
                   <div className="flex items-start space-x-3">
-                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", module.color)}>
+                    <div 
+                      className="w-10 h-10 rounded-lg flex items-center justify-center" 
+                      style={{ backgroundColor: module.color }}
+                    >
                       <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-gray-900 truncate">
+                        <h3 className="text-sm font-semibold truncate" style={{ color: colors.neutral[900] }}>
                           {module.title}
                         </h3>
                         {module.inSidebar && (
@@ -633,7 +657,7 @@ export function AppLauncherMosaic({
                           </Badge>
                         )}
                         {module.isNew && (
-                          <Badge variant="default" className="text-xs bg-green-500">
+                          <Badge className="text-xs" style={themeUtils.successBadge}>
                             Novo
                           </Badge>
                         )}
@@ -643,7 +667,7 @@ export function AppLauncherMosaic({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                      <p className="text-xs mt-1 line-clamp-2" style={{ color: colors.neutral[600] }}>
                         {module.description}
                       </p>
                       <div className="flex items-center justify-between mt-3">
@@ -654,7 +678,8 @@ export function AppLauncherMosaic({
                           <Link
                             to={module.href}
                             onClick={onClose}
-                            className="text-xs text-gray-700 hover:text-gray-900 font-medium"
+                            className="text-xs font-medium hover:underline"
+                            style={{ color: colors.brand.primary }}
                           >
                             Abrir →
                           </Link>
@@ -668,7 +693,7 @@ export function AppLauncherMosaic({
           </div>
 
           {filteredModules.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12" style={{ color: colors.neutral[500] }}>
               <p>Nenhum módulo encontrado para "{searchTerm}"</p>
             </div>
           )}
