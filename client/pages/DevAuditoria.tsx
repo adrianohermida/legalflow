@@ -1579,7 +1579,10 @@ const DevAuditoria: React.FC = () => {
 
         {/* Schema Diagnostics Tab */}
         <TabsContent value="diagnostics">
-          <SchemaDiagnostics />
+          <div className="space-y-6">
+            <SchemaVerificationHelper />
+            <SchemaDiagnostics />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
