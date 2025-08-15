@@ -30,6 +30,9 @@ import {
   TrendingUp,
   BarChart3,
   RefreshCw,
+  Copy,
+  Archive,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -69,6 +72,16 @@ import {
 import { ScrollArea } from './ui/scroll-area';
 import { Progress } from './ui/progress';
 import { Separator } from './ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
 import { useToast } from '../hooks/use-toast';
 import { supabase } from '../lib/supabase';
 import { formatDate } from '../lib/utils';
@@ -81,7 +94,7 @@ interface BacklogItem {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   category: string;
   tags: string[];
-  status: 'backlog' | 'ready' | 'in_progress' | 'review' | 'testing' | 'done' | 'blocked';
+  status: 'backlog' | 'ready' | 'in_progress' | 'review' | 'testing' | 'done' | 'blocked' | 'archived';
   pipeline_stage: 'ideation' | 'analysis' | 'design' | 'development' | 'testing' | 'deployment';
   story_points?: number;
   complexity: 'low' | 'medium' | 'high' | 'unknown';
@@ -129,6 +142,7 @@ const statusConfig = {
   testing: { label: 'Testando', color: 'bg-orange-100 text-orange-800', icon: Settings },
   done: { label: 'Concluído', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   blocked: { label: 'Bloqueado', color: 'bg-red-100 text-red-800', icon: AlertCircle },
+  archived: { label: 'Arquivado', color: 'bg-gray-100 text-gray-500', icon: Archive },
 };
 
 const priorityConfig = {
@@ -154,10 +168,13 @@ export default function AutofixBacklog() {
     type: '',
     assignee: '',
     search: '',
+    includeArchived: false,
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<BacklogItem | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<BacklogItem | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -165,7 +182,8 @@ export default function AutofixBacklog() {
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['autofix-backlog-items', filter],
     queryFn: async () => {
-      let query = supabase.from('vw_autofix_kanban').select('*');
+      const viewName = filter.includeArchived ? 'vw_autofix_kanban_with_archived' : 'vw_autofix_kanban';
+      let query = supabase.from(viewName).select('*');
       
       if (filter.status) query = query.eq('status', filter.status);
       if (filter.priority) query = query.eq('priority', filter.priority);
@@ -173,6 +191,11 @@ export default function AutofixBacklog() {
       if (filter.assignee) query = query.eq('assigned_to', filter.assignee);
       if (filter.search) {
         query = query.or(`title.ilike.%${filter.search}%,description.ilike.%${filter.search}%`);
+      }
+      
+      // Se não incluir arquivados, filtrar automaticamente
+      if (!filter.includeArchived) {
+        query = query.neq('status', 'archived');
       }
       
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -212,6 +235,25 @@ export default function AutofixBacklog() {
     },
   });
 
+  // Mutation para atualizar item
+  const updateItemMutation = useMutation({
+    mutationFn: async (itemData: any) => {
+      const { data, error } = await supabase.rpc('update_backlog_item', itemData);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      setIsEditDialogOpen(false);
+      setSelectedItem(null);
+      toast({
+        title: 'Item atualizado',
+        description: 'Item foi atualizado com sucesso.',
+      });
+    },
+  });
+
   // Mutation para atualizar status
   const updateStatusMutation = useMutation({
     mutationFn: async ({ itemId, newStatus, reason }: { itemId: string; newStatus: string; reason?: string }) => {
@@ -229,6 +271,68 @@ export default function AutofixBacklog() {
       toast({
         title: 'Status atualizado',
         description: 'Status do item foi atualizado com sucesso.',
+      });
+    },
+  });
+
+  // Mutation para deletar item
+  const deleteItemMutation = useMutation({
+    mutationFn: async ({ itemId, hardDelete = false }: { itemId: string; hardDelete?: boolean }) => {
+      const { data, error } = await supabase.rpc('delete_backlog_item', {
+        p_item_id: itemId,
+        p_hard_delete: hardDelete,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      setItemToDelete(null);
+      toast({
+        title: variables.hardDelete ? 'Item removido' : 'Item arquivado',
+        description: variables.hardDelete 
+          ? 'Item foi removido permanentemente.' 
+          : 'Item foi arquivado com sucesso.',
+      });
+    },
+  });
+
+  // Mutation para restaurar item
+  const restoreItemMutation = useMutation({
+    mutationFn: async (itemId: string) => {
+      const { data, error } = await supabase.rpc('restore_backlog_item', {
+        p_item_id: itemId,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      toast({
+        title: 'Item restaurado',
+        description: 'Item foi restaurado do arquivo.',
+      });
+    },
+  });
+
+  // Mutation para duplicar item
+  const duplicateItemMutation = useMutation({
+    mutationFn: async ({ itemId, newTitle }: { itemId: string; newTitle?: string }) => {
+      const { data, error } = await supabase.rpc('duplicate_backlog_item', {
+        p_item_id: itemId,
+        p_new_title: newTitle,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
+      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      toast({
+        title: 'Item duplicado',
+        description: 'Item foi duplicado com sucesso.',
       });
     },
   });
@@ -259,6 +363,23 @@ export default function AutofixBacklog() {
     });
   };
 
+  const handleEditItem = (item: BacklogItem) => {
+    setSelectedItem(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteItem = (item: BacklogItem) => {
+    setItemToDelete(item);
+  };
+
+  const handleRestoreItem = (item: BacklogItem) => {
+    restoreItemMutation.mutate(item.id);
+  };
+
+  const handleDuplicateItem = (item: BacklogItem) => {
+    duplicateItemMutation.mutate({ itemId: item.id });
+  };
+
   const handleBuilderExecution = (item: BacklogItem) => {
     if (!item.can_execute_in_builder || !item.builder_prompt) {
       toast({
@@ -275,10 +396,13 @@ export default function AutofixBacklog() {
   const ItemCard = ({ item }: { item: BacklogItem }) => {
     const StatusIcon = statusConfig[item.status].icon;
     const TypeIcon = typeConfig[item.type].icon;
+    const isArchived = item.status === 'archived';
     
     return (
       <Card 
-        className="mb-3 cursor-pointer hover:shadow-md transition-shadow"
+        className={`mb-3 cursor-pointer hover:shadow-md transition-shadow ${
+          isArchived ? 'opacity-60 border-dashed' : ''
+        }`}
         onClick={() => {
           setSelectedItem(item);
           setIsDetailsDialogOpen(true);
@@ -289,6 +413,12 @@ export default function AutofixBacklog() {
             <div className="flex items-center gap-2">
               <TypeIcon className="w-4 h-4 text-gray-600" />
               <h4 className="font-medium text-sm text-gray-900 truncate">{item.title}</h4>
+              {isArchived && (
+                <Badge variant="outline" className="text-xs bg-gray-100 text-gray-500">
+                  <Archive className="w-3 h-3 mr-1" />
+                  Arquivado
+                </Badge>
+              )}
             </div>
             
             <DropdownMenu>
@@ -305,21 +435,40 @@ export default function AutofixBacklog() {
                   <Eye className="w-4 h-4 mr-2" />
                   Ver detalhes
                 </DropdownMenuItem>
-                {item.can_execute_in_builder && (
-                  <DropdownMenuItem onClick={() => handleBuilderExecution(item)}>
-                    <Play className="w-4 h-4 mr-2" />
-                    Executar no Builder.io
+                
+                {!isArchived && (
+                  <>
+                    {item.can_execute_in_builder && (
+                      <DropdownMenuItem onClick={() => handleBuilderExecution(item)}>
+                        <Play className="w-4 h-4 mr-2" />
+                        Executar no Builder.io
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleEditItem(item)}>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDuplicateItem(item)}>
+                      <Copy className="w-4 h-4 mr-2" />
+                      Duplicar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-red-600"
+                      onClick={() => handleDeleteItem(item)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Arquivar
+                    </DropdownMenuItem>
+                  </>
+                )}
+                
+                {isArchived && (
+                  <DropdownMenuItem onClick={() => handleRestoreItem(item)}>
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Restaurar
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-600">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Excluir
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -386,10 +535,12 @@ export default function AutofixBacklog() {
   };
 
   const KanbanBoard = () => {
-    const statusColumns = Object.keys(statusConfig) as Array<keyof typeof statusConfig>;
+    const statusColumns = Object.keys(statusConfig).filter(status => 
+      filter.includeArchived || status !== 'archived'
+    ) as Array<keyof typeof statusConfig>;
     
     return (
-      <div className="grid grid-cols-7 gap-4 h-full">
+      <div className={`grid gap-4 h-full ${filter.includeArchived ? 'grid-cols-8' : 'grid-cols-7'}`}>
         {statusColumns.map((status) => {
           const columnItems = items.filter(item => item.status === status);
           const StatusIcon = statusConfig[status].icon;
@@ -597,6 +748,17 @@ export default function AutofixBacklog() {
               ))}
             </SelectContent>
           </Select>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="includeArchived"
+              checked={filter.includeArchived}
+              onChange={(e) => setFilter(prev => ({ ...prev, includeArchived: e.target.checked }))}
+              className="rounded"
+            />
+            <Label htmlFor="includeArchived" className="text-sm">Incluir arquivados</Label>
+          </div>
         </div>
         
         <Tabs value={view} onValueChange={(value) => setView(value as any)}>
@@ -629,6 +791,15 @@ export default function AutofixBacklog() {
         isLoading={createItemMutation.isPending}
       />
 
+      {/* Edit Item Dialog */}
+      <EditItemDialog 
+        item={selectedItem}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSubmit={updateItemMutation.mutate}
+        isLoading={updateItemMutation.isPending}
+      />
+
       {/* Item Details Dialog */}
       <ItemDetailsDialog
         item={selectedItem}
@@ -636,7 +807,32 @@ export default function AutofixBacklog() {
         onOpenChange={setIsDetailsDialogOpen}
         onStatusChange={handleStatusChange}
         onBuilderExecute={handleBuilderExecution}
+        onEdit={handleEditItem}
+        onDelete={handleDeleteItem}
+        onDuplicate={handleDuplicateItem}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Arquivar item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja arquivar o item "{itemToDelete?.title}"? 
+              Você poderá restaurá-lo posteriormente se necessário.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => itemToDelete && deleteItemMutation.mutate({ itemId: itemToDelete.id })}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Arquivar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -688,6 +884,26 @@ const CreateItemDialog = ({
     
     onSubmit(data);
   };
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        title: '',
+        description: '',
+        type: 'improvement',
+        priority: 'medium',
+        category: 'general',
+        tags: '',
+        builder_prompt: '',
+        can_execute_in_builder: false,
+        acceptance_criteria: '',
+        business_value: '',
+        technical_notes: '',
+        story_points: '',
+      });
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -870,6 +1086,261 @@ const CreateItemDialog = ({
   );
 };
 
+// Componente para editar item existente
+const EditItemDialog = ({ 
+  item,
+  open, 
+  onOpenChange, 
+  onSubmit, 
+  isLoading 
+}: {
+  item: BacklogItem | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (data: any) => void;
+  isLoading: boolean;
+}) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    type: 'improvement',
+    priority: 'medium',
+    category: 'general',
+    tags: '',
+    builder_prompt: '',
+    can_execute_in_builder: false,
+    acceptance_criteria: '',
+    business_value: '',
+    technical_notes: '',
+    story_points: '',
+  });
+
+  // Populate form when item changes
+  useEffect(() => {
+    if (item && open) {
+      setFormData({
+        title: item.title || '',
+        description: item.description || '',
+        type: item.type || 'improvement',
+        priority: item.priority || 'medium',
+        category: item.category || 'general',
+        tags: item.tags ? item.tags.join(', ') : '',
+        builder_prompt: item.builder_prompt || '',
+        can_execute_in_builder: item.can_execute_in_builder || false,
+        acceptance_criteria: item.acceptance_criteria ? item.acceptance_criteria.join('\n') : '',
+        business_value: item.business_value || '',
+        technical_notes: item.technical_notes || '',
+        story_points: item.story_points ? item.story_points.toString() : '',
+      });
+    }
+  }, [item, open]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!item) return;
+    
+    const data = {
+      p_item_id: item.id,
+      p_title: formData.title,
+      p_description: formData.description,
+      p_type: formData.type,
+      p_priority: formData.priority,
+      p_category: formData.category,
+      p_tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
+      p_builder_prompt: formData.builder_prompt || null,
+      p_can_execute_in_builder: formData.can_execute_in_builder,
+      p_acceptance_criteria: formData.acceptance_criteria ? formData.acceptance_criteria.split('\n').filter(c => c.trim()) : [],
+      p_business_value: formData.business_value || null,
+      p_technical_notes: formData.technical_notes || null,
+      p_story_points: formData.story_points ? parseInt(formData.story_points) : null,
+    };
+    
+    onSubmit(data);
+  };
+
+  if (!item) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Editar Item do Backlog</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <Label htmlFor="edit-title">Título *</Label>
+              <Input
+                id="edit-title"
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                required
+              />
+            </div>
+            
+            <div className="col-span-2">
+              <Label htmlFor="edit-description">Descrição *</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-type">Tipo</Label>
+              <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(typeConfig).map(([type, config]) => (
+                    <SelectItem key={type} value={type}>{config.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-priority">Prioridade</Label>
+              <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(priorityConfig).map(([priority, config]) => (
+                    <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-category">Categoria</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">Geral</SelectItem>
+                  <SelectItem value="ui">Interface</SelectItem>
+                  <SelectItem value="performance">Performance</SelectItem>
+                  <SelectItem value="database">Banco de Dados</SelectItem>
+                  <SelectItem value="security">Segurança</SelectItem>
+                  <SelectItem value="api">API</SelectItem>
+                  <SelectItem value="documentation">Documentação</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-story_points">Story Points</Label>
+              <Select value={formData.story_points || 'none'} onValueChange={(value) => setFormData(prev => ({ ...prev, story_points: value === 'none' ? '' : value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Não definido</SelectItem>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="8">8</SelectItem>
+                  <SelectItem value="13">13</SelectItem>
+                  <SelectItem value="21">21</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="col-span-2">
+              <Label htmlFor="edit-tags">Tags (separadas por vírgula)</Label>
+              <Input
+                id="edit-tags"
+                value={formData.tags}
+                onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                placeholder="performance, ui, optimization"
+              />
+            </div>
+          </div>
+          
+          <Separator />
+          
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="edit-can_execute_in_builder"
+                checked={formData.can_execute_in_builder}
+                onChange={(e) => setFormData(prev => ({ ...prev, can_execute_in_builder: e.target.checked }))}
+                className="rounded"
+              />
+              <Label htmlFor="edit-can_execute_in_builder">Pode ser executado no Builder.io</Label>
+            </div>
+            
+            {formData.can_execute_in_builder && (
+              <div>
+                <Label htmlFor="edit-builder_prompt">Prompt para Builder.io</Label>
+                <Textarea
+                  id="edit-builder_prompt"
+                  value={formData.builder_prompt}
+                  onChange={(e) => setFormData(prev => ({ ...prev, builder_prompt: e.target.value }))}
+                  rows={3}
+                  placeholder="Descreva o que deve ser feito quando executado no Builder.io..."
+                />
+              </div>
+            )}
+            
+            <div>
+              <Label htmlFor="edit-acceptance_criteria">Critérios de Aceitação (um por linha)</Label>
+              <Textarea
+                id="edit-acceptance_criteria"
+                value={formData.acceptance_criteria}
+                onChange={(e) => setFormData(prev => ({ ...prev, acceptance_criteria: e.target.value }))}
+                rows={3}
+                placeholder="O sistema deve fazer X&#10;O usuário deve conseguir Y&#10;A performance deve ser Z"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-business_value">Valor de Negócio</Label>
+              <Textarea
+                id="edit-business_value"
+                value={formData.business_value}
+                onChange={(e) => setFormData(prev => ({ ...prev, business_value: e.target.value }))}
+                rows={2}
+                placeholder="Qual o valor que esta melhoria traz para o negócio?"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-technical_notes">Notas Técnicas</Label>
+              <Textarea
+                id="edit-technical_notes"
+                value={formData.technical_notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, technical_notes: e.target.value }))}
+                rows={2}
+                placeholder="Detalhes técnicos, considerações de implementação, etc."
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // Componente para detalhes do item
 const ItemDetailsDialog = ({
   item,
@@ -877,17 +1348,24 @@ const ItemDetailsDialog = ({
   onOpenChange,
   onStatusChange,
   onBuilderExecute,
+  onEdit,
+  onDelete,
+  onDuplicate,
 }: {
   item: BacklogItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStatusChange: (item: BacklogItem, newStatus: string) => void;
   onBuilderExecute: (item: BacklogItem) => void;
+  onEdit: (item: BacklogItem) => void;
+  onDelete: (item: BacklogItem) => void;
+  onDuplicate: (item: BacklogItem) => void;
 }) => {
   if (!item) return null;
 
   const StatusIcon = statusConfig[item.status].icon;
   const TypeIcon = typeConfig[item.type].icon;
+  const isArchived = item.status === 'archived';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -898,6 +1376,12 @@ const ItemDetailsDialog = ({
               <div className="flex items-center gap-2">
                 <TypeIcon className="w-5 h-5 text-gray-600" />
                 <DialogTitle className="text-xl">{item.title}</DialogTitle>
+                {isArchived && (
+                  <Badge variant="outline" className="bg-gray-100 text-gray-500">
+                    <Archive className="w-3 h-3 mr-1" />
+                    Arquivado
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Badge className={typeConfig[item.type].color}>
@@ -917,35 +1401,66 @@ const ItemDetailsDialog = ({
             </div>
             
             <div className="flex items-center gap-2">
-              {item.can_execute_in_builder && (
-                <Button
-                  size="sm"
-                  onClick={() => onBuilderExecute(item)}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Executar no Builder.io
-                </Button>
-              )}
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    Alterar Status
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {Object.entries(statusConfig).map(([status, config]) => (
-                    <DropdownMenuItem 
-                      key={status}
-                      onClick={() => onStatusChange(item, status)}
+              {!isArchived && (
+                <>
+                  {item.can_execute_in_builder && (
+                    <Button
+                      size="sm"
+                      onClick={() => onBuilderExecute(item)}
+                      className="bg-purple-600 hover:bg-purple-700"
                     >
-                      <config.icon className="w-4 h-4 mr-2" />
-                      {config.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      <Play className="w-4 h-4 mr-2" />
+                      Executar no Builder.io
+                    </Button>
+                  )}
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(item)}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => onDuplicate(item)}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Duplicar
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Alterar Status</DropdownMenuLabel>
+                      {Object.entries(statusConfig)
+                        .filter(([status]) => status !== 'archived')
+                        .map(([status, config]) => (
+                        <DropdownMenuItem 
+                          key={status}
+                          onClick={() => onStatusChange(item, status)}
+                        >
+                          <config.icon className="w-4 h-4 mr-2" />
+                          {config.label}
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => onDelete(item)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Arquivar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
             </div>
           </div>
         </DialogHeader>
