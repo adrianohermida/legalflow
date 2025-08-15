@@ -1494,6 +1494,11 @@ const DevAuditoria: React.FC = () => {
         <TabsContent value="history">
           <AutofixHistoryPanel />
         </TabsContent>
+
+        {/* SF-5 Journey Card Test Tab */}
+        <TabsContent value="sf5">
+          <SF5JourneyCardTest />
+        </TabsContent>
       </Tabs>
     </div>
   );
