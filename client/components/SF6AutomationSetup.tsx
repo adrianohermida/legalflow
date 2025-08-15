@@ -329,8 +329,8 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
       <CardContent className="space-y-4">
         <div className="text-sm text-neutral-600">
           <p>
-            <strong>SF-6: Activities ↔ Tickets Bridge</strong> - Automação que cria 
-            activities automaticamente quando etapas do tipo "task" são concluídas.
+            <strong>Tarefas e Tickets:</strong> Bridge automático que cria
+            tarefas quando etapas do tipo "task" são concluídas na jornada.
           </p>
         </div>
 
