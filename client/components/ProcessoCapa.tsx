@@ -463,30 +463,32 @@ export default function ProcessoCapa({ numeroCnj }: ProcessoCapaProps) {
       </div>
 
       {/* Print styles */}
-      <style jsx global>{`
-        @media print {
-          .print-page {
-            max-width: none;
-            margin: 0;
-            padding: 20mm;
-            font-size: 12pt;
-            line-height: 1.4;
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media print {
+            .print-page {
+              max-width: none;
+              margin: 0;
+              padding: 20mm;
+              font-size: 12pt;
+              line-height: 1.4;
+            }
+
+            .page-break-inside-avoid {
+              break-inside: avoid;
+            }
+
+            /* Hide everything except print content */
+            body > *:not(.print\\:block) {
+              display: none !important;
+            }
+
+            .print\\:block {
+              display: block !important;
+            }
           }
-          
-          .page-break-inside-avoid {
-            break-inside: avoid;
-          }
-          
-          /* Hide everything except print content */
-          body > *:not(.print\\:block) {
-            display: none !important;
-          }
-          
-          .print\\:block {
-            display: block !important;
-          }
-        }
-      `}</style>
+        `
+      }} />
     </>
   );
 }
