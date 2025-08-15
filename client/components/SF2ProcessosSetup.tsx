@@ -117,13 +117,20 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
       });
     },
     onError: (error: any) => {
+      const errorMessage = error.message || "Erro desconhecido";
+
+      // Check if it's a schema-related error
+      if (isSchemaError(errorMessage)) {
+        setShowInstallation(true);
+      }
+
       setSetupResult({
         success: false,
-        error: error.message,
+        error: errorMessage,
       });
       toast({
         title: "Erro na instalação",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -187,9 +194,16 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
       });
     },
     onError: (error: any) => {
+      const errorMessage = error.message || "Erro no teste";
+
+      // Check if it's a schema-related error
+      if (isSchemaError(errorMessage)) {
+        setShowInstallation(true);
+      }
+
       toast({
         title: "Erro no teste",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -223,9 +237,16 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
       });
     },
     onError: (error: any) => {
+      const errorMessage = error.message || "Erro na limpeza";
+
+      // Check if it's a schema-related error
+      if (isSchemaError(errorMessage)) {
+        setShowInstallation(true);
+      }
+
       toast({
         title: "Erro na limpeza",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
