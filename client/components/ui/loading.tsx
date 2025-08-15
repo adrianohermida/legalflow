@@ -103,7 +103,7 @@ export const Loading: React.FC<LoadingProps> = ({
   if (fullScreen) {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-white"
         aria-modal="true"
         aria-labelledby="loading-title"
       >
