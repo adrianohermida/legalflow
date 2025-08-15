@@ -308,7 +308,7 @@ export default function ProcessoOverviewV3() {
                 onClick={() => setShowAddPublicacaoDialog(true)}
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Publica��ão
+                Publicação
               </Button>
               <Button
                 size="sm"
@@ -866,6 +866,13 @@ export default function ProcessoOverviewV3() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Document Flipbook Viewer */}
+      <FlipbookViewerC6
+        isOpen={showFlipbook}
+        onClose={() => setShowFlipbook(false)}
+        initialCNJ={numero_cnj}
+      />
     </div>
   );
 }
