@@ -206,23 +206,7 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
   };
 
   const getTimeToSLA = (dueDate?: string) => {
-    if (!dueDate) return null;
-    
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diff = due.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    
-    if (hours < 0) {
-      return { text: `${Math.abs(hours)}h em atraso`, color: "text-red-600", urgent: true };
-    } else if (hours < 2) {
-      return { text: `${hours}h restantes`, color: "text-orange-600", urgent: true };
-    } else if (hours < 24) {
-      return { text: `${hours}h restantes`, color: "text-yellow-600", urgent: false };
-    } else {
-      const days = Math.floor(hours / 24);
-      return { text: `${days}d restantes`, color: "text-green-600", urgent: false };
-    }
+    return getSLAStatus(dueDate);
   };
 
   const getPriorityIcon = (priority: string) => {
