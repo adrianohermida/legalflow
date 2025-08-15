@@ -67,6 +67,7 @@ import DevTools from "./pages/DevTools";
 import AdminIntegrity from "./pages/AdminIntegrity";
 import DevAuditoria from "./pages/DevAuditoria";
 import Documentos from "./pages/Documentos";
+import DocumentosC6 from "./pages/DocumentosC6";
 import ContatosUnificados from "./pages/crm/ContatosUnificados";
 import LeadsConversao from "./pages/crm/LeadsConversao";
 import DealsKanban from "./pages/crm/DealsKanban";
