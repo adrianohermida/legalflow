@@ -75,9 +75,16 @@ export function SF6BridgeManager() {
   // Apply database schema enhancements
   const schemaEnhancementsMutation = useMutation({
     mutationFn: async () => {
-      // This would require executing the SQL file - for now we'll just call existing functions
-      // In a real implementation, you'd execute the SF6_DATABASE_SCHEMA_ENHANCEMENTS.sql
-      
+      // Verify the installation first
+      const { data: verifyData, error: verifyError } = await lf.rpc('sf6_verify_installation');
+      if (verifyError) {
+        throw new Error(`Verificação falhou: ${verifyError.message}`);
+      }
+
+      if (!verifyData?.installation_complete) {
+        throw new Error(`Schema não instalado completamente. Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase.`);
+      }
+
       // Test that the schema is properly set up by calling a function
       const { data, error } = await lf.rpc('sf6_get_bridge_statistics');
       if (error) throw error;
