@@ -146,24 +146,34 @@ export function SchemaDiagnostics() {
   const { data: availableFunctions, isLoading: isLoadingFunctions } = useQuery({
     queryKey: ["available-functions"],
     queryFn: async () => {
-      try {
-        // This query lists all available functions that start with sf
-        const { data, error } = await lf
-          .from('pg_proc')
-          .select('proname')
-          .like('proname', 'sf%')
-          .limit(50);
+      const detectedFunctions: string[] = [];
 
-        if (error) throw error;
-        return data?.map(f => f.proname) || [];
-      } catch (err) {
-        // Try alternative approach with rpc if direct table access fails
+      // Test common SF functions to see which ones exist
+      const functionsToTest = [
+        'sf6_verify_installation',
+        'sf6_get_bridge_statistics',
+        'sf2_create_sample_data',
+        'sf2_create_process_chat_thread',
+        'sf7_verify_installation',
+        'sf7_create_evento_rapido'
+      ];
+
+      for (const funcName of functionsToTest) {
         try {
-          const { data, error } = await lf.rpc('sf6_verify_installation');
-          if (!error) return ['sf6_verify_installation (confirmed working)'];
-        } catch {}
-        return [];
+          const { error } = await lf.rpc(funcName as any);
+          // If no "function does not exist" error, the function exists
+          if (!error || !error.message?.includes("does not exist")) {
+            detectedFunctions.push(funcName);
+          }
+        } catch (err: any) {
+          // If error doesn't mention "does not exist", function exists
+          if (!err.message?.includes("does not exist")) {
+            detectedFunctions.push(funcName);
+          }
+        }
       }
+
+      return detectedFunctions;
     },
   });
 
