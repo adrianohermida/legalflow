@@ -131,7 +131,7 @@
   --warn: var(--mono-gray-600);
   --danger: var(--mono-gray-800);
 
-  /* Toast variables */
+  /* Variáveis para componentes UI */
   --background: var(--mono-white);
   --foreground: var(--mono-gray-900);
   --muted: var(--mono-gray-100);
@@ -142,16 +142,16 @@
   --card-foreground: var(--mono-gray-900);
   --border: var(--mono-gray-200);
   --input: var(--mono-gray-200);
-  --primary: var(--mono-gray-900);
+  --primary: var(--brand-900);
   --primary-foreground: var(--mono-white);
   --secondary: var(--mono-gray-100);
   --secondary-foreground: var(--mono-gray-900);
-  --accent: var(--mono-gray-100);
-  --accent-foreground: var(--mono-gray-900);
-  --destructive: var(--mono-gray-800);
+  --accent: var(--brand-100);
+  --accent-foreground: var(--brand-900);
+  --destructive: var(--danger);
   --destructive-foreground: var(--mono-white);
-  --ring: var(--mono-gray-200);
-  --radius: 0.5rem;
+  --ring: var(--brand-700);
+  --radius: 0.75rem;
 }
 
 /* ============================
