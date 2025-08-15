@@ -144,40 +144,7 @@ export default function ProcessoOverviewV3() {
     queryKey: ["processo-overview", numero_cnj],
     queryFn: async () => {
       if (!numero_cnj) throw new Error("CNJ não fornecido");
-
-      // Get process with client and attorney information
-      const { data: processo, error } = await supabase
-        .from("processos")
-        .select(`
-          numero_cnj,
-          tribunal_sigla,
-          titulo_polo_ativo,
-          titulo_polo_passivo,
-          data,
-          created_at,
-          clientes_processos (
-            clientes (
-              nome,
-              cpfcnpj
-            )
-          ),
-          advogados_processos (
-            advogados (
-              nome,
-              oab
-            )
-          )
-        `)
-        .eq("numero_cnj", numero_cnj)
-        .single();
-
-      if (error) throw error;
-
-      return {
-        ...processo,
-        cliente: processo.clientes_processos?.[0]?.clientes,
-        responsavel: processo.advogados_processos?.[0]?.advogados,
-      } as ProcessoData;
+      return fetchProcessoCompleto(numero_cnj);
     },
     enabled: !!numero_cnj,
   });
