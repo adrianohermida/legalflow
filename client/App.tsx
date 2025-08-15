@@ -73,6 +73,7 @@ import ActivitiesC8 from "./pages/ActivitiesC8";
 import DealsC9 from "./pages/DealsC9";
 import JourneysD1 from "./pages/JourneysD1";
 import JourneyDesignerD2 from "./pages/JourneyDesignerD2";
+import AuditLog from "./pages/AuditLog";
 import ContatosUnificados from "./pages/crm/ContatosUnificados";
 import LeadsConversao from "./pages/crm/LeadsConversao";
 import DealsKanban from "./pages/crm/DealsKanban";
@@ -428,6 +429,14 @@ function DemoAppRoutes() {
         element={
           <DemoProtectedRoute userType="advogado">
             <JourneyDesignerD2 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/audit-log"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <AuditLog />
           </DemoProtectedRoute>
         }
       />
@@ -889,6 +898,14 @@ function RegularAppRoutes() {
         element={
           <ProtectedRoute userType="advogado">
             <JourneyDesignerD2 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/audit-log"
+        element={
+          <ProtectedRoute userType="advogado">
+            <AuditLog />
           </ProtectedRoute>
         }
       />
