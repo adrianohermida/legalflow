@@ -1165,8 +1165,19 @@ const DevAuditoria: React.FC = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* Audit Tab */}
-        <TabsContent value="audit" className="space-y-4">
+        {/* System Tab with nested tabs */}
+        <TabsContent value="system" className="space-y-4">
+          <Tabs defaultValue="audit" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="audit">Auditoria</TabsTrigger>
+              <TabsTrigger value="testing">Testes</TabsTrigger>
+              <TabsTrigger value="backlog">Backlog</TabsTrigger>
+              <TabsTrigger value="routes">Rotas</TabsTrigger>
+              <TabsTrigger value="config">Config</TabsTrigger>
+              <TabsTrigger value="history">Histórico</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="audit" className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Módulos do Sistema</h3>
             <DropdownMenu>
@@ -1272,8 +1283,7 @@ const DevAuditoria: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* Testing Tab */}
-        <TabsContent value="testing" className="space-y-4">
+            <TabsContent value="testing" className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Suite de Testes</h3>
             <Button onClick={runAllTests} disabled={isRunningTests}>
@@ -1430,18 +1440,15 @@ const DevAuditoria: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Backlog Tab */}
-        <TabsContent value="backlog">
-          <AutofixBacklog />
-        </TabsContent>
+            <TabsContent value="backlog">
+              <AutofixBacklog />
+            </TabsContent>
 
-        {/* Routes Tab */}
-        <TabsContent value="routes">
-          <RouteCoveragePanel />
-        </TabsContent>
+            <TabsContent value="routes">
+              <RouteCoveragePanel />
+            </TabsContent>
 
-        {/* Config Tab */}
-        <TabsContent value="config" className="space-y-4">
+            <TabsContent value="config" className="space-y-4">
           <div className="grid gap-4">
             {/* Credentials Status */}
             <Card>
@@ -1534,9 +1541,10 @@ const DevAuditoria: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* History Tab */}
-        <TabsContent value="history">
-          <AutofixHistoryPanel />
+            <TabsContent value="history">
+              <AutofixHistoryPanel />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* Diagnostics Category */}
