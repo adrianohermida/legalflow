@@ -71,6 +71,7 @@ import {
   List,
   Plus,
   ArrowRight,
+  MessageSquare,
 } from "lucide-react";
 import {
   createAutofixTables,
@@ -413,7 +414,7 @@ const DevAuditoria: React.FC = () => {
       let completedModules = 0;
 
       for (const module of modules) {
-        console.log(`🔍 Auditando módulo: ${module.name}`);
+        console.log(`���� Auditando módulo: ${module.name}`);
 
         // Simular progresso do módulo
         const moduleChecks = module.checks.length;
