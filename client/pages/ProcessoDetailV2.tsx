@@ -101,6 +101,9 @@ import { formatCNJ, formatDate } from "../lib/utils";
 import ProcessoChatMultiThread from "../components/ProcessoChatMultiThread";
 import ProcessJourneyCard from "../components/ProcessJourneyCard";
 import ProcessoTimelineUnificada from "../components/ProcessoTimelineUnificada";
+import ProcessoTags from "../components/ProcessoTags";
+import ProcessoTree from "../components/ProcessoTree";
+import ProcessoCapa from "../components/ProcessoCapa";
 import { useProcessoRealtimeComplete } from "../hooks/useProcessoRealtimeComplete";
 
 interface Processo {
