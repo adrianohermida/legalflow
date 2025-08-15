@@ -335,36 +335,74 @@ export function SF7AgendaSetup() {
         </div>
       )}
 
-      {/* Instruções de Instalação */}
+      {/* Download do Script SQL */}
       {!installationComplete && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-700">
-              <AlertTriangle className="w-5 h-5" />
-              Instalação Necessária
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 text-sm">
-              <p className="text-orange-700">
-                Para usar o sistema SF-7, execute o script SQL no Supabase:
-              </p>
-              <div className="bg-white p-3 rounded border border-orange-200 font-mono text-xs">
-                1. Acesse o Supabase SQL Editor<br />
-                2. Execute: SF7_AGENDA_SCHEMA_COMPLETE.sql<br />
-                3. Verifique se todas as funções foram criadas
-              </div>
-              <Button
-                onClick={() => reverifyInstallation()}
-                variant="outline"
-                size="sm"
-                className="border-orange-300 text-orange-700 hover:bg-orange-100"
-              >
-                Verificar Novamente
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <GenericSQLDownloader
+          title="Instalação do SF-7: Agenda"
+          description="Execute este script no Supabase SQL Editor para configurar o sistema de agenda com timezone América/São_Paulo"
+          files={[
+            {
+              filename: "SF7_AGENDA_SCHEMA_COMPLETE.sql",
+              content: `-- ============================================================================
+-- SF-7: Agenda (TZ America/Sao Paulo) - SCHEMA COMPLETO
+-- ============================================================================
+-- Behavior Goal: zero surpresa de fuso/prazo
+-- Prompt (Builder): /agenda: semanal/mensal, criação rápida com CNJ/CPF e link de vídeo
+-- Bindings (legalflow): eventos_agenda (list/insert/update)
+-- Automations: Se evento veio de etapa, persistir stage_instance_id (coluna opcional)
+-- Aceite: criar/editar eventos respeitando TZ; links abrem na hora
+
+-- Importe o arquivo SF7_AGENDA_SCHEMA_COMPLETE.sql do projeto ou baixe aqui
+
+-- IMPORTANTE: Este é um preview. Use o botão download para obter o arquivo completo.
+-- O arquivo completo contém:
+-- - Criação de enums (sf7_event_type, sf7_event_status, sf7_priority)
+-- - Tabela eventos_agenda com timezone SP
+-- - Tabelas de recorrência e participantes
+-- - Indexes para performance
+-- - RLS policies
+-- - Triggers para auditoria
+-- - 4+ funções RPC (sf7_list_eventos_periodo, sf7_create_evento_rapido, etc)
+-- - Dados de teste
+-- - Função de verificação sf7_verify_installation()
+
+-- Para instalar, execute o arquivo completo no Supabase SQL Editor.`,
+              title: "📅 SF-7: Schema Principal da Agenda",
+              description: "Schema completo com timezone América/São_Paulo, automações e funções RPC",
+              variant: "default"
+            }
+          ]}
+          instructions={[
+            "Baixe o arquivo SF7_AGENDA_SCHEMA_COMPLETE.sql",
+            "Abra o Supabase SQL Editor",
+            "Execute o script completo (todas as 599 linhas)",
+            "Volte aqui e clique em 'Verificar Novamente'"
+          ]}
+          additionalInfo={[
+            "✅ Timezone América/São_Paulo em todas as operações",
+            "✅ Criação rápida com auto-detecção de CNJ/CPF",
+            "✅ Suporte a links de vídeo e plataformas",
+            "✅ Automação com stage_instance_id para etapas",
+            "✅ Views semanais/mensais otimizadas",
+            "⚠️ Requer que o schema 'legalflow' já exista no Supabase"
+          ]}
+          className="border-orange-200 bg-orange-50"
+        />
+      )}
+
+      {/* Botão de re-verificação quando há erro */}
+      {!installationComplete && verificationResult && (
+        <div className="flex justify-center">
+          <Button
+            onClick={() => reverifyInstallation()}
+            variant="outline"
+            size="sm"
+            className="border-orange-300 text-orange-700 hover:bg-orange-100"
+          >
+            <Database className="w-4 h-4 mr-2" />
+            Verificar Instalação Novamente
+          </Button>
+        </div>
       )}
     </div>
   );
