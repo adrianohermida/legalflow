@@ -194,7 +194,7 @@ export const SF10StripeWizard: React.FC = () => {
       if (error) throw error;
       setCustomers(data || []);
     } catch (error) {
-      console.error("Error loading customers:", error);
+      console.error("Error loading customers:", error instanceof Error ? error.message : String(error));
     }
   };
 
