@@ -59,6 +59,7 @@ import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate } from "../lib/utils";
 import { TicketDetailModal } from "../components/TicketDetailModal";
+import { calculateSLADueDates, getSLAStatus } from "../lib/sla-utils";
 
 interface Ticket {
   id: string;
