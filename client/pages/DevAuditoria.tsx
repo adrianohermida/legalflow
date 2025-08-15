@@ -33,6 +33,7 @@ import { SF9ApiConsole } from "../components/SF9ApiConsole";
 import { SF10StripeWizard } from "../components/SF10StripeWizard";
 import SF11CRMSetup from "../components/SF11CRMSetup";
 import CompletionPackAudit from "../components/CompletionPackAudit";
+import { FlowA0AuditoriaAutofix } from "../components/FlowA0AuditoriaAutofix";
 import { SchemaDiagnostics } from "../components/SchemaDiagnostics";
 import { SchemaVerificationHelper } from "../components/SchemaVerificationHelper";
 import {

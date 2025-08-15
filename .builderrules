@@ -1,0 +1,36 @@
+📌 Estrutura de Schemas e Banco de Dados
+- Nunca criar tabelas no schema `public`, exceto quando for absolutamente necessário e aprovado previamente.
+- Usar exclusivamente os schemas já existentes:
+  • `legalflow` → lógica e dados principais do app (padrão)
+  • `freshdesk` → staging e dados vindos da integração Freshdesk
+  • `huggy` → staging e dados vindos da integração Huggy
+- Qualquer nova tabela deve ser criada no schema correto (nunca no `public` por padrão).
+- Views sempre que possível para expor dados combinados; evitar duplicação de dados.
+
+📌 Integrações e API
+- Reutilizar rotas de API existentes antes de criar novas.
+- Todas as chamadas para APIs externas (Freshdesk, Huggy, HubSpot, Escavador, Advise, Stripe) devem usar as rotas do servidor já definidas, nunca acessar direto do client.
+- Nunca expor chaves de API ou tokens no client. Usar funções de servidor (Next.js API Routes) que leem do cofre (`legalflow.secrets` via Supabase).
+
+📌 UX/UI e Consistência Visual
+- Preservar paleta de cores, espaçamentos e tipografia já definidos no projeto.
+- Não substituir classes Bootstrap/Next UI por customizações desnecessárias que quebrem consistência visual.
+- Evitar adicionar efeitos visuais ou componentes que não estejam alinhados com o padrão existente.
+- Seguir padrões de layout e responsividade já implementados nas páginas.
+
+📌 Performance e Otimização
+- Reaproveitar páginas, rotas e componentes existentes ao invés de criar novos do zero.
+- Preferir otimizar queries e filtros no backend (Supabase) ao invés de sobrecarregar o client.
+- Evitar duplicar lógica de integração; centralizar consumo de dados em hooks e funções já criadas.
+- Minimizar número de chamadas à API (uso de paginação, filtros no server, cache leve no client).
+
+📌 Boas Práticas no Builder.io
+- Nomear novos blocos/componentes de forma clara, seguindo padrão do projeto.
+- Usar componentes registrados no Builder ao invés de criar novos sem necessidade.
+- Ao gerar código, manter imports, estilos e estrutura compatíveis com o que já existe.
+- Não alterar estrutura de rotas (`pages` ou `app`), exceto quando solicitado explicitamente.
+- Em alterações de páginas, preservar IDs e chaves de blocos para evitar reset de conteúdo.
+
+📌 Fluxo de Aprovação
+- Sempre validar se a modificação impacta algum schema de forma não planejada.
+- Testar novas implementações em ambiente de staging antes de enviar para produção.
