@@ -286,8 +286,8 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
         error: error.message,
       });
       toast({
-        title: "Erro na instalação",
-        description: error.message,
+        title: "Schema não instalado",
+        description: "Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase primeiro",
         variant: "destructive",
       });
     },
