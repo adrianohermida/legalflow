@@ -1578,6 +1578,11 @@ const DevAuditoria: React.FC = () => {
           <SF7AgendaSetup />
         </TabsContent>
 
+        {/* SF-8 Documentos & Flipbook Setup Tab */}
+        <TabsContent value="sf8">
+          <SF8DocumentosSetup />
+        </TabsContent>
+
         {/* Schema Diagnostics Tab */}
         <TabsContent value="diagnostics">
           <div className="space-y-6">
