@@ -120,6 +120,19 @@ export function createServer() {
   // API v1 routes with standardized REST structure
   app.use("/api/v1", v1Router);
 
+  // Serve fallback page when React app doesn't load
+  app.get("/fallback", (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+    try {
+      const fallbackHtml = fs.readFileSync(path.join(process.cwd(), 'public/fallback.html'), 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(fallbackHtml);
+    } catch (error) {
+      res.error("Fallback page not found", 404);
+    }
+  });
+
   // Catch-all for undefined API routes
   app.use("/api/*", notFound());
 
