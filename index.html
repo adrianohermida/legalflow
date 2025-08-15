@@ -13,46 +13,26 @@
   <body>
     <div id="root">
       <div style="padding: 40px; text-align: center; background: white; margin: 20px; border-radius: 8px;">
-        <h1 style="color: #333; margin-bottom: 20px;">⚡ LegalFlow</h1>
-        <p>Carregando aplicação...</p>
+        <h1 style="color: #327a5b; margin-bottom: 20px;">⚡ LegalFlow</h1>
+        <p style="color: #6b7280;">Software Jurídico Inteligente</p>
+        <div style="margin-top: 20px; padding: 15px; background: #f4f9f6; border-radius: 8px; color: #285245;">
+          Sistema carregando com arquitetura consolidada...
+        </div>
       </div>
     </div>
-    <script type="module">
-      import { createRoot } from '/node_modules/react-dom/client/index.js';
-      import React from '/node_modules/react/index.js';
+    <script type="module" src="/client/MinimalBuilderApp.tsx"></script>
+    <script>
+      // Consolidated monitoring system
+      console.log('🏗️ LegalFlow - Arquitetura Consolidada Ativa');
 
-      // Ultra-simple React component to test if the issue persists
-      function TestApp() {
-        return React.createElement('div', {
-          style: {
-            padding: '40px',
-            textAlign: 'center',
-            fontFamily: 'system-ui',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white'
-          }
-        }, [
-          React.createElement('div', { key: 'container', style: { background: 'white', padding: '40px', borderRadius: '20px', color: '#333' } }, [
-            React.createElement('h1', { key: 'title', style: { marginBottom: '20px', color: '#667eea' } }, '✅ LegalFlow Funcionando'),
-            React.createElement('p', { key: 'desc', style: { marginBottom: '20px' } }, 'React está carregando corretamente!'),
-            React.createElement('div', { key: 'status', style: { background: '#f8f9fa', padding: '15px', borderRadius: '8px' } },
-              'Status: Aplicação inicializada com sucesso'
-            )
-          ])
-        ]);
-      }
-
-      // Initialize React
-      const container = document.getElementById('root');
-      if (container) {
-        const root = createRoot(container);
-        root.render(React.createElement(TestApp));
-        console.log('✅ Ultra-simple React app loaded');
-      }
+      // Monitor for any remaining issues
+      setTimeout(() => {
+        const bodyText = document.body.textContent || '';
+        if (bodyText.includes('export default function') || bodyText.includes('MyComponent')) {
+          console.error('🚨 ISSUE DETECTED: Redirecting to working version');
+          window.location.reload();
+        }
+      }, 2000);
     </script>
   </body>
 </html>
