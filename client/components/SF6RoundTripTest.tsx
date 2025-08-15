@@ -95,62 +95,49 @@ export function SF6RoundTripTest() {
       const { data: statsResult, error: statsError } = await lf.rpc('sf6_get_bridge_statistics');
       if (statsError) throw new Error(`Statistics failed: ${statsError.message}`);
       
-      addResult({ 
-        success: true, 
-        step: "2. ✅ Test activity created", 
-        data: { activity_id: activity.id },
-        timing: Date.now() - startTime 
+      addResult({
+        success: true,
+        step: "3. ✅ Bridge statistics retrieved",
+        data: {
+          total_activities: statsResult.total_activities,
+          total_tickets: statsResult.total_tickets,
+          activities_with_tickets: statsResult.activities_with_tickets
+        },
+        timing: Date.now() - startTime
       });
 
       await delay(500);
 
-      // Step 2: Generate ticket from activity (simulating the "Gerar ticket" button)
-      const ticketData = {
-        subject: `[Activity] ${activity.title}`,
-        status: "aberto",
-        priority: activity.priority,
-        channel: "sistema",
-        assigned_oab: activity.assigned_oab,
-        cliente_cpfcnpj: activity.cliente_cpfcnpj,
-        numero_cnj: activity.numero_cnj,
-        created_by: "sf6-test",
-        frt_due_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours
-        ttr_due_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-      };
+      // Step 3: Test processing existing completed tasks
+      const { data: processResult, error: processError } = await lf.rpc('sf6_process_existing_completed_tasks');
+      if (processError) throw new Error(`Process failed: ${processError.message}`);
 
-      const { data: ticket, error: ticketError } = await lf
-        .from("tickets")
-        .insert([ticketData])
-        .select()
-        .single();
-
-      if (ticketError) throw new Error(`Ticket creation failed: ${ticketError.message}`);
-
-      addResult({ 
-        success: true, 
-        step: "3. ✅ Ticket generated from activity", 
-        data: { ticket_id: ticket.id },
-        timing: Date.now() - startTime 
+      addResult({
+        success: true,
+        step: "4. ✅ Process completed tasks tested",
+        data: {
+          processed_count: processResult.processed_count,
+          created_count: processResult.created_count,
+          message: processResult.message
+        },
+        timing: Date.now() - startTime
       });
 
       await delay(500);
 
-      // Step 3: Link activity to ticket
-      const { error: linkError } = await lf
-        .from("activities")
-        .update({ 
-          ticket_id: ticket.id,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", activity.id);
+      // Step 4: Test cleanup function
+      const { data: cleanupResult, error: cleanupError } = await lf.rpc('sf6_cleanup_test_data');
+      if (cleanupError) throw new Error(`Cleanup failed: ${cleanupError.message}`);
 
-      if (linkError) throw new Error(`Activity-Ticket linking failed: ${linkError.message}`);
-
-      addResult({ 
-        success: true, 
-        step: "4. ✅ Activity linked to ticket", 
-        data: { link: `activity.ticket_id = ${ticket.id}` },
-        timing: Date.now() - startTime 
+      addResult({
+        success: true,
+        step: "5. ✅ Test data cleanup verified",
+        data: {
+          deleted_activities: cleanupResult.deleted_activities,
+          deleted_tickets: cleanupResult.deleted_tickets,
+          message: cleanupResult.message
+        },
+        timing: Date.now() - startTime
       });
 
       await delay(500);
