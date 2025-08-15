@@ -7,8 +7,8 @@ import {
   AlertCircle,
   Loader2,
   Plus,
-  ImageIcon,
-  PaperclipIcon,
+  Image,
+  Paperclip,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
