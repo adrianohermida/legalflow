@@ -590,6 +590,327 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
+-- Função para executar quick action: Solicitar documento
+CREATE OR REPLACE FUNCTION sf2_quick_action_request_document(
+  p_thread_id TEXT,
+  p_document_name TEXT,
+  p_document_description TEXT DEFAULT NULL,
+  p_required BOOLEAN DEFAULT true
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_numero_cnj TEXT;
+  v_result JSON;
+BEGIN
+  -- Obter número CNJ da thread
+  SELECT properties->>'numero_cnj'
+  INTO v_numero_cnj
+  FROM public.thread_links
+  WHERE id = p_thread_id;
+
+  IF v_numero_cnj IS NULL THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Thread ou CNJ não encontrado'
+    );
+  END IF;
+
+  -- Adicionar mensagem de solicitação no chat
+  PERFORM sf2_add_thread_message(
+    p_thread_id,
+    'assistant',
+    'Documento solicitado: "' || p_document_name || '"' ||
+    CASE WHEN p_document_description IS NOT NULL
+         THEN E'\nDescrição: ' || p_document_description
+         ELSE '' END ||
+    CASE WHEN p_required THEN E'\n⚠️ Documento obrigatório'
+         ELSE E'\n📝 Documento opcional' END,
+    '[]'::jsonb,
+    json_build_object(
+      'action_type', 'request_document',
+      'document_name', p_document_name,
+      'numero_cnj', v_numero_cnj,
+      'required', p_required
+    )
+  );
+
+  v_result := json_build_object(
+    'success', true,
+    'action_type', 'request_document',
+    'document_name', p_document_name,
+    'numero_cnj', v_numero_cnj,
+    'required', p_required
+  );
+
+  RETURN v_result;
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'error', SQLERRM,
+    'action_type', 'request_document'
+  );
+END;
+$$;
+
+-- Função para executar quick action: Concluir etapa
+CREATE OR REPLACE FUNCTION sf2_quick_action_complete_stage(
+  p_thread_id TEXT,
+  p_stage_instance_id UUID,
+  p_notes TEXT DEFAULT NULL
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_numero_cnj TEXT;
+  v_stage_info RECORD;
+  v_result JSON;
+BEGIN
+  -- Obter número CNJ da thread
+  SELECT properties->>'numero_cnj'
+  INTO v_numero_cnj
+  FROM public.thread_links
+  WHERE id = p_thread_id;
+
+  IF v_numero_cnj IS NULL THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Thread ou CNJ não encontrado'
+    );
+  END IF;
+
+  -- Verificar se a etapa existe e pertence ao processo
+  SELECT si.*, st.name as stage_name
+  INTO v_stage_info
+  FROM legalflow.stage_instances si
+  JOIN legalflow.stage_types st ON si.stage_type_id = st.id
+  JOIN legalflow.journey_instances ji ON si.journey_instance_id = ji.id
+  WHERE si.id = p_stage_instance_id
+    AND ji.numero_cnj = v_numero_cnj;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Etapa não encontrada ou não pertence ao processo'
+    );
+  END IF;
+
+  -- Marcar etapa como concluída
+  UPDATE legalflow.stage_instances
+  SET
+    status = 'completed',
+    completed_at = NOW(),
+    notes = COALESCE(p_notes, notes),
+    updated_at = NOW()
+  WHERE id = p_stage_instance_id;
+
+  -- Adicionar mensagem de confirmação
+  PERFORM sf2_add_thread_message(
+    p_thread_id,
+    'assistant',
+    '✅ Etapa concluída: "' || v_stage_info.stage_name || '"' ||
+    CASE WHEN p_notes IS NOT NULL
+         THEN E'\nObservações: ' || p_notes
+         ELSE '' END,
+    '[]'::jsonb,
+    json_build_object(
+      'action_type', 'complete_stage',
+      'stage_instance_id', p_stage_instance_id,
+      'stage_name', v_stage_info.stage_name,
+      'numero_cnj', v_numero_cnj
+    )
+  );
+
+  v_result := json_build_object(
+    'success', true,
+    'action_type', 'complete_stage',
+    'stage_instance_id', p_stage_instance_id,
+    'stage_name', v_stage_info.stage_name,
+    'numero_cnj', v_numero_cnj
+  );
+
+  RETURN v_result;
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'error', SQLERRM,
+    'action_type', 'complete_stage'
+  );
+END;
+$$;
+
+-- Função para executar quick action: Análise AdvogaAI
+CREATE OR REPLACE FUNCTION sf2_quick_action_advogaai_analysis(
+  p_thread_id TEXT,
+  p_analysis_type TEXT DEFAULT 'general',
+  p_context TEXT DEFAULT NULL
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_numero_cnj TEXT;
+  v_result JSON;
+BEGIN
+  -- Obter número CNJ da thread
+  SELECT properties->>'numero_cnj'
+  INTO v_numero_cnj
+  FROM public.thread_links
+  WHERE id = p_thread_id;
+
+  IF v_numero_cnj IS NULL THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Thread ou CNJ não encontrado'
+    );
+  END IF;
+
+  -- Adicionar mensagem de análise no chat
+  PERFORM sf2_add_thread_message(
+    p_thread_id,
+    'assistant',
+    '🧠 Iniciando análise AdvogaAI para o processo ' || v_numero_cnj || '...' ||
+    E'\nTipo de análise: ' || p_analysis_type ||
+    CASE WHEN p_context IS NOT NULL
+         THEN E'\nContexto: ' || p_context
+         ELSE '' END ||
+    E'\n\n⏳ Esta análise pode levar alguns momentos. Você será notificado quando estiver pronta.',
+    '[]'::jsonb,
+    json_build_object(
+      'action_type', 'advogaai_analysis',
+      'analysis_type', p_analysis_type,
+      'numero_cnj', v_numero_cnj,
+      'context', p_context
+    )
+  );
+
+  v_result := json_build_object(
+    'success', true,
+    'action_type', 'advogaai_analysis',
+    'analysis_type', p_analysis_type,
+    'numero_cnj', v_numero_cnj,
+    'message', 'Análise AdvogaAI iniciada com sucesso'
+  );
+
+  RETURN v_result;
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'error', SQLERRM,
+    'action_type', 'advogaai_analysis'
+  );
+END;
+$$;
+
+-- Função para executar quick action: Iniciar jornada
+CREATE OR REPLACE FUNCTION sf2_quick_action_start_journey(
+  p_thread_id TEXT,
+  p_journey_type_id UUID,
+  p_title TEXT DEFAULT NULL
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_numero_cnj TEXT;
+  v_journey_instance_id UUID;
+  v_journey_type_name TEXT;
+  v_result JSON;
+BEGIN
+  -- Obter número CNJ da thread
+  SELECT properties->>'numero_cnj'
+  INTO v_numero_cnj
+  FROM public.thread_links
+  WHERE id = p_thread_id;
+
+  IF v_numero_cnj IS NULL THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Thread ou CNJ não encontrado'
+    );
+  END IF;
+
+  -- Verificar se o tipo de jornada existe
+  SELECT name INTO v_journey_type_name
+  FROM legalflow.journey_types
+  WHERE id = p_journey_type_id;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object(
+      'success', false,
+      'error', 'Tipo de jornada não encontrado'
+    );
+  END IF;
+
+  -- Criar instância da jornada
+  INSERT INTO legalflow.journey_instances (
+    id,
+    journey_type_id,
+    numero_cnj,
+    title,
+    status,
+    progress_pct,
+    created_by,
+    created_at,
+    updated_at
+  )
+  VALUES (
+    gen_random_uuid(),
+    p_journey_type_id,
+    v_numero_cnj,
+    COALESCE(p_title, v_journey_type_name || ' - ' || v_numero_cnj),
+    'active',
+    0,
+    'sf2_chat_system',
+    NOW(),
+    NOW()
+  )
+  RETURNING id INTO v_journey_instance_id;
+
+  -- Adicionar mensagem de confirmação
+  PERFORM sf2_add_thread_message(
+    p_thread_id,
+    'assistant',
+    '🚀 Jornada iniciada: "' || v_journey_type_name || '"' ||
+    E'\nProcesso: ' || v_numero_cnj ||
+    E'\nID da instância: ' || v_journey_instance_id::text,
+    '[]'::jsonb,
+    json_build_object(
+      'action_type', 'start_journey',
+      'journey_instance_id', v_journey_instance_id,
+      'journey_type_name', v_journey_type_name,
+      'numero_cnj', v_numero_cnj
+    )
+  );
+
+  v_result := json_build_object(
+    'success', true,
+    'action_type', 'start_journey',
+    'journey_instance_id', v_journey_instance_id,
+    'journey_type_name', v_journey_type_name,
+    'numero_cnj', v_numero_cnj
+  );
+
+  RETURN v_result;
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object(
+    'success', false,
+    'error', SQLERRM,
+    'action_type', 'start_journey'
+  );
+END;
+$$;
+
 -- =====================================================
 -- 5. TRIGGERS PARA AUTOMAÇÃO
 -- =====================================================
