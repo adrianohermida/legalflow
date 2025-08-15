@@ -194,7 +194,10 @@ export default function SF5JourneyCard({
         journey_id: journey?.id,
       });
 
-      if (rpcError) throw rpcError;
+      if (rpcError) {
+        console.error('Erro ao computar próxima ação:', rpcError);
+        throw rpcError;
+      }
 
       return true;
     },
