@@ -271,8 +271,8 @@ export default function ProcessoOverviewV3() {
               </Button>
               <div>
                 <h1 className="text-2xl font-bold" style={{ color: colors.neutral[900] }}>
-                  {numero_cnj ? formatCNJ(numero_cnj) : "Carregando..."}
-                </h1>
+              {numero_cnj ? formatCNJDisplay(numero_cnj) : "Carregando..."}
+            </h1>
                 <p className="text-sm" style={{ color: colors.neutral[600] }}>
                   {processoData?.titulo_polo_ativo} × {processoData?.titulo_polo_passivo}
                 </p>
