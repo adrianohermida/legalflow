@@ -286,6 +286,15 @@ export default function ProcessoOverviewV3() {
             <div className="flex items-center gap-2">
               <Button
                 size="sm"
+                onClick={() => setShowFlipbook(true)}
+                variant="outline"
+                className="hover:bg-gray-50"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Documentos
+              </Button>
+              <Button
+                size="sm"
                 onClick={() => setShowAddAndamentoDialog(true)}
                 style={themeUtils.primaryButton}
                 className="hover:opacity-90"
@@ -299,7 +308,7 @@ export default function ProcessoOverviewV3() {
                 onClick={() => setShowAddPublicacaoDialog(true)}
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Publicação
+                Publica��ão
               </Button>
               <Button
                 size="sm"
