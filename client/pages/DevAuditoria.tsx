@@ -83,7 +83,6 @@ import {
   Search,
   BookOpen,
   Globe,
-  Settings,
 } from "lucide-react";
 import {
   createAutofixTables,
@@ -673,7 +672,7 @@ const DevAuditoria: React.FC = () => {
 
       const patch = autofixPatches.find((p) => p.code === patchCode);
       if (!patch) {
-        throw new Error(`Patch ${patchCode} não encontrado`);
+        throw new Error(`Patch ${patchCode} n��o encontrado`);
       }
 
       // Simular execução do autofix
