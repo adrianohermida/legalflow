@@ -452,7 +452,7 @@ export default function ProcessoOverviewV3() {
                               {evento.tipo}
                             </Badge>
                             <span className="text-xs" style={{ color: colors.neutral[500] }}>
-                              {formatDate(evento.data)}
+                              {formatDateDisplay(evento.data)}
                             </span>
                           </div>
                           <p className="text-sm" style={{ color: colors.neutral[700] }}>
