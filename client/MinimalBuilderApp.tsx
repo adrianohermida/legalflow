@@ -119,14 +119,16 @@ function MinimalApp() {
   }
 
   return (
-    <div style={{
-      fontFamily: 'system-ui',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
+    <>
+      <BuilderPlaceholderPrevention />
+      <div style={{
+        fontFamily: 'system-ui',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
       <div style={{
         background: 'white',
         padding: '40px',
@@ -224,6 +226,7 @@ function MinimalApp() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
