@@ -1,7 +1,12 @@
 import { ApiResponse, PaginatedResponse, PaginationParams } from "@shared/api";
 
-// Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+// Base API configuration - Builder.io environment
+const API_BASE_URL = import.meta.env.VITE_API_URL || (
+  // Use Builder.io preview URL if available, otherwise relative path
+  window.location.hostname.includes('builder.codes') || window.location.hostname.includes('fly.dev')
+    ? `${window.location.protocol}//${window.location.host}/api`
+    : "/api"
+);
 const API_VERSION = "v1";
 
 class ApiError extends Error {
