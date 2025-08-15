@@ -182,16 +182,7 @@ export default function ProcessoOverviewV3() {
     queryKey: ["process-threads", numero_cnj],
     queryFn: async () => {
       if (!numero_cnj) return [];
-
-      const { data, error } = await supabase
-        .from("thread_links")
-        .select("*")
-        .eq("context_type", "processo")
-        .contains("properties", { numero_cnj })
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as ProcessThread[];
+      return fetchProcessThreads(numero_cnj);
     },
     enabled: !!numero_cnj,
   });
