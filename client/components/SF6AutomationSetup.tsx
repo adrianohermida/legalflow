@@ -332,7 +332,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
             tarefas quando etapas do tipo "task" são concluídas na jornada.
           </p>
           <p className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
-            <strong>⚠️ Instalação necessária:</strong> Execute o arquivo
+            <strong>��️ Instalação necessária:</strong> Execute o arquivo
             <code className="bg-yellow-100 px-1 rounded">SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code>
             no seu Supabase SQL Editor primeiro.
           </p>
@@ -395,12 +395,15 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
         )}
 
         <div className="text-xs text-neutral-500 space-y-1">
-          <p><strong>O que será instalado:</strong></p>
+          <p><strong>Funções verificadas:</strong></p>
           <ul className="list-disc pl-4 space-y-1">
-            <li>Função RPC: <code>auto_create_activity_for_completed_task()</code></li>
-            <li>Trigger: <code>trigger_sf6_auto_create_activity</code> em stage_instances</li>
-            <li>Helper: <code>sf6_process_existing_completed_tasks()</code></li>
+            <li>Função RPC: <code>sf6_auto_create_activity_for_completed_task()</code></li>
+            <li>Estatísticas: <code>sf6_get_bridge_statistics()</code></li>
+            <li>Processamento: <code>sf6_process_existing_completed_tasks()</code></li>
+            <li>Limpeza: <code>sf6_cleanup_test_data()</code></li>
+            <li>Verificação: <code>sf6_verify_installation()</code></li>
           </ul>
+          <p className="mt-2"><strong>Arquivo para instalar:</strong> <code>SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code></p>
         </div>
       </CardContent>
     </Card>
