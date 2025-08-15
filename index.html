@@ -33,44 +33,81 @@
     </div>
     <script type="module" src="/client/MinimalBuilderApp.tsx"></script>
 
-    <script>
-      // Builder.io compatibility checks
-      console.log('🔧 Builder.io Compatibility Mode Active');
+    <!-- Builder.io Placeholder Prevention -->
+    <script type="module">
+      // Import and initialize placeholder prevention
+      import('/client/components/BuilderPlaceholderPrevention.tsx').then(module => {
+        console.log('✅ Builder.io placeholder prevention loaded');
+      }).catch(error => {
+        console.warn('⚠️ Placeholder prevention failed to load:', error);
 
-      // Detect and prevent code rendering as text
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === 3) { // Text node
-              const text = node.textContent || '';
-              if (text.includes('export default function') || text.includes('MyComponent')) {
-                console.error('🚨 CRITICAL: Code being rendered as text detected!');
-                console.error('Problematic text:', text.slice(0, 100));
+        // Fallback inline protection
+        const checkForPlaceholder = () => {
+          const bodyText = document.body.textContent || '';
+          if (bodyText.includes('export default function MyComponent') ||
+              bodyText.includes('return <></>')) {
 
-                // Replace with error message
-                const errorDiv = document.createElement('div');
-                errorDiv.style.cssText = 'padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; margin: 10px; border-radius: 4px;';
-                errorDiv.innerHTML = '<strong>⚠️ Erro de Renderização Detectado</strong><br>Recarregando página...';
+            console.error('🚨 BUILDER.IO PLACEHOLDER DETECTED');
 
-                if (node.parentNode) {
-                  node.parentNode.replaceChild(errorDiv, node);
+            // Clear body and show proper loading
+            document.body.innerHTML = `
+              <div style="
+                min-height: 100vh;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: system-ui;
+              ">
+                <div style="
+                  background: white;
+                  padding: 40px;
+                  border-radius: 20px;
+                  text-align: center;
+                  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+                  max-width: 500px;
+                ">
+                  <h1 style="color: #667eea; margin-bottom: 20px;">
+                    🔄 LegalFlow Inicializando
+                  </h1>
+                  <p style="color: #666; margin-bottom: 20px;">
+                    Resolvendo conflito Builder.io...
+                  </p>
+                  <div style="
+                    width: 100%;
+                    height: 4px;
+                    background: #f0f0f0;
+                    border-radius: 2px;
+                    overflow: hidden;
+                  ">
+                    <div style="
+                      width: 60%;
+                      height: 100%;
+                      background: linear-gradient(90deg, #667eea, #764ba2);
+                      animation: slide 2s infinite;
+                    "></div>
+                  </div>
+                </div>
+              </div>
+
+              <style>
+                @keyframes slide {
+                  0% { transform: translateX(-100%); }
+                  100% { transform: translateX(250%); }
                 }
+              </style>
+            `;
 
-                // Auto-reload after 2 seconds
-                setTimeout(() => window.location.reload(), 2000);
-              }
-            }
-          });
-        });
+            // Force reload after 3 seconds
+            setTimeout(() => window.location.reload(), 3000);
+          }
+        };
+
+        // Check immediately and periodically
+        checkForPlaceholder();
+        const interval = setInterval(checkForPlaceholder, 500);
+        setTimeout(() => clearInterval(interval), 10000);
       });
-
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-
-      // Stop observing after 10 seconds
-      setTimeout(() => observer.disconnect(), 10000);
     </script>
   </body>
 </html>
