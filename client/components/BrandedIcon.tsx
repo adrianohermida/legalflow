@@ -1,5 +1,5 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, FileText, Circle, Settings } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface BrandedIconProps {
