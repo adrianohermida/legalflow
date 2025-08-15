@@ -15,6 +15,7 @@ import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { SF6BridgeManager } from "./SF6BridgeManager";
 import { SF6RoundTripTest } from "./SF6RoundTripTest";
+import { GenericSQLDownloader } from "./GenericSQLDownloader";
 
 interface AutomationResult {
   success: boolean;
