@@ -274,7 +274,7 @@ export const SF10StripeWizard: React.FC = () => {
 
       setPayments(formatted);
     } catch (error) {
-      console.error("Error loading payments:", error);
+      console.error("Error loading payments:", error instanceof Error ? error.message : String(error));
     }
   };
 
