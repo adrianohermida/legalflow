@@ -24,6 +24,7 @@ import { autofixHistory, BuilderPromptRequest } from "../lib/autofix-history";
 import AutofixBacklog from "../components/AutofixBacklog";
 import { useAuditBacklogIntegration } from "../lib/audit-backlog-integration";
 import RouteCoveragePanel from "../components/RouteCoveragePanel";
+import SF5JourneyCardTest from "../components/SF5JourneyCardTest";
 import {
   Tabs,
   TabsContent,
