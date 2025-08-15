@@ -882,6 +882,11 @@ export default function ProcessoDetailV2() {
               </CardContent>
             </Card>
 
+            {/* Árvore Processual */}
+            <div className="mt-6">
+              <ProcessoTree numeroCnj={numero_cnj} />
+            </div>
+
             {/* Journey Card */}
             <div className="mt-6">
               <ProcessJourneyCard numeroCnj={numero_cnj!} />
