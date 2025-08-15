@@ -24,31 +24,44 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - Flow B1
   useKeyboardShortcuts({
-    "cmd+k": () => setIsCommandPaletteOpen(true),
-    "ctrl+k": () => setIsCommandPaletteOpen(true),
-    "g+p": () => navigate("/processos"),
+    "cmd+k": () => setIsGlobalSearchOpen(true),
+    "ctrl+k": () => setIsGlobalSearchOpen(true),
+    "g+p": () => navigate("/processos-v2"),
     "g+c": () => navigate("/clientes"),
+    "g+a": () => navigate("/agenda"),
+    "g+j": () => navigate("/jornadas"),
+    "g+i": () => navigate("/inbox-v2"),
+    "g+d": () => navigate("/documentos"),
+    "g+f": () => navigate("/financeiro"),
+    "g+r": () => navigate("/relatorios"),
+    "g+h": () => navigate("/helpdesk"),
+    "g+s": () => navigate("/servicos"),
     escape: () => {
-      setIsOfficeModulesOpen(false);
+      setIsAppLauncherOpen(false);
       setIsNotificationPanelOpen(false);
-      setIsCommandPaletteOpen(false);
+      setIsGlobalSearchOpen(false);
+      setIsChatDockOpen(false);
     },
   });
 
-  const handleOfficeModulesToggle = () => {
-    setIsOfficeModulesOpen(!isOfficeModulesOpen);
+  const handleAppLauncherToggle = () => {
+    setIsAppLauncherOpen(!isAppLauncherOpen);
     if (isNotificationPanelOpen) setIsNotificationPanelOpen(false);
   };
 
   const handleNotificationToggle = () => {
     setIsNotificationPanelOpen(!isNotificationPanelOpen);
-    if (isOfficeModulesOpen) setIsOfficeModulesOpen(false);
+    if (isAppLauncherOpen) setIsAppLauncherOpen(false);
   };
 
   const handleChatToggle = () => {
     setIsChatDockOpen(!isChatDockOpen);
+  };
+
+  const handleSidebarUpdate = (updatedItems: any[]) => {
+    setSidebarItems(updatedItems);
   };
 
   return (
