@@ -384,6 +384,7 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      {/* Financial routes */}
       <Route
         path="/financeiro"
         element={
@@ -393,7 +394,7 @@ function DemoAppRoutes() {
         }
       />
       <Route
-        path="/planos-pagamento"
+        path="/financeiro/planos"
         element={
           <DemoProtectedRoute userType="advogado">
             <PlanosPagamento />
