@@ -315,9 +315,9 @@ export function DocumentoUploaderC6({
 
   const getFileIcon = (type: string) => {
     if (type.includes("pdf")) return <FileText className="h-6 w-6 text-red-600" />;
-    if (type.includes("image")) return <ImageIcon className="h-6 w-6 text-green-600" />;
+    if (type.includes("image")) return <Image className="h-6 w-6 text-green-600" />;
     if (type.includes("word")) return <FileText className="h-6 w-6 text-blue-600" />;
-    return <PaperclipIcon className="h-6 w-6 text-gray-600" />;
+    return <Paperclip className="h-6 w-6 text-gray-600" />;
   };
 
   const formatFileSize = (bytes: number) => {
