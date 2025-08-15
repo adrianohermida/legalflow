@@ -1550,7 +1550,7 @@ const DevAuditoria: React.FC = () => {
         {/* Features Tab with SF components */}
         <TabsContent value="features" className="space-y-4">
           <Tabs value={activeFeaturesTab} onValueChange={setActiveFeaturesTab as (value: string) => void} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="sf2">SF2</TabsTrigger>
               <TabsTrigger value="sf5">SF5</TabsTrigger>
               <TabsTrigger value="sf6">SF6</TabsTrigger>
