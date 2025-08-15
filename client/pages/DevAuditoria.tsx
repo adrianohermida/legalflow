@@ -1125,6 +1125,10 @@ const DevAuditoria: React.FC = () => {
             <ArrowRight className="w-4 h-4" />
             Tarefas e Tickets
           </TabsTrigger>
+          <TabsTrigger value="sf2" className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Processos
+          </TabsTrigger>
         </TabsList>
 
         {/* Audit Tab */}
