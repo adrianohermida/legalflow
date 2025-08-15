@@ -236,6 +236,17 @@ export default function SF5JourneyCard({
         .eq("id", stageId);
 
       if (error) throw error;
+
+      // Recalcular progresso e próxima ação
+      const { error: rpcError } = await lf.rpc("compute_next_action", {
+        journey_id: journey?.id,
+      });
+
+      if (rpcError) {
+        console.error('Erro ao computar próxima ação após iniciar etapa:', rpcError);
+        throw rpcError;
+      }
+
       return true;
     },
     onSuccess: () => {
