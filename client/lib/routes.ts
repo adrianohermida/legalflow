@@ -101,4 +101,27 @@ export function isValidRoute(path: string): boolean {
   });
 }
 
+// Legacy redirects for backward compatibility
+export const LEGACY_REDIRECTS = {
+  // Old route patterns -> New route patterns
+  '/processo/:id': '/processos/:id',
+  '/cliente/:id': '/clientes/:id',
+  '/documento/:id': '/documentos/:id',
+  '/docs': '/documentos',
+  '/docs/:id': '/documentos/:id',
+  '/inbox-legal': '/inbox',
+  '/agenda-legal': '/agenda',
+  '/financeiro-old': '/financeiro',
+  '/admin-panel': '/admin',
+  '/crm-dashboard': '/crm',
+  '/dashboard-analytics': '/dashboard/analytics',
+  '/relatorios': '/dashboard/reports',
+
+  // Exact path redirects
+  '/': '/dashboard',
+  '/home': '/dashboard',
+  '/main': '/dashboard',
+  '/index': '/dashboard'
+} as const;
+
 export default ROUTES;
