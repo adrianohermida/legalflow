@@ -112,34 +112,49 @@ export const MONOCHROMATIC_THEME = {
       950: "#fcfcfc", // Branco quase absoluto
     },
 
-    primary: "#f9fafb", // Quase branco
-    primaryHover: "#f3f4f6", // Branco acinzentado
-    primaryLight: "#1f2937", // Cinza muito escuro
+    // Sistema funcional monocromático aprimorado (modo escuro)
+    primary: "#fcfcfc", // Branco quase absoluto
+    primaryHover: "#f9fafb", // Quase branco
+    primaryLight: "#1a202c", // Cinza muito escuro médio
+    primaryActive: "#ffffff", // Branco absoluto
 
     secondary: "#9ca3af", // Cinza médio-claro
     secondaryHover: "#d1d5db", // Cinza claro
+    secondaryLight: "#2f3944", // Cinza escuro médio
+    secondaryActive: "#8a9199", // Cinza médio-claro escuro
 
-    background: "#111827", // Quase preto
-    backgroundSecondary: "#1f2937", // Cinza muito escuro
-    backgroundTertiary: "#374151", // Cinza escuro
+    background: "#0d1117", // Preto quase absoluto
+    backgroundSecondary: "#060a0f", // Preto absoluto
+    backgroundTertiary: "#111827", // Quase preto
+    backgroundQuaternary: "#1a202c", // Cinza muito escuro médio
 
-    surface: "#1f2937", // Cinza muito escuro
-    surfaceHover: "#374151", // Cinza escuro
+    surface: "#1a202c", // Cinza muito escuro médio
+    surfaceHover: "#1f2937", // Cinza muito escuro
+    surfaceActive: "#2f3944", // Cinza escuro médio
+    surfaceElevated: "#111827", // Quase preto
 
-    text: "#f9fafb", // Quase branco
+    text: "#fcfcfc", // Branco quase absoluto
     textSecondary: "#e5e7eb", // Cinza muito claro
+    textTertiary: "#d1d5db", // Cinza claro
     textMuted: "#9ca3af", // Cinza médio-claro
     textDisabled: "#6b7280", // Cinza neutro
+    textPlaceholder: "#5d646d", // Cinza neutro escuro
 
     border: "#374151", // Cinza escuro
+    borderSecondary: "#2f3944", // Cinza escuro médio
     borderHover: "#4b5563", // Cinza médio
     borderFocus: "#e5e7eb", // Cinza muito claro
+    borderActive: "#434954", // Cinza médio escuro
 
-    // Estados em tons de cinza (modo escuro)
-    success: "#e5e7eb", // Cinza muito claro
-    warning: "#9ca3af", // Cinza médio-claro
-    error: "#f3f4f6", // Branco acinzentado
+    // Estados em tons de cinza (modo escuro) com melhor diferenciação
+    success: "#dde0e4", // Cinza muito claro médio
+    successLight: "#2f3944", // Cinza escuro médio
+    warning: "#c8cdd3", // Cinza claro médio
+    warningLight: "#1f2937", // Cinza muito escuro
+    error: "#f6f7f8", // Branco levemente acinzentado
+    errorLight: "#1a202c", // Cinza muito escuro médio
     info: "#d1d5db", // Cinza claro
+    infoLight: "#111827", // Quase preto
   },
 };
 
