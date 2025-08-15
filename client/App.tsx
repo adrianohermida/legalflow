@@ -834,6 +834,14 @@ function RegularAppRoutes() {
         }
       />
       <Route
+        path="/activities"
+        element={
+          <ProtectedRoute userType="advogado">
+            <ActivitiesC8 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/servicos"
         element={
           <ProtectedRoute userType="advogado">
