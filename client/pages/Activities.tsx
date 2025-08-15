@@ -414,6 +414,94 @@ export function Activities() {
     },
   });
 
+  // SF-6: Mutation para criar ticket a partir de activity
+  const createTicketMutation = useMutation({
+    mutationFn: async (activityId: string) => {
+      const activity = activitiesData.data?.find(a => a.id === activityId);
+      if (!activity) throw new Error("Activity não encontrada");
+
+      const ticketData = {
+        subject: `[Activity] ${activity.title}`,
+        status: "aberto",
+        priority: activity.priority,
+        channel: "sistema",
+        assigned_oab: activity.assigned_oab,
+        cliente_cpfcnpj: activity.cliente_cpfcnpj,
+        numero_cnj: activity.numero_cnj,
+        created_by: "current_user",
+        // SF-6: Calcula FRT/TTR baseado na prioridade
+        frt_due_at: getFRTDueDate(activity.priority),
+        ttr_due_at: getTTRDueDate(activity.priority),
+      };
+
+      // Criar o ticket
+      const { data: ticket, error: ticketError } = await lf
+        .from("tickets")
+        .insert([ticketData])
+        .select()
+        .single();
+
+      if (ticketError) throw ticketError;
+
+      // Atualizar a activity para referenciar o ticket
+      const { error: updateError } = await lf
+        .from("activities")
+        .update({
+          ticket_id: ticket.id,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", activityId);
+
+      if (updateError) throw updateError;
+
+      return { activity, ticket };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      setIsTicketDialogOpen(false);
+      toast({
+        title: "Ticket criado",
+        description: `Ticket criado com sucesso para "${result.activity.title}"`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao criar ticket",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // SF-6: Helper functions para SLA (reutilizadas de Tickets.tsx)
+  const getFRTDueDate = (priority: string) => {
+    const now = new Date();
+    const hours =
+      priority === "urgente"
+        ? 1
+        : priority === "alta"
+          ? 4
+          : priority === "media"
+            ? 8
+            : 24;
+    now.setHours(now.getHours() + hours);
+    return now.toISOString();
+  };
+
+  const getTTRDueDate = (priority: string) => {
+    const now = new Date();
+    const hours =
+      priority === "urgente"
+        ? 4
+        : priority === "alta"
+          ? 8
+          : priority === "media"
+            ? 24
+            : 72;
+    now.setHours(now.getHours() + hours);
+    return now.toISOString();
+  };
+
   // P2.8 - Mutation para alterar status (kanban drag-and-drop)
   const statusMutation = useMutation({
     mutationFn: async ({
