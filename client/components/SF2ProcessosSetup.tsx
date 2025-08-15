@@ -13,7 +13,6 @@ import {
   TestTube,
   Trash2,
   RefreshCw,
-  Database,
 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
@@ -494,7 +493,7 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
             "✅ Automação thread_links.properties com numero_cnj",
             "✅ Sistema de roles (user, assistant, system)",
             "✅ Índices otimizados para performance",
-            "⚠️ Requer schemas 'public' e 'legalflow'"
+            "���️ Requer schemas 'public' e 'legalflow'"
           ]}
           className="border-orange-200 bg-orange-50"
         />
