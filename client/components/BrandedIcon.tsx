@@ -117,29 +117,29 @@ export const getContextualVariant = (context: string): BrandedIconProps['variant
 };
 
 // Pre-configured icon components for common use cases
-export const ProcessoIcon = ({ className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'>) => (
-  <BrandedIcon 
-    icon={props.icon || require('lucide-react').FileText} 
-    variant="primary" 
+export const ProcessoIcon = ({ icon, className, ...props }: Omit<BrandedIconProps, 'variant'>) => (
+  <BrandedIcon
+    icon={icon || FileText}
+    variant="primary"
     className={className}
-    {...props} 
+    {...props}
   />
 );
 
-export const StatusIcon = ({ status, className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'> & { status: string }) => (
-  <BrandedIcon 
-    icon={props.icon || require('lucide-react').Circle} 
-    variant={getContextualVariant(status)} 
+export const StatusIcon = ({ status, icon, className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'> & { status: string; icon?: LucideIcon }) => (
+  <BrandedIcon
+    icon={icon || Circle}
+    variant={getContextualVariant(status)}
     className={className}
-    {...props} 
+    {...props}
   />
 );
 
-export const ActionIcon = ({ action, className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'> & { action: string }) => (
-  <BrandedIcon 
-    icon={props.icon || require('lucide-react').Settings} 
-    variant={getContextualVariant(action)} 
+export const ActionIcon = ({ action, icon, className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'> & { action: string; icon?: LucideIcon }) => (
+  <BrandedIcon
+    icon={icon || Settings}
+    variant={getContextualVariant(action)}
     className={className}
-    {...props} 
+    {...props}
   />
 );
