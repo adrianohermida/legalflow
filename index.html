@@ -5,109 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LegalFlow - Software Jurídico Inteligente</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: #ffffff;
-        min-height: 100vh;
-      }
-
-      #root {
-        min-height: 100vh;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: system-ui; background: #f0f0f0; }
+      #root { min-height: 100vh; }
     </style>
   </head>
-
   <body>
-
     <div id="root">
-      <div style="padding: 40px; text-align: center; font-family: system-ui;">
-        <h2>🔄 Carregando LegalFlow...</h2>
-        <p>Sistema iniciando...</p>
+      <div style="padding: 40px; text-align: center; background: white; margin: 20px; border-radius: 8px;">
+        <h1 style="color: #333; margin-bottom: 20px;">⚡ LegalFlow</h1>
+        <p>Carregando aplicação...</p>
       </div>
     </div>
-    <script type="module" src="/client/MinimalBuilderApp.tsx"></script>
-
-    <!-- Builder.io Placeholder Prevention -->
     <script type="module">
-      // Import and initialize placeholder prevention
-      import('/client/components/BuilderPlaceholderPrevention.tsx').then(module => {
-        console.log('✅ Builder.io placeholder prevention loaded');
-      }).catch(error => {
-        console.warn('⚠️ Placeholder prevention failed to load:', error);
+      import { createRoot } from '/node_modules/react-dom/client/index.js';
+      import React from '/node_modules/react/index.js';
 
-        // Fallback inline protection
-        const checkForPlaceholder = () => {
-          const bodyText = document.body.textContent || '';
-          if (bodyText.includes('export default function MyComponent') ||
-              bodyText.includes('return <></>')) {
-
-            console.error('🚨 BUILDER.IO PLACEHOLDER DETECTED');
-
-            // Clear body and show proper loading
-            document.body.innerHTML = `
-              <div style="
-                min-height: 100vh;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: system-ui;
-              ">
-                <div style="
-                  background: white;
-                  padding: 40px;
-                  border-radius: 20px;
-                  text-align: center;
-                  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-                  max-width: 500px;
-                ">
-                  <h1 style="color: #667eea; margin-bottom: 20px;">
-                    🔄 LegalFlow Inicializando
-                  </h1>
-                  <p style="color: #666; margin-bottom: 20px;">
-                    Resolvendo conflito Builder.io...
-                  </p>
-                  <div style="
-                    width: 100%;
-                    height: 4px;
-                    background: #f0f0f0;
-                    border-radius: 2px;
-                    overflow: hidden;
-                  ">
-                    <div style="
-                      width: 60%;
-                      height: 100%;
-                      background: linear-gradient(90deg, #667eea, #764ba2);
-                      animation: slide 2s infinite;
-                    "></div>
-                  </div>
-                </div>
-              </div>
-
-              <style>
-                @keyframes slide {
-                  0% { transform: translateX(-100%); }
-                  100% { transform: translateX(250%); }
-                }
-              </style>
-            `;
-
-            // Force reload after 3 seconds
-            setTimeout(() => window.location.reload(), 3000);
+      // Ultra-simple React component to test if the issue persists
+      function TestApp() {
+        return React.createElement('div', {
+          style: {
+            padding: '40px',
+            textAlign: 'center',
+            fontFamily: 'system-ui',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white'
           }
-        };
+        }, [
+          React.createElement('div', { key: 'container', style: { background: 'white', padding: '40px', borderRadius: '20px', color: '#333' } }, [
+            React.createElement('h1', { key: 'title', style: { marginBottom: '20px', color: '#667eea' } }, '✅ LegalFlow Funcionando'),
+            React.createElement('p', { key: 'desc', style: { marginBottom: '20px' } }, 'React está carregando corretamente!'),
+            React.createElement('div', { key: 'status', style: { background: '#f8f9fa', padding: '15px', borderRadius: '8px' } },
+              'Status: Aplicação inicializada com sucesso'
+            )
+          ])
+        ]);
+      }
 
-        // Check immediately and periodically
-        checkForPlaceholder();
-        const interval = setInterval(checkForPlaceholder, 500);
-        setTimeout(() => clearInterval(interval), 10000);
-      });
+      // Initialize React
+      const container = document.getElementById('root');
+      if (container) {
+        const root = createRoot(container);
+        root.render(React.createElement(TestApp));
+        console.log('✅ Ultra-simple React app loaded');
+      }
     </script>
   </body>
 </html>
