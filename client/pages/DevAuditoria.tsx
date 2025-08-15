@@ -145,6 +145,8 @@ const DevAuditoria: React.FC = () => {
     | "sf6"
     | "sf2"
     | "sf7"
+    | "sf8"
+    | "sf9"
     | "diagnostics"
   >("audit");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
