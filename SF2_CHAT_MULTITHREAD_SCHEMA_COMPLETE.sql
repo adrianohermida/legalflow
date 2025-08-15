@@ -141,7 +141,9 @@ BEGIN
       json_build_object('id', 'create_task', 'label', 'Criar tarefa', 'icon', 'plus'),
       json_build_object('id', 'link_ticket', 'label', 'Vincular a ticket', 'icon', 'link'),
       json_build_object('id', 'request_document', 'label', 'Solicitar documento', 'icon', 'file'),
-      json_build_object('id', 'complete_stage', 'label', 'Concluir etapa', 'icon', 'check')
+      json_build_object('id', 'complete_stage', 'label', 'Concluir etapa', 'icon', 'check'),
+      json_build_object('id', 'advogaai_analysis', 'label', 'Análise AdvogaAI', 'icon', 'brain'),
+      json_build_object('id', 'start_journey', 'label', 'Iniciar jornada', 'icon', 'play')
     ),
     NOW(),
     NOW()
