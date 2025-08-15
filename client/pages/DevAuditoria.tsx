@@ -1144,63 +1144,23 @@ const DevAuditoria: React.FC = () => {
         </Card>
       )}
 
-      {/* Main Content Tabs */}
+      {/* Main Content Tabs - Reorganized for Better UX */}
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as typeof activeTab)}
       >
-        <TabsList className="grid w-full grid-cols-13">
-          <TabsTrigger value="audit" className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Painel de Auditoria
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="system" className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            Sistema & Auditoria
           </TabsTrigger>
-          <TabsTrigger value="testing" className="flex items-center gap-2">
-            <TestTube className="w-4 h-4" />
-            Testes
-          </TabsTrigger>
-          <TabsTrigger value="backlog" className="flex items-center gap-2">
-            <List className="w-4 h-4" />
-            Backlog
-          </TabsTrigger>
-          <TabsTrigger value="routes" className="flex items-center gap-2">
-            <Route className="w-4 h-4" />
-            Rotas
-          </TabsTrigger>
-          <TabsTrigger value="config" className="flex items-center gap-2">
-            <Cog className="w-4 h-4" />
-            Configurações
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="w-4 h-4" />
-            Histórico
-          </TabsTrigger>
-          <TabsTrigger value="sf5" className="flex items-center gap-2">
-            <Target className="w-4 h-4" />
-            Jornada
-          </TabsTrigger>
-          <TabsTrigger value="sf6" className="flex items-center gap-2">
-            <ArrowRight className="w-4 h-4" />
-            Tarefas e Tickets
-          </TabsTrigger>
-          <TabsTrigger value="sf2" className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4" />
-            Processos
-          </TabsTrigger>
-          <TabsTrigger value="sf7" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Agenda
-          </TabsTrigger>
-          <TabsTrigger value="sf8" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />
-            Documentos
-          </TabsTrigger>
-          <TabsTrigger value="sf9" className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            APIs
+          <TabsTrigger value="features" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Funcionalidades (SF)
           </TabsTrigger>
           <TabsTrigger value="diagnostics" className="flex items-center gap-2">
             <Search className="w-4 h-4" />
-            Diagnóstico
+            Diagnóstico & Schema
           </TabsTrigger>
         </TabsList>
 
