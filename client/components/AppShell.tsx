@@ -16,10 +16,11 @@ interface AppShellProps {
 }
 
 export function AppShell({ userType, user, logout, children }: AppShellProps) {
-  const [isOfficeModulesOpen, setIsOfficeModulesOpen] = useState(false);
+  const [isAppLauncherOpen, setIsAppLauncherOpen] = useState(false);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isChatDockOpen, setIsChatDockOpen] = useState(false);
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+  const [sidebarItems, setSidebarItems] = useState<any[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
 
