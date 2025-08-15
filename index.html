@@ -12,280 +12,97 @@
         min-height: 100vh;
       }
       #root { min-height: 100vh; }
+      .loading-fallback {
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        min-height: 100vh; 
+        color: white; 
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <div id="root">
-      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; color: white; text-align: center;">
+      <div class="loading-fallback">
         <div style="background: white; color: #333; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
           <h1 style="color: #667eea; margin-bottom: 20px;">⚡ LegalFlow</h1>
           <p>Software Jurídico Inteligente</p>
           <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px; color: #1e40af;">
-            Inicializando no Builder.io...
+            Carregando aplicação...
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Load the main React application -->
+    <script type="module" src="/client/App.tsx"></script>
+    
     <script>
-      // BUILDER.IO SPECIFIC FIX - NO LOCALHOST REFERENCES
-      function builderIoFix() {
+      // Builder.io protection system - only fix if problematic code appears
+      function builderIoProtection() {
         const bodyText = document.body.textContent || '';
         
-        // Check for the EXACT problematic code that's appearing as text
+        // Check for the EXACT problematic code that shouldn't appear as text
         const problematicStrings = [
           'export default function MyComponent(props) { return <></>;',
           'export default function MyComponent',
           'function MyComponent(props)',
-          'return <></>;',
-          'MyComponent(props)'
+          'return <></>;'
         ];
         
-        let needsFix = false;
-        let foundString = '';
-        
+        let needsProtection = false;
         for (const str of problematicStrings) {
           if (bodyText.includes(str)) {
-            needsFix = true;
-            foundString = str;
-            console.error('🚨 BUILDER.IO ISSUE DETECTED:', str);
+            needsProtection = true;
+            console.error('🚨 BUILDER.IO PROTECTION: Code detected as text:', str);
             break;
           }
         }
         
-        if (needsFix) {
-          // IMMEDIATE BODY REPLACEMENT FOR BUILDER.IO
-          document.body.innerHTML = \`
-            <div style="
-              display: flex; 
-              align-items: center; 
-              justify-content: center; 
-              min-height: 100vh; 
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              font-family: system-ui;
-            ">
-              <div style="
-                background: white; 
-                color: #333; 
-                padding: 60px; 
-                border-radius: 25px; 
-                box-shadow: 0 30px 80px rgba(0,0,0,0.2);
-                max-width: 800px;
-                width: 95%;
-                text-align: center;
-              ">
-                <div style="
-                  font-size: 3.5rem;
-                  font-weight: 900;
-                  background: linear-gradient(135deg, #667eea, #764ba2);
-                  -webkit-background-clip: text;
-                  -webkit-text-fill-color: transparent;
-                  margin-bottom: 2rem;
-                  line-height: 1.2;
-                ">
-                  ⚡ LegalFlow
-                </div>
-                
-                <div style="
-                  color: #6b7280; 
-                  margin-bottom: 3rem; 
-                  font-size: 1.4rem;
-                  font-weight: 600;
-                ">
-                  Software Jurídico Inteligente
-                </div>
-
-                <div style="
-                  background: linear-gradient(135deg, #22c55e, #16a34a);
-                  color: white;
-                  padding: 30px;
-                  border-radius: 20px;
-                  margin-bottom: 30px;
-                  box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
-                ">
-                  <h2 style="
-                    margin: 0 0 15px 0;
-                    font-size: 1.8rem;
-                    font-weight: 800;
-                  ">🎉 Sistema Funcionando no Builder.io!</h2>
-                  <p style="margin: 0; font-size: 1.2rem; font-weight: 500;">
-                    Problema de renderização detectado e corrigido automaticamente.<br>
-                    <strong>LegalFlow operacional em produção!</strong>
-                  </p>
-                </div>
-
-                <div style="
-                  display: grid;
-                  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                  gap: 25px;
-                  margin: 40px 0;
-                ">
-                  <div style="
-                    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-                    padding: 30px;
-                    border-radius: 20px;
-                    border-left: 6px solid #667eea;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                  ">
-                    <h3 style="
-                      color: #667eea; 
-                      margin-bottom: 15px;
-                      font-size: 1.3rem;
-                      font-weight: 700;
-                    ">📊 Dashboard</h3>
-                    <p style="
-                      color: #64748b; 
-                      font-size: 1rem;
-                      line-height: 1.5;
-                      font-weight: 500;
-                    ">
-                      Analytics avançados e visão completa do escritório jurídico
-                    </p>
-                  </div>
-
-                  <div style="
-                    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-                    padding: 30px;
-                    border-radius: 20px;
-                    border-left: 6px solid #667eea;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                  ">
-                    <h3 style="
-                      color: #667eea; 
-                      margin-bottom: 15px;
-                      font-size: 1.3rem;
-                      font-weight: 700;
-                    ">⚖️ Processos</h3>
-                    <p style="
-                      color: #64748b; 
-                      font-size: 1rem;
-                      line-height: 1.5;
-                      font-weight: 500;
-                    ">
-                      Gestão completa de processos, prazos e acompanhamento jurídico
-                    </p>
-                  </div>
-
-                  <div style="
-                    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-                    padding: 30px;
-                    border-radius: 20px;
-                    border-left: 6px solid #667eea;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                  ">
-                    <h3 style="
-                      color: #667eea; 
-                      margin-bottom: 15px;
-                      font-size: 1.3rem;
-                      font-weight: 700;
-                    ">👥 Clientes</h3>
-                    <p style="
-                      color: #64748b; 
-                      font-size: 1rem;
-                      line-height: 1.5;
-                      font-weight: 500;
-                    ">
-                      CRM jurídico integrado com gestão completa de relacionamento
-                    </p>
-                  </div>
-                </div>
-
-                <div style="
-                  background: linear-gradient(135deg, #1e293b, #0f172a);
-                  color: white;
-                  padding: 30px;
-                  border-radius: 20px;
-                  margin-top: 30px;
-                  font-size: 1rem;
-                  text-align: left;
-                  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                ">
-                  <div style="
-                    font-weight: 700; 
-                    color: #22c55e; 
-                    margin-bottom: 15px;
-                    font-size: 1.2rem;
-                  ">🔧 Status do Sistema Builder.io:</div>
-                  <div style="line-height: 1.8; font-weight: 500;">
-                    ✅ Problema de renderização: <strong style="color: #22c55e;">CORRIGIDO</strong><br>
-                    ✅ Environment: <strong style="color: #22c55e;">BUILDER.IO PRODUCTION</strong><br>
-                    ✅ Interface LegalFlow: <strong style="color: #22c55e;">FUNCIONANDO</strong><br>
-                    ✅ Sistema de detecção: <strong style="color: #22c55e;">ATIVO</strong><br>
-                    ✅ Timestamp: <strong style="color: #e2e8f0;">\${new Date().toLocaleString('pt-BR')}</strong>
-                  </div>
-                </div>
-
-                <div style="margin-top: 40px;">
-                  <div style="
-                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                    color: white;
-                    padding: 20px 40px;
-                    border-radius: 30px;
-                    display: inline-block;
-                    font-weight: 700;
-                    font-size: 1.2rem;
-                    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-                  ">
-                    🚀 LegalFlow - Pronto para Produção no Builder.io
-                  </div>
-                </div>
-              </div>
-            </div>
-          \`;
-          
-          console.log('✅ BUILDER.IO FIX APPLIED - Issue resolved for production');
-          return true;
+        // Only apply protection if actually needed
+        if (needsProtection) {
+          console.log('🛡️ Applying Builder.io protection...');
+          // Reload to let React take over properly
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         }
         
-        return false;
+        return needsProtection;
       }
       
-      // Detect Builder.io environment
+      // Monitor for issues but don't interfere with normal React loading
       const isBuilderIo = window.location.hostname.includes('builder.codes') || 
                           window.location.hostname.includes('fly.dev') ||
                           window.location.hostname.includes('builder.io');
       
       if (isBuilderIo) {
-        console.log('🏗️ BUILDER.IO ENVIRONMENT DETECTED');
+        console.log('🏗️ Builder.io environment detected - protection active');
         
-        // Immediate fix on load
-        if (builderIoFix()) {
-          console.log('✅ Issue detected and fixed on page load');
-        }
-        
-        // Aggressive monitoring for Builder.io (every 50ms for first 5 seconds)
+        // Check periodically for the first 10 seconds only
         let checkCount = 0;
-        const builderInterval = setInterval(() => {
+        const protectionInterval = setInterval(() => {
           checkCount++;
-          if (builderIoFix()) {
-            console.log(\`✅ Issue detected and fixed (Builder.io check #\${checkCount})\`);
-          }
+          builderIoProtection();
           
-          if (checkCount >= 100) { // Stop after 5 seconds
-            clearInterval(builderInterval);
-            console.log('🔍 Builder.io monitoring complete');
+          if (checkCount >= 20) { // Stop after 10 seconds (500ms * 20)
+            clearInterval(protectionInterval);
+            console.log('🔍 Builder.io protection monitoring complete');
           }
-        }, 50);
-        
-        // DOM Observer for Builder.io
-        const observer = new MutationObserver(() => {
-          setTimeout(() => {
-            if (builderIoFix()) {
-              console.log('✅ Issue detected and fixed (Builder.io mutation observer)');
-            }
-          }, 25);
-        });
-        
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          characterData: true
-        });
-        
-        console.log('🛡️ BUILDER.IO PROTECTION SYSTEM ACTIVE');
-      } else {
-        console.log('💻 Development environment detected');
+        }, 500);
       }
+      
+      // React app loading monitor
+      setTimeout(() => {
+        const reactLoaded = document.getElementById('root')?.getAttribute('data-react-loaded');
+        if (!reactLoaded) {
+          console.log('⚠️ React app may not have loaded properly, checking for issues...');
+          builderIoProtection();
+        } else {
+          console.log('✅ React app loaded successfully');
+        }
+      }, 3000);
     </script>
   </body>
 </html>
