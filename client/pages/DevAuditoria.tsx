@@ -128,7 +128,7 @@ const DevAuditoria: React.FC = () => {
   const [auditProgress, setAuditProgress] = useState(0);
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "audit" | "testing" | "backlog" | "routes" | "config" | "history" | "sf5"
+    "audit" | "testing" | "backlog" | "routes" | "config" | "history" | "sf5" | "sf6" | "sf2" | "sf7"
   >("audit");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -1122,7 +1122,7 @@ const DevAuditoria: React.FC = () => {
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as typeof activeTab)}
       >
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
             Painel de Auditoria
@@ -1158,6 +1158,10 @@ const DevAuditoria: React.FC = () => {
           <TabsTrigger value="sf2" className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
             Processos
+          </TabsTrigger>
+          <TabsTrigger value="sf7" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Agenda
           </TabsTrigger>
         </TabsList>
 
