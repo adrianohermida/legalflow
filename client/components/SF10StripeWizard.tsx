@@ -240,26 +240,23 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_invoices")
-        .select(
-          `
-          *,
-          customer:customer_id(email, name)
-        `,
-        )
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+          console.log("Tabela stripe_invoices não existe. Execute o setup SF-10 primeiro.");
+          setInvoices([]);
+          return;
+        }
+        throw error;
+      }
 
-      const formatted = (data || []).map((inv) => ({
-        ...inv,
-        customer_email: inv.customer?.email || "",
-        customer_name: inv.customer?.name || "",
-      }));
-
-      setInvoices(formatted);
+      setInvoices(data || []);
     } catch (error) {
       console.error("Error loading invoices:", error instanceof Error ? error.message : String(error));
+      setInvoices([]);
     }
   };
 
