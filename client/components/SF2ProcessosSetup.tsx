@@ -17,6 +17,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
+import { GenericSQLDownloader } from "./GenericSQLDownloader";
 
 interface SetupResult {
   success: boolean;
