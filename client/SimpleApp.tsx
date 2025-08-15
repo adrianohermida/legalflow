@@ -1,127 +1,140 @@
-import React from "react";
+import "./global.css";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { Toaster } from "./components/ui/toaster";
+import { useState, useEffect } from "react";
 
-function SimpleApp() {
+// Import only essential pages to start
+import { Dashboard } from "./pages/Dashboard";
+import { Processos } from "./pages/Processos";
+import { Clientes } from "./pages/Clientes";
+
+// Simple Auth Context
+const AuthContext = React.createContext<any>(null);
+
+function SimpleAuthProvider({ children }: { children: React.ReactNode }) {
+  const [user] = useState({ name: "Demo User", authenticated: true });
   return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "40px",
-          borderRadius: "20px",
-          textAlign: "center" as const,
-          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <h1
-          style={{
-            background: "linear-gradient(135deg, #667eea, #764ba2)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontSize: "2.5rem",
-            fontWeight: "700",
-            marginBottom: "1rem",
-          }}
-        >
-          ✅ LegalFlow
-        </h1>
-        <p
-          style={{ color: "#6b7280", fontSize: "1.2rem", marginBottom: "2rem" }}
-        >
-          Software Jurídico Inteligente
-        </p>
-        <div
-          style={{
-            background: "#f0f9ff",
-            padding: "20px",
-            borderRadius: "10px",
-            marginBottom: "20px",
-          }}
-        >
-          <h2 style={{ color: "#0369a1", margin: "0 0 10px 0" }}>
-            🎉 React Funcionando!
-          </h2>
-          <p style={{ color: "#0c4a6e", margin: 0 }}>
-            A aplicação React foi carregada com sucesso no ambiente Builder.io
-          </p>
+    <AuthContext.Provider value={{ user, isAuthenticated: true }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// Simple App Shell
+function SimpleAppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ 
+      fontFamily: "system-ui",
+      minHeight: "100vh",
+      background: "#f8fafc",
+      display: "flex"
+    }}>
+      {/* Sidebar */}
+      <div style={{
+        width: "280px",
+        background: "linear-gradient(135deg, #1e293b, #0f172a)",
+        color: "white",
+        padding: "20px"
+      }}>
+        <div style={{
+          fontSize: "1.5rem",
+          fontWeight: "800",
+          marginBottom: "30px",
+          color: "#667eea"
+        }}>
+          ⚡ LegalFlow
         </div>
-        <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-          <button
-            onClick={() => (window.location.href = "/test")}
-            style={{
-              background: "linear-gradient(135deg, #667eea, #764ba2)",
-              color: "white",
-              border: "none",
-              padding: "10px 20px",
-              borderRadius: "10px",
-              cursor: "pointer",
-            }}
-          >
-            🔧 Página de Teste
-          </button>
-          <button
-            onClick={() => (window.location.href = "/fallback")}
-            style={{
-              background: "linear-gradient(135deg, #667eea, #764ba2)",
-              color: "white",
-              border: "none",
-              padding: "10px 20px",
-              borderRadius: "10px",
-              cursor: "pointer",
-            }}
-          >
-            🔄 Fallback
-          </button>
-        </div>
-        <div
-          style={{
-            marginTop: "20px",
-            padding: "15px",
-            background: "#f9fafb",
-            borderRadius: "8px",
-            fontSize: "0.9rem",
-            color: "#6b7280",
-          }}
-        >
-          <strong>Status:</strong> React carregado com sucesso
-          <br />
-          <strong>Timestamp:</strong> {new Date().toISOString()}
-          <br />
-          <strong>Environment:</strong> Builder.io + Fly.dev
-        </div>
+        
+        <nav>
+          <a href="/dashboard" style={{ 
+            display: "block", 
+            color: "white", 
+            textDecoration: "none",
+            padding: "10px",
+            marginBottom: "5px",
+            borderRadius: "5px",
+            background: "rgba(255,255,255,0.1)"
+          }}>
+            📊 Dashboard
+          </a>
+          <a href="/processos" style={{ 
+            display: "block", 
+            color: "white", 
+            textDecoration: "none",
+            padding: "10px",
+            marginBottom: "5px"
+          }}>
+            ⚖️ Processos
+          </a>
+          <a href="/clientes" style={{ 
+            display: "block", 
+            color: "white", 
+            textDecoration: "none",
+            padding: "10px",
+            marginBottom: "5px"
+          }}>
+            👥 Clientes
+          </a>
+        </nav>
+      </div>
+      
+      {/* Main content */}
+      <div style={{ flex: 1, padding: "30px" }}>
+        {children}
       </div>
     </div>
   );
 }
 
-// Simple initialization
+// Main App Component
+function SimpleApp() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, refetchOnWindowFocus: false }
+    }
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <SimpleAuthProvider>
+          <BrowserRouter>
+            <SimpleAppShell>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/processos" element={<Processos />} />
+                <Route path="/clientes" element={<Clientes />} />
+                <Route path="*" element={
+                  <div style={{
+                    textAlign: "center",
+                    padding: "40px"
+                  }}>
+                    <h2>✅ LegalFlow Simplificado Funcionando!</h2>
+                    <p>O aplicativo básico está carregando corretamente.</p>
+                    <p>Páginas disponíveis: Dashboard, Processos, Clientes</p>
+                  </div>
+                } />
+              </Routes>
+            </SimpleAppShell>
+          </BrowserRouter>
+          <Toaster />
+        </SimpleAuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
+// Initialize React app
 const container = document.getElementById("root");
 if (container) {
-  try {
-    const root = createRoot(container);
-    root.render(<SimpleApp />);
-    console.log("✅ Simple React app rendered successfully");
-  } catch (error) {
-    console.error("❌ Failed to render Simple React app:", error);
-    // Fallback HTML
-    container.innerHTML = `
-      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
-        <h1 style="color: #dc2626;">❌ React Render Error</h1>
-        <p>Failed to render React app: ${error.message}</p>
-        <button onclick="window.location.href='/fallback'" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">
-          Go to Fallback
-        </button>
-      </div>
-    `;
-  }
+  console.log('🚀 Initializing Simple LegalFlow App...');
+  const root = createRoot(container);
+  root.render(<SimpleApp />);
+  console.log('✅ Simple LegalFlow App initialized successfully');
+} else {
+  console.error('❌ Root container not found');
 }
