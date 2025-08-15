@@ -70,6 +70,7 @@ import {
   History,
   List,
   Plus,
+  ArrowRight,
 } from "lucide-react";
 import {
   createAutofixTables,
