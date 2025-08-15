@@ -569,7 +569,7 @@ export default function AutofixBacklog() {
           </div>
           
           <Select
-            value={filter.status}
+            value={filter.status || 'all'}
             onValueChange={(value) => setFilter(prev => ({ ...prev, status: value === 'all' ? '' : value }))}
           >
             <SelectTrigger className="w-32">
@@ -584,7 +584,7 @@ export default function AutofixBacklog() {
           </Select>
 
           <Select
-            value={filter.priority}
+            value={filter.priority || 'all'}
             onValueChange={(value) => setFilter(prev => ({ ...prev, priority: value === 'all' ? '' : value }))}
           >
             <SelectTrigger className="w-32">
