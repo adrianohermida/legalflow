@@ -4,11 +4,11 @@
 @tailwind utilities;
 
 /* ============================
-   MONOCHROMATIC THEME - GRAYSCALE ONLY
-   ZERO COLOR POLICY - DESENVOLVIMENTO FOCADO
+   ADVOGAAI THEME - BRAND COLORS
+   F1 APPROVED DESIGN SYSTEM
 ============================ */
 :root {
-  /* Base monocromática - Tons puros de cinza */
+  /* Base neutra - Tons de cinza para estrutura */
   --mono-black: #000000;
   --mono-gray-900: #111827; /* Quase preto */
   --mono-gray-800: #1f2937; /* Cinza muito escuro */
@@ -22,6 +22,16 @@
   --mono-gray-50: #f9fafb; /* Branco acinzentado */
   --mono-white: #ffffff;
 
+  /* CORES DE MARCA ADVOGAAI - F1 SPECIFICATION */
+  --brand-900: #1b3a2f; /* Verde escuro profissional */
+  --brand-700: #285245; /* Verde médio */
+  --brand-100: #e9f3ef; /* Verde claro suave */
+
+  /* CORES SEMÂNTICAS */
+  --danger: #ef4444; /* Vermelho para erros/alertas */
+  --warn: #f59e0b; /* Amarelo para avisos */
+  --success: #16a34a; /* Verde para sucessos */
+
   /* Tons neutros - MAPEAMENTO LEGADO */
   --neutral-900: var(--mono-gray-900);
   --neutral-800: var(--mono-gray-800);
@@ -34,27 +44,27 @@
   --neutral-100: var(--mono-gray-100);
   --neutral-50: var(--mono-gray-50);
 
-  /* Sistema de cores monocromático */
-  --primary: var(--mono-gray-900);
-  --primary-hover: var(--mono-gray-800);
-  --primary-light: var(--mono-gray-100);
+  /* Sistema de cores com marca */
+  --primary: var(--brand-900);
+  --primary-hover: var(--brand-700);
+  --primary-light: var(--brand-100);
   --secondary: var(--mono-gray-600);
   --muted: var(--mono-gray-500);
   --surface: var(--mono-white);
   --on-surface: var(--mono-gray-900);
   --disabled: var(--mono-gray-300);
 
-  /* Estados monocromáticos */
-  --success: var(--mono-gray-700); /* Sucesso em cinza escuro */
-  --warning: var(--mono-gray-600); /* Aviso em cinza médio */
-  --error: var(--mono-gray-800); /* Erro em cinza muito escuro */
-  --info: var(--mono-gray-500); /* Info em cinza neutro */
+  /* Estados semânticos com cores */
+  --success: #16a34a; /* Verde para sucessos */
+  --warning: #f59e0b; /* Amarelo para avisos */
+  --error: #ef4444; /* Vermelho para erros */
+  --info: var(--brand-700); /* Verde marca para info */
 
-  /* Borders e interações monocromáticas */
+  /* Borders e interações com marca */
   --border: var(--mono-gray-200);
   --border-hover: var(--mono-gray-300);
-  --border-focus: var(--mono-gray-700);
-  --focus-ring: 2px solid var(--mono-gray-700);
+  --border-focus: var(--brand-700);
+  --focus-ring: 2px solid var(--brand-700);
   --radius: 12px;
 
   /* Sombras monocromáticas */
@@ -62,17 +72,18 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 
-  /* ZERO COLOR OVERRIDE - Todas as cores de marca = monocromático */
-  --brand-900: var(--mono-gray-900);
-  --brand-800: var(--mono-gray-800);
-  --brand-700: var(--mono-gray-700);
-  --brand-600: var(--mono-gray-600);
-  --brand-500: var(--mono-gray-500);
-  --brand-400: var(--mono-gray-400);
-  --brand-300: var(--mono-gray-300);
-  --brand-200: var(--mono-gray-200);
-  --brand-100: var(--mono-gray-100);
-  --brand-50: var(--mono-gray-50);
+  /* ESCALA COMPLETA DE MARCA - Tons de verde profissional */
+  --brand-950: #0f251e; /* Verde ultra escuro */
+  --brand-900: #1b3a2f; /* Verde escuro principal */
+  --brand-800: #245240; /* Verde escuro secundário */
+  --brand-700: #285245; /* Verde médio */
+  --brand-600: #2d6050; /* Verde médio claro */
+  --brand-500: #327a5b; /* Verde base */
+  --brand-400: #4a9370; /* Verde suave */
+  --brand-300: #6bb085; /* Verde claro */
+  --brand-200: #a0d0ab; /* Verde bem claro */
+  --brand-100: #e9f3ef; /* Verde ultra claro */
+  --brand-50: #f4f9f6; /* Verde quase branco */
 
   /* OVERRIDE DE CORES COLORIDAS - Força monocromático */
   --blue-500: var(--mono-gray-600);
