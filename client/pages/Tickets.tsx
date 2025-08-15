@@ -97,6 +97,8 @@ export function Tickets() {
   const [filterChannel, setFilterChannel] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
