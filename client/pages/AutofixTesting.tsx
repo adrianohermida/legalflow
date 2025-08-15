@@ -635,7 +635,7 @@ const AutofixTesting: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="routes" className="space-y-4">
+      <Tabs defaultValue="backlog" className="space-y-4">
         <TabsList>
           <TabsTrigger value="backlog">📋 Backlog Pipeline</TabsTrigger>
           <TabsTrigger value="routes">🛣️ SF-1: Route Coverage</TabsTrigger>
