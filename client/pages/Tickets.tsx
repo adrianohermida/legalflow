@@ -935,6 +935,102 @@ export function Tickets() {
           </div>
         </div>
       )}
+
+      {/* SF-6: Dialog para criação de activity espelho */}
+      <Dialog open={isActivityDialogOpen} onOpenChange={setIsActivityDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Criar Activity Espelho</DialogTitle>
+            <DialogDescription>
+              Criar uma activity baseada neste ticket (opcional: vincular a etapa da jornada)
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTicket && (
+            <div className="space-y-4">
+              <div className="p-4 bg-neutral-50 rounded-lg">
+                <h4 className="font-medium mb-2">Ticket selecionado:</h4>
+                <p className="text-sm font-medium">{selectedTicket.subject}</p>
+                <div className="flex items-center gap-4 mt-2 text-sm text-neutral-600">
+                  <span>Prioridade: {selectedTicket.priority}</span>
+                  {selectedTicket.cliente_nome && (
+                    <span>Cliente: {selectedTicket.cliente_nome}</span>
+                  )}
+                  {selectedTicket.responsavel_nome && (
+                    <span>Responsável: {selectedTicket.responsavel_nome}</span>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Vincular à etapa da jornada (opcional)
+                </label>
+                <Select
+                  onValueChange={(value) => {
+                    // Store selected stage instance
+                    setSelectedTicket(prev => prev ? {...prev, selectedStageInstanceId: value} : null);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma etapa de tipo 'task' (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Não vincular a etapa</SelectItem>
+                    {stageInstances.map((instance: any) => (
+                      <SelectItem key={instance.id} value={instance.id}>
+                        {instance.journey_instances.journey_types.name} -
+                        {instance.stage_types.name} (#{instance.order_index})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-medium mb-2">Activity que será criada:</h4>
+                <div className="text-sm space-y-1">
+                  <p><strong>Título:</strong> [Ticket] {selectedTicket.subject}</p>
+                  <p><strong>Prioridade:</strong> {selectedTicket.priority}</p>
+                  <p><strong>Status:</strong> A Fazer</p>
+                  {selectedTicket.ttr_due_at && (
+                    <p><strong>Vence em:</strong> {formatDateTime(selectedTicket.ttr_due_at)}</p>
+                  )}
+                  {selectedTicket.cliente_nome && (
+                    <p><strong>Cliente:</strong> {selectedTicket.cliente_nome}</p>
+                  )}
+                  {selectedTicket.responsavel_nome && (
+                    <p><strong>Responsável:</strong> {selectedTicket.responsavel_nome}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsActivityDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedTicket) {
+                  createActivityMutation.mutate({
+                    ticketId: selectedTicket.id,
+                    stageInstanceId: (selectedTicket as any).selectedStageInstanceId || undefined
+                  });
+                }
+              }}
+              disabled={createActivityMutation.isPending}
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
+              {createActivityMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
+              Criar Activity
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
