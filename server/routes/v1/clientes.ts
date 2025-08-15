@@ -217,8 +217,7 @@ router.get("/:cpfcnpj/processos", async (req, res, next) => {
     }
 
     // Get all processes and filter by client
-    const { processosApi } = await import("../../../client/lib/api");
-    const allProcesses = await processosApi.getAll();
+    const allProcesses = await mockProcessosApi.getAll();
     
     // Filter processes that belong to this client
     const clientProcesses = allProcesses.filter(processo => 
