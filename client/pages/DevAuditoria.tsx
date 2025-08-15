@@ -1504,6 +1504,11 @@ const DevAuditoria: React.FC = () => {
         <TabsContent value="sf5">
           <SF5JourneyCardTest />
         </TabsContent>
+
+        {/* SF-6 Activities ↔ Tickets Bridge Setup Tab */}
+        <TabsContent value="sf6">
+          <SF6AutomationSetup />
+        </TabsContent>
       </Tabs>
     </div>
   );
