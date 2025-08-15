@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { X, Save, Calendar, DollarSign, Percent, Tag, User, Building, FileText, Clock, MessageSquare, Activity, History, Edit, Trash2, Plus } from "lucide-react";
+import { X, Save, Calendar, DollarSign, Percent, Tag, User, Building, FileText, Clock, MessageSquare, Activity, History, Edit, Trash2, Plus, Phone, Mail } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
