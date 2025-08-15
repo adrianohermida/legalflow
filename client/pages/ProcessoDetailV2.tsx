@@ -556,48 +556,52 @@ export default function ProcessoDetailV2() {
 
               <div className="border-l border-neutral-200 pl-4">
                 <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyCNJ}
-                    className="text-lg font-mono font-semibold"
-                  >
-                    {formatCNJ(numero_cnj)}
-                    <Copy className="w-4 h-4 ml-2" />
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopyCNJ}
+                      className="text-lg font-mono font-semibold p-0 h-auto"
+                    >
+                      {formatCNJ(numero_cnj)}
+                      <Copy className="w-4 h-4 ml-2" />
+                    </Button>
+
+                    {processo && (
+                      <div className="text-sm text-neutral-600">
+                        {(() => {
+                          const poloAtivo = processo.titulo_polo_ativo;
+                          const poloPassivo = processo.titulo_polo_passivo;
+
+                          // Lógica para "e outros"
+                          const formatPolo = (polo: string) => {
+                            if (!polo) return '';
+                            if (polo.includes(',') || polo.includes(' e ')) {
+                              const primeiraParte = polo.split(/[,e]/)[0].trim();
+                              return `${primeiraParte} e outros`;
+                            }
+                            return polo;
+                          };
+
+                          const poloAtivoFormatted = formatPolo(poloAtivo);
+                          const poloPassivoFormatted = formatPolo(poloPassivo);
+
+                          if (poloAtivoFormatted && poloPassivoFormatted) {
+                            return `(${poloAtivoFormatted} × ${poloPassivoFormatted})`;
+                          } else if (poloAtivoFormatted) {
+                            return `(${poloAtivoFormatted})`;
+                          }
+                          return '';
+                        })()}
+                      </div>
+                    )}
+                  </div>
 
                   {processo && (
-              <div className="space-y-1">
-                <div className="text-neutral-600">
-                  <span className="font-medium">
-                    {(() => {
-                      const poloAtivo = processo.titulo_polo_ativo;
-                      const poloPassivo = processo.titulo_polo_passivo;
-
-                      // Lógica para "e outros"
-                      const formatPolo = (polo: string) => {
-                        if (!polo) return '';
-                        if (polo.includes(',') || polo.includes(' e ')) {
-                          const primeiraParte = polo.split(/[,e]/)[0].trim();
-                          return `${primeiraParte} e outros`;
-                        }
-                        return polo;
-                      };
-
-                      const poloAtivoFormatted = formatPolo(poloAtivo);
-                      const poloPassivoFormatted = formatPolo(poloPassivo);
-
-                      return poloPassivoFormatted
-                        ? `${poloAtivoFormatted} × ${poloPassivoFormatted}`
-                        : poloAtivoFormatted;
-                    })()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ProcessoTags numeroCnj={numero_cnj} size="sm" maxVisible={3} />
-                </div>
-              </div>
-            )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <ProcessoTags numeroCnj={numero_cnj} size="sm" maxVisible={3} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Status do monitoramento */}
