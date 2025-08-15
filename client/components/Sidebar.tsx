@@ -26,43 +26,84 @@ interface SidebarProps {
   userType: "advogado" | "cliente";
 }
 
-// Apps principais aprovados para sidebar
+// Sidebar (Escritório) conforme especificação Flow B1
 const advogadoNavItems = [
   {
     title: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
     description: "Visão geral do escritório",
+    sortOrder: 1,
   },
   {
     title: "Processos",
     href: "/processos-v2",
     icon: FileText,
     description: "Gestão de processos",
+    sortOrder: 2,
   },
   {
     title: "Clientes",
     href: "/clientes",
     icon: Users,
     description: "Base de clientes",
-  },
-  {
-    title: "Inbox Legal",
-    href: "/inbox-v2",
-    icon: Inbox,
-    description: "Triagem de publicações",
+    sortOrder: 3,
   },
   {
     title: "Agenda",
     href: "/agenda",
     icon: Calendar,
     description: "Compromissos e prazos",
+    sortOrder: 4,
   },
   {
-    title: "Painel de Auditoria",
-    href: "/dev-auditoria",
-    icon: TestTube,
-    description: "Sistema de auditoria e autofix",
+    title: "Jornadas",
+    href: "/jornadas",
+    icon: Target,
+    description: "Jornadas do cliente",
+    sortOrder: 5,
+  },
+  {
+    title: "Inbox Legal",
+    href: "/inbox-v2",
+    icon: Inbox,
+    description: "Triagem de publicações",
+    sortOrder: 6,
+  },
+  {
+    title: "Documentos",
+    href: "/documentos",
+    icon: FolderOpen,
+    description: "Gestão de documentos",
+    sortOrder: 7,
+  },
+  {
+    title: "Financeiro",
+    href: "/financeiro",
+    icon: DollarSign,
+    description: "Controle financeiro",
+    sortOrder: 8,
+  },
+  {
+    title: "Relatórios",
+    href: "/relatorios",
+    icon: BarChart3,
+    description: "Relatórios e análises",
+    sortOrder: 9,
+  },
+  {
+    title: "Helpdesk",
+    href: "/helpdesk",
+    icon: HeadphonesIcon,
+    description: "Central de ajuda",
+    sortOrder: 10,
+  },
+  {
+    title: "Serviços",
+    href: "/servicos",
+    icon: ShoppingBag,
+    description: "Gestão de serviços",
+    sortOrder: 11,
   },
 ];
 
