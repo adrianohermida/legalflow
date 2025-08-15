@@ -29,63 +29,51 @@
           <h1 style="color: #667eea; margin-bottom: 20px;">⚡ LegalFlow</h1>
           <p>Software Jurídico Inteligente</p>
           <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px; color: #1e40af;">
-            Carregando aplicativo completo...
+            Carregando aplicativo LegalFlow...
           </div>
         </div>
       </div>
     </div>
 
-    <!-- CARREGAR O APLICATIVO REAL DO LEGALFLOW -->
+    <!-- APLICATIVO LEGALFLOW VERDADEIRO -->
     <script type="module" src="/client/App.tsx"></script>
 
     <script>
-      // Builder.io protection com limite de tentativas
+      // PROTEÇÃO BUILDER.IO - Apenas para casos específicos
       let reloadAttempts = 0;
-      const MAX_RELOAD_ATTEMPTS = 2;
+      const MAX_RELOAD_ATTEMPTS = 1; // Reduzido para 1 tentativa apenas
       
-      // Inicializar contador de sessionStorage
+      // Ler contador do sessionStorage
       try {
         const storedAttempts = sessionStorage.getItem('builderReloadAttempts');
         if (storedAttempts) {
           reloadAttempts = parseInt(storedAttempts, 10) || 0;
         }
       } catch (e) {
-        console.warn('Could not read reload attempts from sessionStorage');
+        // Ignore sessionStorage errors
       }
       
       function smartBuilderProtection() {
-        // Não executar se já atingimos o limite
+        // Não executar se já tentamos reloads
         if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
-          console.log('🛡️ Builder.io protection: Max reload attempts reached, stopping');
+          console.log('🛡️ Builder.io protection: Disabled - max attempts reached');
           return false;
         }
         
         const bodyText = document.body.textContent || '';
         
-        // DETECÇÃO ESPECÍFICA - apenas o código exato problemático
-        const exactProblematicStrings = [
-          'export default function MyComponent(props) { return <></>;',
-          'export default function MyComponent(props) {\n  return <></>;\\n}'
-        ];
+        // DETECÇÃO ULTRA-ESPECÍFICA - apenas o código exato problemático
+        const exactProblematicCode = 'export default function MyComponent(props) { return <></>;';
         
-        let hasExactProblem = false;
-        for (const exactString of exactProblematicStrings) {
-          if (bodyText.includes(exactString)) {
-            hasExactProblem = true;
-            console.error('🚨 EXACT Builder.io issue detected:', exactString);
-            break;
-          }
-        }
-        
-        if (hasExactProblem) {
+        if (bodyText.includes(exactProblematicCode)) {
           reloadAttempts++;
-          console.log(`🔄 Builder.io protection: Reloading (attempt ${reloadAttempts}/${MAX_RELOAD_ATTEMPTS})`);
+          console.error('🚨 EXACT Builder.io issue detected - applying single reload fix');
           
           // Armazenar contador
           try {
             sessionStorage.setItem('builderReloadAttempts', reloadAttempts.toString());
           } catch (e) {
-            console.warn('Could not store reload attempts in sessionStorage');
+            // Ignore
           }
           
           setTimeout(() => {
@@ -98,52 +86,50 @@
         return false;
       }
       
-      // PROTEÇÃO APENAS EM AMBIENTES BUILDER.IO/FLY.DEV
-      const isBuilderEnv = window.location.hostname.includes('builder.codes') || 
-                           window.location.hostname.includes('fly.dev') ||
-                           window.location.hostname.includes('builder.io');
+      // PROTEÇÃO APENAS EM PRODUÇÃO
+      const isProduction = window.location.hostname.includes('builder.codes') || 
+                          window.location.hostname.includes('fly.dev') ||
+                          window.location.hostname.includes('builder.io');
       
-      if (isBuilderEnv && reloadAttempts < MAX_RELOAD_ATTEMPTS) {
-        console.log('🏗️ Production environment detected - smart protection active');
+      if (isProduction && reloadAttempts < MAX_RELOAD_ATTEMPTS) {
+        console.log('🏗️ Production environment - minimal protection active');
         
-        // Executar verificação apenas uma vez após delay
+        // Verificar uma única vez após 4 segundos
         setTimeout(() => {
           if (!smartBuilderProtection()) {
             console.log('✅ Builder.io protection: No issues detected');
             
-            // Limpar contador se tudo está OK
+            // Limpar contador se tudo OK
             try {
               sessionStorage.removeItem('builderReloadAttempts');
             } catch (e) {
               // Ignore
             }
           }
-        }, 3000); // Aguardar 3 segundos antes de verificar
-      } else if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
-        console.log('🛡️ Builder.io protection: Disabled due to max reload attempts');
+        }, 4000);
       }
       
-      // DETECTAR QUANDO O APLICATIVO REAL CARREGA
+      // DETECTAR SUCESSO DO CARREGAMENTO DO APP
       setTimeout(() => {
         const reactLoaded = document.getElementById('root')?.getAttribute('data-react-loaded');
         const appStatus = document.getElementById('root')?.getAttribute('data-app-status');
         
         if (reactLoaded && appStatus) {
-          console.log('✅ LegalFlow real app loaded successfully');
+          console.log('✅ LegalFlow app loaded successfully');
           console.log('📱 App status:', appStatus);
           
-          // Limpar contador de reloads quando app carrega com sucesso
+          // Limpar contador quando app carrega
           try {
             sessionStorage.removeItem('builderReloadAttempts');
           } catch (e) {
             // Ignore
           }
         } else {
-          console.log('⚠️ LegalFlow app may not have loaded properly');
+          console.log('⚠️ LegalFlow app may still be loading...');
         }
-      }, 5000);
+      }, 6000);
       
-      console.log('🚀 LegalFlow - Loading real application...');
+      console.log('🚀 LegalFlow - Initializing full application...');
     </script>
   </body>
 </html>
