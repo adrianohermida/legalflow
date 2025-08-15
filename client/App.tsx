@@ -25,7 +25,7 @@ import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
 import { runEnumConsistencyCheck } from "./lib/enum-validator";
 import BuilderDebugger from "./components/BuilderDebugger";
-import EmergencyDebug from "./components/EmergencyDebug";
+
 // Import Builder.io fix to ensure all components are available
 import "./lib/builder-fix";
 
@@ -1130,6 +1130,7 @@ export default function App() {
     const rootElement = document.getElementById('root');
     if (rootElement) {
       rootElement.setAttribute('data-react-loaded', 'true');
+      rootElement.setAttribute('data-app-status', 'loaded');
     }
 
     // Builder.io debug logging
@@ -1219,33 +1220,22 @@ export default function App() {
   );
 }
 
-// EMERGENCY DEBUG MODE - Temporarily replace App with debug component
-import EmergencyDebug from "./components/EmergencyDebug";
-
+// Initialize React app properly
 const container = document.getElementById("root");
 if (container) {
-  // Check if we're seeing the "MyComponent" issue
-  const bodyText = document.body.textContent || '';
-  const hasCodeRendering = bodyText.includes('export default function') || bodyText.includes('MyComponent');
-
-  console.log('🔍 Emergency check - Code rendering detected:', hasCodeRendering);
-
+  console.log('🚀 Initializing LegalFlow React App...');
+  
   if (!(container as any)._reactRoot) {
     const root = createRoot(container);
     (container as any)._reactRoot = root;
 
-    // Render debug component instead of main app
+    // Render the main app with error boundary
     root.render(
       <AppErrorBoundary>
-        {hasCodeRendering ? <EmergencyDebug /> : <App />}
-      </AppErrorBoundary>,
+        <App />
+      </AppErrorBoundary>
     );
-  } else {
-    // Re-render on existing root
-    (container as any)._reactRoot.render(
-      <AppErrorBoundary>
-        {hasCodeRendering ? <EmergencyDebug /> : <App />}
-      </AppErrorBoundary>,
-    );
+    
+    console.log('✅ LegalFlow React App initialized successfully');
   }
 }
