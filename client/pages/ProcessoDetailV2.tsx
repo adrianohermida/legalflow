@@ -567,15 +567,37 @@ export default function ProcessoDetailV2() {
                   </Button>
 
                   {processo && (
-                    <div className="text-neutral-600">
-                      <span className="font-medium">
-                        {processo.titulo_polo_ativo}
-                      </span>
-                      {processo.titulo_polo_passivo && (
-                        <span> × {processo.titulo_polo_passivo}</span>
-                      )}
-                    </div>
-                  )}
+              <div className="space-y-1">
+                <div className="text-neutral-600">
+                  <span className="font-medium">
+                    {(() => {
+                      const poloAtivo = processo.titulo_polo_ativo;
+                      const poloPassivo = processo.titulo_polo_passivo;
+
+                      // Lógica para "e outros"
+                      const formatPolo = (polo: string) => {
+                        if (!polo) return '';
+                        if (polo.includes(',') || polo.includes(' e ')) {
+                          const primeiraParte = polo.split(/[,e]/)[0].trim();
+                          return `${primeiraParte} e outros`;
+                        }
+                        return polo;
+                      };
+
+                      const poloAtivoFormatted = formatPolo(poloAtivo);
+                      const poloPassivoFormatted = formatPolo(poloPassivo);
+
+                      return poloPassivoFormatted
+                        ? `${poloAtivoFormatted} × ${poloPassivoFormatted}`
+                        : poloAtivoFormatted;
+                    })()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ProcessoTags numeroCnj={numero_cnj} size="sm" maxVisible={3} />
+                </div>
+              </div>
+            )}
                 </div>
 
                 {/* Status do monitoramento */}
