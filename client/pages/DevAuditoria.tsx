@@ -140,6 +140,7 @@ const DevAuditoria: React.FC = () => {
     | "sf6"
     | "sf2"
     | "sf7"
+    | "diagnostics"
   >("audit");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -511,7 +512,7 @@ const DevAuditoria: React.FC = () => {
         if (suggestions.length > 0) {
           setShowSuggestions(true);
           console.log(
-            `💡 ${suggestions.length} sugestões de melhoria identificadas`,
+            `���� ${suggestions.length} sugestões de melhoria identificadas`,
           );
 
           // Criar automaticamente itens críticos
@@ -1133,7 +1134,7 @@ const DevAuditoria: React.FC = () => {
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as typeof activeTab)}
       >
-        <TabsList className="grid w-full grid-cols-10">
+        <TabsList className="grid w-full grid-cols-11">
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
             Painel de Auditoria
@@ -1173,6 +1174,10 @@ const DevAuditoria: React.FC = () => {
           <TabsTrigger value="sf7" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Agenda
+          </TabsTrigger>
+          <TabsTrigger value="diagnostics" className="flex items-center gap-2">
+            <Search className="w-4 h-4" />
+            Diagnóstico
           </TabsTrigger>
         </TabsList>
 
