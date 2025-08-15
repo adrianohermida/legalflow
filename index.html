@@ -3,11 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello world project</title>
+    <title>LegalFlow - Software Jurídico Inteligente</title>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+        <h1>🔄 Carregando LegalFlow...</h1>
+        <p>Se esta mensagem persistir, <a href="/basic">clique aqui</a></p>
+      </div>
+    </div>
+
+    <script>
+      // Redirect to basic working page after a delay
+      setTimeout(() => {
+        if (document.getElementById('root').innerHTML.includes('Carregando')) {
+          window.location.href = '/basic';
+        }
+      }, 3000);
+    </script>
 
     <script type="module" src="/client/SimpleApp.tsx"></script>
   </body>
