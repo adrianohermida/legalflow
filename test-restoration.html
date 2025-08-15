@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔄 LegalFlow - Teste de Restauração</title>
+    <style>
+        body { 
+            font-family: system-ui; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white; 
+            padding: 20px; 
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .test-result {
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            border-left: 5px solid;
+        }
+        .success { 
+            background: rgba(34, 197, 94, 0.15); 
+            color: #22c55e; 
+            border-left-color: #22c55e;
+        }
+        .error { 
+            background: rgba(239, 68, 68, 0.15); 
+            color: #ef4444; 
+            border-left-color: #ef4444;
+        }
+        .warning { 
+            background: rgba(245, 158, 11, 0.15); 
+            color: #f59e0b; 
+            border-left-color: #f59e0b;
+        }
+        h1 { 
+            color: #22c55e; 
+            margin-bottom: 30px; 
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 900;
+        }
+        h2 { 
+            margin: 35px 0 20px 0; 
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        button {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 12px 10px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        button:hover { 
+            transform: translateY(-2px); 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Teste de Restauração LegalFlow</h1>
+        
+        <h2>📋 Status da Restauração</h2>
+        <div id="restoration-status"></div>
+        
+        <h2>🧪 Testes de Carregamento</h2>
+        <div id="loading-tests"></div>
+        
+        <h2>🎯 Resultado Final</h2>
+        <div id="final-status"></div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <button onclick="runRestorationTest()" id="testBtn">🚀 Testar Restauração</button>
+            <button onclick="window.location.href='/'">🏠 Ir para LegalFlow</button>
+            <button onclick="window.location.reload()">🔄 Repetir Teste</button>
+        </div>
+    </div>
+
+    <script>
+        function addResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+        }
+        
+        async function runRestorationTest() {
+            const testBtn = document.getElementById('testBtn');
+            testBtn.disabled = true;
+            testBtn.textContent = '🔄 Testando...';
+            
+            // Clear previous results
+            ['restoration-status', 'loading-tests', 'final-status'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+            
+            console.log('🔄 Iniciando teste de restauração...');
+            
+            // Test 1: Check if we're still seeing the loading message
+            const bodyText = document.body.textContent || '';
+            if (bodyText.includes('Inicializando no Builder.io') || bodyText.includes('Carregando aplicação')) {
+                addResult('restoration-status', 
+                    '⚠️ <strong>ESTADO DE CARREGAMENTO:</strong> Sistema ainda mostra tela de carregamento', 
+                    'warning');
+            } else {
+                addResult('restoration-status', 
+                    '✅ <strong>ESTADO DE CARREGAMENTO:</strong> Tela de carregamento não detectada', 
+                    'success');
+            }
+            
+            // Test 2: Check if problematic MyComponent code is visible
+            const problematicCode = [
+                'export default function MyComponent(props) { return <></>;',
+                'export default function MyComponent',
+                'function MyComponent(props)'
+            ];
+            
+            let hasProblematicCode = false;
+            for (const code of problematicCode) {
+                if (bodyText.includes(code)) {
+                    hasProblematicCode = true;
+                    break;
+                }
+            }
+            
+            if (hasProblematicCode) {
+                addResult('restoration-status', 
+                    '❌ <strong>PROBLEMA CRÍTICO:</strong> Código MyComponent ainda aparece como texto!', 
+                    'error');
+            } else {
+                addResult('restoration-status', 
+                    '✅ <strong>PROBLEMA CORRIGIDO:</strong> Código MyComponent não aparece como texto', 
+                    'success');
+            }
+            
+            // Test 3: Check if main page loads
+            try {
+                const response = await fetch('/');
+                const pageContent = await response.text();
+                
+                if (response.ok) {
+                    addResult('loading-tests', '✅ Página principal carrega corretamente', 'success');
+                    
+                    // Check if the page contains React app elements
+                    if (pageContent.includes('/client/App.tsx')) {
+                        addResult('loading-tests', '✅ Script do React App detectado', 'success');
+                    } else {
+                        addResult('loading-tests', '⚠️ Script do React App não detectado', 'warning');
+                    }
+                    
+                    // Check if loading fallback is present
+                    if (pageContent.includes('Carregando aplicação')) {
+                        addResult('loading-tests', '✅ Fallback de carregamento presente', 'success');
+                    } else {
+                        addResult('loading-tests', '⚠️ Fallback de carregamento ausente', 'warning');
+                    }
+                    
+                } else {
+                    addResult('loading-tests', 
+                        `❌ Erro ao carregar página principal: ${response.status}`, 
+                        'error');
+                }
+            } catch (e) {
+                addResult('loading-tests', 
+                    `❌ Erro de conectividade: ${e.message}`, 
+                    'error');
+            }
+            
+            // Test 4: Check for React initialization
+            setTimeout(() => {
+                const rootElement = document.getElementById('root');
+                const hasReactLoaded = rootElement?.getAttribute('data-react-loaded') === 'true';
+                const hasAppStatus = rootElement?.getAttribute('data-app-status');
+                
+                if (hasReactLoaded) {
+                    addResult('loading-tests', '✅ React marcado como carregado', 'success');
+                } else {
+                    addResult('loading-tests', '⚠️ React não marcado como carregado', 'warning');
+                }
+                
+                if (hasAppStatus) {
+                    addResult('loading-tests', `✅ Status da aplicação: ${hasAppStatus}`, 'success');
+                } else {
+                    addResult('loading-tests', '⚠️ Status da aplicação não definido', 'warning');
+                }
+                
+                // Final assessment
+                const hasIssues = hasProblematicCode;
+                const isLoading = bodyText.includes('Inicializando no Builder.io') || 
+                                 bodyText.includes('Carregando aplicação');
+                
+                let finalMessage = '';
+                let finalType = '';
+                
+                if (!hasIssues && !isLoading) {
+                    finalMessage = `
+                        🎉 <strong>RESTAURAÇÃO COMPLETA!</strong><br><br>
+                        ✅ Problema MyComponent: Resolvido<br>
+                        ✅ Carregamento: Funcionando<br>
+                        ✅ Sistema: Operacional<br><br>
+                        <strong>O projeto LegalFlow foi restaurado com sucesso!</strong>
+                    `;
+                    finalType = 'success';
+                } else if (hasIssues) {
+                    finalMessage = `
+                        ❌ <strong>RESTAURAÇÃO INCOMPLETA</strong><br><br>
+                        ❌ Problema MyComponent: Ainda existe<br>
+                        ⚠️ Carregamento: ${isLoading ? 'Pendente' : 'OK'}<br>
+                        ❌ Sistema: Necessita correção<br><br>
+                        <strong>Problema crítico ainda não foi resolvido.</strong>
+                    `;
+                    finalType = 'error';
+                } else if (isLoading) {
+                    finalMessage = `
+                        ⚠️ <strong>RESTAURAÇÃO PARCIAL</strong><br><br>
+                        ✅ Problema MyComponent: Resolvido<br>
+                        ⚠️ Carregamento: Sistema em inicialização<br>
+                        ⚠️ Sistema: Aguardando carregamento completo<br><br>
+                        <strong>Sistema em processo de inicialização.</strong>
+                    `;
+                    finalType = 'warning';
+                } else {
+                    finalMessage = `
+                        ✅ <strong>RESTAURAÇÃO BEM-SUCEDIDA!</strong><br><br>
+                        ✅ Problema MyComponent: Resolvido<br>
+                        ✅ Carregamento: Normal<br>
+                        ✅ Sistema: Funcionando<br><br>
+                        <strong>LegalFlow restaurado e operacional!</strong>
+                    `;
+                    finalType = 'success';
+                }
+                
+                addResult('final-status', finalMessage, finalType);
+                
+                testBtn.disabled = false;
+                testBtn.textContent = '✅ Teste Concluído';
+                
+                console.log('🏁 Teste de restauração concluído!');
+            }, 2000);
+        }
+        
+        // Auto-run test after 3 seconds
+        setTimeout(() => {
+            console.log('🔄 Executando teste automático de restauração...');
+            runRestorationTest();
+        }, 3000);
+        
+        console.log('🔄 Sistema de teste de restauração iniciado');
+    </script>
+</body>
+</html>
