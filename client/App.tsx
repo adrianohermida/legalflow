@@ -792,6 +792,22 @@ function RegularAppRoutes() {
         }
       />
       <Route
+        path="/documentos"
+        element={
+          <ProtectedRoute userType="advogado">
+            <Documentos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/documentos-c6"
+        element={
+          <ProtectedRoute userType="advogado">
+            <DocumentosC6 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/servicos"
         element={
           <ProtectedRoute userType="advogado">
