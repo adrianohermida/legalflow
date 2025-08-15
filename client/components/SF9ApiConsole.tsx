@@ -17,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "./ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -54,7 +49,7 @@ import {
   Download,
   RefreshCw,
   Code,
-  Terminal
+  Terminal,
 } from "lucide-react";
 
 interface ApiProvider {
@@ -112,10 +107,14 @@ export const SF9ApiConsole: React.FC = () => {
   const [endpoints, setEndpoints] = useState<ApiEndpoint[]>([]);
   const [callLogs, setCallLogs] = useState<ApiCallLog[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
-  const [selectedEndpoint, setSelectedEndpoint] = useState<ApiEndpoint | null>(null);
+  const [selectedEndpoint, setSelectedEndpoint] = useState<ApiEndpoint | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<"providers" | "endpoints" | "logs" | "testing">("providers");
+  const [activeTab, setActiveTab] = useState<
+    "providers" | "endpoints" | "logs" | "testing"
+  >("providers");
   const [showApiTester, setShowApiTester] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [executing, setExecuting] = useState(false);
@@ -140,16 +139,19 @@ export const SF9ApiConsole: React.FC = () => {
 
   const loadProviders = async () => {
     try {
-      const { data, error } = await supabase.rpc("legalflow.list_api_providers");
-      
+      const { data, error } = await supabase.rpc(
+        "legalflow.list_api_providers",
+      );
+
       if (error) throw error;
-      
+
       setProviders(data || []);
     } catch (error) {
       console.error("Error loading providers:", error);
       toast({
         title: "Erro ao carregar provedores",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     }
@@ -157,18 +159,22 @@ export const SF9ApiConsole: React.FC = () => {
 
   const loadEndpoints = async (providerId?: string) => {
     try {
-      const { data, error } = await supabase.rpc("legalflow.list_api_endpoints", {
-        p_provider_id: providerId || null,
-      });
-      
+      const { data, error } = await supabase.rpc(
+        "legalflow.list_api_endpoints",
+        {
+          p_provider_id: providerId || null,
+        },
+      );
+
       if (error) throw error;
-      
+
       setEndpoints(data || []);
     } catch (error) {
       console.error("Error loading endpoints:", error);
       toast({
         title: "Erro ao carregar endpoints",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     }
@@ -177,19 +183,23 @@ export const SF9ApiConsole: React.FC = () => {
   const loadLogs = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc("legalflow.list_api_call_logs", {
-        p_hours_back: 24,
-        p_limit: 50,
-      });
-      
+      const { data, error } = await supabase.rpc(
+        "legalflow.list_api_call_logs",
+        {
+          p_hours_back: 24,
+          p_limit: 50,
+        },
+      );
+
       if (error) throw error;
-      
+
       setCallLogs(data || []);
     } catch (error) {
       console.error("Error loading call logs:", error);
       toast({
         title: "Erro ao carregar logs",
-        description: error instanceof Error ? error.message : "Erro desconhecido", 
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -200,7 +210,7 @@ export const SF9ApiConsole: React.FC = () => {
   const prepareApiCall = async (endpoint: ApiEndpoint, parameters: any) => {
     try {
       setPreparing(true);
-      
+
       const { data, error } = await supabase.rpc("legalflow.api_prepare", {
         p_endpoint_id: endpoint.id,
         p_parameters: parameters,
@@ -210,26 +220,28 @@ export const SF9ApiConsole: React.FC = () => {
           user_id: (await supabase.auth.getUser()).data.user?.id,
         },
       });
-      
+
       if (error) throw error;
-      
+
       if (!data.success) {
         throw new Error(data.error);
       }
-      
+
       setPreparedRequest(data.prepared_request);
-      
+
       toast({
         title: "Requisição preparada",
-        description: "Requisição preparada com sucesso. Clique em 'Executar' para enviar.",
+        description:
+          "Requisição preparada com sucesso. Clique em 'Executar' para enviar.",
       });
-      
+
       return data.prepared_request;
     } catch (error) {
       console.error("Error preparing API call:", error);
       toast({
         title: "Erro ao preparar requisição",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
       return null;
@@ -241,32 +253,35 @@ export const SF9ApiConsole: React.FC = () => {
   const executeApiCall = async (preparedRequest: any) => {
     try {
       setExecuting(true);
-      
+
       const { data, error } = await supabase.rpc("legalflow.api_execute", {
         p_prepared_request: preparedRequest,
       });
-      
+
       if (error) throw error;
-      
+
       setExecutionResult(data);
-      
+
       // Recarregar logs para mostrar a nova entrada
       await loadLogs();
-      
+
       toast({
-        title: data.success ? "Requisição executada com sucesso" : "Erro na execução",
-        description: data.success 
+        title: data.success
+          ? "Requisição executada com sucesso"
+          : "Erro na execução",
+        description: data.success
           ? `Resposta recebida em ${data.response_time_ms}ms`
           : `Erro ${data.status_code}: ${data.response?.error || "Erro desconhecido"}`,
         variant: data.success ? "default" : "destructive",
       });
-      
+
       return data;
     } catch (error) {
       console.error("Error executing API call:", error);
       toast({
         title: "Erro ao executar requisição",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
       return null;
@@ -288,15 +303,12 @@ export const SF9ApiConsole: React.FC = () => {
         });
 
         // Recarregar dados
-        await Promise.all([
-          loadProviders(),
-          loadEndpoints(),
-          loadLogs(),
-        ]);
+        await Promise.all([loadProviders(), loadEndpoints(), loadLogs()]);
       } else {
         toast({
           title: "Erro no seed",
-          description: result.message || "Falha ao executar seed da API Library",
+          description:
+            result.message || "Falha ao executar seed da API Library",
           variant: "destructive",
         });
       }
@@ -304,7 +316,8 @@ export const SF9ApiConsole: React.FC = () => {
       console.error("Error seeding API library:", error);
       toast({
         title: "Erro no seed",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -340,14 +353,16 @@ export const SF9ApiConsole: React.FC = () => {
     }
   };
 
-  const filteredProviders = providers.filter(provider =>
-    provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    provider.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProviders = providers.filter(
+    (provider) =>
+      provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.description.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const filteredEndpoints = endpoints.filter(endpoint =>
-    endpoint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    endpoint.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEndpoints = endpoints.filter(
+    (endpoint) =>
+      endpoint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      endpoint.description.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -360,16 +375,13 @@ export const SF9ApiConsole: React.FC = () => {
             API Library Console
           </h1>
           <p className="text-neutral-600 mt-1">
-            Chamar APIs sem hardcode e auditar respostas - Providers/Endpoints/Logs
+            Chamar APIs sem hardcode e auditar respostas -
+            Providers/Endpoints/Logs
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={seedApiLibrary}
-            disabled={seeding}
-          >
-            <Zap className={`w-4 h-4 mr-2 ${seeding ? 'animate-spin' : ''}`} />
+          <Button variant="outline" onClick={seedApiLibrary} disabled={seeding}>
+            <Zap className={`w-4 h-4 mr-2 ${seeding ? "animate-spin" : ""}`} />
             {seeding ? "Seeding..." : "Seed/Autofix"}
           </Button>
           <Button
@@ -377,7 +389,9 @@ export const SF9ApiConsole: React.FC = () => {
             onClick={() => loadProviders()}
             disabled={loading}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
             Atualizar
           </Button>
           <Button
@@ -434,9 +448,15 @@ export const SF9ApiConsole: React.FC = () => {
               <CheckCircle className="w-8 h-8 text-green-600" />
               <div>
                 <div className="text-2xl font-bold">
-                  {callLogs.length > 0 
-                    ? Math.round((callLogs.filter(log => log.status === 'success').length / callLogs.length) * 100)
-                    : 0}%
+                  {callLogs.length > 0
+                    ? Math.round(
+                        (callLogs.filter((log) => log.status === "success")
+                          .length /
+                          callLogs.length) *
+                          100,
+                      )
+                    : 0}
+                  %
                 </div>
                 <div className="text-sm text-neutral-600">Taxa de Sucesso</div>
               </div>
@@ -458,7 +478,12 @@ export const SF9ApiConsole: React.FC = () => {
             />
           </div>
         </div>
-        <Select value={selectedProvider || "all"} onValueChange={(value) => setSelectedProvider(value === "all" ? null : value)}>
+        <Select
+          value={selectedProvider || "all"}
+          onValueChange={(value) =>
+            setSelectedProvider(value === "all" ? null : value)
+          }
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filtrar por provedor" />
           </SelectTrigger>
@@ -474,7 +499,10 @@ export const SF9ApiConsole: React.FC = () => {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+      >
         <TabsList>
           <TabsTrigger value="providers" className="flex items-center gap-2">
             <Server className="w-4 h-4" />
@@ -498,31 +526,49 @@ export const SF9ApiConsole: React.FC = () => {
         <TabsContent value="providers" className="space-y-4">
           <div className="grid gap-4">
             {filteredProviders.map((provider) => (
-              <Card 
+              <Card
                 key={provider.id}
                 className={`transition-all cursor-pointer hover:shadow-md ${
-                  selectedProvider === provider.id ? 'ring-2 ring-blue-500' : ''
+                  selectedProvider === provider.id ? "ring-2 ring-blue-500" : ""
                 }`}
-                onClick={() => setSelectedProvider(
-                  selectedProvider === provider.id ? null : provider.id
-                )}
+                onClick={() =>
+                  setSelectedProvider(
+                    selectedProvider === provider.id ? null : provider.id,
+                  )
+                }
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${provider.is_active ? 'bg-green-100' : 'bg-gray-100'}`}>
-                        <Server className={`w-5 h-5 ${provider.is_active ? 'text-green-600' : 'text-gray-600'}`} />
+                      <div
+                        className={`p-2 rounded-lg ${provider.is_active ? "bg-green-100" : "bg-gray-100"}`}
+                      >
+                        <Server
+                          className={`w-5 h-5 ${provider.is_active ? "text-green-600" : "text-gray-600"}`}
+                        />
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{provider.name}</CardTitle>
-                        <CardDescription>{provider.description}</CardDescription>
+                        <CardTitle className="text-lg">
+                          {provider.name}
+                        </CardTitle>
+                        <CardDescription>
+                          {provider.description}
+                        </CardDescription>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline">{provider.auth_type}</Badge>
-                          <Badge variant={provider.is_active ? "default" : "secondary"}>
+                          <Badge
+                            variant={
+                              provider.is_active ? "default" : "secondary"
+                            }
+                          >
                             {provider.is_active ? "Ativo" : "Inativo"}
                           </Badge>
                           {provider.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {tag}
                             </Badge>
                           ))}
@@ -547,8 +593,16 @@ export const SF9ApiConsole: React.FC = () => {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="flex items-center gap-4 text-sm text-neutral-600">
-                    <span>Base URL: <code className="bg-gray-100 px-2 py-1 rounded">{provider.base_url}</code></span>
-                    <span>Criado: {new Date(provider.created_at).toLocaleDateString()}</span>
+                    <span>
+                      Base URL:{" "}
+                      <code className="bg-gray-100 px-2 py-1 rounded">
+                        {provider.base_url}
+                      </code>
+                    </span>
+                    <span>
+                      Criado:{" "}
+                      {new Date(provider.created_at).toLocaleDateString()}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -560,7 +614,10 @@ export const SF9ApiConsole: React.FC = () => {
         <TabsContent value="endpoints" className="space-y-4">
           <div className="grid gap-4">
             {filteredEndpoints.map((endpoint) => (
-              <Card key={endpoint.id} className="transition-all hover:shadow-md">
+              <Card
+                key={endpoint.id}
+                className="transition-all hover:shadow-md"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -592,7 +649,9 @@ export const SF9ApiConsole: React.FC = () => {
                     <CardDescription>{endpoint.description}</CardDescription>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="outline">{endpoint.provider_name}</Badge>
-                      <Badge variant={endpoint.is_active ? "default" : "secondary"}>
+                      <Badge
+                        variant={endpoint.is_active ? "default" : "secondary"}
+                      >
                         {endpoint.is_active ? "Ativo" : "Inativo"}
                       </Badge>
                       {endpoint.cost_per_call > 0 && (
@@ -612,15 +671,21 @@ export const SF9ApiConsole: React.FC = () => {
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
                       <div className="text-neutral-600">Chamadas (24h)</div>
-                      <div className="font-medium">{endpoint.recent_calls_count}</div>
+                      <div className="font-medium">
+                        {endpoint.recent_calls_count}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Tempo médio</div>
-                      <div className="font-medium">{endpoint.avg_response_time.toFixed(0)}ms</div>
+                      <div className="font-medium">
+                        {endpoint.avg_response_time.toFixed(0)}ms
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Taxa de sucesso</div>
-                      <div className="font-medium">{endpoint.success_rate.toFixed(1)}%</div>
+                      <div className="font-medium">
+                        {endpoint.success_rate.toFixed(1)}%
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -670,8 +735,12 @@ export const SF9ApiConsole: React.FC = () => {
                           <Badge className={getMethodColor(log.method)}>
                             {log.method}
                           </Badge>
-                          <Badge 
-                            variant={log.status === 'success' ? 'default' : 'destructive'}
+                          <Badge
+                            variant={
+                              log.status === "success"
+                                ? "default"
+                                : "destructive"
+                            }
                           >
                             {log.status_code}
                           </Badge>
@@ -752,7 +821,9 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
   preparedRequest,
   executionResult,
 }) => {
-  const [currentEndpoint, setCurrentEndpoint] = useState<ApiEndpoint | null>(selectedEndpoint || null);
+  const [currentEndpoint, setCurrentEndpoint] = useState<ApiEndpoint | null>(
+    selectedEndpoint || null,
+  );
   const [parameters, setParameters] = useState<string>("{}");
   const [step, setStep] = useState<"prepare" | "fetch" | "ingest">("prepare");
 
@@ -764,7 +835,7 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
 
   const handlePrepare = async () => {
     if (!currentEndpoint) return;
-    
+
     try {
       const parsedParams = JSON.parse(parameters);
       await onPrepare(currentEndpoint, parsedParams);
@@ -776,7 +847,7 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
 
   const handleExecute = async () => {
     if (!preparedRequest) return;
-    
+
     await onExecute(preparedRequest);
     setStep("ingest");
   };
@@ -785,23 +856,35 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
     <div className="space-y-6">
       {/* Workflow Steps */}
       <div className="flex items-center justify-center space-x-4">
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "prepare" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "prepare"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <Settings className="w-4 h-4" />
           Prepare
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "fetch" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "fetch"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <Play className="w-4 h-4" />
           Fetch
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "ingest" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "ingest"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <Database className="w-4 h-4" />
           Ingest
         </div>
@@ -817,7 +900,7 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
             value={currentEndpoint?.id || "none"}
             onValueChange={(value) => {
               if (value === "none") return;
-              const endpoint = endpoints.find(e => e.id === value);
+              const endpoint = endpoints.find((e) => e.id === value);
               setCurrentEndpoint(endpoint || null);
               setStep("prepare");
             }}
@@ -838,12 +921,14 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
               ))}
             </SelectContent>
           </Select>
-          
+
           {currentEndpoint && (
             <div className="mt-3 p-3 bg-gray-50 rounded-lg">
               <div className="text-sm">
                 <div className="font-medium">{currentEndpoint.name}</div>
-                <div className="text-gray-600">{currentEndpoint.description}</div>
+                <div className="text-gray-600">
+                  {currentEndpoint.description}
+                </div>
                 <div className="mt-1">
                   <code className="text-xs bg-white px-2 py-1 rounded">
                     {currentEndpoint.method} {currentEndpoint.path}
@@ -872,8 +957,8 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
                 className="w-full mt-1 p-3 border rounded-lg font-mono text-sm h-32"
               />
             </div>
-            
-            <Button 
+
+            <Button
               onClick={handlePrepare}
               disabled={!currentEndpoint || preparing}
               className="w-full"
@@ -901,8 +986,8 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
                 {JSON.stringify(preparedRequest, null, 2)}
               </pre>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={handleExecute}
               disabled={!preparedRequest || executing}
               className="w-full"
@@ -925,7 +1010,13 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
             <CardTitle>4. Resultado da Execução</CardTitle>
           </CardHeader>
           <CardContent>
-            <Alert className={executionResult.success ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
+            <Alert
+              className={
+                executionResult.success
+                  ? "border-green-200 bg-green-50"
+                  : "border-red-200 bg-red-50"
+              }
+            >
               <AlertDescription>
                 <div className="flex items-center gap-2 mb-2">
                   {executionResult.success ? (
@@ -934,8 +1025,8 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
                     <XCircle className="w-4 h-4 text-red-600" />
                   )}
                   <span className="font-medium">
-                    {executionResult.success ? "Sucesso" : "Erro"} - 
-                    Status {executionResult.status_code} - 
+                    {executionResult.success ? "Sucesso" : "Erro"} - Status{" "}
+                    {executionResult.status_code} -
                     {executionResult.response_time_ms}ms
                   </span>
                 </div>
@@ -944,7 +1035,7 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
                 </div>
               </AlertDescription>
             </Alert>
-            
+
             <div className="mt-4 bg-gray-50 p-3 rounded-lg">
               <div className="text-sm font-medium mb-2">Resposta:</div>
               <pre className="text-xs overflow-x-auto">

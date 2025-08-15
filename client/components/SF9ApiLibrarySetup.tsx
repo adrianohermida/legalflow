@@ -89,17 +89,31 @@ export const SF9ApiLibrarySetup: React.FC = () => {
         .from("information_schema.tables")
         .select("table_name")
         .eq("table_schema", "legalflow")
-        .in("table_name", ["api_providers", "api_endpoints", "api_call_logs", "api_templates"]);
+        .in("table_name", [
+          "api_providers",
+          "api_endpoints",
+          "api_call_logs",
+          "api_templates",
+        ]);
 
-      const expectedTables = ["api_providers", "api_endpoints", "api_call_logs", "api_templates"];
-      const foundTables = tables?.map(t => t.table_name) || [];
-      const missingTables = expectedTables.filter(t => !foundTables.includes(t));
+      const expectedTables = [
+        "api_providers",
+        "api_endpoints",
+        "api_call_logs",
+        "api_templates",
+      ];
+      const foundTables = tables?.map((t) => t.table_name) || [];
+      const missingTables = expectedTables.filter(
+        (t) => !foundTables.includes(t),
+      );
 
       diagnostics[0].status = missingTables.length === 0 ? "success" : "error";
-      diagnostics[0].details = missingTables.length === 0 
-        ? "Todas as tabelas encontradas" 
-        : `Tabelas faltando: ${missingTables.join(", ")}`;
-      diagnostics[0].action = missingTables.length > 0 ? "install_schema" : undefined;
+      diagnostics[0].details =
+        missingTables.length === 0
+          ? "Todas as tabelas encontradas"
+          : `Tabelas faltando: ${missingTables.join(", ")}`;
+      diagnostics[0].action =
+        missingTables.length > 0 ? "install_schema" : undefined;
     } catch (error) {
       diagnostics[0].status = "error";
       diagnostics[0].details = `Erro ao verificar schema: ${error instanceof Error ? error.message : "Erro desconhecido"}`;
@@ -107,18 +121,21 @@ export const SF9ApiLibrarySetup: React.FC = () => {
 
     // Check providers
     try {
-      const { data: providers, error: providersError } = await supabase
-        .rpc("legalflow.list_api_providers");
+      const { data: providers, error: providersError } = await supabase.rpc(
+        "legalflow.list_api_providers",
+      );
 
       if (providersError) {
         diagnostics[1].status = "error";
         diagnostics[1].details = `Erro ao listar provedores: ${providersError.message}`;
       } else {
-        diagnostics[1].status = providers && providers.length > 0 ? "success" : "warning";
-        diagnostics[1].details = providers 
+        diagnostics[1].status =
+          providers && providers.length > 0 ? "success" : "warning";
+        diagnostics[1].details = providers
           ? `${providers.length} provedores encontrados`
           : "Nenhum provedor encontrado";
-        diagnostics[1].action = (!providers || providers.length === 0) ? "seed_data" : undefined;
+        diagnostics[1].action =
+          !providers || providers.length === 0 ? "seed_data" : undefined;
       }
     } catch (error) {
       diagnostics[1].status = "error";
@@ -127,18 +144,21 @@ export const SF9ApiLibrarySetup: React.FC = () => {
 
     // Check endpoints
     try {
-      const { data: endpoints, error: endpointsError } = await supabase
-        .rpc("legalflow.list_api_endpoints");
+      const { data: endpoints, error: endpointsError } = await supabase.rpc(
+        "legalflow.list_api_endpoints",
+      );
 
       if (endpointsError) {
         diagnostics[2].status = "error";
         diagnostics[2].details = `Erro ao listar endpoints: ${endpointsError.message}`;
       } else {
-        diagnostics[2].status = endpoints && endpoints.length > 0 ? "success" : "warning";
-        diagnostics[2].details = endpoints 
+        diagnostics[2].status =
+          endpoints && endpoints.length > 0 ? "success" : "warning";
+        diagnostics[2].details = endpoints
           ? `${endpoints.length} endpoints encontrados`
           : "Nenhum endpoint encontrado";
-        diagnostics[2].action = (!endpoints || endpoints.length === 0) ? "seed_data" : undefined;
+        diagnostics[2].action =
+          !endpoints || endpoints.length === 0 ? "seed_data" : undefined;
       }
     } catch (error) {
       diagnostics[2].status = "error";
@@ -147,20 +167,26 @@ export const SF9ApiLibrarySetup: React.FC = () => {
 
     // Check RPC functions
     try {
-      const { data: testPrepare, error: prepareError } = await supabase
-        .rpc("legalflow.api_prepare", {
+      const { data: testPrepare, error: prepareError } = await supabase.rpc(
+        "legalflow.api_prepare",
+        {
           p_endpoint_id: "00000000-0000-0000-0000-000000000000",
           p_parameters: {},
-          p_context: { test: true }
-        });
+          p_context: { test: true },
+        },
+      );
 
       // We expect this to fail with "Endpoint not found", which means the function exists
-      diagnostics[3].status = prepareError?.message?.includes("Endpoint not found") || prepareError?.message?.includes("not found") 
-        ? "success" 
-        : "error";
-      diagnostics[3].details = prepareError?.message?.includes("Endpoint not found") || prepareError?.message?.includes("not found")
-        ? "Funções RPC funcionando corretamente"
-        : `Erro nas funções RPC: ${prepareError?.message || "Função não encontrada"}`;
+      diagnostics[3].status =
+        prepareError?.message?.includes("Endpoint not found") ||
+        prepareError?.message?.includes("not found")
+          ? "success"
+          : "error";
+      diagnostics[3].details =
+        prepareError?.message?.includes("Endpoint not found") ||
+        prepareError?.message?.includes("not found")
+          ? "Funções RPC funcionando corretamente"
+          : `Erro nas funções RPC: ${prepareError?.message || "Função não encontrada"}`;
     } catch (error) {
       diagnostics[3].status = "error";
       diagnostics[3].details = `Erro ao testar funções RPC: ${error instanceof Error ? error.message : "Erro desconhecido"}`;
@@ -174,8 +200,9 @@ export const SF9ApiLibrarySetup: React.FC = () => {
         .eq("schemaname", "legalflow")
         .like("tablename", "api_%");
 
-      diagnostics[4].status = policies && policies.length > 0 ? "success" : "warning";
-      diagnostics[4].details = policies 
+      diagnostics[4].status =
+        policies && policies.length > 0 ? "success" : "warning";
+      diagnostics[4].details = policies
         ? `${policies.length} políticas RLS encontradas`
         : "Políticas RLS não encontradas";
     } catch (error) {
@@ -190,15 +217,15 @@ export const SF9ApiLibrarySetup: React.FC = () => {
   const runSeed = async () => {
     try {
       setSeeding(true);
-      
+
       const result = await implAutofix("API_SEED");
-      
+
       if (result.success) {
         toast({
           title: "Seed executado com sucesso",
           description: result.message,
         });
-        
+
         // Re-run diagnostics
         await runDiagnostics();
       } else {
@@ -212,7 +239,8 @@ export const SF9ApiLibrarySetup: React.FC = () => {
       console.error("Error seeding:", error);
       toast({
         title: "Erro no seed",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -223,29 +251,35 @@ export const SF9ApiLibrarySetup: React.FC = () => {
   const runTest = async () => {
     try {
       setRunning(true);
-      
+
       // Try to test an existing endpoint if available
-      const { data: endpoints } = await supabase.rpc("legalflow.list_api_endpoints", { p_limit: 1 });
-      
+      const { data: endpoints } = await supabase.rpc(
+        "legalflow.list_api_endpoints",
+        { p_limit: 1 },
+      );
+
       if (endpoints && endpoints.length > 0) {
         const testEndpoint = endpoints[0];
-        
+
         // Prepare a test call
         const { data: prepared } = await supabase.rpc("legalflow.api_prepare", {
           p_endpoint_id: testEndpoint.id,
           p_parameters: {},
-          p_context: { test: true, description: "Teste automático do SF9" }
+          p_context: { test: true, description: "Teste automático do SF9" },
         });
-        
+
         if (prepared?.success) {
           // Execute the test call
-          const { data: executed } = await supabase.rpc("legalflow.api_execute", {
-            p_prepared_request: prepared.prepared_request
-          });
-          
+          const { data: executed } = await supabase.rpc(
+            "legalflow.api_execute",
+            {
+              p_prepared_request: prepared.prepared_request,
+            },
+          );
+
           toast({
             title: "Teste executado",
-            description: executed?.success 
+            description: executed?.success
               ? `Teste bem-sucedido em ${executed.response_time_ms}ms`
               : `Teste com falha: status ${executed?.status_code}`,
             variant: executed?.success ? "default" : "destructive",
@@ -268,7 +302,8 @@ export const SF9ApiLibrarySetup: React.FC = () => {
       console.error("Error testing:", error);
       toast({
         title: "Erro no teste",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -296,7 +331,8 @@ export const SF9ApiLibrarySetup: React.FC = () => {
 
     toast({
       title: "Arquivo baixado",
-      description: "Guia de instalação baixado. Execute SF9_API_LIBRARY_SCHEMA.sql no Supabase.",
+      description:
+        "Guia de instalação baixado. Execute SF9_API_LIBRARY_SCHEMA.sql no Supabase.",
     });
   };
 
@@ -313,13 +349,13 @@ export const SF9ApiLibrarySetup: React.FC = () => {
     }
   };
 
-  const overallStatus = checks.every(c => c.status === "success") 
-    ? "success" 
-    : checks.some(c => c.status === "error") 
-      ? "error" 
+  const overallStatus = checks.every((c) => c.status === "success")
+    ? "success"
+    : checks.some((c) => c.status === "error")
+      ? "error"
       : "warning";
 
-  const successCount = checks.filter(c => c.status === "success").length;
+  const successCount = checks.filter((c) => c.status === "success").length;
   const totalCount = checks.length;
 
   return (
@@ -336,9 +372,14 @@ export const SF9ApiLibrarySetup: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge 
-            variant={overallStatus === "success" ? "default" : 
-                    overallStatus === "error" ? "destructive" : "secondary"}
+          <Badge
+            variant={
+              overallStatus === "success"
+                ? "default"
+                : overallStatus === "error"
+                  ? "destructive"
+                  : "secondary"
+            }
           >
             {successCount}/{totalCount} Verificações
           </Badge>
@@ -346,21 +387,24 @@ export const SF9ApiLibrarySetup: React.FC = () => {
       </div>
 
       {/* Status Summary */}
-      <Alert className={
-        overallStatus === "success" ? "border-green-200 bg-green-50" :
-        overallStatus === "error" ? "border-red-200 bg-red-50" :
-        "border-yellow-200 bg-yellow-50"
-      }>
+      <Alert
+        className={
+          overallStatus === "success"
+            ? "border-green-200 bg-green-50"
+            : overallStatus === "error"
+              ? "border-red-200 bg-red-50"
+              : "border-yellow-200 bg-yellow-50"
+        }
+      >
         <AlertDescription>
           <div className="flex items-center gap-2">
             {getStatusIcon(overallStatus)}
             <span className="font-medium">
-              {overallStatus === "success" 
+              {overallStatus === "success"
                 ? "✅ API Library está configurada e funcionando"
                 : overallStatus === "error"
                   ? "❌ Problemas críticos encontrados - instalação necessária"
-                  : "⚠️ Configuração parcial - seed de dados recomendado"
-              }
+                  : "⚠️ Configuração parcial - seed de dados recomendado"}
             </span>
           </div>
         </AlertDescription>
@@ -368,37 +412,28 @@ export const SF9ApiLibrarySetup: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="grid grid-cols-4 gap-3">
-        <Button
-          variant="outline"
-          onClick={runDiagnostics}
-          disabled={loading}
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+        <Button variant="outline" onClick={runDiagnostics} disabled={loading}>
+          <RefreshCw
+            className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
+          />
           {loading ? "Verificando..." : "Verificar"}
         </Button>
-        
-        <Button
-          variant="outline"
-          onClick={runSeed}
-          disabled={seeding}
-        >
-          <Zap className={`w-4 h-4 mr-2 ${seeding ? 'animate-spin' : ''}`} />
+
+        <Button variant="outline" onClick={runSeed} disabled={seeding}>
+          <Zap className={`w-4 h-4 mr-2 ${seeding ? "animate-spin" : ""}`} />
           {seeding ? "Seeding..." : "Seed/Autofix"}
         </Button>
-        
+
         <Button
           variant="outline"
           onClick={runTest}
           disabled={running || overallStatus === "error"}
         >
-          <Play className={`w-4 h-4 mr-2 ${running ? 'animate-spin' : ''}`} />
+          <Play className={`w-4 h-4 mr-2 ${running ? "animate-spin" : ""}`} />
           {running ? "Testando..." : "Testar"}
         </Button>
-        
-        <Button
-          variant="outline"
-          onClick={downloadSchema}
-        >
+
+        <Button variant="outline" onClick={downloadSchema}>
           <Download className="w-4 h-4 mr-2" />
           Download Schema
         </Button>
@@ -414,26 +449,41 @@ export const SF9ApiLibrarySetup: React.FC = () => {
                   {getStatusIcon(check.status)}
                   <div>
                     <div className="font-medium text-sm">{check.name}</div>
-                    <div className="text-xs text-neutral-600">{check.description}</div>
+                    <div className="text-xs text-neutral-600">
+                      {check.description}
+                    </div>
                     {check.details && (
-                      <div className="text-xs text-neutral-500 mt-1">{check.details}</div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        {check.details}
+                      </div>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge 
+                  <Badge
                     variant={
-                      check.status === "success" ? "default" :
-                      check.status === "error" ? "destructive" : 
-                      "secondary"
+                      check.status === "success"
+                        ? "default"
+                        : check.status === "error"
+                          ? "destructive"
+                          : "secondary"
                     }
                   >
-                    {check.status === "success" ? "OK" :
-                     check.status === "error" ? "Erro" :
-                     check.status === "warning" ? "Aviso" : "Verificando"}
+                    {check.status === "success"
+                      ? "OK"
+                      : check.status === "error"
+                        ? "Erro"
+                        : check.status === "warning"
+                          ? "Aviso"
+                          : "Verificando"}
                   </Badge>
                   {check.action === "seed_data" && (
-                    <Button size="sm" variant="outline" onClick={runSeed} disabled={seeding}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={runSeed}
+                      disabled={seeding}
+                    >
                       <Zap className="w-3 h-3 mr-1" />
                       Seed
                     </Button>
@@ -466,7 +516,7 @@ export const SF9ApiLibrarySetup: React.FC = () => {
               Abrir Console
             </Button>
           </div>
-          
+
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <div className="font-medium text-sm">Testador de API</div>
@@ -479,7 +529,7 @@ export const SF9ApiLibrarySetup: React.FC = () => {
               Abrir Testador
             </Button>
           </div>
-          
+
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <div className="font-medium text-sm">Logs de Auditoria</div>
@@ -499,7 +549,9 @@ export const SF9ApiLibrarySetup: React.FC = () => {
       {overallStatus === "error" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base text-red-700">Guia de Instalação</CardTitle>
+            <CardTitle className="text-base text-red-700">
+              Guia de Instalação
+            </CardTitle>
             <CardDescription>
               Passos para configurar o SF-9 API Library Console
             </CardDescription>
@@ -507,31 +559,50 @@ export const SF9ApiLibrarySetup: React.FC = () => {
           <CardContent className="space-y-3">
             <div className="text-sm space-y-2">
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">1</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  1
+                </div>
                 <div>
                   <div className="font-medium">Baixar Schema SQL</div>
-                  <div className="text-neutral-600">Clique em "Download Schema" para obter o arquivo SF9_API_LIBRARY_SCHEMA.sql</div>
+                  <div className="text-neutral-600">
+                    Clique em "Download Schema" para obter o arquivo
+                    SF9_API_LIBRARY_SCHEMA.sql
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">2</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  2
+                </div>
                 <div>
                   <div className="font-medium">Executar no Supabase</div>
-                  <div className="text-neutral-600">Execute o script no SQL Editor do Supabase para criar tabelas e funções</div>
+                  <div className="text-neutral-600">
+                    Execute o script no SQL Editor do Supabase para criar
+                    tabelas e funções
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">3</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  3
+                </div>
                 <div>
                   <div className="font-medium">Executar Seed</div>
-                  <div className="text-neutral-600">Clique em "Seed/Autofix" para popular com dados de exemplo (Escavador, Advise)</div>
+                  <div className="text-neutral-600">
+                    Clique em "Seed/Autofix" para popular com dados de exemplo
+                    (Escavador, Advise)
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">4</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  4
+                </div>
                 <div>
                   <div className="font-medium">Testar Funcionamento</div>
-                  <div className="text-neutral-600">Use o botão "Testar" para verificar se tudo está funcionando</div>
+                  <div className="text-neutral-600">
+                    Use o botão "Testar" para verificar se tudo está funcionando
+                  </div>
                 </div>
               </div>
             </div>

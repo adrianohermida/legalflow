@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 import { useToast } from "../hooks/use-toast";
 import { supabase } from "../lib/supabase";
 import {
@@ -53,11 +55,14 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
 
   useEffect(() => {
     loadPastDueInvoices();
-    
+
     // Setup refresh interval
-    const interval = setInterval(() => {
-      loadPastDueInvoices();
-    }, refreshInterval * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        loadPastDueInvoices();
+      },
+      refreshInterval * 60 * 1000,
+    );
 
     return () => clearInterval(interval);
   }, [refreshInterval]);
@@ -65,14 +70,16 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
   const loadPastDueInvoices = async () => {
     try {
       setLoading(true);
-      
+
       // Get invoices that are past due
       const { data, error } = await supabase
         .from("legalflow.stripe_invoices")
-        .select(`
+        .select(
+          `
           *,
           customer:customer_id(email, name)
-        `)
+        `,
+        )
         .in("status", ["open", "past_due"])
         .not("due_date", "is", null)
         .order("due_date", { ascending: true });
@@ -82,15 +89,16 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
       // Filter and format past due invoices
       const now = new Date();
       const pastDue = (data || [])
-        .map(invoice => ({
+        .map((invoice) => ({
           ...invoice,
-          customer_email: invoice.customer?.email || '',
-          customer_name: invoice.customer?.name || '',
+          customer_email: invoice.customer?.email || "",
+          customer_name: invoice.customer?.name || "",
           days_overdue: Math.floor(
-            (now.getTime() - new Date(invoice.due_date).getTime()) / (1000 * 60 * 60 * 24)
+            (now.getTime() - new Date(invoice.due_date).getTime()) /
+              (1000 * 60 * 60 * 24),
           ),
         }))
-        .filter(invoice => invoice.days_overdue > 0)
+        .filter((invoice) => invoice.days_overdue > 0)
         .slice(0, 10); // Limit to 10 most critical
 
       setPastDueInvoices(pastDue);
@@ -110,8 +118,10 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
   };
 
   const getSeverityColor = (daysOverdue: number) => {
-    if (daysOverdue <= 7) return "bg-yellow-100 text-yellow-800 border-yellow-300";
-    if (daysOverdue <= 30) return "bg-orange-100 text-orange-800 border-orange-300";
+    if (daysOverdue <= 7)
+      return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    if (daysOverdue <= 30)
+      return "bg-orange-100 text-orange-800 border-orange-300";
     return "bg-red-100 text-red-800 border-red-300";
   };
 
@@ -122,8 +132,8 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
   };
 
   const totalPastDueAmount = pastDueInvoices.reduce(
-    (total, invoice) => total + invoice.amount_due, 
-    0
+    (total, invoice) => total + invoice.amount_due,
+    0,
   );
 
   if (loading && pastDueInvoices.length === 0) {
@@ -138,7 +148,10 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
   if (pastDueInvoices.length === 0) {
     return showDetails ? (
       <div className={`flex items-center gap-2 ${className}`}>
-        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 border-green-300"
+        >
           <Clock className="w-3 h-3 mr-1" />
           Nenhuma fatura vencida
         </Badge>
@@ -151,8 +164,8 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="ghost" className="p-0 h-auto">
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="cursor-pointer hover:bg-red-600 transition-colors"
             >
               <AlertTriangle className="w-3 h-3 mr-1" />
@@ -170,7 +183,8 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
                     Faturas Vencidas
                   </CardTitle>
                   <CardDescription>
-                    {pastDueInvoices.length} faturas • {formatCurrency(totalPastDueAmount)} total
+                    {pastDueInvoices.length} faturas •{" "}
+                    {formatCurrency(totalPastDueAmount)} total
                   </CardDescription>
                 </div>
                 <Button
@@ -179,7 +193,9 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
                   onClick={loadPastDueInvoices}
                   disabled={loading}
                 >
-                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  />
                 </Button>
               </div>
             </CardHeader>
@@ -207,15 +223,15 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
                       <div className="font-bold text-sm">
                         {formatCurrency(invoice.amount_due)}
                       </div>
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className={`text-xs ${getSeverityColor(invoice.days_overdue)}`}
                       >
                         {getSeverityLabel(invoice.days_overdue)}
                       </Badge>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
@@ -226,7 +242,9 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
                         size="sm"
                         variant="ghost"
                         className="h-6 px-2"
-                        onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
+                        onClick={() =>
+                          window.open(invoice.hosted_invoice_url, "_blank")
+                        }
                       >
                         <ExternalLink className="w-3 h-3" />
                       </Button>
@@ -234,7 +252,7 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
                   </div>
                 </div>
               ))}
-              
+
               <div className="text-xs text-gray-500 text-center pt-2 border-t">
                 Última atualização: {lastUpdate.toLocaleTimeString()}
               </div>
@@ -244,7 +262,10 @@ export const FinancePastDueBadges: React.FC<FinancePastDueBadgesProps> = ({
       </Popover>
 
       {showDetails && totalPastDueAmount > 0 && (
-        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300">
+        <Badge
+          variant="outline"
+          className="bg-red-50 text-red-700 border-red-300"
+        >
           <DollarSign className="w-3 h-3 mr-1" />
           {formatCurrency(totalPastDueAmount)}
         </Badge>
@@ -263,7 +284,7 @@ export const usePastDueInvoices = (refreshInterval = 5) => {
     const loadData = async () => {
       try {
         setLoading(true);
-        
+
         const { data, error } = await supabase
           .from("legalflow.stripe_invoices")
           .select("amount_due, due_date")
@@ -273,12 +294,14 @@ export const usePastDueInvoices = (refreshInterval = 5) => {
         if (error) throw error;
 
         const now = new Date();
-        const pastDue = (data || []).filter(invoice => 
-          new Date(invoice.due_date) < now
+        const pastDue = (data || []).filter(
+          (invoice) => new Date(invoice.due_date) < now,
         );
 
         setPastDueCount(pastDue.length);
-        setTotalPastDue(pastDue.reduce((total, invoice) => total + invoice.amount_due, 0));
+        setTotalPastDue(
+          pastDue.reduce((total, invoice) => total + invoice.amount_due, 0),
+        );
       } catch (error) {
         console.error("Error loading past due summary:", error);
       } finally {
@@ -287,7 +310,7 @@ export const usePastDueInvoices = (refreshInterval = 5) => {
     };
 
     loadData();
-    
+
     // Setup refresh interval
     const interval = setInterval(loadData, refreshInterval * 60 * 1000);
     return () => clearInterval(interval);

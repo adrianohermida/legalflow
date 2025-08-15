@@ -3,9 +3,11 @@
 ## 📋 Objetivos Alcançados
 
 ### 🎨 **1. Refactor Layout DevAuditoria**
+
 **Problema resolvido**: Layout com 13 abas em uma linha só causava péssima UX
 
 **Solução implementada**:
+
 - **Categorização inteligente** em 3 grupos principais:
   - **Sistema & Auditoria**: Audit, Testes, Backlog, Rotas, Config, Histórico
   - **Funcionalidades (SF)**: SF-2 a SF-10 organizadas por funcionalidade
@@ -14,6 +16,7 @@
 - **Melhor organização visual** e usabilidade
 
 ### 💰 **2. SF-10: Stripe Wizard (Financeiro)**
+
 **Behavior Goal**: cobrar com clareza e zero retrabalho
 
 **Prompt (Builder)**: /financeiro/stripe: tabs Clientes | Assinaturas | Faturas | Payments; wizard Criar Checkout (contato → price → qty → sessão)
@@ -22,7 +25,7 @@
 
 **RPC Edge**: stripe.create_checkout_session(...)
 
-**Automations**: Webhook → stripe_upsert_*; badge Past due no pipeline finance
+**Automations**: Webhook → stripe*upsert*\*; badge Past due no pipeline finance
 
 **Aceite**: ✅ checkout gera link; ✅ webhooks refletem em minutos
 
@@ -31,7 +34,9 @@
 Todos os componentes foram desenvolvidos e integrados com sucesso:
 
 ### 🗄️ **Database Schema (SF10_STRIPE_SCHEMA.sql)**
+
 - **8 Tabelas principais**:
+
   - `legalflow.stripe_customers` - Clientes sincronizados com Stripe
   - `legalflow.stripe_products` - Produtos disponíveis para venda
   - `legalflow.stripe_prices` - Preços (one-time ou recorrente)
@@ -42,6 +47,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
   - `legalflow.stripe_webhook_events` - Log de eventos de webhook
 
 - **13 Funções RPC**:
+
   - `legalflow.list_stripe_customers()` - Lista clientes com estatísticas
   - `legalflow.create_checkout_session()` - Cria sessão de checkout completa
   - `legalflow.process_stripe_webhook()` - Processa eventos de webhook
@@ -52,13 +58,16 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 - **Dados de seed** para produtos jurídicos (consultoria, acompanhamento, contratos)
 
 ### 🎨 **Interface Principal (SF10StripeWizard.tsx)**
+
 - **4 Abas principais**:
+
   - **Clientes**: Lista clientes com métricas (gastos, assinaturas, inadimplência)
   - **Assinaturas**: Visualiza assinaturas com status e períodos
   - **Faturas**: Histórico de faturas com links diretos
   - **Pagamentos**: Payment intents com status de processamento
 
 - **Wizard de Checkout Completo** (4 etapas):
+
   1. **Contato**: Email do cliente + tipo (payment/subscription)
   2. **Preço**: Seleção de produtos e preços
   3. **Quantidade**: Definir quantidades e calcular total
@@ -72,16 +81,18 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
   - Integração com metadados de negócio
 
 ### 🚨 **Sistema Past Due (FinancePastDueBadges.tsx)**
+
 - **Badge automático** mostrando faturas vencidas
 - **Popover detalhado** com lista de pendências
 - **Classificação por severidade**:
   - **Amarelo**: Vencido recente (≤7 dias)
-  - **Laranja**: Vencido (≤30 dias)  
+  - **Laranja**: Vencido (≤30 dias)
   - **Vermelho**: Crítico (>30 dias)
 - **Hook reutilizável** `usePastDueInvoices()` para outros componentes
 - **Atualização automática** a cada 5 minutos
 
 ### 🔧 **Componente de Setup (SF10StripeSetup.tsx)**
+
 - **Diagnósticos automáticos**:
   - Verificação de schema e tabelas
   - Validação de produtos e preços
@@ -94,6 +105,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
   - Guia de instalação passo-a-passo
 
 ### 🔗 **Integração Completa**
+
 - **DevAuditoria refatorada** com melhor UX
 - **Nova aba "SF-10 Stripe"** na categoria Funcionalidades
 - **Integração com autofix system** via `impl_autofix('STRIPE_SEED')`
@@ -102,6 +114,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ## 🚀 Como Usar
 
 ### 1. Instalação Inicial
+
 ```bash
 # 1. Execute o schema no Supabase SQL Editor
 # Arquivo: SF10_STRIPE_SCHEMA.sql
@@ -112,6 +125,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ```
 
 ### 2. Configurar Webhook (Produção)
+
 ```bash
 # No painel do Stripe, configure webhook para:
 # URL: https://sua-app.com/api/stripe/webhook
@@ -119,6 +133,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ```
 
 ### 3. Workflow Completo de Checkout
+
 ```typescript
 // 1. Abrir Wizard de Checkout
 // 2. Inserir email do cliente
@@ -132,11 +147,14 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ## 📊 Dados de Exemplo Incluídos
 
 ### Produtos Jurídicos Configurados:
+
 1. **Consultoria Jurídica**
+
    - Preço: R$ 500,00/mês (recorrente)
    - Tipo: Serviço de consultoria especializada
 
 2. **Acompanhamento Processual**
+
    - Preço: R$ 800,00/mês (recorrente)
    - Tipo: Acompanhamento completo de processos
 
@@ -155,6 +173,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ## 📈 Métricas e Monitoramento
 
 ### Dashboard Automático:
+
 - **Total de clientes** ativos
 - **Assinaturas ativas** vs canceladas
 - **Revenue** total e por período
@@ -163,6 +182,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 - **Past due alerts** em tempo real
 
 ### Funcionalidades de Auditoria:
+
 - **Log completo** de todas as operações
 - **Rastreamento** de checkout sessions
 - **Histórico** de webhooks processados
@@ -171,6 +191,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ## 🎯 Funcionalidades Avançadas
 
 ### Wizard de Checkout:
+
 - **Multi-produto** em uma sessão
 - **Quantidades variáveis** por item
 - **Metadados customizados** para rastreamento
@@ -178,12 +199,14 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 - **Suporte a assinaturas** e pagamentos únicos
 
 ### Sistema de Webhooks:
+
 - **Processamento automático** de eventos Stripe
 - **Upsert inteligente** de dados
 - **Retry automático** em caso de falha
 - **Log detalhado** para debugging
 
 ### Monitoramento Past Due:
+
 - **Alertas visuais** no dashboard
 - **Classificação automática** por gravidade
 - **Links diretos** para faturas
@@ -201,12 +224,14 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ## ✅ Critérios de Aceite Atendidos
 
 ### DevAuditoria UX:
+
 - ✅ **Layout reorganizado** com categorização inteligente
 - ✅ **Navegação intuitiva** com tabs aninhadas
 - ✅ **Melhor experiência** do usuário
 - ✅ **Organização lógica** das funcionalidades
 
 ### SF-10 Stripe Wizard:
+
 - ✅ **Checkout gera link** funcional do Stripe
 - ✅ **Webhooks refletem em minutos** via funções RPC
 - ✅ **Wizard contato → price → qty → sessão** implementado

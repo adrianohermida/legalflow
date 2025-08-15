@@ -32,7 +32,8 @@ interface VerificationResult {
 }
 
 export function SchemaVerificationHelper() {
-  const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
+  const [verificationResult, setVerificationResult] =
+    useState<VerificationResult | null>(null);
   const { toast } = useToast();
 
   // Lista de funções que devem existir para cada schema
@@ -80,7 +81,7 @@ export function SchemaVerificationHelper() {
         for (const functionName of functions) {
           try {
             const { error } = await lf.rpc(functionName as any);
-            
+
             // Se não houve erro de "função não existe", a função está disponível
             if (!error || !error.message?.includes("does not exist")) {
               schemaResult.functions_found.push(functionName);
@@ -89,7 +90,10 @@ export function SchemaVerificationHelper() {
             }
           } catch (err: any) {
             // Se erro é sobre função não existir, adicionar como missing
-            if (err.message?.includes("does not exist") || err.message?.includes("function")) {
+            if (
+              err.message?.includes("does not exist") ||
+              err.message?.includes("function")
+            ) {
               schemaResult.functions_missing.push(functionName);
             } else {
               // Outros erros indicam que a função existe mas falhou na execução
@@ -99,13 +103,14 @@ export function SchemaVerificationHelper() {
         }
 
         // Determinar se instalação está completa
-        schemaResult.installation_complete = schemaResult.functions_missing.length === 0;
+        schemaResult.installation_complete =
+          schemaResult.functions_missing.length === 0;
 
         // Recomendar arquivo se há funções faltando
         if (schemaResult.functions_missing.length > 0) {
           const fileMap = {
             "SF-6": "SF6_SUPABASE_RPC_FIXED.sql",
-            "SF-2": "SF2_CHAT_MULTITHREAD_RPC_FIXED.sql", 
+            "SF-2": "SF2_CHAT_MULTITHREAD_RPC_FIXED.sql",
             "SF-7": "SF7_AGENDA_RPC_FIXED.sql",
           };
           recommendedFiles.push(fileMap[schemaName as keyof typeof fileMap]);
@@ -115,9 +120,11 @@ export function SchemaVerificationHelper() {
       }
 
       // Determinar status geral
-      const completeSchemas = results.filter(r => r.installation_complete).length;
+      const completeSchemas = results.filter(
+        (r) => r.installation_complete,
+      ).length;
       const totalSchemas = results.length;
-      
+
       let overall_status: "complete" | "partial" | "missing";
       if (completeSchemas === totalSchemas) {
         overall_status = "complete";
@@ -136,14 +143,17 @@ export function SchemaVerificationHelper() {
     },
     onSuccess: (result) => {
       setVerificationResult(result);
-      
-      const completeCount = result.schemas.filter(s => s.installation_complete).length;
+
+      const completeCount = result.schemas.filter(
+        (s) => s.installation_complete,
+      ).length;
       const totalCount = result.schemas.length;
-      
+
       toast({
         title: "Verificação de Schemas Concluída",
         description: `${completeCount}/${totalCount} schemas instalados corretamente`,
-        variant: result.overall_status === "complete" ? "default" : "destructive",
+        variant:
+          result.overall_status === "complete" ? "default" : "destructive",
       });
     },
     onError: (error: any) => {
@@ -157,12 +167,14 @@ export function SchemaVerificationHelper() {
 
   const getStatusColor = (status: SchemaStatus) => {
     if (status.installation_complete) return "bg-green-100 text-green-700";
-    if (status.functions_found.length > 0) return "bg-yellow-100 text-yellow-700";
+    if (status.functions_found.length > 0)
+      return "bg-yellow-100 text-yellow-700";
     return "bg-red-100 text-red-700";
   };
 
   const getStatusIcon = (status: SchemaStatus) => {
-    if (status.installation_complete) return <CheckCircle className="w-4 h-4 text-green-600" />;
+    if (status.installation_complete)
+      return <CheckCircle className="w-4 h-4 text-green-600" />;
     return <AlertTriangle className="w-4 h-4 text-red-600" />;
   };
 
@@ -176,7 +188,8 @@ export function SchemaVerificationHelper() {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-neutral-600">
-          Verifica se todos os schemas (SF-6, SF-2, SF-7) estão instalados corretamente e identifica quais arquivos SQL precisam ser executados.
+          Verifica se todos os schemas (SF-6, SF-2, SF-7) estão instalados
+          corretamente e identifica quais arquivos SQL precisam ser executados.
         </p>
 
         <Button
@@ -207,20 +220,29 @@ export function SchemaVerificationHelper() {
                   <div className="space-y-2">
                     <p>
                       <strong>Status Geral:</strong>{" "}
-                      {verificationResult.overall_status === "complete" && "✅ Todos os schemas instalados"}
-                      {verificationResult.overall_status === "partial" && "⚠️ Instalação parcial"}
-                      {verificationResult.overall_status === "missing" && "❌ Schemas não instalados"}
+                      {verificationResult.overall_status === "complete" &&
+                        "✅ Todos os schemas instalados"}
+                      {verificationResult.overall_status === "partial" &&
+                        "⚠️ Instalação parcial"}
+                      {verificationResult.overall_status === "missing" &&
+                        "❌ Schemas não instalados"}
                     </p>
-                    
+
                     {verificationResult.recommended_files.length > 0 && (
                       <div>
-                        <p><strong>Arquivos a executar:</strong></p>
+                        <p>
+                          <strong>Arquivos a executar:</strong>
+                        </p>
                         <ul className="list-disc pl-4">
-                          {verificationResult.recommended_files.map((file, idx) => (
-                            <li key={idx}>
-                              <code className="bg-orange-100 px-1 rounded text-xs">{file}</code>
-                            </li>
-                          ))}
+                          {verificationResult.recommended_files.map(
+                            (file, idx) => (
+                              <li key={idx}>
+                                <code className="bg-orange-100 px-1 rounded text-xs">
+                                  {file}
+                                </code>
+                              </li>
+                            ),
+                          )}
                         </ul>
                       </div>
                     )}
@@ -240,10 +262,11 @@ export function SchemaVerificationHelper() {
                       <span className="font-medium">{schema.schema}</span>
                     </div>
                     <Badge className={getStatusColor(schema)}>
-                      {schema.functions_found.length}/{schema.functions_tested.length} funções
+                      {schema.functions_found.length}/
+                      {schema.functions_tested.length} funções
                     </Badge>
                   </div>
-                  
+
                   <div className="text-xs space-y-1">
                     {schema.functions_found.length > 0 && (
                       <div>
@@ -253,7 +276,7 @@ export function SchemaVerificationHelper() {
                         </span>
                       </div>
                     )}
-                    
+
                     {schema.functions_missing.length > 0 && (
                       <div>
                         <span className="text-red-600">❌ Faltando:</span>{" "}
@@ -273,7 +296,9 @@ export function SchemaVerificationHelper() {
                 <FileText className="w-4 h-4" />
                 <AlertDescription>
                   <div className="space-y-2">
-                    <p><strong>Próximos passos:</strong></p>
+                    <p>
+                      <strong>Próximos passos:</strong>
+                    </p>
                     <ol className="list-decimal pl-4 space-y-1 text-sm">
                       <li>Baixe os arquivos SQL recomendados acima</li>
                       <li>Abra o Supabase SQL Editor</li>

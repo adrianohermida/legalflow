@@ -67,24 +67,24 @@ const DOCUMENT_TYPES = [
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'text/plain',
-  'text/csv'
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/plain",
+  "text/csv",
 ];
 
-export function DocumentUploader({ 
-  numero_cnj, 
-  cliente_cpfcnpj, 
-  onClose, 
-  onSuccess 
+export function DocumentUploader({
+  numero_cnj,
+  cliente_cpfcnpj,
+  onClose,
+  onSuccess,
 }: DocumentUploaderProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -93,7 +93,7 @@ export function DocumentUploader({
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const { toast } = useToast();
 
   // Mutation para preparar upload
@@ -125,30 +125,30 @@ export function DocumentUploader({
   const formatFileSize = (bytes: number) => {
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const validateFile = (file: File): string | null => {
     if (file.size > MAX_FILE_SIZE) {
       return `Arquivo muito grande. Máximo ${formatFileSize(MAX_FILE_SIZE)}`;
     }
-    
+
     if (!ALLOWED_TYPES.includes(file.type)) {
       return "Tipo de arquivo não permitido";
     }
-    
+
     return null;
   };
 
   const handleFileSelect = (selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
-    
+
     const newFiles: FileUpload[] = [];
-    
+
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       const error = validateFile(file);
-      
+
       newFiles.push({
         file,
         progress: 0,
@@ -156,8 +156,8 @@ export function DocumentUploader({
         error: error || undefined,
       });
     }
-    
-    setFiles(prev => [...prev, ...newFiles]);
+
+    setFiles((prev) => [...prev, ...newFiles]);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -177,15 +177,17 @@ export function DocumentUploader({
   };
 
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const uploadFile = async (fileUpload: FileUpload, index: number) => {
     try {
       // Atualizar status para uploading
-      setFiles(prev => prev.map((f, i) => 
-        i === index ? { ...f, status: "uploading", progress: 0 } : f
-      ));
+      setFiles((prev) =>
+        prev.map((f, i) =>
+          i === index ? { ...f, status: "uploading", progress: 0 } : f,
+        ),
+      );
 
       // Preparar upload
       const uploadData = await prepareUploadMutation.mutateAsync({
@@ -197,10 +199,10 @@ export function DocumentUploader({
 
       // Simular progresso (implementar upload real aqui)
       for (let progress = 0; progress <= 100; progress += 10) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        setFiles(prev => prev.map((f, i) => 
-          i === index ? { ...f, progress } : f
-        ));
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        setFiles((prev) =>
+          prev.map((f, i) => (i === index ? { ...f, progress } : f)),
+        );
       }
 
       // Upload para o Supabase Storage
@@ -221,31 +223,38 @@ export function DocumentUploader({
           file_type: fileUpload.file.type,
           status: "aprovado", // Auto-aprovar por enquanto
           description: description || null,
-          tags: tags ? tags.split(",").map(tag => tag.trim()) : [],
+          tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
         })
         .eq("id", uploadData.document_id);
 
       if (updateError) throw updateError;
 
       // Marcar como sucesso
-      setFiles(prev => prev.map((f, i) => 
-        i === index ? { 
-          ...f, 
-          status: "success", 
-          progress: 100,
-          documentId: uploadData.document_id 
-        } : f
-      ));
-
+      setFiles((prev) =>
+        prev.map((f, i) =>
+          i === index
+            ? {
+                ...f,
+                status: "success",
+                progress: 100,
+                documentId: uploadData.document_id,
+              }
+            : f,
+        ),
+      );
     } catch (error: any) {
       console.error("Erro no upload:", error);
-      setFiles(prev => prev.map((f, i) => 
-        i === index ? { 
-          ...f, 
-          status: "error", 
-          error: error.message || "Erro no upload"
-        } : f
-      ));
+      setFiles((prev) =>
+        prev.map((f, i) =>
+          i === index
+            ? {
+                ...f,
+                status: "error",
+                error: error.message || "Erro no upload",
+              }
+            : f,
+        ),
+      );
     }
   };
 
@@ -259,19 +268,19 @@ export function DocumentUploader({
       return;
     }
 
-    const validFiles = files.filter(f => f.status === "pending");
-    
+    const validFiles = files.filter((f) => f.status === "pending");
+
     // Upload todos os arquivos em paralelo
     const uploadPromises = validFiles.map((fileUpload, originalIndex) => {
-      const fileIndex = files.findIndex(f => f === fileUpload);
+      const fileIndex = files.findIndex((f) => f === fileUpload);
       return uploadFile(fileUpload, fileIndex);
     });
 
     await Promise.all(uploadPromises);
 
     // Verificar se todos os uploads foram bem-sucedidos
-    const hasErrors = files.some(f => f.status === "error");
-    
+    const hasErrors = files.some((f) => f.status === "error");
+
     if (!hasErrors) {
       toast({
         title: "Upload concluído",
@@ -287,8 +296,8 @@ export function DocumentUploader({
     }
   };
 
-  const canUpload = files.some(f => f.status === "pending") && documentType;
-  const hasSuccessfulUploads = files.some(f => f.status === "success");
+  const canUpload = files.some((f) => f.status === "pending") && documentType;
+  const hasSuccessfulUploads = files.some((f) => f.status === "success");
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -296,7 +305,8 @@ export function DocumentUploader({
         <DialogHeader>
           <DialogTitle>Upload de Documentos</DialogTitle>
           <DialogDescription>
-            Envie documentos para {numero_cnj ? `o processo ${numero_cnj}` : "a biblioteca"}
+            Envie documentos para{" "}
+            {numero_cnj ? `o processo ${numero_cnj}` : "a biblioteca"}
           </DialogDescription>
         </DialogHeader>
 
@@ -312,7 +322,7 @@ export function DocumentUploader({
                 placeholder="Nome do documento"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="document_type">Tipo *</Label>
               <Select value={documentType} onValueChange={setDocumentType}>
@@ -354,8 +364,8 @@ export function DocumentUploader({
           {/* Área de drop */}
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragOver 
-                ? "border-primary bg-primary/5" 
+              isDragOver
+                ? "border-primary bg-primary/5"
                 : "border-neutral-300 hover:border-neutral-400"
             }`}
             onDrop={handleDrop}
@@ -370,9 +380,7 @@ export function DocumentUploader({
             <p className="text-sm text-neutral-600 mb-4">
               PDF, imagens, Word, Excel - até {formatFileSize(MAX_FILE_SIZE)}
             </p>
-            <Button variant="outline">
-              Selecionar Arquivos
-            </Button>
+            <Button variant="outline">Selecionar Arquivos</Button>
           </div>
 
           <input
@@ -390,11 +398,14 @@ export function DocumentUploader({
               <Label>Arquivos selecionados</Label>
               {files.map((fileUpload, index) => {
                 const Icon = getFileIcon(fileUpload.file);
-                
+
                 return (
-                  <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 border rounded-lg"
+                  >
                     <Icon className="w-5 h-5 text-neutral-500" />
-                    
+
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">
                         {fileUpload.file.name}
@@ -402,41 +413,41 @@ export function DocumentUploader({
                       <p className="text-xs text-neutral-600">
                         {formatFileSize(fileUpload.file.size)}
                       </p>
-                      
+
                       {fileUpload.status === "uploading" && (
-                        <Progress 
-                          value={fileUpload.progress} 
-                          className="h-2 mt-1" 
+                        <Progress
+                          value={fileUpload.progress}
+                          className="h-2 mt-1"
                         />
                       )}
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       {fileUpload.status === "pending" && (
                         <Badge variant="secondary">Pendente</Badge>
                       )}
-                      
+
                       {fileUpload.status === "uploading" && (
                         <Badge variant="secondary">
                           <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                           {fileUpload.progress}%
                         </Badge>
                       )}
-                      
+
                       {fileUpload.status === "success" && (
                         <Badge className="bg-green-100 text-green-700">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Sucesso
                         </Badge>
                       )}
-                      
+
                       {fileUpload.status === "error" && (
                         <Badge variant="destructive">
                           <AlertCircle className="w-3 h-3 mr-1" />
                           Erro
                         </Badge>
                       )}
-                      
+
                       {fileUpload.status !== "uploading" && (
                         <Button
                           variant="ghost"
@@ -459,9 +470,9 @@ export function DocumentUploader({
           <Button variant="outline" onClick={onClose}>
             {hasSuccessfulUploads ? "Fechar" : "Cancelar"}
           </Button>
-          
+
           {canUpload && (
-            <Button 
+            <Button
               onClick={handleUploadAll}
               disabled={prepareUploadMutation.isPending}
             >

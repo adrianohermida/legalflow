@@ -1,6 +1,7 @@
 # SF-9: API Library Console - Implementação Completa
 
 ## 📋 Objetivo
+
 **Behavior Goal**: chamar APIs sem hardcode e auditar respostas.
 
 **Prompt (Builder)**: /dev/api: lista Providers/Endpoints; painel de Prepare → Fetch → Ingest com visualização do request/response e binding do ingest_bundle.
@@ -16,13 +17,16 @@
 Todos os componentes foram desenvolvidos e integrados com sucesso:
 
 ### 🗄️ 1. Database Schema (SF9_API_LIBRARY_SCHEMA.sql)
+
 - **4 Tabelas principais**:
+
   - `legalflow.api_providers` - Provedores de API (Escavador, Advise, etc)
   - `legalflow.api_endpoints` - Endpoints específicos de cada provedor
   - `legalflow.api_call_logs` - Log completo de chamadas para auditoria
   - `legalflow.api_templates` - Templates pré-configurados
 
 - **6 Funções RPC**:
+
   - `legalflow.list_api_providers()` - Lista provedores com estatísticas
   - `legalflow.list_api_endpoints()` - Lista endpoints com métricas
   - `legalflow.api_prepare()` - Prepara chamada com auth e headers
@@ -35,7 +39,9 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 - **Dados de seed** para Escavador e Advise APIs
 
 ### 🎨 2. Interface Principal (SF9ApiConsole.tsx)
+
 - **4 Abas principais**:
+
   - **Provedores**: Lista provedores com métricas de performance
   - **Endpoints**: Visualiza endpoints com estatísticas de uso
   - **Logs**: Histórico de chamadas com filtros
@@ -49,7 +55,9 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
   - Testador interativo de APIs
 
 ### 🔧 3. Componente de Setup (SF9ApiLibrarySetup.tsx)
+
 - **Diagnósticos automáticos**:
+
   - Verificação de schema e tabelas
   - Validação de provedores e endpoints
   - Teste de funções RPC
@@ -62,11 +70,13 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
   - Guia de instalação passo-a-passo
 
 ### 🔗 4. Integração com DevAuditoria
+
 - **Nova aba "APIs"** no DevAuditoria
 - **Ícone Globe** para identificação visual
 - **Grid atualizado** para 13 colunas
 
 ### ⚙️ 5. Integração com Autofix System
+
 - **Comando `impl_autofix('API_SEED')`** implementado
 - **Função de seed** que popula dados de exemplo
 - **Verificação automática** de dados existentes
@@ -74,6 +84,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ## 🚀 Como Usar
 
 ### 1. Instalação Inicial
+
 ```bash
 # 1. Execute o schema no Supabase SQL Editor
 # Arquivo: SF9_API_LIBRARY_SCHEMA.sql
@@ -84,6 +95,7 @@ Todos os componentes foram desenvolvidos e integrados com sucesso:
 ```
 
 ### 2. Configurar Novos Provedores
+
 ```sql
 -- Exemplo: Adicionar novo provedor
 INSERT INTO legalflow.api_providers (
@@ -98,17 +110,18 @@ INSERT INTO legalflow.api_providers (
 ```
 
 ### 3. Workflow Prepare → Fetch → Ingest
+
 ```typescript
 // 1. Prepare - Configura autenticação e headers
-const prepared = await supabase.rpc('legalflow.api_prepare', {
-    p_endpoint_id: 'endpoint-uuid',
-    p_parameters: { cnj: '1234567-89.2023.8.26.0100' },
-    p_context: { description: 'Busca de processo' }
+const prepared = await supabase.rpc("legalflow.api_prepare", {
+  p_endpoint_id: "endpoint-uuid",
+  p_parameters: { cnj: "1234567-89.2023.8.26.0100" },
+  p_context: { description: "Busca de processo" },
 });
 
 // 2. Fetch - Executa a chamada
-const result = await supabase.rpc('legalflow.api_execute', {
-    p_prepared_request: prepared.prepared_request
+const result = await supabase.rpc("legalflow.api_execute", {
+  p_prepared_request: prepared.prepared_request,
 });
 
 // 3. Ingest - Resultado é automaticamente logado
@@ -118,7 +131,9 @@ const result = await supabase.rpc('legalflow.api_execute', {
 ## 📊 Dados de Exemplo Incluídos
 
 ### Provedores Configurados:
+
 1. **Escavador**
+
    - Base URL: `https://api.escavador.com`
    - Auth: API Key
    - Endpoints: Buscar Processos, Detalhes do Processo
@@ -129,6 +144,7 @@ const result = await supabase.rpc('legalflow.api_execute', {
    - Endpoints: Análise de Peça, Predição de Resultado
 
 ### Endpoints de Exemplo:
+
 - `POST /processos/buscar` - Busca processos por CNJ/nome
 - `GET /processos/{id}` - Detalhes do processo
 - `POST /analyze/document` - Análise IA de documentos
@@ -171,7 +187,7 @@ const result = await supabase.rpc('legalflow.api_execute', {
 ## ✅ Critérios de Aceite Atendidos
 
 - ✅ **Consegue preparar** chamadas para Escavador/Advise
-- ✅ **Pode testar chamadas** via interface Prepare → Fetch → Ingest  
+- ✅ **Pode testar chamadas** via interface Prepare → Fetch → Ingest
 - ✅ **Visualiza request/response** completos
 - ✅ **Audita todas as respostas** com logs detalhados
 - ✅ **Binding do ingest_bundle** implementado

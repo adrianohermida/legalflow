@@ -121,33 +121,66 @@ const DOCUMENT_TYPES = [
 ];
 
 const STATUS_CONFIG = {
-  pendente: { label: "Pendente", color: "bg-yellow-100 text-yellow-700", icon: Clock },
-  aprovado: { label: "Aprovado", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  reprovado: { label: "Reprovado", color: "bg-red-100 text-red-700", icon: XCircle },
-  em_revisao: { label: "Em Revisão", color: "bg-blue-100 text-blue-700", icon: Eye },
-  arquivado: { label: "Arquivado", color: "bg-gray-100 text-gray-700", icon: FolderOpen },
-  vencido: { label: "Vencido", color: "bg-red-100 text-red-700", icon: AlertTriangle },
+  pendente: {
+    label: "Pendente",
+    color: "bg-yellow-100 text-yellow-700",
+    icon: Clock,
+  },
+  aprovado: {
+    label: "Aprovado",
+    color: "bg-green-100 text-green-700",
+    icon: CheckCircle,
+  },
+  reprovado: {
+    label: "Reprovado",
+    color: "bg-red-100 text-red-700",
+    icon: XCircle,
+  },
+  em_revisao: {
+    label: "Em Revisão",
+    color: "bg-blue-100 text-blue-700",
+    icon: Eye,
+  },
+  arquivado: {
+    label: "Arquivado",
+    color: "bg-gray-100 text-gray-700",
+    icon: FolderOpen,
+  },
+  vencido: {
+    label: "Vencido",
+    color: "bg-red-100 text-red-700",
+    icon: AlertTriangle,
+  },
 };
 
-export function EstanteDigital({ 
-  numero_cnj, 
-  cliente_cpfcnpj, 
-  mode = "full" 
+export function EstanteDigital({
+  numero_cnj,
+  cliente_cpfcnpj,
+  mode = "full",
 }: EstanteDigitalProps) {
   const [activeTab, setActiveTab] = useState("biblioteca");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [showUploader, setShowUploader] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null,
+  );
   const [showPreview, setShowPreview] = useState(false);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Query para listar documentos
   const { data: documents, isLoading: loadingDocs } = useQuery({
-    queryKey: ["sf8-documents", numero_cnj, cliente_cpfcnpj, selectedType, selectedStatus, searchQuery],
+    queryKey: [
+      "sf8-documents",
+      numero_cnj,
+      cliente_cpfcnpj,
+      selectedType,
+      selectedStatus,
+      searchQuery,
+    ],
     queryFn: async () => {
       const { data, error } = await lf.rpc("sf8_list_documents", {
         p_numero_cnj: numero_cnj || null,
@@ -194,7 +227,11 @@ export function EstanteDigital({
 
   // Mutation para aprovar/reprovar documento
   const approveMutation = useMutation({
-    mutationFn: async ({ documentId, approved, notes }: {
+    mutationFn: async ({
+      documentId,
+      approved,
+      notes,
+    }: {
       documentId: string;
       approved: boolean;
       notes?: string;
@@ -212,7 +249,9 @@ export function EstanteDigital({
       queryClient.invalidateQueries({ queryKey: ["sf8-statistics"] });
       toast({
         title: approved ? "Documento Aprovado" : "Documento Reprovado",
-        description: approved ? "Documento aprovado com sucesso" : "Documento reprovado",
+        description: approved
+          ? "Documento aprovado com sucesso"
+          : "Documento reprovado",
       });
     },
     onError: (error: any) => {
@@ -228,14 +267,14 @@ export function EstanteDigital({
     if (!bytes) return "—";
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "—";
     return new Date(dateString).toLocaleDateString("pt-BR", {
       day: "2-digit",
-      month: "2-digit", 
+      month: "2-digit",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
@@ -254,15 +293,22 @@ export function EstanteDigital({
     setShowPreview(true);
   };
 
-  const handleApproveDocument = (documentId: string, approved: boolean, notes?: string) => {
+  const handleApproveDocument = (
+    documentId: string,
+    approved: boolean,
+    notes?: string,
+  ) => {
     approveMutation.mutate({ documentId, approved, notes });
   };
 
   // Componente para item de documento
   const DocumentItem = ({ document }: { document: Document }) => {
-    const statusConfig = STATUS_CONFIG[document.status as keyof typeof STATUS_CONFIG];
+    const statusConfig =
+      STATUS_CONFIG[document.status as keyof typeof STATUS_CONFIG];
     const IconComponent = getDocumentIcon(document.file_type);
-    const typeConfig = DOCUMENT_TYPES.find(t => t.value === document.document_type);
+    const typeConfig = DOCUMENT_TYPES.find(
+      (t) => t.value === document.document_type,
+    );
 
     return (
       <Card className="hover:shadow-md transition-shadow">
@@ -272,41 +318,45 @@ export function EstanteDigital({
               <div className="mt-1">
                 <IconComponent className="w-5 h-5 text-neutral-500" />
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-medium text-sm truncate">{document.title}</h4>
+                  <h4 className="font-medium text-sm truncate">
+                    {document.title}
+                  </h4>
                   {document.version > 1 && (
-                    <Badge variant="outline" className="text-xs">v{document.version}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      v{document.version}
+                    </Badge>
                   )}
                 </div>
-                
+
                 {document.description && (
                   <p className="text-xs text-neutral-600 mb-2 line-clamp-2">
                     {document.description}
                   </p>
                 )}
-                
+
                 <div className="flex items-center gap-4 text-xs text-neutral-500">
                   <span className="flex items-center gap-1">
                     <Tag className="w-3 h-3" />
                     {typeConfig?.label || document.document_type}
                   </span>
-                  
+
                   {document.file_size && (
                     <span>{formatFileSize(document.file_size)}</span>
                   )}
-                  
+
                   {document.pages_count && (
                     <span>{document.pages_count} páginas</span>
                   )}
-                  
+
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {formatDate(document.created_at)}
                   </span>
                 </div>
-                
+
                 {document.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {document.tags.slice(0, 3).map((tag, idx) => (
@@ -323,13 +373,13 @@ export function EstanteDigital({
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 ml-3">
               <Badge className={statusConfig.color}>
                 <statusConfig.icon className="w-3 h-3 mr-1" />
                 {statusConfig.label}
               </Badge>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -337,35 +387,39 @@ export function EstanteDigital({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handlePreviewDocument(document)}>
+                  <DropdownMenuItem
+                    onClick={() => handlePreviewDocument(document)}
+                  >
                     <Eye className="w-4 h-4 mr-2" />
                     Visualizar
                   </DropdownMenuItem>
-                  
+
                   {document.file_name && (
                     <DropdownMenuItem>
                       <Download className="w-4 h-4 mr-2" />
                       Baixar
                     </DropdownMenuItem>
                   )}
-                  
+
                   <DropdownMenuItem>
                     <Share2 className="w-4 h-4 mr-2" />
                     Compartilhar
                   </DropdownMenuItem>
-                  
+
                   {document.status === "pendente" && (
                     <>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => handleApproveDocument(document.id, true)}
                         className="text-green-600"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Aprovar
                       </DropdownMenuItem>
-                      
-                      <DropdownMenuItem 
-                        onClick={() => handleApproveDocument(document.id, false)}
+
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleApproveDocument(document.id, false)
+                        }
                         className="text-red-600"
                       >
                         <XCircle className="w-4 h-4 mr-2" />
@@ -373,12 +427,12 @@ export function EstanteDigital({
                       </DropdownMenuItem>
                     </>
                   )}
-                  
+
                   <DropdownMenuItem>
                     <Edit className="w-4 h-4 mr-2" />
                     Editar
                   </DropdownMenuItem>
-                  
+
                   <DropdownMenuItem className="text-red-600">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Excluir
@@ -400,51 +454,61 @@ export function EstanteDigital({
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
               <FileText className="w-5 h-5 text-blue-600 mt-1" />
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-medium text-sm truncate">{peticao.document_title}</h4>
-                  <Badge variant="outline" className="text-xs">{peticao.tipo_peca}</Badge>
+                  <h4 className="font-medium text-sm truncate">
+                    {peticao.document_title}
+                  </h4>
+                  <Badge variant="outline" className="text-xs">
+                    {peticao.tipo_peca}
+                  </Badge>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 text-xs text-neutral-600 mb-2">
                   {peticao.numero_protocolo && (
                     <div>
-                      <span className="font-medium">Protocolo:</span> {peticao.numero_protocolo}
+                      <span className="font-medium">Protocolo:</span>{" "}
+                      {peticao.numero_protocolo}
                     </div>
                   )}
-                  
+
                   {peticao.tribunal && (
                     <div>
-                      <span className="font-medium">Tribunal:</span> {peticao.tribunal}
+                      <span className="font-medium">Tribunal:</span>{" "}
+                      {peticao.tribunal}
                     </div>
                   )}
-                  
+
                   {peticao.data_protocolo && (
                     <div>
-                      <span className="font-medium">Protocolado:</span> {formatDate(peticao.data_protocolo)}
+                      <span className="font-medium">Protocolado:</span>{" "}
+                      {formatDate(peticao.data_protocolo)}
                     </div>
                   )}
-                  
+
                   {peticao.prazo_resposta && (
                     <div>
-                      <span className="font-medium">Prazo:</span> {formatDate(peticao.prazo_resposta)}
+                      <span className="font-medium">Prazo:</span>{" "}
+                      {formatDate(peticao.prazo_resposta)}
                     </div>
                   )}
                 </div>
-                
-                <Badge 
+
+                <Badge
                   className={
-                    peticao.situacao === "protocolada" ? "bg-blue-100 text-blue-700" :
-                    peticao.situacao === "juntada" ? "bg-green-100 text-green-700" :
-                    "bg-gray-100 text-gray-700"
+                    peticao.situacao === "protocolada"
+                      ? "bg-blue-100 text-blue-700"
+                      : peticao.situacao === "juntada"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-700"
                   }
                 >
                   {peticao.situacao}
                 </Badge>
               </div>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -480,13 +544,15 @@ export function EstanteDigital({
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-blue-600" />
             <div>
-              <p className="text-2xl font-bold">{stats?.total_documents || 0}</p>
+              <p className="text-2xl font-bold">
+                {stats?.total_documents || 0}
+              </p>
               <p className="text-sm text-neutral-600">Documentos</p>
             </div>
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
@@ -498,25 +564,29 @@ export function EstanteDigital({
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-yellow-600" />
             <div>
-              <p className="text-2xl font-bold">{stats?.pending_approvals || 0}</p>
+              <p className="text-2xl font-bold">
+                {stats?.pending_approvals || 0}
+              </p>
               <p className="text-sm text-neutral-600">Pendentes</p>
             </div>
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
             <Star className="w-5 h-5 text-purple-600" />
             <div>
-              <p className="text-2xl font-bold">{formatFileSize(stats?.storage_usage)}</p>
+              <p className="text-2xl font-bold">
+                {formatFileSize(stats?.storage_usage)}
+              </p>
               <p className="text-sm text-neutral-600">Armazenado</p>
             </div>
           </div>
@@ -548,15 +618,15 @@ export function EstanteDigital({
                 Carregando documentos...
               </div>
             ) : documents?.length ? (
-              documents.slice(0, 5).map((doc) => (
-                <DocumentItem key={doc.id} document={doc} />
-              ))
+              documents
+                .slice(0, 5)
+                .map((doc) => <DocumentItem key={doc.id} document={doc} />)
             ) : (
               <div className="text-center py-4 text-neutral-500">
                 Nenhum documento encontrado
               </div>
             )}
-            
+
             {documents && documents.length > 5 && (
               <div className="text-center pt-2">
                 <Button variant="outline" size="sm">
@@ -566,7 +636,7 @@ export function EstanteDigital({
             )}
           </div>
         </CardContent>
-        
+
         {showUploader && (
           <DocumentUploader
             numero_cnj={numero_cnj}
@@ -587,7 +657,7 @@ export function EstanteDigital({
     <div className="space-y-6">
       {/* Header com estatísticas */}
       <StatsHeader />
-      
+
       {/* Controles e filtros */}
       <Card>
         <CardContent className="p-4">
@@ -603,7 +673,7 @@ export function EstanteDigital({
                 />
               </div>
             </div>
-            
+
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Tipo" />
@@ -617,7 +687,7 @@ export function EstanteDigital({
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Status" />
@@ -631,7 +701,7 @@ export function EstanteDigital({
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Button onClick={() => setShowUploader(true)}>
               <Upload className="w-4 h-4 mr-2" />
               Upload
@@ -639,7 +709,7 @@ export function EstanteDigital({
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Tabs principais */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
@@ -656,7 +726,7 @@ export function EstanteDigital({
             Flipbook
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="biblioteca" className="space-y-4">
           {loadingDocs ? (
             <div className="text-center py-8 text-neutral-500">
@@ -676,7 +746,7 @@ export function EstanteDigital({
             </div>
           )}
         </TabsContent>
-        
+
         <TabsContent value="pecas" className="space-y-4">
           {loadingPeticoes ? (
             <div className="text-center py-8 text-neutral-500">
@@ -696,7 +766,7 @@ export function EstanteDigital({
             </div>
           )}
         </TabsContent>
-        
+
         <TabsContent value="flipbook" className="space-y-4">
           <Card>
             <CardContent className="p-8 text-center">
@@ -712,7 +782,7 @@ export function EstanteDigital({
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       {/* Modais */}
       {showUploader && (
         <DocumentUploader
@@ -726,7 +796,7 @@ export function EstanteDigital({
           }}
         />
       )}
-      
+
       {showPreview && selectedDocument && (
         <DocumentPreview
           document={selectedDocument}

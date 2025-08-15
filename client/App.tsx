@@ -111,7 +111,9 @@ function DemoProtectedRoute({
 
   // Allow direct access to dev pages for debugging
   const currentPath = window.location.pathname;
-  const isDevPage = currentPath.includes('dev-auditoria') || currentPath.includes('dev/auditoria');
+  const isDevPage =
+    currentPath.includes("dev-auditoria") ||
+    currentPath.includes("dev/auditoria");
 
   useEffect(() => {
     if (user && !user.oab && userType === "advogado") {
@@ -131,12 +133,16 @@ function DemoProtectedRoute({
   }
 
   // For dev pages without user, create a mock user
-  const effectiveUser = user || (isDevPage ? {
-    id: 'debug-user',
-    email: 'debug@test.com',
-    name: 'Debug User',
-    oab: '123456'
-  } : null);
+  const effectiveUser =
+    user ||
+    (isDevPage
+      ? {
+          id: "debug-user",
+          email: "debug@test.com",
+          name: "Debug User",
+          oab: "123456",
+        }
+      : null);
 
   if (!effectiveUser) {
     return <Navigate to="/login" replace />;
@@ -987,7 +993,10 @@ export default function App() {
     try {
       const currentPath = window.location.pathname;
       // Auto-set demo mode for dev pages to enable debugging
-      if (currentPath.includes('dev-auditoria') || currentPath.includes('dev/auditoria')) {
+      if (
+        currentPath.includes("dev-auditoria") ||
+        currentPath.includes("dev/auditoria")
+      ) {
         localStorage.setItem("auth-mode", "demo");
         return "demo";
       }
@@ -1001,7 +1010,10 @@ export default function App() {
   // Show mode selector if no mode is selected, but allow direct access to dev-auditoria in demo mode
   if (!authMode) {
     const currentPath = window.location.pathname;
-    if (currentPath.includes('dev-auditoria') || currentPath.includes('dev/auditoria')) {
+    if (
+      currentPath.includes("dev-auditoria") ||
+      currentPath.includes("dev/auditoria")
+    ) {
       // Force demo mode for dev-auditoria access
       setAuthMode("demo");
     } else {

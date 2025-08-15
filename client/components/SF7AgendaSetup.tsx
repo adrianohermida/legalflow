@@ -41,9 +41,12 @@ export function SF7AgendaSetup() {
       const { data, error } = await lf.rpc("sf7_verify_installation");
       if (error) {
         const errorMsg = error.message || error.toString();
-        if (errorMsg.includes("does not exist") || errorMsg.includes("function")) {
+        if (
+          errorMsg.includes("does not exist") ||
+          errorMsg.includes("function")
+        ) {
           throw new Error(
-            "Funções SF-7 não encontradas. Execute o arquivo SF7_AGENDA_RPC_FIXED.sql no Supabase SQL Editor."
+            "Funções SF-7 não encontradas. Execute o arquivo SF7_AGENDA_RPC_FIXED.sql no Supabase SQL Editor.",
           );
         }
         throw error;
@@ -125,7 +128,8 @@ export function SF7AgendaSetup() {
     onError: (error: any) => {
       setIsTestingSchema(false);
       const errorMsg = error.message || "Falha ao testar o schema SF-7";
-      const isSchemaError = errorMsg.includes("does not exist") || errorMsg.includes("function");
+      const isSchemaError =
+        errorMsg.includes("does not exist") || errorMsg.includes("function");
 
       toast({
         title: "Erro no Teste do Schema",
@@ -193,7 +197,8 @@ export function SF7AgendaSetup() {
     onError: (error: any) => {
       setIsTestingIntegration(false);
       const errorMsg = error.message || "Falha na integração com etapas";
-      const isSchemaError = errorMsg.includes("does not exist") || errorMsg.includes("function");
+      const isSchemaError =
+        errorMsg.includes("does not exist") || errorMsg.includes("function");
 
       toast({
         title: "Erro no Teste de Integração",

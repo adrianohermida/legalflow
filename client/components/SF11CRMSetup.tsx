@@ -121,7 +121,9 @@ const SF11CRMSetup: React.FC = () => {
                 <Users className="h-5 w-5 text-blue-600" />
                 <div>
                   <p className="text-sm text-muted-foreground">Contatos</p>
-                  <p className="text-2xl font-bold">{crmStats.total_contacts}</p>
+                  <p className="text-2xl font-bold">
+                    {crmStats.total_contacts}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -219,7 +221,9 @@ const SF11CRMSetup: React.FC = () => {
                   <div className="flex items-center gap-3">
                     {getStatusIcon(status.convert_function)}
                     <div>
-                      <p className="font-medium">Conversão Lead → Contato+Deal</p>
+                      <p className="font-medium">
+                        Conversão Lead → Contato+Deal
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         RPC crm_convert_lead() 1-clique
                       </p>
@@ -279,10 +283,21 @@ const SF11CRMSetup: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm">
-            <p>• <strong>Minimalismo progressivo:</strong> campos avançados ficam ocultos até necessários</p>
-            <p>• <strong>Teclado primeiro:</strong> Cmd/Ctrl+K para busca, Esc fecha modais</p>
-            <p>• <strong>Estados claros:</strong> loading skeletons, empty states com CTA</p>
-            <p>• <strong>Tokens F1:</strong> cores, tipografia e focus ring AA+</p>
+            <p>
+              • <strong>Minimalismo progressivo:</strong> campos avançados ficam
+              ocultos até necessários
+            </p>
+            <p>
+              • <strong>Teclado primeiro:</strong> Cmd/Ctrl+K para busca, Esc
+              fecha modais
+            </p>
+            <p>
+              • <strong>Estados claros:</strong> loading skeletons, empty states
+              com CTA
+            </p>
+            <p>
+              • <strong>Tokens F1:</strong> cores, tipografia e focus ring AA+
+            </p>
           </div>
         </CardContent>
       </Card>

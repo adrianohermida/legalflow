@@ -36,20 +36,23 @@ export function SF8DocumentosSetup() {
   const { toast } = useToast();
 
   // Verificar instalação SF-8
-  const { 
-    data: verificationResult, 
-    isLoading: isVerifying, 
+  const {
+    data: verificationResult,
+    isLoading: isVerifying,
     error: verifyError,
-    refetch: reverifyInstallation 
+    refetch: reverifyInstallation,
   } = useQuery({
     queryKey: ["sf8-verify-installation"],
     queryFn: async () => {
       const { data, error } = await lf.rpc("sf8_verify_installation");
       if (error) {
         const errorMsg = error.message || error.toString();
-        if (errorMsg.includes("does not exist") || errorMsg.includes("function")) {
+        if (
+          errorMsg.includes("does not exist") ||
+          errorMsg.includes("function")
+        ) {
           throw new Error(
-            "Funções SF-8 não encontradas. Execute o arquivo SF8_DOCUMENTOS_FLIPBOOK_RPC_FIXED.sql no Supabase SQL Editor."
+            "Funções SF-8 não encontradas. Execute o arquivo SF8_DOCUMENTOS_FLIPBOOK_RPC_FIXED.sql no Supabase SQL Editor.",
           );
         }
         throw error;
@@ -63,51 +66,67 @@ export function SF8DocumentosSetup() {
   const testMutation = useMutation({
     mutationFn: async () => {
       // Teste 1: Criar documento de teste
-      const { data: documentId, error: createError } = await lf.rpc("sf8_create_document", {
-        p_title: "Documento de Teste SF-8",
-        p_document_type: "outros",
-        p_numero_cnj: "1234567-89.2024.8.26.0001",
-        p_description: "Documento criado automaticamente para teste do sistema SF-8",
-        p_tags: ["teste", "sf8", "automático"],
-        p_metadata: {
-          test: true,
-          created_by: "sf8_setup_test",
-          timestamp: new Date().toISOString()
-        }
-      });
+      const { data: documentId, error: createError } = await lf.rpc(
+        "sf8_create_document",
+        {
+          p_title: "Documento de Teste SF-8",
+          p_document_type: "outros",
+          p_numero_cnj: "1234567-89.2024.8.26.0001",
+          p_description:
+            "Documento criado automaticamente para teste do sistema SF-8",
+          p_tags: ["teste", "sf8", "automático"],
+          p_metadata: {
+            test: true,
+            created_by: "sf8_setup_test",
+            timestamp: new Date().toISOString(),
+          },
+        },
+      );
 
       if (createError) throw createError;
 
       // Teste 2: Listar documentos
-      const { data: documents, error: listError } = await lf.rpc("sf8_list_documents", {
-        p_numero_cnj: "1234567-89.2024.8.26.0001",
-        p_limit: 5
-      });
+      const { data: documents, error: listError } = await lf.rpc(
+        "sf8_list_documents",
+        {
+          p_numero_cnj: "1234567-89.2024.8.26.0001",
+          p_limit: 5,
+        },
+      );
 
       if (listError) throw listError;
 
       // Teste 3: Buscar documentos
-      const { data: searchResults, error: searchError } = await lf.rpc("sf8_search_documents", {
-        p_search_query: "teste",
-        p_numero_cnj: "1234567-89.2024.8.26.0001",
-        p_limit: 5
-      });
+      const { data: searchResults, error: searchError } = await lf.rpc(
+        "sf8_search_documents",
+        {
+          p_search_query: "teste",
+          p_numero_cnj: "1234567-89.2024.8.26.0001",
+          p_limit: 5,
+        },
+      );
 
       if (searchError) throw searchError;
 
       // Teste 4: Estatísticas
-      const { data: stats, error: statsError } = await lf.rpc("sf8_get_statistics", {
-        p_numero_cnj: "1234567-89.2024.8.26.0001"
-      });
+      const { data: stats, error: statsError } = await lf.rpc(
+        "sf8_get_statistics",
+        {
+          p_numero_cnj: "1234567-89.2024.8.26.0001",
+        },
+      );
 
       if (statsError) throw statsError;
 
       // Teste 5: Aprovar documento
-      const { data: approvalResult, error: approvalError } = await lf.rpc("sf8_approve_document", {
-        p_document_id: documentId,
-        p_approved: true,
-        p_notes: "Documento aprovado automaticamente pelo teste SF-8"
-      });
+      const { data: approvalResult, error: approvalError } = await lf.rpc(
+        "sf8_approve_document",
+        {
+          p_document_id: documentId,
+          p_approved: true,
+          p_notes: "Documento aprovado automaticamente pelo teste SF-8",
+        },
+      );
 
       if (approvalError) throw approvalError;
 
@@ -117,14 +136,14 @@ export function SF8DocumentosSetup() {
         documents_found: documents?.length || 0,
         search_results: searchResults?.length || 0,
         stats: stats,
-        approval_result: approvalResult
+        approval_result: approvalResult,
       };
     },
     onSuccess: (result) => {
       setSetupResult({
         success: true,
         message: `Teste concluído com sucesso. Documento criado: ${result.document_id}`,
-        document_id: result.document_id
+        document_id: result.document_id,
       });
       toast({
         title: "SF-8 Teste Concluído",
@@ -133,14 +152,17 @@ export function SF8DocumentosSetup() {
     },
     onError: (error: any) => {
       const errorMessage = error.message || "Erro no teste";
-      
-      if (errorMessage.includes("does not exist") || errorMessage.includes("function")) {
+
+      if (
+        errorMessage.includes("does not exist") ||
+        errorMessage.includes("function")
+      ) {
         setShowInstallation(true);
       }
 
       setSetupResult({
         success: false,
-        error: errorMessage
+        error: errorMessage,
       });
       toast({
         title: "Erro no teste SF-8",
@@ -201,12 +223,13 @@ export function SF8DocumentosSetup() {
         <CardContent className="space-y-4">
           <div className="text-sm text-neutral-600">
             <p>
-              <strong>Behavior Goal:</strong> achar, ler e aprovar sem sair do caso.
+              <strong>Behavior Goal:</strong> achar, ler e aprovar sem sair do
+              caso.
             </p>
             <p className="mt-2">
-              Sistema completo de gestão documental com biblioteca, peças processuais 
-              e flipbook preview. Inclui storage organizado por processo, workflow de 
-              aprovação e busca avançada.
+              Sistema completo de gestão documental com biblioteca, peças
+              processuais e flipbook preview. Inclui storage organizado por
+              processo, workflow de aprovação e busca avançada.
             </p>
           </div>
 
@@ -216,10 +239,12 @@ export function SF8DocumentosSetup() {
               <AlertTriangle className="w-4 h-4" />
               <AlertDescription>
                 <div className="space-y-2">
-                  <p><strong>⚠️ Schema não instalado:</strong></p>
+                  <p>
+                    <strong>⚠️ Schema não instalado:</strong>
+                  </p>
                   <p>{verifyError.message}</p>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => setShowInstallation(true)}
                     className="mt-2"
                   >
@@ -242,42 +267,63 @@ export function SF8DocumentosSetup() {
                     <p>
                       <strong>Status:</strong> {verificationResult.message}
                     </p>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <span className="text-neutral-600">Versão:</span>
-                        <div className="font-medium">{verificationResult.schema_version}</div>
+                        <div className="font-medium">
+                          {verificationResult.schema_version}
+                        </div>
                       </div>
                       <div>
                         <span className="text-neutral-600">Tabelas:</span>
-                        <div className="font-medium">{verificationResult.tables_created}/4</div>
+                        <div className="font-medium">
+                          {verificationResult.tables_created}/4
+                        </div>
                       </div>
                       <div>
                         <span className="text-neutral-600">Funções:</span>
-                        <div className="font-medium">{verificationResult.functions_created}</div>
+                        <div className="font-medium">
+                          {verificationResult.functions_created}
+                        </div>
                       </div>
                       <div>
                         <span className="text-neutral-600">Documentos:</span>
-                        <div className="font-medium">{verificationResult.total_documents || 0}</div>
+                        <div className="font-medium">
+                          {verificationResult.total_documents || 0}
+                        </div>
                       </div>
                     </div>
 
                     {hasFeatures && (
                       <div>
-                        <h4 className="font-medium mb-2">Recursos Disponíveis:</h4>
+                        <h4 className="font-medium mb-2">
+                          Recursos Disponíveis:
+                        </h4>
                         <div className="grid grid-cols-2 gap-2 text-sm">
-                          {Object.entries(hasFeatures).map(([feature, available]) => (
-                            <div key={feature} className="flex items-center gap-2">
-                              {available ? (
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <AlertTriangle className="w-4 h-4 text-orange-500" />
-                              )}
-                              <span className={available ? "text-green-700" : "text-orange-700"}>
-                                {feature.replace(/_/g, " ")}
-                              </span>
-                            </div>
-                          ))}
+                          {Object.entries(hasFeatures).map(
+                            ([feature, available]) => (
+                              <div
+                                key={feature}
+                                className="flex items-center gap-2"
+                              >
+                                {available ? (
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <AlertTriangle className="w-4 h-4 text-orange-500" />
+                                )}
+                                <span
+                                  className={
+                                    available
+                                      ? "text-green-700"
+                                      : "text-orange-700"
+                                  }
+                                >
+                                  {feature.replace(/_/g, " ")}
+                                </span>
+                              </div>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
@@ -375,7 +421,9 @@ export function SF8DocumentosSetup() {
 
           {/* Informações sobre funcionalidades */}
           <div className="text-xs text-neutral-500 space-y-1">
-            <p><strong>Funcionalidades testadas:</strong></p>
+            <p>
+              <strong>Funcionalidades testadas:</strong>
+            </p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Biblioteca de documentos com metadata e versionamento</li>
               <li>Peças processuais especializadas com protocolo e tribunal</li>
@@ -475,7 +523,8 @@ CREATE TABLE IF NOT EXISTS public.documents (
 -- BAIXE O ARQUIVO COMPLETO SF8_DOCUMENTOS_FLIPBOOK_RPC_FIXED.sql (818 linhas)
 -- do diretório raiz do projeto para instalação completa.`,
               title: "📚 SF-8: Schema Principal da Estante Digital",
-              description: "Schema completo com biblioteca, peças, uploads e preview (818 linhas)",
+              description:
+                "Schema completo com biblioteca, peças, uploads e preview (818 linhas)",
               variant: "default",
             },
             {
@@ -511,7 +560,8 @@ CREATE OR REPLACE FUNCTION public.sf8_prepare_document_upload(...)
 -- BAIXE O ARQUIVO COMPLETO SF8_STORAGE_POLICIES.sql (416 linhas)
 -- do diretório raiz do projeto para configuração completa do storage.`,
               title: "🗄️ SF-8: Políticas de Storage",
-              description: "Configuração de buckets e políticas de acesso (416 linhas)",
+              description:
+                "Configuração de buckets e políticas de acesso (416 linhas)",
               variant: "secondary",
             },
           ]}

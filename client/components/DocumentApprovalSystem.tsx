@@ -60,23 +60,49 @@ interface DocumentApprovalSystemProps {
 }
 
 const STATUS_CONFIG = {
-  uploading: { label: "Carregando", color: "bg-blue-100 text-blue-700", icon: Clock },
-  uploaded: { label: "Aguardando", color: "bg-yellow-100 text-yellow-700", icon: Clock },
-  processing: { label: "Processando", color: "bg-blue-100 text-blue-700", icon: Clock },
-  approved: { label: "Aprovado", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  rejected: { label: "Rejeitado", color: "bg-red-100 text-red-700", icon: XCircle },
-  failed: { label: "Falha", color: "bg-red-100 text-red-700", icon: AlertTriangle },
+  uploading: {
+    label: "Carregando",
+    color: "bg-blue-100 text-blue-700",
+    icon: Clock,
+  },
+  uploaded: {
+    label: "Aguardando",
+    color: "bg-yellow-100 text-yellow-700",
+    icon: Clock,
+  },
+  processing: {
+    label: "Processando",
+    color: "bg-blue-100 text-blue-700",
+    icon: Clock,
+  },
+  approved: {
+    label: "Aprovado",
+    color: "bg-green-100 text-green-700",
+    icon: CheckCircle,
+  },
+  rejected: {
+    label: "Rejeitado",
+    color: "bg-red-100 text-red-700",
+    icon: XCircle,
+  },
+  failed: {
+    label: "Falha",
+    color: "bg-red-100 text-red-700",
+    icon: AlertTriangle,
+  },
 };
 
-export function DocumentApprovalSystem({ 
-  numero_cnj, 
-  stage_instance_id, 
-  mode = "full" 
+export function DocumentApprovalSystem({
+  numero_cnj,
+  stage_instance_id,
+  mode = "full",
 }: DocumentApprovalSystemProps) {
-  const [selectedUpload, setSelectedUpload] = useState<DocumentUpload | null>(null);
+  const [selectedUpload, setSelectedUpload] = useState<DocumentUpload | null>(
+    null,
+  );
   const [approvalNotes, setApprovalNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -90,18 +116,22 @@ export function DocumentApprovalSystem({
         .eq("requires_approval", true)
         .in("status", ["uploaded", "processing"])
         .order("created_at", { ascending: false });
-        
+
       if (error) throw error;
-      
+
       // Filtrar por critério se fornecido
       let filtered = data;
       if (numero_cnj) {
-        filtered = filtered.filter(upload => upload.numero_cnj === numero_cnj);
+        filtered = filtered.filter(
+          (upload) => upload.numero_cnj === numero_cnj,
+        );
       }
       if (stage_instance_id) {
-        filtered = filtered.filter(upload => upload.stage_instance_id === stage_instance_id);
+        filtered = filtered.filter(
+          (upload) => upload.stage_instance_id === stage_instance_id,
+        );
       }
-      
+
       return filtered as DocumentUpload[];
     },
     staleTime: 30 * 1000,
@@ -118,17 +148,21 @@ export function DocumentApprovalSystem({
         .in("status", ["approved", "rejected"])
         .order("approved_at", { ascending: false })
         .limit(mode === "widget" ? 5 : 20);
-        
+
       if (error) throw error;
-      
+
       let filtered = data;
       if (numero_cnj) {
-        filtered = filtered.filter(upload => upload.numero_cnj === numero_cnj);
+        filtered = filtered.filter(
+          (upload) => upload.numero_cnj === numero_cnj,
+        );
       }
       if (stage_instance_id) {
-        filtered = filtered.filter(upload => upload.stage_instance_id === stage_instance_id);
+        filtered = filtered.filter(
+          (upload) => upload.stage_instance_id === stage_instance_id,
+        );
       }
-      
+
       return filtered as DocumentUpload[];
     },
     staleTime: 60 * 1000,
@@ -136,7 +170,13 @@ export function DocumentApprovalSystem({
 
   // Mutation para aprovar documento
   const approveMutation = useMutation({
-    mutationFn: async ({ uploadId, notes }: { uploadId: string; notes?: string }) => {
+    mutationFn: async ({
+      uploadId,
+      notes,
+    }: {
+      uploadId: string;
+      notes?: string;
+    }) => {
       // Atualizar upload
       const { error: uploadError } = await lf
         .from("document_uploads")
@@ -195,7 +235,13 @@ export function DocumentApprovalSystem({
 
   // Mutation para rejeitar documento
   const rejectMutation = useMutation({
-    mutationFn: async ({ uploadId, reason }: { uploadId: string; reason: string }) => {
+    mutationFn: async ({
+      uploadId,
+      reason,
+    }: {
+      uploadId: string;
+      reason: string;
+    }) => {
       // Atualizar upload
       const { error: uploadError } = await lf
         .from("document_uploads")
@@ -253,7 +299,7 @@ export function DocumentApprovalSystem({
     if (!bytes) return "—";
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (dateString: string) => {
@@ -266,61 +312,69 @@ export function DocumentApprovalSystem({
     });
   };
 
-  const UploadItem = ({ upload, showActions = true }: { 
-    upload: DocumentUpload; 
+  const UploadItem = ({
+    upload,
+    showActions = true,
+  }: {
+    upload: DocumentUpload;
     showActions?: boolean;
   }) => {
-    const statusConfig = STATUS_CONFIG[upload.status as keyof typeof STATUS_CONFIG];
-    
+    const statusConfig =
+      STATUS_CONFIG[upload.status as keyof typeof STATUS_CONFIG];
+
     return (
       <Card className="hover:shadow-sm transition-shadow">
         <CardContent className="p-4">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
               <FileText className="w-5 h-5 text-neutral-500 mt-1" />
-              
+
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-sm truncate mb-1">
                   {upload.original_filename}
                 </h4>
-                
+
                 <div className="space-y-1 text-xs text-neutral-600">
                   {upload.file_size && (
                     <div>{formatFileSize(upload.file_size)}</div>
                   )}
-                  
+
                   {upload.numero_cnj && (
                     <div>Processo: {upload.numero_cnj}</div>
                   )}
-                  
+
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {formatDate(upload.created_at)}
                   </div>
-                  
+
                   {upload.approval_notes && (
                     <div className="flex items-start gap-1 mt-2">
                       <MessageSquare className="w-3 h-3 mt-0.5" />
-                      <span className="text-green-600">{upload.approval_notes}</span>
+                      <span className="text-green-600">
+                        {upload.approval_notes}
+                      </span>
                     </div>
                   )}
-                  
+
                   {upload.rejection_reason && (
                     <div className="flex items-start gap-1 mt-2">
                       <MessageSquare className="w-3 h-3 mt-0.5" />
-                      <span className="text-red-600">{upload.rejection_reason}</span>
+                      <span className="text-red-600">
+                        {upload.rejection_reason}
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 ml-3">
               <Badge className={statusConfig.color}>
                 <statusConfig.icon className="w-3 h-3 mr-1" />
                 {statusConfig.label}
               </Badge>
-              
+
               {showActions && upload.status === "uploaded" && (
                 <div className="flex items-center gap-1">
                   <AlertDialog>
@@ -338,28 +392,33 @@ export function DocumentApprovalSystem({
                       <AlertDialogHeader>
                         <AlertDialogTitle>Aprovar Documento</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tem certeza que deseja aprovar o documento "{upload.original_filename}"?
+                          Tem certeza que deseja aprovar o documento "
+                          {upload.original_filename}"?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      
+
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Observações (opcional)</label>
+                        <label className="text-sm font-medium">
+                          Observações (opcional)
+                        </label>
                         <Textarea
                           placeholder="Adicione observações sobre a aprovação..."
                           value={approvalNotes}
                           onChange={(e) => setApprovalNotes(e.target.value)}
                         />
                       </div>
-                      
+
                       <AlertDialogFooter>
                         <AlertDialogCancel onClick={() => setApprovalNotes("")}>
                           Cancelar
                         </AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => approveMutation.mutate({ 
-                            uploadId: upload.id, 
-                            notes: approvalNotes 
-                          })}
+                          onClick={() =>
+                            approveMutation.mutate({
+                              uploadId: upload.id,
+                              notes: approvalNotes,
+                            })
+                          }
                           disabled={approveMutation.isPending}
                           className="bg-green-600 hover:bg-green-700"
                         >
@@ -373,7 +432,7 @@ export function DocumentApprovalSystem({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                  
+
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -390,12 +449,15 @@ export function DocumentApprovalSystem({
                       <AlertDialogHeader>
                         <AlertDialogTitle>Rejeitar Documento</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tem certeza que deseja rejeitar o documento "{upload.original_filename}"?
+                          Tem certeza que deseja rejeitar o documento "
+                          {upload.original_filename}"?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      
+
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Motivo da rejeição *</label>
+                        <label className="text-sm font-medium">
+                          Motivo da rejeição *
+                        </label>
                         <Textarea
                           placeholder="Explique o motivo da rejeição..."
                           value={rejectionReason}
@@ -403,17 +465,23 @@ export function DocumentApprovalSystem({
                           required
                         />
                       </div>
-                      
+
                       <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setRejectionReason("")}>
+                        <AlertDialogCancel
+                          onClick={() => setRejectionReason("")}
+                        >
                           Cancelar
                         </AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => rejectMutation.mutate({ 
-                            uploadId: upload.id, 
-                            reason: rejectionReason 
-                          })}
-                          disabled={rejectMutation.isPending || !rejectionReason.trim()}
+                          onClick={() =>
+                            rejectMutation.mutate({
+                              uploadId: upload.id,
+                              reason: rejectionReason,
+                            })
+                          }
+                          disabled={
+                            rejectMutation.isPending || !rejectionReason.trim()
+                          }
                           className="bg-red-600 hover:bg-red-700"
                         >
                           {rejectMutation.isPending ? (
@@ -446,9 +514,7 @@ export function DocumentApprovalSystem({
               Aprovações Pendentes
             </div>
             {pendingUploads && pendingUploads.length > 0 && (
-              <Badge variant="secondary">
-                {pendingUploads.length}
-              </Badge>
+              <Badge variant="secondary">{pendingUploads.length}</Badge>
             )}
           </CardTitle>
         </CardHeader>
@@ -491,9 +557,7 @@ export function DocumentApprovalSystem({
             <Clock className="w-5 h-5" />
             Aprovações Pendentes
             {pendingUploads && pendingUploads.length > 0 && (
-              <Badge variant="secondary">
-                {pendingUploads.length}
-              </Badge>
+              <Badge variant="secondary">{pendingUploads.length}</Badge>
             )}
           </CardTitle>
         </CardHeader>
@@ -512,7 +576,9 @@ export function DocumentApprovalSystem({
             <div className="text-center py-8 text-neutral-500">
               <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
               <p className="text-lg font-medium">Tudo aprovado!</p>
-              <p className="text-sm">Não há documentos pendentes de aprovação</p>
+              <p className="text-sm">
+                Não há documentos pendentes de aprovação
+              </p>
             </div>
           )}
         </CardContent>
@@ -530,7 +596,11 @@ export function DocumentApprovalSystem({
           <CardContent>
             <div className="space-y-4">
               {approvalHistory.map((upload) => (
-                <UploadItem key={upload.id} upload={upload} showActions={false} />
+                <UploadItem
+                  key={upload.id}
+                  upload={upload}
+                  showActions={false}
+                />
               ))}
             </div>
           </CardContent>

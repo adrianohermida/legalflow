@@ -17,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "./ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -133,15 +128,19 @@ export const SF10StripeWizard: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<StripeSubscription[]>([]);
   const [invoices, setInvoices] = useState<StripeInvoice[]>([]);
   const [payments, setPayments] = useState<StripePaymentIntent[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [activeTab, setActiveTab] = useState<"customers" | "subscriptions" | "invoices" | "payments" | "checkout">("customers");
-  
+  const [activeTab, setActiveTab] = useState<
+    "customers" | "subscriptions" | "invoices" | "payments" | "checkout"
+  >("customers");
+
   // Checkout Wizard State
   const [showCheckoutWizard, setShowCheckoutWizard] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<"contact" | "price" | "quantity" | "session">("contact");
+  const [checkoutStep, setCheckoutStep] = useState<
+    "contact" | "price" | "quantity" | "session"
+  >("contact");
   const [checkoutData, setCheckoutData] = useState<CheckoutSession>({
     customer_email: "",
     line_items: [],
@@ -153,7 +152,7 @@ export const SF10StripeWizard: React.FC = () => {
   const [availablePrices, setAvailablePrices] = useState<any[]>([]);
   const [creatingCheckout, setCreatingCheckout] = useState(false);
   const [checkoutResult, setCheckoutResult] = useState<any>(null);
-  
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -184,11 +183,14 @@ export const SF10StripeWizard: React.FC = () => {
 
   const loadCustomers = async () => {
     try {
-      const { data, error } = await supabase.rpc("legalflow.list_stripe_customers", {
-        p_search: searchTerm || null,
-        p_status: statusFilter === "all" ? null : statusFilter,
-      });
-      
+      const { data, error } = await supabase.rpc(
+        "legalflow.list_stripe_customers",
+        {
+          p_search: searchTerm || null,
+          p_status: statusFilter === "all" ? null : statusFilter,
+        },
+      );
+
       if (error) throw error;
       setCustomers(data || []);
     } catch (error) {
@@ -200,21 +202,23 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_subscriptions")
-        .select(`
+        .select(
+          `
           *,
           customer:customer_id(email, name)
-        `)
+        `,
+        )
         .order("created_at", { ascending: false })
         .limit(50);
-      
+
       if (error) throw error;
-      
-      const formatted = (data || []).map(sub => ({
+
+      const formatted = (data || []).map((sub) => ({
         ...sub,
-        customer_email: sub.customer?.email || '',
-        customer_name: sub.customer?.name || '',
+        customer_email: sub.customer?.email || "",
+        customer_name: sub.customer?.name || "",
       }));
-      
+
       setSubscriptions(formatted);
     } catch (error) {
       console.error("Error loading subscriptions:", error);
@@ -225,21 +229,23 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_invoices")
-        .select(`
+        .select(
+          `
           *,
           customer:customer_id(email, name)
-        `)
+        `,
+        )
         .order("created_at", { ascending: false })
         .limit(50);
-      
+
       if (error) throw error;
-      
-      const formatted = (data || []).map(inv => ({
+
+      const formatted = (data || []).map((inv) => ({
         ...inv,
-        customer_email: inv.customer?.email || '',
-        customer_name: inv.customer?.name || '',
+        customer_email: inv.customer?.email || "",
+        customer_name: inv.customer?.name || "",
       }));
-      
+
       setInvoices(formatted);
     } catch (error) {
       console.error("Error loading invoices:", error);
@@ -250,20 +256,22 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_payment_intents")
-        .select(`
+        .select(
+          `
           *,
           customer:customer_id(email, name)
-        `)
+        `,
+        )
         .order("created_at", { ascending: false })
         .limit(50);
-      
+
       if (error) throw error;
-      
-      const formatted = (data || []).map(payment => ({
+
+      const formatted = (data || []).map((payment) => ({
         ...payment,
-        customer_email: payment.customer?.email || '',
+        customer_email: payment.customer?.email || "",
       }));
-      
+
       setPayments(formatted);
     } catch (error) {
       console.error("Error loading payments:", error);
@@ -274,13 +282,15 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_prices")
-        .select(`
+        .select(
+          `
           *,
           product:product_id(name, description)
-        `)
+        `,
+        )
         .eq("active", true)
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       setAvailablePrices(data || []);
     } catch (error) {
@@ -291,31 +301,36 @@ export const SF10StripeWizard: React.FC = () => {
   const createCheckoutSession = async () => {
     try {
       setCreatingCheckout(true);
-      
-      const priceIds = checkoutData.line_items.map(item => item.price_id);
-      const quantities = checkoutData.line_items.map(item => item.quantity);
-      
-      const { data, error } = await supabase.rpc("legalflow.create_checkout_session", {
-        p_customer_email: checkoutData.customer_email,
-        p_price_ids: priceIds,
-        p_quantities: quantities,
-        p_success_url: checkoutData.success_url || `${window.location.origin}/success`,
-        p_cancel_url: checkoutData.cancel_url || `${window.location.origin}/cancel`,
-        p_mode: checkoutData.mode,
-        p_metadata: checkoutData.metadata,
-      });
-      
+
+      const priceIds = checkoutData.line_items.map((item) => item.price_id);
+      const quantities = checkoutData.line_items.map((item) => item.quantity);
+
+      const { data, error } = await supabase.rpc(
+        "legalflow.create_checkout_session",
+        {
+          p_customer_email: checkoutData.customer_email,
+          p_price_ids: priceIds,
+          p_quantities: quantities,
+          p_success_url:
+            checkoutData.success_url || `${window.location.origin}/success`,
+          p_cancel_url:
+            checkoutData.cancel_url || `${window.location.origin}/cancel`,
+          p_mode: checkoutData.mode,
+          p_metadata: checkoutData.metadata,
+        },
+      );
+
       if (error) throw error;
-      
+
       if (data.success) {
         setCheckoutResult(data);
         setCheckoutStep("session");
-        
+
         toast({
           title: "Checkout criado com sucesso",
           description: `Total: R$ ${(data.amount_total / 100).toFixed(2)}`,
         });
-        
+
         // Reload data to show new session
         await loadData();
       } else {
@@ -325,7 +340,8 @@ export const SF10StripeWizard: React.FC = () => {
       console.error("Error creating checkout:", error);
       toast({
         title: "Erro ao criar checkout",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -402,24 +418,27 @@ export const SF10StripeWizard: React.FC = () => {
   };
 
   // Filter data based on search and status
-  const filteredCustomers = customers.filter(customer => {
-    const matchesSearch = searchTerm === "" || 
+  const filteredCustomers = customers.filter((customer) => {
+    const matchesSearch =
+      searchTerm === "" ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" ||
+
+    const matchesStatus =
+      statusFilter === "all" ||
       (statusFilter === "active" && customer.active_subscriptions > 0) ||
       (statusFilter === "delinquent" && customer.delinquent) ||
       (statusFilter === "past_due" && customer.unpaid_invoices > 0);
-    
+
     return matchesSearch && matchesStatus;
   });
 
   const getPastDueCount = () => {
-    return invoices.filter(inv => 
-      inv.status === "open" && 
-      inv.due_date && 
-      new Date(inv.due_date) < new Date()
+    return invoices.filter(
+      (inv) =>
+        inv.status === "open" &&
+        inv.due_date &&
+        new Date(inv.due_date) < new Date(),
     ).length;
   };
 
@@ -437,15 +456,13 @@ export const SF10StripeWizard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            onClick={loadData}
-            disabled={loading}
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <Button variant="outline" onClick={loadData} disabled={loading}>
+            <RefreshCw
+              className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
             Atualizar
           </Button>
-          <Button 
+          <Button
             onClick={() => setShowCheckoutWizard(true)}
             className="bg-green-600 hover:bg-green-700"
           >
@@ -475,9 +492,11 @@ export const SF10StripeWizard: React.FC = () => {
               <TrendingUp className="w-8 h-8 text-green-600" />
               <div>
                 <div className="text-2xl font-bold">
-                  {subscriptions.filter(s => s.status === 'active').length}
+                  {subscriptions.filter((s) => s.status === "active").length}
                 </div>
-                <div className="text-sm text-neutral-600">Assinaturas Ativas</div>
+                <div className="text-sm text-neutral-600">
+                  Assinaturas Ativas
+                </div>
               </div>
             </div>
           </CardContent>
@@ -537,13 +556,19 @@ export const SF10StripeWizard: React.FC = () => {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+      >
         <TabsList>
           <TabsTrigger value="customers" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Clientes
           </TabsTrigger>
-          <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+          <TabsTrigger
+            value="subscriptions"
+            className="flex items-center gap-2"
+          >
             <TrendingUp className="w-4 h-4" />
             Assinaturas
           </TabsTrigger>
@@ -561,18 +586,29 @@ export const SF10StripeWizard: React.FC = () => {
         <TabsContent value="customers" className="space-y-4">
           <div className="grid gap-4">
             {filteredCustomers.map((customer) => (
-              <Card key={customer.id} className="transition-all hover:shadow-md">
+              <Card
+                key={customer.id}
+                className="transition-all hover:shadow-md"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${customer.delinquent ? 'bg-red-100' : 'bg-green-100'}`}>
-                        <Users className={`w-5 h-5 ${customer.delinquent ? 'text-red-600' : 'text-green-600'}`} />
+                      <div
+                        className={`p-2 rounded-lg ${customer.delinquent ? "bg-red-100" : "bg-green-100"}`}
+                      >
+                        <Users
+                          className={`w-5 h-5 ${customer.delinquent ? "text-red-600" : "text-green-600"}`}
+                        />
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{customer.name || customer.email}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {customer.name || customer.email}
+                        </CardTitle>
                         <CardDescription>{customer.email}</CardDescription>
                         {customer.phone && (
-                          <div className="text-sm text-neutral-600">{customer.phone}</div>
+                          <div className="text-sm text-neutral-600">
+                            {customer.phone}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -595,7 +631,9 @@ export const SF10StripeWizard: React.FC = () => {
                       <div className="text-lg font-bold text-green-600">
                         {formatCurrency(customer.total_spent * 100)}
                       </div>
-                      <div className="text-sm text-neutral-600">Total gasto</div>
+                      <div className="text-sm text-neutral-600">
+                        Total gasto
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
@@ -603,19 +641,27 @@ export const SF10StripeWizard: React.FC = () => {
                   <div className="grid grid-cols-4 gap-4 text-sm">
                     <div>
                       <div className="text-neutral-600">Assinaturas</div>
-                      <div className="font-medium">{customer.total_subscriptions}</div>
+                      <div className="font-medium">
+                        {customer.total_subscriptions}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Faturas</div>
-                      <div className="font-medium">{customer.total_invoices}</div>
+                      <div className="font-medium">
+                        {customer.total_invoices}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Stripe ID</div>
-                      <div className="font-mono text-xs">{customer.stripe_customer_id}</div>
+                      <div className="font-mono text-xs">
+                        {customer.stripe_customer_id}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Criado em</div>
-                      <div className="font-medium">{new Date(customer.created_at).toLocaleDateString()}</div>
+                      <div className="font-medium">
+                        {new Date(customer.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -628,14 +674,22 @@ export const SF10StripeWizard: React.FC = () => {
         <TabsContent value="subscriptions" className="space-y-4">
           <div className="grid gap-4">
             {subscriptions.map((subscription) => (
-              <Card key={subscription.id} className="transition-all hover:shadow-md">
+              <Card
+                key={subscription.id}
+                className="transition-all hover:shadow-md"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(subscription.status)}
                       <div>
-                        <CardTitle className="text-base">{subscription.customer_name || subscription.customer_email}</CardTitle>
-                        <CardDescription>{subscription.customer_email}</CardDescription>
+                        <CardTitle className="text-base">
+                          {subscription.customer_name ||
+                            subscription.customer_email}
+                        </CardTitle>
+                        <CardDescription>
+                          {subscription.customer_email}
+                        </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
@@ -653,8 +707,13 @@ export const SF10StripeWizard: React.FC = () => {
                     <div>
                       <div className="text-neutral-600">Período atual</div>
                       <div className="font-medium">
-                        {new Date(subscription.current_period_start).toLocaleDateString()} - {" "}
-                        {new Date(subscription.current_period_end).toLocaleDateString()}
+                        {new Date(
+                          subscription.current_period_start,
+                        ).toLocaleDateString()}{" "}
+                        -{" "}
+                        {new Date(
+                          subscription.current_period_end,
+                        ).toLocaleDateString()}
                       </div>
                     </div>
                     <div>
@@ -665,7 +724,9 @@ export const SF10StripeWizard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-neutral-600">Criado em</div>
-                      <div className="font-medium">{new Date(subscription.created_at).toLocaleDateString()}</div>
+                      <div className="font-medium">
+                        {new Date(subscription.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -690,13 +751,20 @@ export const SF10StripeWizard: React.FC = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
+                              onClick={() =>
+                                window.open(
+                                  invoice.hosted_invoice_url,
+                                  "_blank",
+                                )
+                              }
                             >
                               <ExternalLink className="w-3 h-3" />
                             </Button>
                           )}
                         </CardTitle>
-                        <CardDescription>{invoice.customer_name || invoice.customer_email}</CardDescription>
+                        <CardDescription>
+                          {invoice.customer_name || invoice.customer_email}
+                        </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
@@ -708,7 +776,8 @@ export const SF10StripeWizard: React.FC = () => {
                       </div>
                       {invoice.due_date && (
                         <div className="text-sm text-neutral-600">
-                          Vence: {new Date(invoice.due_date).toLocaleDateString()}
+                          Vence:{" "}
+                          {new Date(invoice.due_date).toLocaleDateString()}
                         </div>
                       )}
                     </div>
@@ -718,11 +787,15 @@ export const SF10StripeWizard: React.FC = () => {
                   <div className="grid grid-cols-4 gap-4 text-sm">
                     <div>
                       <div className="text-neutral-600">Valor devido</div>
-                      <div className="font-medium">{formatCurrency(invoice.amount_due)}</div>
+                      <div className="font-medium">
+                        {formatCurrency(invoice.amount_due)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Valor pago</div>
-                      <div className="font-medium">{formatCurrency(invoice.amount_paid)}</div>
+                      <div className="font-medium">
+                        {formatCurrency(invoice.amount_paid)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Status</div>
@@ -730,7 +803,9 @@ export const SF10StripeWizard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-neutral-600">Criado em</div>
-                      <div className="font-medium">{new Date(invoice.created_at).toLocaleDateString()}</div>
+                      <div className="font-medium">
+                        {new Date(invoice.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -749,8 +824,13 @@ export const SF10StripeWizard: React.FC = () => {
                     <div className="flex items-center gap-3">
                       {getStatusIcon(payment.status)}
                       <div>
-                        <CardTitle className="text-base">{payment.description || payment.stripe_payment_intent_id}</CardTitle>
-                        <CardDescription>{payment.customer_email}</CardDescription>
+                        <CardTitle className="text-base">
+                          {payment.description ||
+                            payment.stripe_payment_intent_id}
+                        </CardTitle>
+                        <CardDescription>
+                          {payment.customer_email}
+                        </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
@@ -767,7 +847,9 @@ export const SF10StripeWizard: React.FC = () => {
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
                       <div className="text-neutral-600">Moeda</div>
-                      <div className="font-medium">{payment.currency.toUpperCase()}</div>
+                      <div className="font-medium">
+                        {payment.currency.toUpperCase()}
+                      </div>
                     </div>
                     <div>
                       <div className="text-neutral-600">Status</div>
@@ -775,7 +857,9 @@ export const SF10StripeWizard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-neutral-600">Criado em</div>
-                      <div className="font-medium">{new Date(payment.created_at).toLocaleDateString()}</div>
+                      <div className="font-medium">
+                        {new Date(payment.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -794,7 +878,7 @@ export const SF10StripeWizard: React.FC = () => {
               Contato → Preço → Quantidade → Sessão
             </DialogDescription>
           </DialogHeader>
-          
+
           <CheckoutWizardPanel
             step={checkoutStep}
             setStep={setCheckoutStep}
@@ -837,25 +921,29 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
   onReset,
 }) => {
   const addLineItem = () => {
-    setCheckoutData(prev => ({
+    setCheckoutData((prev) => ({
       ...prev,
-      line_items: [...prev.line_items, { price_id: "", quantity: 1 }]
+      line_items: [...prev.line_items, { price_id: "", quantity: 1 }],
     }));
   };
 
-  const updateLineItem = (index: number, field: keyof CheckoutSession['line_items'][0], value: any) => {
-    setCheckoutData(prev => ({
+  const updateLineItem = (
+    index: number,
+    field: keyof CheckoutSession["line_items"][0],
+    value: any,
+  ) => {
+    setCheckoutData((prev) => ({
       ...prev,
-      line_items: prev.line_items.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      line_items: prev.line_items.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
   const removeLineItem = (index: number) => {
-    setCheckoutData(prev => ({
+    setCheckoutData((prev) => ({
       ...prev,
-      line_items: prev.line_items.filter((_, i) => i !== index)
+      line_items: prev.line_items.filter((_, i) => i !== index),
     }));
   };
 
@@ -864,10 +952,12 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
       case "contact":
         return checkoutData.customer_email.includes("@");
       case "price":
-        return checkoutData.line_items.length > 0 && 
-               checkoutData.line_items.every(item => item.price_id);
+        return (
+          checkoutData.line_items.length > 0 &&
+          checkoutData.line_items.every((item) => item.price_id)
+        );
       case "quantity":
-        return checkoutData.line_items.every(item => item.quantity > 0);
+        return checkoutData.line_items.every((item) => item.quantity > 0);
       default:
         return false;
     }
@@ -875,7 +965,9 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
 
   const getTotalAmount = () => {
     return checkoutData.line_items.reduce((total, item) => {
-      const price = availablePrices.find(p => p.stripe_price_id === item.price_id);
+      const price = availablePrices.find(
+        (p) => p.stripe_price_id === item.price_id,
+      );
       return total + (price?.unit_amount || 0) * item.quantity;
     }, 0);
   };
@@ -884,30 +976,46 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
     <div className="space-y-6">
       {/* Step Indicator */}
       <div className="flex items-center justify-center space-x-4">
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "contact" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "contact"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <Users className="w-4 h-4" />
           1. Contato
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "price" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "price"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <DollarSign className="w-4 h-4" />
           2. Preço
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "quantity" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "quantity"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <Target className="w-4 h-4" />
           3. Quantidade
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-          step === "session" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+            step === "session"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
           <ShoppingCart className="w-4 h-4" />
           4. Sessão
         </div>
@@ -926,17 +1034,22 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
                 id="email"
                 type="email"
                 value={checkoutData.customer_email}
-                onChange={(e) => setCheckoutData(prev => ({ ...prev, customer_email: e.target.value }))}
+                onChange={(e) =>
+                  setCheckoutData((prev) => ({
+                    ...prev,
+                    customer_email: e.target.value,
+                  }))
+                }
                 placeholder="cliente@exemplo.com"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="mode">Tipo de Checkout</Label>
-              <Select 
-                value={checkoutData.mode} 
-                onValueChange={(value: "payment" | "subscription") => 
-                  setCheckoutData(prev => ({ ...prev, mode: value }))
+              <Select
+                value={checkoutData.mode}
+                onValueChange={(value: "payment" | "subscription") =>
+                  setCheckoutData((prev) => ({ ...prev, mode: value }))
                 }
               >
                 <SelectTrigger>
@@ -949,8 +1062,8 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
               </Select>
             </div>
 
-            <Button 
-              onClick={() => setStep("price")} 
+            <Button
+              onClick={() => setStep("price")}
               disabled={!canProceed()}
               className="w-full"
             >
@@ -968,10 +1081,15 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
           </CardHeader>
           <CardContent className="space-y-4">
             {checkoutData.line_items.map((item, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-                <Select 
-                  value={item.price_id} 
-                  onValueChange={(value) => updateLineItem(index, "price_id", value)}
+              <div
+                key={index}
+                className="flex items-center gap-3 p-3 border rounded-lg"
+              >
+                <Select
+                  value={item.price_id}
+                  onValueChange={(value) =>
+                    updateLineItem(index, "price_id", value)
+                  }
                 >
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Selecione um preço" />
@@ -979,15 +1097,17 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
                   <SelectContent>
                     {availablePrices.map((price) => (
                       <SelectItem key={price.id} value={price.stripe_price_id}>
-                        {price.product?.name} - R$ {(price.unit_amount / 100).toFixed(2)}
-                        {price.type === 'recurring' && ` /${price.recurring_interval}`}
+                        {price.product?.name} - R${" "}
+                        {(price.unit_amount / 100).toFixed(2)}
+                        {price.type === "recurring" &&
+                          ` /${price.recurring_interval}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => removeLineItem(index)}
                 >
@@ -995,26 +1115,22 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
                 </Button>
               </div>
             ))}
-            
-            <Button 
-              variant="outline" 
-              onClick={addLineItem}
-              className="w-full"
-            >
+
+            <Button variant="outline" onClick={addLineItem} className="w-full">
               <Plus className="w-4 h-4 mr-2" />
               Adicionar Item
             </Button>
 
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setStep("contact")}
                 className="flex-1"
               >
                 Voltar
               </Button>
-              <Button 
-                onClick={() => setStep("quantity")} 
+              <Button
+                onClick={() => setStep("quantity")}
                 disabled={!canProceed()}
                 className="flex-1"
               >
@@ -1033,34 +1149,50 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
           </CardHeader>
           <CardContent className="space-y-4">
             {checkoutData.line_items.map((item, index) => {
-              const price = availablePrices.find(p => p.stripe_price_id === item.price_id);
+              const price = availablePrices.find(
+                (p) => p.stripe_price_id === item.price_id,
+              );
               return (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div>
                     <div className="font-medium">{price?.product?.name}</div>
                     <div className="text-sm text-neutral-600">
                       R$ {(price?.unit_amount / 100).toFixed(2)}
-                      {price?.type === 'recurring' && ` /${price.recurring_interval}`}
+                      {price?.type === "recurring" &&
+                        ` /${price.recurring_interval}`}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Label>Quantidade:</Label>
                     <Input
                       type="number"
                       min="1"
                       value={item.quantity}
-                      onChange={(e) => updateLineItem(index, "quantity", parseInt(e.target.value) || 1)}
+                      onChange={(e) =>
+                        updateLineItem(
+                          index,
+                          "quantity",
+                          parseInt(e.target.value) || 1,
+                        )
+                      }
                       className="w-20"
                     />
                     <div className="font-bold">
-                      R$ {((price?.unit_amount || 0) * item.quantity / 100).toFixed(2)}
+                      R${" "}
+                      {(
+                        ((price?.unit_amount || 0) * item.quantity) /
+                        100
+                      ).toFixed(2)}
                     </div>
                   </div>
                 </div>
               );
             })}
-            
+
             <div className="border-t pt-3">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
@@ -1069,15 +1201,15 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
             </div>
 
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setStep("price")}
                 className="flex-1"
               >
                 Voltar
               </Button>
-              <Button 
-                onClick={onCreateCheckout} 
+              <Button
+                onClick={onCreateCheckout}
                 disabled={!canProceed() || creatingCheckout}
                 className="flex-1"
               >
@@ -1108,28 +1240,31 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
               <CheckCircle className="w-4 h-4 text-green-600" />
               <AlertDescription>
                 <div className="font-medium text-green-800">
-                  Checkout criado com sucesso! Total: R$ {(checkoutResult.amount_total / 100).toFixed(2)}
+                  Checkout criado com sucesso! Total: R${" "}
+                  {(checkoutResult.amount_total / 100).toFixed(2)}
                 </div>
               </AlertDescription>
             </Alert>
-            
+
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-sm font-medium mb-2">URL do Checkout:</div>
               <div className="flex items-center gap-2">
-                <Input 
+                <Input
                   value={checkoutResult.checkout_url}
                   readOnly
                   className="font-mono text-sm"
                 />
                 <Button
                   size="sm"
-                  onClick={() => window.open(checkoutResult.checkout_url, '_blank')}
+                  onClick={() =>
+                    window.open(checkoutResult.checkout_url, "_blank")
+                  }
                 >
                   <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
             </div>
-            
+
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-sm font-medium mb-2">Itens do Checkout:</div>
               <pre className="text-xs overflow-x-auto">
@@ -1138,15 +1273,13 @@ const CheckoutWizardPanel: React.FC<CheckoutWizardPanelProps> = ({
             </div>
 
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                onClick={onReset}
-                className="flex-1"
-              >
+              <Button variant="outline" onClick={onReset} className="flex-1">
                 Criar Novo Checkout
               </Button>
-              <Button 
-                onClick={() => window.open(checkoutResult.checkout_url, '_blank')}
+              <Button
+                onClick={() =>
+                  window.open(checkoutResult.checkout_url, "_blank")
+                }
                 className="flex-1"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />

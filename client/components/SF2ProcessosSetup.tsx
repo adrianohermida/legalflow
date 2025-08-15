@@ -99,7 +99,10 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
 
         if (error) {
           const errorMsg = error.message || error.toString();
-          if (errorMsg.includes("does not exist") || errorMsg.includes("function")) {
+          if (
+            errorMsg.includes("does not exist") ||
+            errorMsg.includes("function")
+          ) {
             throw new Error(
               "Funções SF-2 não encontradas. Execute o arquivo SF2_CHAT_MULTITHREAD_RPC_FIXED.sql no Supabase SQL Editor.",
             );

@@ -112,34 +112,38 @@ export const SF10StripeSetup: React.FC = () => {
         .select("table_name")
         .eq("table_schema", "legalflow")
         .in("table_name", [
-          "stripe_customers", 
-          "stripe_products", 
+          "stripe_customers",
+          "stripe_products",
           "stripe_prices",
           "stripe_subscriptions",
           "stripe_invoices",
           "stripe_payment_intents",
           "stripe_checkout_sessions",
-          "stripe_webhook_events"
+          "stripe_webhook_events",
         ]);
 
       const expectedTables = [
-        "stripe_customers", 
-        "stripe_products", 
+        "stripe_customers",
+        "stripe_products",
         "stripe_prices",
         "stripe_subscriptions",
-        "stripe_invoices", 
+        "stripe_invoices",
         "stripe_payment_intents",
         "stripe_checkout_sessions",
-        "stripe_webhook_events"
+        "stripe_webhook_events",
       ];
-      const foundTables = tables?.map(t => t.table_name) || [];
-      const missingTables = expectedTables.filter(t => !foundTables.includes(t));
+      const foundTables = tables?.map((t) => t.table_name) || [];
+      const missingTables = expectedTables.filter(
+        (t) => !foundTables.includes(t),
+      );
 
       diagnostics[0].status = missingTables.length === 0 ? "success" : "error";
-      diagnostics[0].details = missingTables.length === 0 
-        ? "Todas as tabelas Stripe encontradas" 
-        : `Tabelas faltando: ${missingTables.join(", ")}`;
-      diagnostics[0].action = missingTables.length > 0 ? "install_schema" : undefined;
+      diagnostics[0].details =
+        missingTables.length === 0
+          ? "Todas as tabelas Stripe encontradas"
+          : `Tabelas faltando: ${missingTables.join(", ")}`;
+      diagnostics[0].action =
+        missingTables.length > 0 ? "install_schema" : undefined;
     } catch (error) {
       diagnostics[0].status = "error";
       diagnostics[0].details = `Erro ao verificar schema: ${error instanceof Error ? error.message : "Erro desconhecido"}`;
@@ -153,7 +157,7 @@ export const SF10StripeSetup: React.FC = () => {
         .limit(1);
 
       diagnostics[1].status = customersError ? "error" : "success";
-      diagnostics[1].details = customersError 
+      diagnostics[1].details = customersError
         ? `Erro: ${customersError.message}`
         : "Tabela stripe_customers funcionando";
     } catch (error) {
@@ -184,7 +188,8 @@ export const SF10StripeSetup: React.FC = () => {
         diagnostics[2].details = `${products.length} produtos, ${prices.length} preços encontrados`;
       } else {
         diagnostics[2].status = "warning";
-        diagnostics[2].details = "Tabelas existem mas não há produtos configurados";
+        diagnostics[2].details =
+          "Tabelas existem mas não há produtos configurados";
         diagnostics[2].action = "seed_data";
       }
     } catch (error) {
@@ -200,7 +205,7 @@ export const SF10StripeSetup: React.FC = () => {
         .limit(1);
 
       diagnostics[3].status = subsError ? "error" : "success";
-      diagnostics[3].details = subsError 
+      diagnostics[3].details = subsError
         ? `Erro: ${subsError.message}`
         : "Tabela stripe_subscriptions funcionando";
     } catch (error) {
@@ -216,7 +221,7 @@ export const SF10StripeSetup: React.FC = () => {
         .limit(1);
 
       diagnostics[4].status = invoicesError ? "error" : "success";
-      diagnostics[4].details = invoicesError 
+      diagnostics[4].details = invoicesError
         ? `Erro: ${invoicesError.message}`
         : "Tabela stripe_invoices funcionando";
     } catch (error) {
@@ -232,7 +237,7 @@ export const SF10StripeSetup: React.FC = () => {
         .limit(1);
 
       diagnostics[5].status = checkoutError ? "error" : "success";
-      diagnostics[5].details = checkoutError 
+      diagnostics[5].details = checkoutError
         ? `Erro: ${checkoutError.message}`
         : "Tabela stripe_checkout_sessions funcionando";
     } catch (error) {
@@ -248,7 +253,7 @@ export const SF10StripeSetup: React.FC = () => {
         .limit(1);
 
       diagnostics[6].status = webhooksError ? "error" : "success";
-      diagnostics[6].details = webhooksError 
+      diagnostics[6].details = webhooksError
         ? `Erro: ${webhooksError.message}`
         : "Tabela stripe_webhook_events funcionando";
     } catch (error) {
@@ -258,19 +263,17 @@ export const SF10StripeSetup: React.FC = () => {
 
     // Check RPC functions
     try {
-      const { data: testCheckout, error: checkoutRPCError } = await supabase.rpc(
-        "legalflow.create_checkout_session",
-        {
+      const { data: testCheckout, error: checkoutRPCError } =
+        await supabase.rpc("legalflow.create_checkout_session", {
           p_customer_email: "test@example.com",
           p_price_ids: [],
           p_quantities: [],
           p_success_url: "https://example.com/success",
           p_cancel_url: "https://example.com/cancel",
-        }
-      );
+        });
 
       diagnostics[7].status = checkoutRPCError ? "error" : "success";
-      diagnostics[7].details = checkoutRPCError 
+      diagnostics[7].details = checkoutRPCError
         ? `Erro nas funções RPC: ${checkoutRPCError.message}`
         : "Funções RPC funcionando corretamente";
     } catch (error) {
@@ -285,15 +288,15 @@ export const SF10StripeSetup: React.FC = () => {
   const runSeed = async () => {
     try {
       setSeeding(true);
-      
+
       const result = await implAutofix("STRIPE_SEED");
-      
+
       if (result.success) {
         toast({
           title: "Seed executado com sucesso",
           description: result.message,
         });
-        
+
         // Re-run diagnostics
         await runDiagnostics();
       } else {
@@ -307,7 +310,8 @@ export const SF10StripeSetup: React.FC = () => {
       console.error("Error seeding:", error);
       toast({
         title: "Erro no seed",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -318,20 +322,23 @@ export const SF10StripeSetup: React.FC = () => {
   const runTest = async () => {
     try {
       setTesting(true);
-      
+
       // Test creating a checkout session
-      const { data, error } = await supabase.rpc("legalflow.create_checkout_session", {
-        p_customer_email: "test@legalflow.com",
-        p_price_ids: ["price_consultoria_mensal"],
-        p_quantities: [1],
-        p_success_url: `${window.location.origin}/success`,
-        p_cancel_url: `${window.location.origin}/cancel`,
-        p_mode: "payment",
-        p_metadata: { test: true, source: "SF10_setup" },
-      });
-      
+      const { data, error } = await supabase.rpc(
+        "legalflow.create_checkout_session",
+        {
+          p_customer_email: "test@legalflow.com",
+          p_price_ids: ["price_consultoria_mensal"],
+          p_quantities: [1],
+          p_success_url: `${window.location.origin}/success`,
+          p_cancel_url: `${window.location.origin}/cancel`,
+          p_mode: "payment",
+          p_metadata: { test: true, source: "SF10_setup" },
+        },
+      );
+
       if (error) throw error;
-      
+
       if (data.success) {
         toast({
           title: "Teste bem-sucedido",
@@ -344,7 +351,8 @@ export const SF10StripeSetup: React.FC = () => {
       console.error("Error testing:", error);
       toast({
         title: "Erro no teste",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -372,7 +380,8 @@ export const SF10StripeSetup: React.FC = () => {
 
     toast({
       title: "Arquivo baixado",
-      description: "Guia de instalação baixado. Execute SF10_STRIPE_SCHEMA.sql no Supabase.",
+      description:
+        "Guia de instalação baixado. Execute SF10_STRIPE_SCHEMA.sql no Supabase.",
     });
   };
 
@@ -389,13 +398,13 @@ export const SF10StripeSetup: React.FC = () => {
     }
   };
 
-  const overallStatus = checks.every(c => c.status === "success") 
-    ? "success" 
-    : checks.some(c => c.status === "error") 
-      ? "error" 
+  const overallStatus = checks.every((c) => c.status === "success")
+    ? "success"
+    : checks.some((c) => c.status === "error")
+      ? "error"
       : "warning";
 
-  const successCount = checks.filter(c => c.status === "success").length;
+  const successCount = checks.filter((c) => c.status === "success").length;
   const totalCount = checks.length;
 
   return (
@@ -412,9 +421,14 @@ export const SF10StripeSetup: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge 
-            variant={overallStatus === "success" ? "default" : 
-                    overallStatus === "error" ? "destructive" : "secondary"}
+          <Badge
+            variant={
+              overallStatus === "success"
+                ? "default"
+                : overallStatus === "error"
+                  ? "destructive"
+                  : "secondary"
+            }
           >
             {successCount}/{totalCount} Verificações
           </Badge>
@@ -422,21 +436,24 @@ export const SF10StripeSetup: React.FC = () => {
       </div>
 
       {/* Status Summary */}
-      <Alert className={
-        overallStatus === "success" ? "border-green-200 bg-green-50" :
-        overallStatus === "error" ? "border-red-200 bg-red-50" :
-        "border-yellow-200 bg-yellow-50"
-      }>
+      <Alert
+        className={
+          overallStatus === "success"
+            ? "border-green-200 bg-green-50"
+            : overallStatus === "error"
+              ? "border-red-200 bg-red-50"
+              : "border-yellow-200 bg-yellow-50"
+        }
+      >
         <AlertDescription>
           <div className="flex items-center gap-2">
             {getStatusIcon(overallStatus)}
             <span className="font-medium">
-              {overallStatus === "success" 
+              {overallStatus === "success"
                 ? "✅ Stripe Wizard está configurado e funcionando"
                 : overallStatus === "error"
                   ? "❌ Problemas críticos encontrados - instalação necessária"
-                  : "⚠️ Configuração parcial - seed de dados recomendado"
-              }
+                  : "⚠️ Configuração parcial - seed de dados recomendado"}
             </span>
           </div>
         </AlertDescription>
@@ -444,37 +461,30 @@ export const SF10StripeSetup: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="grid grid-cols-4 gap-3">
-        <Button
-          variant="outline"
-          onClick={runDiagnostics}
-          disabled={loading}
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+        <Button variant="outline" onClick={runDiagnostics} disabled={loading}>
+          <RefreshCw
+            className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
+          />
           {loading ? "Verificando..." : "Verificar"}
         </Button>
-        
-        <Button
-          variant="outline"
-          onClick={runSeed}
-          disabled={seeding}
-        >
-          <Zap className={`w-4 h-4 mr-2 ${seeding ? 'animate-spin' : ''}`} />
+
+        <Button variant="outline" onClick={runSeed} disabled={seeding}>
+          <Zap className={`w-4 h-4 mr-2 ${seeding ? "animate-spin" : ""}`} />
           {seeding ? "Seeding..." : "Seed/Autofix"}
         </Button>
-        
+
         <Button
           variant="outline"
           onClick={runTest}
           disabled={testing || overallStatus === "error"}
         >
-          <TestTube className={`w-4 h-4 mr-2 ${testing ? 'animate-spin' : ''}`} />
+          <TestTube
+            className={`w-4 h-4 mr-2 ${testing ? "animate-spin" : ""}`}
+          />
           {testing ? "Testando..." : "Testar"}
         </Button>
-        
-        <Button
-          variant="outline"
-          onClick={downloadSchema}
-        >
+
+        <Button variant="outline" onClick={downloadSchema}>
           <Download className="w-4 h-4 mr-2" />
           Download Schema
         </Button>
@@ -490,26 +500,41 @@ export const SF10StripeSetup: React.FC = () => {
                   {getStatusIcon(check.status)}
                   <div>
                     <div className="font-medium text-sm">{check.name}</div>
-                    <div className="text-xs text-neutral-600">{check.description}</div>
+                    <div className="text-xs text-neutral-600">
+                      {check.description}
+                    </div>
                     {check.details && (
-                      <div className="text-xs text-neutral-500 mt-1">{check.details}</div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        {check.details}
+                      </div>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge 
+                  <Badge
                     variant={
-                      check.status === "success" ? "default" :
-                      check.status === "error" ? "destructive" : 
-                      "secondary"
+                      check.status === "success"
+                        ? "default"
+                        : check.status === "error"
+                          ? "destructive"
+                          : "secondary"
                     }
                   >
-                    {check.status === "success" ? "OK" :
-                     check.status === "error" ? "Erro" :
-                     check.status === "warning" ? "Aviso" : "Verificando"}
+                    {check.status === "success"
+                      ? "OK"
+                      : check.status === "error"
+                        ? "Erro"
+                        : check.status === "warning"
+                          ? "Aviso"
+                          : "Verificando"}
                   </Badge>
                   {check.action === "seed_data" && (
-                    <Button size="sm" variant="outline" onClick={runSeed} disabled={seeding}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={runSeed}
+                      disabled={seeding}
+                    >
                       <Zap className="w-3 h-3 mr-1" />
                       Seed
                     </Button>
@@ -534,7 +559,8 @@ export const SF10StripeSetup: React.FC = () => {
             <div>
               <div className="font-medium text-sm">Wizard Stripe</div>
               <div className="text-xs text-neutral-600">
-                Interface principal para gestão de clientes, assinaturas e faturas
+                Interface principal para gestão de clientes, assinaturas e
+                faturas
               </div>
             </div>
             <Button size="sm" variant="outline">
@@ -542,12 +568,13 @@ export const SF10StripeSetup: React.FC = () => {
               Abrir Wizard
             </Button>
           </div>
-          
+
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <div className="font-medium text-sm">Checkout Creator</div>
               <div className="text-xs text-neutral-600">
-                Ferramenta para criar checkouts: contato → preço → quantidade → sessão
+                Ferramenta para criar checkouts: contato → preço → quantidade →
+                sessão
               </div>
             </div>
             <Button size="sm" variant="outline">
@@ -555,7 +582,7 @@ export const SF10StripeSetup: React.FC = () => {
               Criar Checkout
             </Button>
           </div>
-          
+
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <div className="font-medium text-sm">Past Due Monitor</div>
@@ -568,7 +595,7 @@ export const SF10StripeSetup: React.FC = () => {
               Ver Past Due
             </Button>
           </div>
-          
+
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <div className="font-medium text-sm">Webhook Events</div>
@@ -588,7 +615,9 @@ export const SF10StripeSetup: React.FC = () => {
       {overallStatus === "error" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base text-red-700">Guia de Instalação</CardTitle>
+            <CardTitle className="text-base text-red-700">
+              Guia de Instalação
+            </CardTitle>
             <CardDescription>
               Passos para configurar o SF-10 Stripe Wizard
             </CardDescription>
@@ -596,38 +625,61 @@ export const SF10StripeSetup: React.FC = () => {
           <CardContent className="space-y-3">
             <div className="text-sm space-y-2">
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">1</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  1
+                </div>
                 <div>
                   <div className="font-medium">Baixar Schema SQL</div>
-                  <div className="text-neutral-600">Clique em "Download Schema" para obter o arquivo SF10_STRIPE_SCHEMA.sql</div>
+                  <div className="text-neutral-600">
+                    Clique em "Download Schema" para obter o arquivo
+                    SF10_STRIPE_SCHEMA.sql
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">2</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  2
+                </div>
                 <div>
                   <div className="font-medium">Executar no Supabase</div>
-                  <div className="text-neutral-600">Execute o script no SQL Editor do Supabase para criar tabelas e funções</div>
+                  <div className="text-neutral-600">
+                    Execute o script no SQL Editor do Supabase para criar
+                    tabelas e funções
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">3</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  3
+                </div>
                 <div>
                   <div className="font-medium">Executar Seed</div>
-                  <div className="text-neutral-600">Clique em "Seed/Autofix" para popular com produtos e preços de exemplo</div>
+                  <div className="text-neutral-600">
+                    Clique em "Seed/Autofix" para popular com produtos e preços
+                    de exemplo
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">4</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  4
+                </div>
                 <div>
                   <div className="font-medium">Testar Funcionamento</div>
-                  <div className="text-neutral-600">Use o botão "Testar" para criar um checkout de exemplo</div>
+                  <div className="text-neutral-600">
+                    Use o botão "Testar" para criar um checkout de exemplo
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">5</div>
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-medium">
+                  5
+                </div>
                 <div>
                   <div className="font-medium">Configurar Webhook</div>
-                  <div className="text-neutral-600">Configure webhooks no Stripe para sincronização automática</div>
+                  <div className="text-neutral-600">
+                    Configure webhooks no Stripe para sincronização automática
+                  </div>
                 </div>
               </div>
             </div>

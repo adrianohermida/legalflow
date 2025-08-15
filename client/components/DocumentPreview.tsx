@@ -51,7 +51,7 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [previewError, setPreviewError] = useState<string | null>(null);
-  
+
   const { toast } = useToast();
 
   const getFileIcon = (fileType?: string) => {
@@ -65,7 +65,7 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
     if (!bytes) return "—";
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (dateString: string) => {
@@ -80,7 +80,7 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
 
   const getPreviewUrl = async () => {
     if (!document.file_path) return null;
-    
+
     try {
       // Gerar URL temporária do Supabase Storage
       const { data, error } = await lf.storage
@@ -150,25 +150,25 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
     });
   };
 
-  const zoomIn = () => setZoom(prev => Math.min(prev + 25, 200));
-  const zoomOut = () => setZoom(prev => Math.max(prev - 25, 50));
-  const rotate = () => setRotation(prev => (prev + 90) % 360);
+  const zoomIn = () => setZoom((prev) => Math.min(prev + 25, 200));
+  const zoomOut = () => setZoom((prev) => Math.max(prev - 25, 50));
+  const rotate = () => setRotation((prev) => (prev + 90) % 360);
 
   const nextPage = () => {
     if (document.pages_count && currentPage < document.pages_count) {
-      setCurrentPage(prev => prev + 1);
+      setCurrentPage((prev) => prev + 1);
     }
   };
 
   const prevPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
+      setCurrentPage((prev) => prev - 1);
     }
   };
 
   const canShowPreview = () => {
     if (!document.file_type) return false;
-    
+
     // Tipos suportados para preview
     const supportedTypes = [
       "application/pdf",
@@ -178,7 +178,7 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
       "image/webp",
       "text/plain",
     ];
-    
+
     return supportedTypes.includes(document.file_type);
   };
 
@@ -192,11 +192,7 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
               Erro ao carregar preview
             </p>
             <p className="text-sm text-neutral-500">{previewError}</p>
-            <Button 
-              variant="outline" 
-              onClick={handleDownload} 
-              className="mt-4"
-            >
+            <Button variant="outline" onClick={handleDownload} className="mt-4">
               <Download className="w-4 h-4 mr-2" />
               Baixar arquivo
             </Button>
@@ -207,7 +203,7 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
 
     if (!canShowPreview()) {
       const IconComponent = getFileIcon(document.file_type);
-      
+
       return (
         <div className="flex-1 flex items-center justify-center bg-neutral-50">
           <div className="text-center">
@@ -258,7 +254,9 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-white">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            {getFileIcon(document.file_type)({ className: "w-5 h-5 text-neutral-500" })}
+            {getFileIcon(document.file_type)({
+              className: "w-5 h-5 text-neutral-500",
+            })}
             <div className="min-w-0 flex-1">
               <h3 className="font-medium text-sm truncate">{document.title}</h3>
               <div className="flex items-center gap-2 text-xs text-neutral-500">
@@ -272,13 +270,15 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <Badge 
+            <Badge
               className={
-                document.status === "aprovado" ? "bg-green-100 text-green-700" :
-                document.status === "pendente" ? "bg-yellow-100 text-yellow-700" :
-                "bg-red-100 text-red-700"
+                document.status === "aprovado"
+                  ? "bg-green-100 text-green-700"
+                  : document.status === "pendente"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-red-100 text-red-700"
               }
             >
               {document.status}
@@ -301,11 +301,11 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  
+
                   <span className="text-sm px-2">
                     {currentPage} de {document.pages_count}
                   </span>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -323,19 +323,19 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
               <Button variant="ghost" size="sm" onClick={zoomOut}>
                 <ZoomOut className="w-4 h-4" />
               </Button>
-              
+
               <span className="text-sm px-2 min-w-[60px] text-center">
                 {zoom}%
               </span>
-              
+
               <Button variant="ghost" size="sm" onClick={zoomIn}>
                 <ZoomIn className="w-4 h-4" />
               </Button>
-              
+
               <Button variant="ghost" size="sm" onClick={rotate}>
                 <RotateCw className="w-4 h-4" />
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -372,18 +372,18 @@ export function DocumentPreview({ document, onClose }: DocumentPreviewProps) {
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="w-4 h-4 mr-2" />
                 Compartilhar
               </Button>
-              
+
               <Button variant="outline" size="sm" onClick={handleDownload}>
                 <Download className="w-4 h-4 mr-2" />
                 Baixar
               </Button>
-              
+
               <Button variant="outline" size="sm" onClick={onClose}>
                 Fechar
               </Button>

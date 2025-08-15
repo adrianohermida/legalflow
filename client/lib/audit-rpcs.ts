@@ -305,21 +305,27 @@ export const implAutofix = async (
       case "api_library_seed":
         // Call the dedicated seeding function from the schema
         try {
-          const { data: seedResult, error } = await supabase.rpc("legalflow.seed_api_library");
+          const { data: seedResult, error } = await supabase.rpc(
+            "legalflow.seed_api_library",
+          );
 
           if (error) {
             result.errors.push(`Erro ao executar seed: ${error.message}`);
           } else if (seedResult?.success) {
             result.changes.push(
-              `${seedResult.message}: ${seedResult.providers_count} provedores, ${seedResult.endpoints_count} endpoints`
+              `${seedResult.message}: ${seedResult.providers_count} provedores, ${seedResult.endpoints_count} endpoints`,
             );
             result.success = true;
             result.message = "API Library configurada com sucesso";
           } else {
-            result.errors.push(seedResult?.message || "Erro desconhecido no seed");
+            result.errors.push(
+              seedResult?.message || "Erro desconhecido no seed",
+            );
           }
         } catch (error) {
-          result.errors.push(`Função seed_api_library não encontrada: ${error}`);
+          result.errors.push(
+            `Função seed_api_library não encontrada: ${error}`,
+          );
         }
 
         if (!result.success) {
@@ -330,21 +336,29 @@ export const implAutofix = async (
       case "STRIPE_SEED":
         // Call the dedicated Stripe seeding function
         try {
-          const { data: seedResult, error } = await supabase.rpc("legalflow.seed_stripe_data");
+          const { data: seedResult, error } = await supabase.rpc(
+            "legalflow.seed_stripe_data",
+          );
 
           if (error) {
-            result.errors.push(`Erro ao executar seed Stripe: ${error.message}`);
+            result.errors.push(
+              `Erro ao executar seed Stripe: ${error.message}`,
+            );
           } else if (seedResult?.success) {
             result.changes.push(
-              `${seedResult.message}: ${seedResult.products_count} produtos, ${seedResult.prices_count} preços`
+              `${seedResult.message}: ${seedResult.products_count} produtos, ${seedResult.prices_count} preços`,
             );
             result.success = true;
             result.message = "Stripe configurado com sucesso";
           } else {
-            result.errors.push(seedResult?.message || "Erro desconhecido no seed Stripe");
+            result.errors.push(
+              seedResult?.message || "Erro desconhecido no seed Stripe",
+            );
           }
         } catch (error) {
-          result.errors.push(`Função seed_stripe_data não encontrada: ${error}`);
+          result.errors.push(
+            `Função seed_stripe_data não encontrada: ${error}`,
+          );
         }
 
         if (!result.success) {

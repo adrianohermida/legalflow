@@ -138,27 +138,13 @@ const DevAuditoria: React.FC = () => {
   const [auditProgress, setAuditProgress] = useState(0);
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    | "system"
-    | "features"
-    | "diagnostics"
+    "system" | "features" | "diagnostics"
   >("system");
   const [activeSystemTab, setActiveSystemTab] = useState<
-    | "audit"
-    | "testing"
-    | "backlog"
-    | "routes"
-    | "config"
-    | "history"
+    "audit" | "testing" | "backlog" | "routes" | "config" | "history"
   >("audit");
   const [activeFeaturesTab, setActiveFeaturesTab] = useState<
-    | "sf2"
-    | "sf5"
-    | "sf6"
-    | "sf7"
-    | "sf8"
-    | "sf9"
-    | "sf10"
-    | "sf11"
+    "sf2" | "sf5" | "sf6" | "sf7" | "sf8" | "sf9" | "sf10" | "sf11"
   >("sf2");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -1180,267 +1166,273 @@ const DevAuditoria: React.FC = () => {
             </TabsList>
 
             <TabsContent value="audit" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Módulos do Sistema</h3>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={isRunningAutofix}>
-                  <Zap className="w-4 h-4 mr-2" />
-                  Autofix
-                  <ChevronDown className="w-4 h-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {autofixPatches.map((patch) => (
-                  <DropdownMenuItem
-                    key={patch.code}
-                    onClick={() => runAutofix(patch.code)}
-                  >
-                    <div>
-                      <div className="font-medium">{patch.name}</div>
-                      <div className="text-sm text-neutral-600">
-                        {patch.description}
-                      </div>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Módulos do Sistema</h3>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" disabled={isRunningAutofix}>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Autofix
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {autofixPatches.map((patch) => (
+                      <DropdownMenuItem
+                        key={patch.code}
+                        onClick={() => runAutofix(patch.code)}
+                      >
+                        <div>
+                          <div className="font-medium">{patch.name}</div>
+                          <div className="text-sm text-neutral-600">
+                            {patch.description}
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-          <div className="grid gap-4">
-            {modules.map((module) => (
-              <Card
-                key={module.id}
-                className={`transition-all duration-200 cursor-pointer hover:shadow-md ${getStatusColor(module.status)}`}
-                onClick={() =>
-                  setSelectedModule(
-                    selectedModule === module.id ? null : module.id,
-                  )
-                }
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {module.icon}
-                      <div>
-                        <CardTitle className="text-base">
-                          {module.name}
-                        </CardTitle>
-                        <CardDescription className="text-sm">
-                          {module.description}
-                        </CardDescription>
+              <div className="grid gap-4">
+                {modules.map((module) => (
+                  <Card
+                    key={module.id}
+                    className={`transition-all duration-200 cursor-pointer hover:shadow-md ${getStatusColor(module.status)}`}
+                    onClick={() =>
+                      setSelectedModule(
+                        selectedModule === module.id ? null : module.id,
+                      )
+                    }
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {module.icon}
+                          <div>
+                            <CardTitle className="text-base">
+                              {module.name}
+                            </CardTitle>
+                            <CardDescription className="text-sm">
+                              {module.description}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(module.status)}
+                          <Badge variant="outline">
+                            {module.status === "ok"
+                              ? "OK"
+                              : module.status === "error"
+                                ? "Erro"
+                                : module.status === "checking"
+                                  ? "Verificando"
+                                  : "Pendente"}
+                          </Badge>
+                        </div>
                       </div>
+                    </CardHeader>
+
+                    {selectedModule === module.id && (
+                      <CardContent className="pt-0">
+                        <div className="space-y-2">
+                          {module.checks.map((check) => (
+                            <div
+                              key={check.id}
+                              className="flex items-center justify-between p-2 rounded bg-white/50"
+                            >
+                              <div>
+                                <div className="font-medium text-sm">
+                                  {check.name}
+                                </div>
+                                <div className="text-xs text-neutral-600">
+                                  {check.description}
+                                </div>
+                                {check.details && (
+                                  <div className="text-xs text-neutral-500 mt-1">
+                                    {check.details}
+                                  </div>
+                                )}
+                              </div>
+                              {getStatusIcon(check.status)}
+                            </div>
+                          ))}
+                        </div>
+                        {module.lastChecked && (
+                          <div className="text-xs text-neutral-500 mt-3">
+                            Última verificação:{" "}
+                            {new Date(module.lastChecked).toLocaleString()}
+                          </div>
+                        )}
+                      </CardContent>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="testing" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Suite de Testes</h3>
+                <Button onClick={runAllTests} disabled={isRunningTests}>
+                  {isRunningTests ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <TestTube className="w-4 h-4 mr-2" />
+                  )}
+                  {isRunningTests ? "Executando..." : "Executar Testes"}
+                </Button>
+              </div>
+
+              {/* Custom Prompt Test */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Teste de Prompt Personalizado</CardTitle>
+                  <CardDescription>
+                    Teste prompts customizados enviados para Builder.io
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="prompt">Prompt</Label>
+                    <Textarea
+                      id="prompt"
+                      value={testPrompt.prompt}
+                      onChange={(e) =>
+                        setTestPrompt((prev) => ({
+                          ...prev,
+                          prompt: e.target.value,
+                        }))
+                      }
+                      placeholder="Descreva o que você quer que seja feito..."
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="context">Contexto</Label>
+                    <Input
+                      id="context"
+                      value={testPrompt.context}
+                      onChange={(e) =>
+                        setTestPrompt((prev) => ({
+                          ...prev,
+                          context: e.target.value,
+                        }))
+                      }
+                      placeholder="Contexto adicional para o prompt..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="priority">Prioridade</Label>
+                      <Select
+                        value={testPrompt.priority}
+                        onValueChange={(value) =>
+                          setTestPrompt((prev) => ({
+                            ...prev,
+                            priority: value as any,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Baixa</SelectItem>
+                          <SelectItem value="medium">Média</SelectItem>
+                          <SelectItem value="high">Alta</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(module.status)}
-                      <Badge variant="outline">
-                        {module.status === "ok"
-                          ? "OK"
-                          : module.status === "error"
-                            ? "Erro"
-                            : module.status === "checking"
-                              ? "Verificando"
-                              : "Pendente"}
-                      </Badge>
+
+                    <div>
+                      <Label htmlFor="category">Categoria</Label>
+                      <Select
+                        value={testPrompt.category}
+                        onValueChange={(value) =>
+                          setTestPrompt((prev) => ({
+                            ...prev,
+                            category: value as any,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bug_fix">
+                            Correção de Bug
+                          </SelectItem>
+                          <SelectItem value="feature">
+                            Nova Funcionalidade
+                          </SelectItem>
+                          <SelectItem value="optimization">
+                            Otimização
+                          </SelectItem>
+                          <SelectItem value="refactor">Refatoração</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                </CardHeader>
 
-                {selectedModule === module.id && (
-                  <CardContent className="pt-0">
-                    <div className="space-y-2">
-                      {module.checks.map((check) => (
+                  <Button onClick={testBuilderPrompt} className="w-full">
+                    <Play className="w-4 h-4 mr-2" />
+                    Testar Prompt
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Test Results */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resultados dos Testes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {testResults.length === 0 ? (
+                    <div className="text-center py-8 text-neutral-500">
+                      <TestTube className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
+                      <p>Nenhum teste executado ainda</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {testResults.map((result, index) => (
                         <div
-                          key={check.id}
-                          className="flex items-center justify-between p-2 rounded bg-white/50"
+                          key={index}
+                          className="flex items-start gap-3 p-3 rounded-lg border"
                         >
-                          <div>
+                          {result.status === "success" && (
+                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                          )}
+                          {result.status === "error" && (
+                            <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                          )}
+                          {result.status === "warning" && (
+                            <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                          )}
+                          {result.status === "pending" && (
+                            <RefreshCw className="w-5 h-5 text-blue-600 mt-0.5 animate-spin" />
+                          )}
+
+                          <div className="flex-1">
                             <div className="font-medium text-sm">
-                              {check.name}
+                              {result.name}
                             </div>
-                            <div className="text-xs text-neutral-600">
-                              {check.description}
+                            <div className="text-sm text-neutral-600">
+                              {result.message}
                             </div>
-                            {check.details && (
-                              <div className="text-xs text-neutral-500 mt-1">
-                                {check.details}
-                              </div>
-                            )}
+                            <div className="text-xs text-neutral-500">
+                              {new Date(result.timestamp).toLocaleString()}
+                            </div>
                           </div>
-                          {getStatusIcon(check.status)}
                         </div>
                       ))}
                     </div>
-                    {module.lastChecked && (
-                      <div className="text-xs text-neutral-500 mt-3">
-                        Última verificação:{" "}
-                        {new Date(module.lastChecked).toLocaleString()}
-                      </div>
-                    )}
-                  </CardContent>
-                )}
+                  )}
+                </CardContent>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-            <TabsContent value="testing" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Suite de Testes</h3>
-            <Button onClick={runAllTests} disabled={isRunningTests}>
-              {isRunningTests ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <TestTube className="w-4 h-4 mr-2" />
-              )}
-              {isRunningTests ? "Executando..." : "Executar Testes"}
-            </Button>
-          </div>
-
-          {/* Custom Prompt Test */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Teste de Prompt Personalizado</CardTitle>
-              <CardDescription>
-                Teste prompts customizados enviados para Builder.io
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="prompt">Prompt</Label>
-                <Textarea
-                  id="prompt"
-                  value={testPrompt.prompt}
-                  onChange={(e) =>
-                    setTestPrompt((prev) => ({
-                      ...prev,
-                      prompt: e.target.value,
-                    }))
-                  }
-                  placeholder="Descreva o que você quer que seja feito..."
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="context">Contexto</Label>
-                <Input
-                  id="context"
-                  value={testPrompt.context}
-                  onChange={(e) =>
-                    setTestPrompt((prev) => ({
-                      ...prev,
-                      context: e.target.value,
-                    }))
-                  }
-                  placeholder="Contexto adicional para o prompt..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="priority">Prioridade</Label>
-                  <Select
-                    value={testPrompt.priority}
-                    onValueChange={(value) =>
-                      setTestPrompt((prev) => ({
-                        ...prev,
-                        priority: value as any,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Baixa</SelectItem>
-                      <SelectItem value="medium">Média</SelectItem>
-                      <SelectItem value="high">Alta</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="category">Categoria</Label>
-                  <Select
-                    value={testPrompt.category}
-                    onValueChange={(value) =>
-                      setTestPrompt((prev) => ({
-                        ...prev,
-                        category: value as any,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bug_fix">Correção de Bug</SelectItem>
-                      <SelectItem value="feature">
-                        Nova Funcionalidade
-                      </SelectItem>
-                      <SelectItem value="optimization">Otimização</SelectItem>
-                      <SelectItem value="refactor">Refatoração</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Button onClick={testBuilderPrompt} className="w-full">
-                <Play className="w-4 h-4 mr-2" />
-                Testar Prompt
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Test Results */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Resultados dos Testes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {testResults.length === 0 ? (
-                <div className="text-center py-8 text-neutral-500">
-                  <TestTube className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
-                  <p>Nenhum teste executado ainda</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {testResults.map((result, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start gap-3 p-3 rounded-lg border"
-                    >
-                      {result.status === "success" && (
-                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                      )}
-                      {result.status === "error" && (
-                        <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                      )}
-                      {result.status === "warning" && (
-                        <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                      )}
-                      {result.status === "pending" && (
-                        <RefreshCw className="w-5 h-5 text-blue-600 mt-0.5 animate-spin" />
-                      )}
-
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{result.name}</div>
-                        <div className="text-sm text-neutral-600">
-                          {result.message}
-                        </div>
-                        <div className="text-xs text-neutral-500">
-                          {new Date(result.timestamp).toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </TabsContent>
 
             <TabsContent value="backlog">
               <AutofixBacklog />
@@ -1451,97 +1443,99 @@ const DevAuditoria: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="config" className="space-y-4">
-          <div className="grid gap-4">
-            {/* Credentials Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Key className="w-5 h-5" />
-                  Credenciais Builder.io
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {credentials ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span>Chave Pública</span>
-                      {credentials.public_key_configured ? (
-                        <Badge className="bg-green-100 text-green-800">
-                          Configurada
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive">Não configurada</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Chave Privada</span>
-                      {credentials.private_key_configured ? (
-                        <Badge className="bg-green-100 text-green-800">
-                          Configurada
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive">Não configurada</Badge>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-neutral-500">
-                    Carregando status das credenciais...
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Database Setup */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="w-5 h-5" />
-                  Configuração do Banco
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {databaseSetup ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span>Tabelas de Sistema</span>
-                      {databaseSetup.success ? (
-                        <Badge className="bg-green-100 text-green-800">
-                          Configuradas
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive">Não configuradas</Badge>
-                      )}
-                    </div>
-                    {databaseSetup.details?.tables_found && (
-                      <div className="text-sm text-neutral-600">
-                        Tabelas encontradas:{" "}
-                        {databaseSetup.details.tables_found.join(", ")}
+              <div className="grid gap-4">
+                {/* Credentials Status */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Key className="w-5 h-5" />
+                      Credenciais Builder.io
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {credentials ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span>Chave Pública</span>
+                          {credentials.public_key_configured ? (
+                            <Badge className="bg-green-100 text-green-800">
+                              Configurada
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive">Não configurada</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Chave Privada</span>
+                          {credentials.private_key_configured ? (
+                            <Badge className="bg-green-100 text-green-800">
+                              Configurada
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive">Não configurada</Badge>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-neutral-500">
+                        Carregando status das credenciais...
                       </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="text-neutral-500">
-                    Carregando status do banco...
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
 
-            {/* SQL Setup Helper */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Download de Scripts SQL</CardTitle>
-                <CardDescription>
-                  Download dos scripts necessários para configuração manual
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <SQLFileDownloader />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+                {/* Database Setup */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Database className="w-5 h-5" />
+                      Configuração do Banco
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {databaseSetup ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span>Tabelas de Sistema</span>
+                          {databaseSetup.success ? (
+                            <Badge className="bg-green-100 text-green-800">
+                              Configuradas
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive">
+                              Não configuradas
+                            </Badge>
+                          )}
+                        </div>
+                        {databaseSetup.details?.tables_found && (
+                          <div className="text-sm text-neutral-600">
+                            Tabelas encontradas:{" "}
+                            {databaseSetup.details.tables_found.join(", ")}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-neutral-500">
+                        Carregando status do banco...
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* SQL Setup Helper */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Download de Scripts SQL</CardTitle>
+                    <CardDescription>
+                      Download dos scripts necessários para configuração manual
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <SQLFileDownloader />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
             <TabsContent value="history">
               <AutofixHistoryPanel />
@@ -1551,7 +1545,11 @@ const DevAuditoria: React.FC = () => {
 
         {/* Features Tab with SF components */}
         <TabsContent value="features" className="space-y-4">
-          <Tabs value={activeFeaturesTab} onValueChange={setActiveFeaturesTab as (value: string) => void} className="space-y-4">
+          <Tabs
+            value={activeFeaturesTab}
+            onValueChange={setActiveFeaturesTab as (value: string) => void}
+            className="space-y-4"
+          >
             <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="sf2">SF2</TabsTrigger>
               <TabsTrigger value="sf5">SF5</TabsTrigger>
