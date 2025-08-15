@@ -9,17 +9,20 @@ Sistema unificado de gerenciamento de estado para operações assíncronas com c
 ## **📁 Arquivos Implementados**
 
 ### **1. Hook Principal: `useAsyncOperation.ts`**
+
 - Hook unificado para gerenciamento de estado assíncrono
 - Suporte a loading, error, empty e success states
 - Componentes automáticos com configuração flexível
 - Retry automático e controle manual de estado
 
 ### **2. Componentes de Estado Existentes**
+
 - **LoadingState**: Skeletons adaptativos (list, table, card, form, detail, spinner)
 - **ErrorState**: Tratamento de erros com retry e detalhes técnicos
 - **EmptyState**: Estados vazios contextuais para diferentes seções
 
 ### **3. Exemplo Completo: `AsyncOperationExample.tsx`**
+
 - Demonstrações práticas de todos os padrões
 - Exemplos de listas, tabelas, formulários e controle manual
 - Interface interativa para testar funcionalidades
@@ -39,12 +42,12 @@ const {
   LoadingComponent,
   ErrorComponent,
   EmptyComponent,
-  shouldShowContent
+  shouldShowContent,
 } = useAsyncOperation<ProcessType[]>({
   loadingType: "list",
   emptyType: "processos",
   emptyActionLabel: "Sincronizar Processos",
-  onEmptyAction: () => syncProcesses()
+  onEmptyAction: () => syncProcesses(),
 });
 ```
 
@@ -52,11 +55,11 @@ const {
 
 ```typescript
 interface AsyncState<T> {
-  data: T | null;           // Dados carregados
-  isLoading: boolean;       // Estado de carregamento
+  data: T | null; // Dados carregados
+  isLoading: boolean; // Estado de carregamento
   error: Error | string | null; // Erro ocorrido
-  isEmpty: boolean;         // Se os dados estão vazios
-  isSuccess: boolean;       // Se operação foi bem-sucedida
+  isEmpty: boolean; // Se os dados estão vazios
+  isSuccess: boolean; // Se operação foi bem-sucedida
 }
 ```
 
@@ -83,22 +86,22 @@ setError: (error: Error | string | null) => void
 
 ```typescript
 // Componente de loading baseado no tipo configurado
-LoadingComponent: () => JSX.Element
+LoadingComponent: () => JSX.Element;
 
 // Componente de erro com retry opcional
-ErrorComponent: () => JSX.Element
+ErrorComponent: () => JSX.Element;
 
 // Componente de estado vazio com ação
-EmptyComponent: () => JSX.Element
+EmptyComponent: () => JSX.Element;
 ```
 
 ### **Verificadores de Estado**
 
 ```typescript
-shouldShowLoading: () => boolean    // Se deve mostrar loading
-shouldShowError: () => boolean      // Se deve mostrar erro
-shouldShowEmpty: () => boolean      // Se deve mostrar estado vazio
-shouldShowContent: () => boolean    // Se deve mostrar conteúdo
+shouldShowLoading: () => boolean; // Se deve mostrar loading
+shouldShowError: () => boolean; // Se deve mostrar erro
+shouldShowEmpty: () => boolean; // Se deve mostrar estado vazio
+shouldShowContent: () => boolean; // Se deve mostrar conteúdo
 ```
 
 ---
@@ -106,34 +109,38 @@ shouldShowContent: () => boolean    // Se deve mostrar conteúdo
 ## **🎯 Hooks Especializados**
 
 ### **1. useSimpleAsync**
+
 Para operações simples com execução automática:
 
 ```typescript
-const { data, isLoading, error, LoadingComponent, ErrorComponent } = 
+const { data, isLoading, error, LoadingComponent, ErrorComponent } =
   useSimpleAsync(() => fetchData(), [dependency]);
 ```
 
 ### **2. useAsyncList**
+
 Para listas com configurações otimizadas:
 
 ```typescript
 const operation = useAsyncList<Process[]>("processos", {
   emptyActionLabel: "Criar Processo",
-  onEmptyAction: () => navigateToCreate()
+  onEmptyAction: () => navigateToCreate(),
 });
 ```
 
 ### **3. useAsyncTable**
+
 Para tabelas com skeleton de tabela:
 
 ```typescript
 const operation = useAsyncTable<Client[]>("clientes", {
   loadingType: "table",
-  errorType: "database"
+  errorType: "database",
 });
 ```
 
 ### **4. useAsyncForm**
+
 Para formulários com submit assíncrono:
 
 ```typescript
@@ -190,7 +197,7 @@ function ProcessList() {
 ```typescript
 function CreateProcessForm() {
   const [formData, setFormData] = useState(initialData);
-  
+
   const {
     isLoading,
     error,
@@ -211,9 +218,9 @@ function CreateProcessForm() {
   return (
     <form onSubmit={handleSubmit}>
       {/* Form fields */}
-      
+
       {error && <ErrorComponent />}
-      
+
       <Button type="submit" disabled={isLoading}>
         {isLoading ? "Salvando..." : "Salvar"}
       </Button>
@@ -260,7 +267,7 @@ function ProcessDetails({ processId }: { processId: string }) {
         <h1>{process.title}</h1>
         <Button onClick={handleRefresh}>Atualizar</Button>
       </div>
-      
+
       <ProcessDetailsContent process={process} />
     </div>
   );
@@ -272,20 +279,23 @@ function ProcessDetails({ processId }: { processId: string }) {
 ## **🔧 Configuração de Tipos**
 
 ### **Loading Types**
+
 ```typescript
 type LoadingType = "list" | "table" | "card" | "form" | "detail" | "spinner";
 ```
 
 ### **Error Types**
+
 ```typescript
 type ErrorType = "network" | "database" | "permission" | "generic";
 ```
 
 ### **Empty Types**
+
 ```typescript
-type EmptyType = 
-  | "clientes" 
-  | "processos" 
+type EmptyType =
+  | "clientes"
+  | "processos"
   | "tickets"
   | "activities"
   | "deals"
@@ -303,6 +313,7 @@ type EmptyType =
 ## **🎨 Customização de Componentes**
 
 ### **Loading Personalizado**
+
 ```typescript
 const operation = useAsyncOperation({
   loadingType: "spinner",
@@ -312,20 +323,22 @@ const operation = useAsyncOperation({
 ```
 
 ### **Empty State Customizado**
+
 ```typescript
 const operation = useAsyncOperation({
   emptyType: "processos",
   emptyTitle: "Nenhum processo encontrado",
   emptyMessage: "Sincronize com os tribunais para ver processos",
   emptyActionLabel: "Sincronizar Agora",
-  onEmptyAction: () => syncWithTribunals()
+  onEmptyAction: () => syncWithTribunals(),
 });
 ```
 
 ### **Validação de Estado Vazio**
+
 ```typescript
 const operation = useAsyncOperation({
-  validateEmpty: (data) => !data || data.length === 0 || data.isEmpty
+  validateEmpty: (data) => !data || data.length === 0 || data.isEmpty,
 });
 ```
 
@@ -334,6 +347,7 @@ const operation = useAsyncOperation({
 ## **⚡ Performance e Otimizações**
 
 ### **Memoização de Componentes**
+
 ```typescript
 const LoadingComponent = useCallback(() => (
   <LoadingState type="list" rows={5} />
@@ -345,12 +359,14 @@ const ErrorComponent = useCallback(() => (
 ```
 
 ### **Cleanup Automático**
+
 ```typescript
 // O hook automaticamente limpa timers e requests
 // quando o componente é desmontado
 ```
 
 ### **Cache de Última Operação**
+
 ```typescript
 // Suporte automático para retry da última operação executada
 const { retry } = useAsyncOperation();
@@ -361,30 +377,32 @@ const { retry } = useAsyncOperation();
 ## **🧪 Testes e Debugging**
 
 ### **Exemplo de Teste**
+
 ```typescript
-describe('useAsyncOperation', () => {
-  it('should handle loading state correctly', async () => {
+describe("useAsyncOperation", () => {
+  it("should handle loading state correctly", async () => {
     const { result } = renderHook(() => useAsyncOperation());
-    
+
     act(() => {
-      result.current.execute(() => Promise.resolve('data'));
+      result.current.execute(() => Promise.resolve("data"));
     });
-    
+
     expect(result.current.isLoading).toBe(true);
-    
+
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
-      expect(result.current.data).toBe('data');
+      expect(result.current.data).toBe("data");
     });
   });
 });
 ```
 
 ### **Debug Mode**
+
 ```typescript
 // Em desenvolvimento, adicione logs para debugging
 const operation = useAsyncOperation({
-  onStateChange: (state) => console.log('State changed:', state)
+  onStateChange: (state) => console.log("State changed:", state),
 });
 ```
 
@@ -393,21 +411,25 @@ const operation = useAsyncOperation({
 ## **📊 Benefícios Implementados**
 
 ### **🎯 Consistência**
+
 - ✅ Estados padronizados em toda aplicação
 - ✅ Componentes visuais unificados
 - ✅ API consistente para operações assíncronas
 
 ### **🚀 Produtividade**
+
 - ✅ Redução de código boilerplate em 70%
 - ✅ Componentes prontos para uso
 - ✅ Patterns reutilizáveis
 
 ### **🛡️ Confiabilidade**
+
 - ✅ Tratamento de erro padronizado
 - ✅ Loading states apropriados
 - ✅ Retry automático e manual
 
 ### **🎨 UX Melhorada**
+
 - ✅ Feedback visual consistente
 - ✅ Estados vazios informativos
 - ✅ Transições suaves entre estados
@@ -417,6 +439,7 @@ const operation = useAsyncOperation({
 ## **🔄 Migração de Componentes Existentes**
 
 ### **Antes (Padrão Antigo)**
+
 ```typescript
 function ProcessList() {
   const [processes, setProcesses] = useState([]);
@@ -451,6 +474,7 @@ function ProcessList() {
 ```
 
 ### **Depois (Padrão Novo)**
+
 ```typescript
 function ProcessList() {
   const {
@@ -485,6 +509,7 @@ function ProcessList() {
 ```
 
 ### **📈 Resultados da Migração**
+
 - **-60% linhas de código**
 - **+100% consistência visual**
 - **+200% funcionalidades (retry, empty states, etc.)**
@@ -494,28 +519,32 @@ function ProcessList() {
 ## **🚀 Próximos Passos**
 
 ### **1. Implementação Gradual**
+
 - [ ] Migrar componentes críticos primeiro (Dashboard, Processos, Clientes)
 - [ ] Atualizar páginas principais usando os novos padrões
 - [ ] Documentar padrões específicos encontrados
 
 ### **2. Extensões Futuras**
+
 - [ ] Cache automático de resultados
 - [ ] Invalidação de cache baseada em eventos
 - [ ] Optimistic updates para operações rápidas
 - [ ] Background refresh automático
 
 ### **3. Treinamento da Equipe**
+
 - [ ] Workshop sobre os novos padrões
 - [ ] Guia de referência rápida
 - [ ] Code review checklist atualizado
 
 ---
 
-O sistema de estado global padronizado está **100% implementado e pronto para uso**! 
+O sistema de estado global padronizado está **100% implementado e pronto para uso**!
 
 Utilize o componente `AsyncOperationExample` para explorar todas as funcionalidades e padrões disponíveis.
 
 **Comando para testar:**
+
 ```bash
 npm run dev
 # Acesse: http://localhost:3000 e navegue até o exemplo

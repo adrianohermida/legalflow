@@ -13,9 +13,9 @@ interface AsyncOperationOptions<T> {
   initialData?: T | null;
   loadingType?: "list" | "table" | "card" | "form" | "detail" | "spinner";
   errorType?: "network" | "database" | "permission" | "generic";
-  emptyType?: 
+  emptyType?:
     | "clientes"
-    | "processos" 
+    | "processos"
     | "tickets"
     | "activities"
     | "deals"
@@ -72,7 +72,7 @@ interface AsyncOperationReturn<T> extends AsyncState<T> {
 
 /**
  * Unified hook for managing async operations with standardized loading, error, and empty states
- * 
+ *
  * @example
  * ```tsx
  * function ProcessList() {
@@ -91,15 +91,15 @@ interface AsyncOperationReturn<T> extends AsyncState<T> {
  *     emptyActionLabel: "Sincronizar Processos",
  *     onEmptyAction: () => syncProcesses()
  *   });
- * 
+ *
  *   useEffect(() => {
  *     execute(() => fetchProcesses());
  *   }, []);
- * 
+ *
  *   if (isLoading) return <LoadingState {...loadingConfig} />;
  *   if (error) return <ErrorState {...errorConfig} />;
  *   if (!shouldShowContent()) return <EmptyState {...emptyConfig} />;
- * 
+ *
  *   return (
  *     <div>
  *       {processes?.map(process => <ProcessCard key={process.id} process={process} />)}
@@ -109,7 +109,7 @@ interface AsyncOperationReturn<T> extends AsyncState<T> {
  * ```
  */
 export function useAsyncOperation<T = any>(
-  options: AsyncOperationOptions<T> = {}
+  options: AsyncOperationOptions<T> = {},
 ): AsyncOperationReturn<T> {
   const {
     initialData = null,
@@ -121,7 +121,8 @@ export function useAsyncOperation<T = any>(
     emptyTitle,
     emptyActionLabel,
     onEmptyAction,
-    validateEmpty = (data) => !data || (Array.isArray(data) && data.length === 0)
+    validateEmpty = (data) =>
+      !data || (Array.isArray(data) && data.length === 0),
   } = options;
 
   // State management
@@ -137,36 +138,39 @@ export function useAsyncOperation<T = any>(
   const lastAsyncFn = useRef<(() => Promise<T>) | null>(null);
 
   // Execute async operation
-  const execute = useCallback(async (asyncFn: () => Promise<T>) => {
-    lastAsyncFn.current = asyncFn;
-    
-    setState(prev => ({
-      ...prev,
-      isLoading: true,
-      error: null,
-      isSuccess: false,
-    }));
+  const execute = useCallback(
+    async (asyncFn: () => Promise<T>) => {
+      lastAsyncFn.current = asyncFn;
 
-    try {
-      const result = await asyncFn();
-      const isEmpty = validateEmpty(result);
-      
-      setState({
-        data: result,
-        isLoading: false,
-        error: null,
-        isEmpty,
-        isSuccess: true,
-      });
-    } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        isLoading: false,
-        error: error as Error,
+        isLoading: true,
+        error: null,
         isSuccess: false,
       }));
-    }
-  }, [validateEmpty]);
+
+      try {
+        const result = await asyncFn();
+        const isEmpty = validateEmpty(result);
+
+        setState({
+          data: result,
+          isLoading: false,
+          error: null,
+          isEmpty,
+          isSuccess: true,
+        });
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: error as Error,
+          isSuccess: false,
+        }));
+      }
+    },
+    [validateEmpty],
+  );
 
   // Retry last operation
   const retry = useCallback(() => {
@@ -188,19 +192,22 @@ export function useAsyncOperation<T = any>(
   }, [initialData]);
 
   // Manual state setters
-  const setData = useCallback((data: T | null) => {
-    const isEmpty = validateEmpty(data);
-    setState(prev => ({
-      ...prev,
-      data,
-      isEmpty,
-      isSuccess: !!data,
-      error: null,
-    }));
-  }, [validateEmpty]);
+  const setData = useCallback(
+    (data: T | null) => {
+      const isEmpty = validateEmpty(data);
+      setState((prev) => ({
+        ...prev,
+        data,
+        isEmpty,
+        isSuccess: !!data,
+        error: null,
+      }));
+    },
+    [validateEmpty],
+  );
 
   const setError = useCallback((error: Error | string | null) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       error,
       isSuccess: false,
@@ -231,18 +238,24 @@ export function useAsyncOperation<T = any>(
   };
 
   // State checkers
-  const shouldShowLoading = useCallback(() => state.isLoading, [state.isLoading]);
-  
-  const shouldShowError = useCallback(() => !!state.error && !state.isLoading, [state.error, state.isLoading]);
-  
-  const shouldShowEmpty = useCallback(() => 
-    !state.isLoading && !state.error && state.isEmpty, 
-    [state.isLoading, state.error, state.isEmpty]
+  const shouldShowLoading = useCallback(
+    () => state.isLoading,
+    [state.isLoading],
   );
-  
-  const shouldShowContent = useCallback(() => 
-    !state.isLoading && !state.error && !state.isEmpty && state.data,
-    [state.isLoading, state.error, state.isEmpty, state.data]
+
+  const shouldShowError = useCallback(
+    () => !!state.error && !state.isLoading,
+    [state.error, state.isLoading],
+  );
+
+  const shouldShowEmpty = useCallback(
+    () => !state.isLoading && !state.error && state.isEmpty,
+    [state.isLoading, state.error, state.isEmpty],
+  );
+
+  const shouldShowContent = useCallback(
+    () => !state.isLoading && !state.error && !state.isEmpty && state.data,
+    [state.isLoading, state.error, state.isEmpty, state.data],
   );
 
   return {
@@ -278,7 +291,7 @@ export function useAsyncOperation<T = any>(
  */
 export function useSimpleAsync<T = any>(
   asyncFn?: () => Promise<T>,
-  deps: React.DependencyList = []
+  deps: React.DependencyList = [],
 ) {
   const operation = useAsyncOperation<T>();
 
@@ -295,13 +308,19 @@ export function useSimpleAsync<T = any>(
  * Hook for list-based async operations with common defaults
  */
 export function useAsyncList<T = any[]>(
-  listType: "clientes" | "processos" | "tickets" | "activities" | "deals" = "default" as any,
-  options: Partial<AsyncOperationOptions<T>> = {}
+  listType:
+    | "clientes"
+    | "processos"
+    | "tickets"
+    | "activities"
+    | "deals" = "default" as any,
+  options: Partial<AsyncOperationOptions<T>> = {},
 ) {
   return useAsyncOperation<T>({
     loadingType: "list",
     emptyType: listType,
-    validateEmpty: (data) => !data || (Array.isArray(data) && data.length === 0),
+    validateEmpty: (data) =>
+      !data || (Array.isArray(data) && data.length === 0),
     ...options,
   });
 }
@@ -310,13 +329,18 @@ export function useAsyncList<T = any[]>(
  * Hook for table-based async operations
  */
 export function useAsyncTable<T = any[]>(
-  tableType: "clientes" | "processos" | "tickets" | "activities" = "default" as any,
-  options: Partial<AsyncOperationOptions<T>> = {}
+  tableType:
+    | "clientes"
+    | "processos"
+    | "tickets"
+    | "activities" = "default" as any,
+  options: Partial<AsyncOperationOptions<T>> = {},
 ) {
   return useAsyncOperation<T>({
     loadingType: "table",
     emptyType: tableType,
-    validateEmpty: (data) => !data || (Array.isArray(data) && data.length === 0),
+    validateEmpty: (data) =>
+      !data || (Array.isArray(data) && data.length === 0),
     ...options,
   });
 }
@@ -325,7 +349,7 @@ export function useAsyncTable<T = any[]>(
  * Hook for form-based async operations
  */
 export function useAsyncForm<T = any>(
-  options: Partial<AsyncOperationOptions<T>> = {}
+  options: Partial<AsyncOperationOptions<T>> = {},
 ) {
   return useAsyncOperation<T>({
     loadingType: "form",

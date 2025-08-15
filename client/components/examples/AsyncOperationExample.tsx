@@ -44,7 +44,7 @@ const fetchProcesses = (): Promise<Process[]> => {
         reject(new Error("Falha na conexão com o servidor"));
         return;
       }
-      
+
       const processes: Process[] = [
         {
           id: "1",
@@ -55,7 +55,7 @@ const fetchProcesses = (): Promise<Process[]> => {
           date: "2024-01-15",
         },
         {
-          id: "2", 
+          id: "2",
           cnj: "9876543-21.2023.8.26.0002",
           client: "Maria Oliveira S.A",
           area: "Cível",
@@ -63,7 +63,7 @@ const fetchProcesses = (): Promise<Process[]> => {
           date: "2024-01-12",
         },
       ];
-      
+
       resolve(processes);
     }, 1500);
   });
@@ -82,7 +82,7 @@ const fetchClients = (): Promise<Client[]> => {
         },
         {
           id: "2",
-          name: "Maria Oliveira", 
+          name: "Maria Oliveira",
           email: "maria@example.com",
           phone: "(11) 88888-8888",
           company: "Oliveira Advogados",
@@ -137,7 +137,9 @@ function ProcessListExample() {
   return (
     <Stack spacing="md">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Processos ({processes?.length})</h3>
+        <h3 className="text-lg font-semibold">
+          Processos ({processes?.length})
+        </h3>
         <Button size="sm" onClick={() => execute(fetchProcesses)}>
           Atualizar
         </Button>
@@ -152,11 +154,15 @@ function ProcessListExample() {
                   <h4 className="font-medium">{process.client}</h4>
                   <p className="text-sm text-gray-600">{process.cnj}</p>
                 </div>
-                <Badge variant={process.status === "active" ? "default" : "secondary"}>
+                <Badge
+                  variant={
+                    process.status === "active" ? "default" : "secondary"
+                  }
+                >
                   {process.status}
                 </Badge>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-gray-500">Área:</span>
@@ -230,16 +236,11 @@ function ClientTableExample() {
 
 // Example 3: Empty State Demo
 function EmptyStateExample() {
-  const {
-    loadingConfig,
-    emptyConfig,
-    execute,
-    isLoading,
-    shouldShowContent,
-  } = useAsyncList("tickets", {
-    emptyActionLabel: "Criar Primeiro Ticket",
-    onEmptyAction: () => alert("Redirecionar para criação de ticket"),
-  });
+  const { loadingConfig, emptyConfig, execute, isLoading, shouldShowContent } =
+    useAsyncList("tickets", {
+      emptyActionLabel: "Criar Primeiro Ticket",
+      onEmptyAction: () => alert("Redirecionar para criação de ticket"),
+    });
 
   useEffect(() => {
     execute(fetchEmptyData);
@@ -255,14 +256,8 @@ function EmptyStateExample() {
 function FormExample() {
   const [formData, setFormData] = useState({ name: "", email: "" });
 
-  const {
-    isLoading,
-    error,
-    isSuccess,
-    execute,
-    loadingConfig,
-    errorConfig,
-  } = useAsyncForm();
+  const { isLoading, error, isSuccess, execute, loadingConfig, errorConfig } =
+    useAsyncForm();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,7 +276,9 @@ function FormExample() {
           <input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
             placeholder="Digite seu nome"
           />
@@ -292,7 +289,9 @@ function FormExample() {
           <input
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, email: e.target.value }))
+            }
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
             placeholder="Digite seu email"
           />
@@ -306,11 +305,7 @@ function FormExample() {
           </div>
         )}
 
-        <Button 
-          type="submit" 
-          disabled={isLoading}
-          className="w-full"
-        >
+        <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Salvando..." : "Salvar"}
         </Button>
       </form>
@@ -338,7 +333,7 @@ function ManualControlExample() {
     <CardContainer>
       <Stack spacing="md">
         <h4 className="font-medium">Controle Manual de Estado</h4>
-        
+
         <div className="p-3 bg-gray-50 rounded">
           <strong>Estado atual:</strong> {isLoading ? "Carregando..." : data}
         </div>
@@ -352,7 +347,7 @@ function ManualControlExample() {
           >
             Definir Dados
           </Button>
-          
+
           <Button
             size="sm"
             variant="destructive"
@@ -360,22 +355,23 @@ function ManualControlExample() {
           >
             Simular Erro
           </Button>
-          
+
           <Button
             size="sm"
             variant="outline"
-            onClick={() => execute(() => 
-              new Promise(resolve => setTimeout(() => resolve("Dados carregados!"), 2000))
-            )}
+            onClick={() =>
+              execute(
+                () =>
+                  new Promise((resolve) =>
+                    setTimeout(() => resolve("Dados carregados!"), 2000),
+                  ),
+              )
+            }
           >
             Carregar Async
           </Button>
-          
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={reset}
-          >
+
+          <Button size="sm" variant="secondary" onClick={reset}>
             Reset
           </Button>
         </div>
@@ -391,9 +387,12 @@ export default function AsyncOperationExample() {
     <PageContainer>
       <Stack spacing="lg">
         <SectionContainer>
-          <h1 className="text-2xl font-bold">Sistema de Estado Global Padronizado</h1>
+          <h1 className="text-2xl font-bold">
+            Sistema de Estado Global Padronizado
+          </h1>
           <p className="text-gray-600">
-            Exemplos do hook useAsyncOperation() com estados unificados de loading, erro e vazio.
+            Exemplos do hook useAsyncOperation() com estados unificados de
+            loading, erro e vazio.
           </p>
         </SectionContainer>
 
@@ -411,7 +410,8 @@ export default function AsyncOperationExample() {
               <CardHeader>
                 <CardTitle>Lista de Processos</CardTitle>
                 <p className="text-sm text-gray-600">
-                  Exemplo usando useAsyncList() com loading, error e retry automático
+                  Exemplo usando useAsyncList() com loading, error e retry
+                  automático
                 </p>
               </CardHeader>
               <CardContent>
@@ -480,7 +480,7 @@ export default function AsyncOperationExample() {
         <SectionContainer>
           <h2 className="text-xl font-semibold mb-4">Código de Exemplo</h2>
           <pre className="bg-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
-{`// Hook unificado para estados
+            {`// Hook unificado para estados
 function useAsyncOperation() {
   return {
     data,
