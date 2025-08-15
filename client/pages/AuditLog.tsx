@@ -5,23 +5,68 @@
 
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Filter, Download, RefreshCw, Clock, CheckCircle, AlertTriangle, XCircle, Eye, Calendar, User } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Download,
+  RefreshCw,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Eye,
+  Calendar,
+  User,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
 
 interface AuditLogEntry {
   id: string;
   timestamp: string;
-  event_type: 'audit_run' | 'autofix_applied' | 'module_check' | 'system_change' | 'user_action';
+  event_type:
+    | "audit_run"
+    | "autofix_applied"
+    | "module_check"
+    | "system_change"
+    | "user_action";
   module: string;
-  status: 'success' | 'warning' | 'error' | 'info';
+  status: "success" | "warning" | "error" | "info";
   message: string;
   details?: Record<string, any>;
   user_id?: string;
@@ -45,12 +90,18 @@ export default function AuditLog() {
 
   // States
   const [filters, setFilters] = useState<AuditLogFilters>({});
-  const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(
+    null,
+  );
   const [showDetails, setShowDetails] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
   // Fetch audit logs
-  const { data: auditLogs = [], isLoading, refetch } = useQuery({
+  const {
+    data: auditLogs = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["audit-logs", filters],
     queryFn: async () => {
       // Mock data - replace with actual API call
@@ -65,12 +116,12 @@ export default function AuditLog() {
           details: {
             tables_checked: 45,
             issues_found: 0,
-            duration_ms: 1250
+            duration_ms: 1250,
           },
           user_id: "user-1",
           user_name: "Dr. João Silva",
           session_id: "sess-abc123",
-          ip_address: "192.168.1.100"
+          ip_address: "192.168.1.100",
         },
         {
           id: "2",
@@ -82,12 +133,12 @@ export default function AuditLog() {
           details: {
             patch_name: "SF8_INDEX_FIX",
             tables_affected: ["documents", "processes"],
-            changes_applied: 3
+            changes_applied: 3,
           },
           user_id: "user-1",
           user_name: "Dr. João Silva",
           session_id: "sess-abc123",
-          ip_address: "192.168.1.100"
+          ip_address: "192.168.1.100",
         },
         {
           id: "3",
@@ -100,11 +151,11 @@ export default function AuditLog() {
             warning_type: "performance",
             response_time_ms: 2500,
             threshold_ms: 2000,
-            recommendation: "Consider optimizing queries"
+            recommendation: "Consider optimizing queries",
           },
           user_id: "system",
           user_name: "System",
-          session_id: "sess-system"
+          session_id: "sess-system",
         },
         {
           id: "4",
@@ -117,12 +168,12 @@ export default function AuditLog() {
             action: "start_journey",
             template_id: "template-123",
             client_id: "client-456",
-            journey_instance_id: "instance-789"
+            journey_instance_id: "instance-789",
           },
           user_id: "user-2",
           user_name: "Dra. Ana Costa",
           session_id: "sess-def456",
-          ip_address: "192.168.1.101"
+          ip_address: "192.168.1.101",
         },
         {
           id: "5",
@@ -134,13 +185,13 @@ export default function AuditLog() {
           details: {
             config_key: "mail_settings",
             error: "SMTP connection timeout",
-            stack_trace: "Error: ECONNREFUSED..."
+            stack_trace: "Error: ECONNREFUSED...",
           },
           user_id: "user-1",
           user_name: "Dr. João Silva",
           session_id: "sess-abc123",
-          ip_address: "192.168.1.100"
-        }
+          ip_address: "192.168.1.100",
+        },
       ];
 
       // Apply filters
@@ -148,42 +199,50 @@ export default function AuditLog() {
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        filteredLogs = filteredLogs.filter(log =>
-          log.message.toLowerCase().includes(searchLower) ||
-          log.module.toLowerCase().includes(searchLower) ||
-          log.user_name?.toLowerCase().includes(searchLower)
+        filteredLogs = filteredLogs.filter(
+          (log) =>
+            log.message.toLowerCase().includes(searchLower) ||
+            log.module.toLowerCase().includes(searchLower) ||
+            log.user_name?.toLowerCase().includes(searchLower),
         );
       }
 
       if (filters.event_type) {
-        filteredLogs = filteredLogs.filter(log => log.event_type === filters.event_type);
+        filteredLogs = filteredLogs.filter(
+          (log) => log.event_type === filters.event_type,
+        );
       }
 
       if (filters.status) {
-        filteredLogs = filteredLogs.filter(log => log.status === filters.status);
+        filteredLogs = filteredLogs.filter(
+          (log) => log.status === filters.status,
+        );
       }
 
       if (filters.module) {
-        filteredLogs = filteredLogs.filter(log => log.module === filters.module);
+        filteredLogs = filteredLogs.filter(
+          (log) => log.module === filters.module,
+        );
       }
 
-      return filteredLogs.sort((a, b) => 
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      return filteredLogs.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       );
     },
-    refetchInterval: autoRefresh ? 10000 : false // Auto-refresh every 10 seconds if enabled
+    refetchInterval: autoRefresh ? 10000 : false, // Auto-refresh every 10 seconds if enabled
   });
 
   // Get unique modules for filter
-  const modules = [...new Set(auditLogs.map(log => log.module))];
+  const modules = [...new Set(auditLogs.map((log) => log.module))];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success':
+      case "success":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'error':
+      case "error":
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
         return <Clock className="h-4 w-4 text-blue-600" />;
@@ -192,24 +251,24 @@ export default function AuditLog() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success':
-        return 'text-green-600 bg-green-100';
-      case 'warning':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'error':
-        return 'text-red-600 bg-red-100';
+      case "success":
+        return "text-green-600 bg-green-100";
+      case "warning":
+        return "text-yellow-600 bg-yellow-100";
+      case "error":
+        return "text-red-600 bg-red-100";
       default:
-        return 'text-blue-600 bg-blue-100';
+        return "text-blue-600 bg-blue-100";
     }
   };
 
   const getEventTypeLabel = (eventType: string) => {
     const labels = {
-      'audit_run': 'Auditoria',
-      'autofix_applied': 'Autofix',
-      'module_check': 'Verificação',
-      'system_change': 'Alteração',
-      'user_action': 'Ação do Usuário'
+      audit_run: "Auditoria",
+      autofix_applied: "Autofix",
+      module_check: "Verificação",
+      system_change: "Alteração",
+      user_action: "Ação do Usuário",
     };
     return labels[eventType as keyof typeof labels] || eventType;
   };
@@ -221,29 +280,29 @@ export default function AuditLog() {
 
   const handleExport = () => {
     const dataStr = JSON.stringify(auditLogs, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `audit-log-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `audit-log-${new Date().toISOString().split("T")[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
 
     toast({
       title: "Log exportado",
-      description: "Arquivo de log de auditoria foi baixado com sucesso"
+      description: "Arquivo de log de auditoria foi baixado com sucesso",
     });
   };
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+    return date.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
@@ -259,16 +318,20 @@ export default function AuditLog() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Log de Auditoria</h1>
-          <p className="text-gray-600">Histórico de eventos e alterações do sistema</p>
+          <p className="text-gray-600">
+            Histórico de eventos e alterações do sistema
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={autoRefresh ? 'bg-green-50 border-green-200' : ''}
+            className={autoRefresh ? "bg-green-50 border-green-200" : ""}
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${autoRefresh ? "animate-spin" : ""}`}
+            />
             Auto-refresh
           </Button>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -294,13 +357,20 @@ export default function AuditLog() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Buscar eventos..."
-                  value={filters.search || ''}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  value={filters.search || ""}
+                  onChange={(e) =>
+                    setFilters({ ...filters, search: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
             </div>
-            <Select value={filters.event_type || ''} onValueChange={(value) => setFilters({ ...filters, event_type: value || undefined })}>
+            <Select
+              value={filters.event_type || ""}
+              onValueChange={(value) =>
+                setFilters({ ...filters, event_type: value || undefined })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Tipo de evento" />
               </SelectTrigger>
@@ -313,7 +383,12 @@ export default function AuditLog() {
                 <SelectItem value="user_action">Ação do Usuário</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filters.status || ''} onValueChange={(value) => setFilters({ ...filters, status: value || undefined })}>
+            <Select
+              value={filters.status || ""}
+              onValueChange={(value) =>
+                setFilters({ ...filters, status: value || undefined })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -325,7 +400,12 @@ export default function AuditLog() {
                 <SelectItem value="info">Info</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filters.module || ''} onValueChange={(value) => setFilters({ ...filters, module: value || undefined })}>
+            <Select
+              value={filters.module || ""}
+              onValueChange={(value) =>
+                setFilters({ ...filters, module: value || undefined })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Módulo" />
               </SelectTrigger>
@@ -338,8 +418,8 @@ export default function AuditLog() {
                 ))}
               </SelectContent>
             </Select>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setFilters({})}
               className="flex items-center gap-2"
             >
@@ -399,7 +479,7 @@ export default function AuditLog() {
                       {entry.message}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {entry.user_name || 'Sistema'}
+                      {entry.user_name || "Sistema"}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -414,7 +494,10 @@ export default function AuditLog() {
                 ))}
                 {auditLogs.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-gray-500"
+                    >
                       Nenhum evento encontrado
                     </TableCell>
                   </TableRow>
@@ -439,16 +522,18 @@ export default function AuditLog() {
                   <strong>ID:</strong> {selectedEntry.id}
                 </div>
                 <div>
-                  <strong>Timestamp:</strong> {formatTimestamp(selectedEntry.timestamp)}
+                  <strong>Timestamp:</strong>{" "}
+                  {formatTimestamp(selectedEntry.timestamp)}
                 </div>
                 <div>
-                  <strong>Tipo:</strong> {getEventTypeLabel(selectedEntry.event_type)}
+                  <strong>Tipo:</strong>{" "}
+                  {getEventTypeLabel(selectedEntry.event_type)}
                 </div>
                 <div>
                   <strong>Módulo:</strong> {selectedEntry.module}
                 </div>
                 <div>
-                  <strong>Status:</strong> 
+                  <strong>Status:</strong>
                   <span className="ml-2">
                     <Badge className={getStatusColor(selectedEntry.status)}>
                       {selectedEntry.status}
@@ -456,13 +541,16 @@ export default function AuditLog() {
                   </span>
                 </div>
                 <div>
-                  <strong>Usuário:</strong> {selectedEntry.user_name || 'Sistema'}
+                  <strong>Usuário:</strong>{" "}
+                  {selectedEntry.user_name || "Sistema"}
                 </div>
               </div>
 
               <div>
                 <strong>Mensagem:</strong>
-                <p className="mt-1 p-2 bg-gray-50 rounded">{selectedEntry.message}</p>
+                <p className="mt-1 p-2 bg-gray-50 rounded">
+                  {selectedEntry.message}
+                </p>
               </div>
 
               {selectedEntry.details && (
