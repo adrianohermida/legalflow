@@ -920,9 +920,9 @@ SELECT 'SF-6 Supabase Compatible Schema instalado com sucesso!' as status,
             },
           ]}
           instructions={[
-            "Baixe o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql",
+            "Baixe o arquivo SF6_SUPABASE_RPC_FIXED.sql",
             "Abra o Supabase SQL Editor",
-            "Execute o script completo (449 linhas)",
+            "Execute o script completo (380 linhas)",
             "Volte aqui e clique em 'Verificar Instalação'",
           ]}
           additionalInfo={[
