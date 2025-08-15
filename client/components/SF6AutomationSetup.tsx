@@ -403,6 +403,9 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
 
     {/* SF-6 Bridge Manager */}
     <SF6BridgeManager />
+
+    {/* SF-6 Round-Trip Test */}
+    <SF6RoundTripTest />
     </div>
   );
 }
