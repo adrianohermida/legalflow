@@ -23,6 +23,7 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Progress } from './ui/progress';
 import { useToast } from '../hooks/use-toast';
 import { lf } from '../lib/supabase'; // supabaseLF binding
+import { flowA0ImplAudit, flowA0ImplAutofix } from '../lib/flow-a0-rpcs';
 import {
   CheckCircle,
   XCircle,
