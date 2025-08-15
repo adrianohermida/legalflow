@@ -5,6 +5,7 @@
  * - Adicionar/remover páginas do sidebar
  * - Confirmação de alteração do layout
  * - Persistência das configurações
+ * NOTA: Modo de personalização movido para o mosaico do escritório apenas
  */
 
 import React, { useState, useEffect } from "react";
@@ -35,6 +36,8 @@ import {
   MessageSquare,
   CalendarCheck,
   Receipt,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 interface SidebarItem {
@@ -49,6 +52,8 @@ interface SidebarItem {
 
 interface SidebarCustomizableProps {
   userType: "advogado" | "cliente";
+  isCustomizing?: boolean; // Controle externo do modo de customização (vem do mosaico)
+  onItemsChange?: (items: SidebarItem[]) => void; // Callback para comunicar mudanças
 }
 
 // Items padrão conforme especificação Flow B1
@@ -220,12 +225,15 @@ const defaultClienteItems: SidebarItem[] = [
   },
 ];
 
-export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
+export function SidebarCustomizable({ 
+  userType, 
+  isCustomizing = false, 
+  onItemsChange 
+}: SidebarCustomizableProps) {
   const location = useLocation();
   const { toast } = useToast();
   
   const [items, setItems] = useState<SidebarItem[]>([]);
-  const [isCustomizing, setIsCustomizing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [tempItems, setTempItems] = useState<SidebarItem[]>([]);
@@ -248,28 +256,38 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
     }
   }, [userType]);
 
-  // Salvar layout no localStorage
+  // Comunicar mudanças para o componente pai
+  useEffect(() => {
+    if (onItemsChange) {
+      onItemsChange(items);
+    }
+  }, [items, onItemsChange]);
+
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(href);
+  };
+
   const saveLayout = () => {
     const storageKey = `sidebar-layout-${userType}`;
     localStorage.setItem(storageKey, JSON.stringify(items));
-    setHasChanges(false);
     
     toast({
       title: "Layout salvo",
-      description: "As alterações do sidebar foram salvas com sucesso.",
+      description: "Suas preferências de menu foram salvas",
     });
   };
 
-  // Resetar para layout padrão
   const resetToDefault = () => {
     const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
     setItems(defaultItems);
     setHasChanges(true);
   };
 
-  // Manipular drag and drop
   const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
+    if (!result.destination || !isCustomizing) return;
 
     const newItems = Array.from(items);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
@@ -279,8 +297,9 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
     setHasChanges(true);
   };
 
-  // Toggle visibilidade de item
   const toggleItemVisibility = (itemId: string) => {
+    if (!isCustomizing) return;
+
     setItems(prevItems =>
       prevItems.map(item =>
         item.id === itemId ? { ...item, isVisible: !item.isVisible } : item
@@ -289,116 +308,52 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
     setHasChanges(true);
   };
 
-  // Verificar se rota está ativa
-  const isActive = (href: string) => {
-    if (href === "/") return location.pathname === "/";
-    return location.pathname.startsWith(href);
-  };
-
-  // Confirmar alterações
   const handleConfirmChanges = () => {
-    setShowConfirmDialog(true);
+    if (hasChanges) {
+      setShowConfirmDialog(true);
+    }
   };
 
-  // Aplicar alterações
-  const applyChanges = () => {
+  const confirmSave = () => {
     saveLayout();
-    setIsCustomizing(false);
+    setHasChanges(false);
     setShowConfirmDialog(false);
-    setTempItems([]);
   };
 
-  // Cancelar alterações
   const cancelChanges = () => {
-    if (tempItems.length > 0) {
+    if (hasChanges) {
       setItems(tempItems);
     }
-    setIsCustomizing(false);
     setHasChanges(false);
-    setTempItems([]);
   };
 
-  // Iniciar customização
-  const startCustomizing = () => {
-    setTempItems([...items]); // Backup do estado atual
-    setIsCustomizing(true);
+  // Público para uso pelo mosaico
+  const publicMethods = {
+    saveLayout,
+    resetToDefault,
+    confirmSave,
+    cancelChanges,
+    hasChanges,
   };
 
-  const visibleItems = items.filter(item => item.isVisible);
+  // Expose methods to parent component
+  React.useImperativeHandle(onItemsChange, () => publicMethods, [hasChanges]);
 
   return (
     <>
-      <div className="app-sidebar">
-        {/* Logo - F1.0 Branding */}
-        <div
-          className="flex items-center justify-center h-16 border-b border-gray-200"
-          style={{ backgroundColor: "var(--brand-700)" }}
-        >
+      <div className="flex flex-col h-full bg-white border-r border-gray-200">
+        {/* Logo/Brand */}
+        <div className="flex-shrink-0 px-6 py-4 border-b border-gray-200">
           <Link to="/" className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg">
-              <Scale className="w-5 h-5" style={{ color: "var(--brand-700)" }} />
+            <div className="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center">
+              <Scale className="w-5 h-5 text-white" />
             </div>
-            <div className="text-white">
-              <div className="text-lg font-semibold leading-none">
-                Hermida Maia
-              </div>
-              <div
-                className="text-xs font-medium"
-                style={{ color: "var(--brand-100)" }}
-              >
-                Advocacia
-              </div>
+            <div>
+              <div className="text-lg font-bold text-gray-900">AdvogaAI</div>
+              <div className="text-xs text-gray-500 capitalize">{userType}</div>
             </div>
           </Link>
         </div>
-
-        {/* Controles de Customização */}
-        {!isCustomizing ? (
-          <div className="px-3 py-2 border-b border-gray-200">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={startCustomizing}
-              className="w-full justify-start text-xs text-gray-600 hover:text-gray-900"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Personalizar Menu
-            </Button>
-          </div>
-        ) : (
-          <div className="px-3 py-2 border-b border-gray-200 space-y-2">
-            <div className="text-xs text-gray-600 font-medium">Modo Personalização</div>
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleConfirmChanges}
-                disabled={!hasChanges}
-                className="flex-1 text-xs"
-              >
-                <Save className="w-3 h-3 mr-1" />
-                Salvar
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetToDefault}
-                className="flex-1 text-xs"
-              >
-                <RotateCcw className="w-3 h-3 mr-1" />
-                Resetar
-              </Button>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={cancelChanges}
-              className="w-full text-xs"
-            >
-              Cancelar
-            </Button>
-          </div>
-        )}
 
         {/* Navigation */}
         <nav
@@ -428,11 +383,11 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
                                     ? "text-white shadow-sm"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                   : "text-gray-400 bg-gray-50",
-                                snapshot.isDragging && "shadow-lg ring-2 ring-brand-700 ring-opacity-50"
+                                snapshot.isDragging && "shadow-lg ring-2 ring-gray-700 ring-opacity-50"
                               )}
                               style={
                                 item.isVisible && active 
-                                  ? { backgroundColor: "var(--brand-700)" } 
+                                  ? { backgroundColor: "var(--gray-700)" } 
                                   : {}
                               }
                             >
@@ -450,16 +405,14 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
                                 size="sm"
                                 onClick={() => toggleItemVisibility(item.id)}
                                 disabled={item.isDefault}
-                                className="ml-auto opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                                className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                                title={item.isVisible ? "Ocultar do menu" : "Mostrar no menu"}
                               >
-                                <div
-                                  className={cn(
-                                    "w-3 h-3 rounded-full border-2",
-                                    item.isVisible
-                                      ? "bg-brand-700 border-brand-700"
-                                      : "border-gray-400"
-                                  )}
-                                />
+                                {item.isVisible ? (
+                                  <Eye className="w-3 h-3" />
+                                ) : (
+                                  <EyeOff className="w-3 h-3" />
+                                )}
                               </Button>
                             </div>
                           )}
@@ -474,7 +427,7 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
           ) : (
             // Modo normal (sem customização)
             <div className="space-y-1">
-              {visibleItems.map((item) => {
+              {items.filter(item => item.isVisible).map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
 
@@ -488,24 +441,14 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
                         ? "text-white shadow-sm"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     )}
-                    style={active ? { backgroundColor: "var(--brand-700)" } : {}}
-                    title={item.description}
-                    aria-current={active ? "page" : undefined}
+                    style={
+                      active 
+                        ? { backgroundColor: "var(--gray-700)" } 
+                        : {}
+                    }
                   >
-                    <Icon
-                      className={cn(
-                        "flex-shrink-0 w-5 h-5 mr-3",
-                        active
-                          ? "text-white"
-                          : "text-neutral-400 group-hover:text-neutral-600"
-                      )}
-                    />
+                    <Icon className="flex-shrink-0 w-5 h-5 mr-3" />
                     <span className="truncate">{item.title}</span>
-
-                    {/* Active indicator */}
-                    {active && (
-                      <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />
-                    )}
                   </Link>
                 );
               })}
@@ -513,30 +456,42 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
           )}
         </nav>
 
-        {/* Footer - User Type Indicator */}
-        <div className="px-3 py-4 border-t border-neutral-200">
-          <div className="flex items-center justify-center px-3 py-2 text-xs font-medium rounded-lg bg-neutral-100 text-neutral-800">
-            <UserCheck className="w-4 h-4 mr-2" />
-            {userType === "advogado" ? "Área do Advogado" : "Portal do Cliente"}
+        {/* Footer com informações do usuário */}
+        <div className="flex-shrink-0 px-3 py-4 border-t border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <UserCheck className="w-4 h-4 text-gray-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">
+                {userType === "advogado" ? "Advogado" : "Cliente"}
+              </div>
+              <div className="text-xs text-gray-500">
+                Sistema Jurídico
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Confirmação de Alterações */}
+      {/* Dialog de confirmação de mudanças */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirmar Alterações</DialogTitle>
+            <DialogTitle>Confirmar alterações</DialogTitle>
             <DialogDescription>
-              Deseja salvar as alterações feitas no layout do sidebar? As mudanças serão aplicadas permanentemente.
+              Você fez alterações no layout do menu. Deseja salvar essas mudanças?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button onClick={applyChanges} className="bg-brand-900 hover:bg-brand-700">
-              Salvar Alterações
+            <Button onClick={confirmSave} style={{ backgroundColor: "var(--gray-700)", color: "white" }}>
+              Salvar mudanças
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -544,3 +499,7 @@ export function SidebarCustomizable({ userType }: SidebarCustomizableProps) {
     </>
   );
 }
+
+// Export para uso pelo mosaico
+export { defaultAdvogadoItems, defaultClienteItems };
+export type { SidebarItem };
