@@ -332,6 +332,7 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      {/* Consolidated agenda routes */}
       <Route
         path="/agenda"
         element={
@@ -340,24 +341,9 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
-      <Route
-        path="/agenda-basic"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <Agenda />
-          </DemoProtectedRoute>
-        }
-      />
+      {/* Consolidated document routes */}
       <Route
         path="/documentos"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <Documentos />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/documentos-c6"
         element={
           <DemoProtectedRoute userType="advogado">
             <DocumentosC6 />
