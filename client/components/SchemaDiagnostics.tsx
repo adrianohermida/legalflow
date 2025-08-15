@@ -26,36 +26,41 @@ export function SchemaDiagnostics() {
   const { toast } = useToast();
 
   // Function to test if a specific RPC function exists
-  const testFunction = async (functionName: string): Promise<DiagnosticResult> => {
+  const testFunction = async (
+    functionName: string,
+  ): Promise<DiagnosticResult> => {
     try {
       const { data, error } = await lf.rpc(functionName as any);
-      
+
       if (error) {
         // If error mentions function doesn't exist, that's our answer
-        if (error.message?.includes("function") && error.message?.includes("does not exist")) {
+        if (
+          error.message?.includes("function") &&
+          error.message?.includes("does not exist")
+        ) {
           return {
             success: false,
             error: `Função ${functionName} não existe`,
-            details: error
+            details: error,
           };
         }
         // If it's a different error, the function exists but failed for another reason
         return {
           success: true,
           error: `Função ${functionName} existe mas falhou: ${error.message}`,
-          details: error
+          details: error,
         };
       }
-      
+
       return {
         success: true,
-        details: data
+        details: data,
       };
     } catch (err: any) {
       return {
         success: false,
         error: err.message,
-        details: err
+        details: err,
       };
     }
   };
@@ -63,11 +68,11 @@ export function SchemaDiagnostics() {
   // Test SF-6 functions
   const testSF6 = async (): Promise<DiagnosticResult> => {
     const functions = [
-      'sf6_verify_installation',
-      'sf6_get_bridge_statistics', 
-      'sf6_auto_create_activity_for_completed_task',
-      'sf6_process_existing_completed_tasks',
-      'sf6_cleanup_test_data'
+      "sf6_verify_installation",
+      "sf6_get_bridge_statistics",
+      "sf6_auto_create_activity_for_completed_task",
+      "sf6_process_existing_completed_tasks",
+      "sf6_cleanup_test_data",
     ];
 
     const results = [];
@@ -76,26 +81,33 @@ export function SchemaDiagnostics() {
       results.push({ function: func, ...result });
     }
 
-    const existingFunctions = results.filter(r => r.success).map(r => r.function);
-    const missingFunctions = results.filter(r => !r.success).map(r => r.function);
+    const existingFunctions = results
+      .filter((r) => r.success)
+      .map((r) => r.function);
+    const missingFunctions = results
+      .filter((r) => !r.success)
+      .map((r) => r.function);
 
     return {
       success: existingFunctions.length > 0,
       functions: existingFunctions,
-      error: missingFunctions.length > 0 ? `Funções não encontradas: ${missingFunctions.join(', ')}` : undefined,
-      details: results
+      error:
+        missingFunctions.length > 0
+          ? `Funções não encontradas: ${missingFunctions.join(", ")}`
+          : undefined,
+      details: results,
     };
   };
 
   // Test SF-2 functions
   const testSF2 = async (): Promise<DiagnosticResult> => {
     const functions = [
-      'sf2_create_sample_data',
-      'sf2_create_process_chat_thread',
-      'sf2_get_process_threads',
-      'sf2_get_thread_messages',
-      'sf2_add_thread_message',
-      'sf2_quick_action_create_task'
+      "sf2_create_sample_data",
+      "sf2_create_process_chat_thread",
+      "sf2_get_process_threads",
+      "sf2_get_thread_messages",
+      "sf2_add_thread_message",
+      "sf2_quick_action_create_task",
     ];
 
     const results = [];
@@ -104,25 +116,32 @@ export function SchemaDiagnostics() {
       results.push({ function: func, ...result });
     }
 
-    const existingFunctions = results.filter(r => r.success).map(r => r.function);
-    const missingFunctions = results.filter(r => !r.success).map(r => r.function);
+    const existingFunctions = results
+      .filter((r) => r.success)
+      .map((r) => r.function);
+    const missingFunctions = results
+      .filter((r) => !r.success)
+      .map((r) => r.function);
 
     return {
       success: existingFunctions.length > 0,
       functions: existingFunctions,
-      error: missingFunctions.length > 0 ? `Funções não encontradas: ${missingFunctions.join(', ')}` : undefined,
-      details: results
+      error:
+        missingFunctions.length > 0
+          ? `Funções não encontradas: ${missingFunctions.join(", ")}`
+          : undefined,
+      details: results,
     };
   };
 
   // Test SF-7 functions
   const testSF7 = async (): Promise<DiagnosticResult> => {
     const functions = [
-      'sf7_verify_installation',
-      'sf7_list_eventos_periodo',
-      'sf7_create_evento_rapido',
-      'sf7_eventos_proximos',
-      'sf7_update_evento'
+      "sf7_verify_installation",
+      "sf7_list_eventos_periodo",
+      "sf7_create_evento_rapido",
+      "sf7_eventos_proximos",
+      "sf7_update_evento",
     ];
 
     const results = [];
@@ -131,14 +150,21 @@ export function SchemaDiagnostics() {
       results.push({ function: func, ...result });
     }
 
-    const existingFunctions = results.filter(r => r.success).map(r => r.function);
-    const missingFunctions = results.filter(r => !r.success).map(r => r.function);
+    const existingFunctions = results
+      .filter((r) => r.success)
+      .map((r) => r.function);
+    const missingFunctions = results
+      .filter((r) => !r.success)
+      .map((r) => r.function);
 
     return {
       success: existingFunctions.length > 0,
       functions: existingFunctions,
-      error: missingFunctions.length > 0 ? `Funções não encontradas: ${missingFunctions.join(', ')}` : undefined,
-      details: results
+      error:
+        missingFunctions.length > 0
+          ? `Funções não encontradas: ${missingFunctions.join(", ")}`
+          : undefined,
+      details: results,
     };
   };
 
@@ -150,12 +176,12 @@ export function SchemaDiagnostics() {
 
       // Test common SF functions to see which ones exist
       const functionsToTest = [
-        'sf6_verify_installation',
-        'sf6_get_bridge_statistics',
-        'sf2_create_sample_data',
-        'sf2_create_process_chat_thread',
-        'sf7_verify_installation',
-        'sf7_create_evento_rapido'
+        "sf6_verify_installation",
+        "sf6_get_bridge_statistics",
+        "sf2_create_sample_data",
+        "sf2_create_process_chat_thread",
+        "sf7_verify_installation",
+        "sf7_create_evento_rapido",
       ];
 
       for (const funcName of functionsToTest) {
@@ -179,36 +205,39 @@ export function SchemaDiagnostics() {
 
   const diagnosticTests = [
     {
-      id: 'sf6',
-      name: 'SF-6: Bridge Activities ↔ Tickets',
+      id: "sf6",
+      name: "SF-6: Bridge Activities ↔ Tickets",
       test: testSF6,
-      color: 'bg-blue-100 text-blue-700'
+      color: "bg-blue-100 text-blue-700",
     },
     {
-      id: 'sf2', 
-      name: 'SF-2: Chat Multi-thread',
+      id: "sf2",
+      name: "SF-2: Chat Multi-thread",
       test: testSF2,
-      color: 'bg-green-100 text-green-700'
+      color: "bg-green-100 text-green-700",
     },
     {
-      id: 'sf7',
-      name: 'SF-7: Agenda TZ São Paulo', 
+      id: "sf7",
+      name: "SF-7: Agenda TZ São Paulo",
       test: testSF7,
-      color: 'bg-purple-100 text-purple-700'
-    }
+      color: "bg-purple-100 text-purple-700",
+    },
   ];
 
-  const runDiagnostic = async (testId: string, testFunction: () => Promise<DiagnosticResult>) => {
+  const runDiagnostic = async (
+    testId: string,
+    testFunction: () => Promise<DiagnosticResult>,
+  ) => {
     setActiveTest(testId);
     try {
       const result = await testFunction();
-      
+
       toast({
         title: `Diagnóstico ${testId.toUpperCase()}`,
-        description: result.success 
+        description: result.success
           ? `✅ ${result.functions?.length || 0} funções encontradas`
           : `❌ ${result.error}`,
-        variant: result.success ? "default" : "destructive"
+        variant: result.success ? "default" : "destructive",
       });
 
       console.log(`Resultado ${testId.toUpperCase()}:`, result);
@@ -216,7 +245,7 @@ export function SchemaDiagnostics() {
       toast({
         title: `Erro no diagnóstico ${testId.toUpperCase()}`,
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setActiveTest(null);
@@ -237,8 +266,13 @@ export function SchemaDiagnostics() {
             <Database className="w-4 h-4" />
             <AlertDescription>
               <div className="space-y-2">
-                <p><strong>Diagnóstico das instalações SQL:</strong></p>
-                <p>Este painel testa se as funções RPC dos schemas estão acessíveis no banco de dados.</p>
+                <p>
+                  <strong>Diagnóstico das instalações SQL:</strong>
+                </p>
+                <p>
+                  Este painel testa se as funções RPC dos schemas estão
+                  acessíveis no banco de dados.
+                </p>
               </div>
             </AlertDescription>
           </Alert>
@@ -286,11 +320,22 @@ export function SchemaDiagnostics() {
           </div>
 
           <div className="text-xs text-neutral-500 space-y-1">
-            <p><strong>Como interpretar os resultados:</strong></p>
+            <p>
+              <strong>Como interpretar os resultados:</strong>
+            </p>
             <ul className="list-disc pl-4 space-y-1">
-              <li>✅ <strong>Função encontrada:</strong> A função RPC existe e está acessível</li>
-              <li>❌ <strong>Função não encontrada:</strong> A função RPC não existe ou não está acessível</li>
-              <li>⚠️ <strong>Função existe mas falhou:</strong> A função existe mas retornou erro (normal em testes)</li>
+              <li>
+                ✅ <strong>Função encontrada:</strong> A função RPC existe e
+                está acessível
+              </li>
+              <li>
+                ❌ <strong>Função não encontrada:</strong> A função RPC não
+                existe ou não está acessível
+              </li>
+              <li>
+                ⚠️ <strong>Função existe mas falhou:</strong> A função existe
+                mas retornou erro (normal em testes)
+              </li>
             </ul>
           </div>
         </CardContent>
