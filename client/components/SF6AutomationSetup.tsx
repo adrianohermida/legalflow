@@ -251,17 +251,16 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
   // Setup automation mutation
   const setupMutation = useMutation({
     mutationFn: async () => {
-      // Execute the SQL to create functions and triggers
-      const { error: sqlError } = await lf.rpc('execute_sql', {
-        sql_query: SF6_AUTOMATION_SQL
-      });
+      // First, verify if the functions are installed
+      const { data: verifyResult, error: verifyError } = await lf
+        .rpc('sf6_verify_installation');
 
-      if (sqlError) {
-        // Try alternative approach using raw SQL execution
-        const { error: rawError } = await lf.from('_').select('*').limit(0);
-        if (rawError) {
-          throw new Error(`Failed to setup automation: ${sqlError.message}`);
-        }
+      if (verifyError) {
+        throw new Error(`Verificação falhou: ${verifyError.message}. Por favor, execute o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no seu Supabase SQL Editor.`);
+      }
+
+      if (!verifyResult?.installation_complete) {
+        throw new Error(`SF-6 não está completamente instalado. ${verifyResult?.message || 'Execute o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase SQL Editor.'}`);
       }
 
       // Test the setup by calling the helper function
@@ -269,7 +268,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
         .rpc('sf6_process_existing_completed_tasks');
 
       if (testError) {
-        throw new Error(`Setup completed but test failed: ${testError.message}`);
+        throw new Error(`Setup verificado mas teste falhou: ${testError.message}`);
       }
 
       return testResult as AutomationResult;
