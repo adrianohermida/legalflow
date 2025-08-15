@@ -76,6 +76,39 @@ export function createServer() {
     }
   });
 
+  // Simple test page
+  app.get("/test", (req, res) => {
+    res.set('Content-Type', 'text/html');
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Test Page - LegalFlow</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+            .status { padding: 10px; margin: 10px 0; background: #d4edda; color: #155724; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🟢 Servidor LegalFlow - Funcionando</h1>
+            <div class="status">
+              ✅ Express Server: OK<br>
+              ✅ API REST: OK<br>
+              ✅ Fly.dev Environment: OK<br>
+              ⏰ Timestamp: ${new Date().toISOString()}<br>
+              🔧 Uptime: ${process.uptime().toFixed(2)}s
+            </div>
+            <p><a href="/api/health">Testar API Health</a></p>
+            <p><a href="/api/v1/health">Testar API v1 Health</a></p>
+            <p><a href="/">Voltar para App Principal</a></p>
+          </div>
+        </body>
+      </html>
+    `);
+  });
+
   // Legacy routes (maintain backward compatibility)
   app.get("/api/ping", (req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
