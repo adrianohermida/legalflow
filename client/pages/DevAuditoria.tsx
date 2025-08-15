@@ -473,10 +473,56 @@ const DevAuditoria: React.FC = () => {
 
       console.log("✅ Auditoria completa finalizada!");
 
-      toast({
-        title: "Auditoria concluída",
-        description: "Todos os módulos foram verificados com sucesso.",
-      });
+      // Processar resultados da auditoria para gerar sugestões de backlog
+      try {
+        console.log("🔄 Processando resultados para sugestões de backlog...");
+
+        // Criar objeto de resultados da auditoria
+        const auditResults: Record<string, any> = {};
+        modules.forEach(module => {
+          auditResults[module.id] = {
+            status: module.status,
+            checks: module.checks
+          };
+        });
+
+        const suggestions = await processAuditResults(auditResults);
+        setAuditSuggestions(suggestions);
+
+        if (suggestions.length > 0) {
+          setShowSuggestions(true);
+          console.log(`💡 ${suggestions.length} sugestões de melhoria identificadas`);
+
+          // Criar automaticamente itens críticos
+          const autoCreateSuggestions = suggestions.filter(s => s.autoCreate);
+          if (autoCreateSuggestions.length > 0) {
+            const createdItems = await createItemsFromSuggestions(autoCreateSuggestions);
+            console.log(`🎯 ${createdItems.length} itens criados automaticamente no backlog`);
+
+            toast({
+              title: "Auditoria concluída com integração",
+              description: `${suggestions.length} sugestões identificadas, ${createdItems.length} itens criados automaticamente no backlog.`,
+            });
+          } else {
+            toast({
+              title: "Auditoria concluída",
+              description: `${suggestions.length} sugestões identificadas para revisão manual.`,
+            });
+          }
+        } else {
+          toast({
+            title: "Auditoria concluída",
+            description: "Todos os módulos foram verificados com sucesso.",
+          });
+        }
+      } catch (integrationError) {
+        console.error("Erro na integração com backlog:", integrationError);
+        toast({
+          title: "Auditoria concluída",
+          description: "Todos os módulos foram verificados. Erro na integração com backlog.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("❌ Erro durante auditoria:", error);
       toast({
