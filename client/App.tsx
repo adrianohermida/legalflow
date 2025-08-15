@@ -144,10 +144,10 @@ function DemoProtectedRoute({
 
   return (
     <>
-      <AppShell userType={userType} user={user} logout={logout}>
+      <AppShell userType={userType} user={effectiveUser} logout={logout}>
         {children}
       </AppShell>
-      {userType === "advogado" && (
+      {userType === "advogado" && effectiveUser?.oab && (
         <UnifiedOABSelectionModal
           open={showOABModal}
           onOpenChange={setShowOABModal}
