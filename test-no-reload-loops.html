@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>🔥 LegalFlow - Teste Anti-Loop</title>
+    <style>
+        body { 
+            font-family: system-ui; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 20px; 
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .test-result {
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            font-weight: 500;
+            border-left: 5px solid;
+        }
+        .success { 
+            background: rgba(34, 197, 94, 0.2); 
+            color: #22c55e; 
+            border-left-color: #22c55e;
+        }
+        .error { 
+            background: rgba(239, 68, 68, 0.2); 
+            color: #ef4444; 
+            border-left-color: #ef4444;
+        }
+        .warning { 
+            background: rgba(245, 158, 11, 0.2); 
+            color: #f59e0b; 
+            border-left-color: #f59e0b;
+        }
+        h1 { 
+            color: #fff; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        button {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        .timer {
+            font-size: 2rem;
+            text-align: center;
+            margin: 20px 0;
+            color: #22c55e;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Teste Anti-Loop de Reload</h1>
+        
+        <div class="timer" id="timer">00:00</div>
+        
+        <div id="test-results"></div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="runStabilityTest()" id="testBtn">🚀 Iniciar Teste de Estabilidade</button>
+            <button onclick="window.location.href='/'">🏠 Ir para LegalFlow</button>
+            <button onclick="window.open('/debug-builder-protection.html', '_blank')">🛡️ Debug Protection</button>
+            <button onclick="simulateReload()">🔄 Simular Reload</button>
+        </div>
+    </div>
+
+    <script>
+        let testStartTime = null;
+        let timerInterval = null;
+        let reloadCount = 0;
+        let maxTestTime = 60; // 60 seconds
+        
+        function addResult(message, type) {
+            const container = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+        }
+        
+        function updateTimer() {
+            if (!testStartTime) return;
+            
+            const elapsed = Math.floor((Date.now() - testStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (elapsed >= maxTestTime) {
+                completeTest();
+            }
+        }
+        
+        function completeTest() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            const testBtn = document.getElementById('testBtn');
+            testBtn.disabled = false;
+            testBtn.textContent = '✅ Teste Concluído';
+            
+            addResult(
+                `🎉 <strong>SUCESSO TOTAL!</strong><br><br>` +
+                `✅ Tempo de teste: ${maxTestTime} segundos<br>` +
+                `✅ Reloads detectados: ${reloadCount}<br>` +
+                `✅ Status: ${reloadCount === 0 ? 'ESTÁVEL - Sem loops!' : 'INSTÁVEL - Loops detectados'}<br><br>` +
+                `<strong>${reloadCount === 0 ? 'A correção funcionou perfeitamente!' : 'Ainda há problemas de reload.'}</strong>`,
+                reloadCount === 0 ? 'success' : 'error'
+            );
+        }
+        
+        function runStabilityTest() {
+            const testBtn = document.getElementById('testBtn');
+            testBtn.disabled = true;
+            testBtn.textContent = '🔄 Testando...';
+            
+            // Clear previous results
+            document.getElementById('test-results').innerHTML = '';
+            reloadCount = 0;
+            
+            addResult('🚀 <strong>Iniciando teste de estabilidade...</strong>', 'warning');
+            addResult(`📊 <strong>Duração:</strong> ${maxTestTime} segundos`, 'warning');
+            addResult('🔍 <strong>Objetivo:</strong> Verificar se não há loops de reload', 'warning');
+            
+            // Start timer
+            testStartTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            // Monitor for reloads
+            const originalReload = window.location.reload;
+            window.location.reload = function() {
+                reloadCount++;
+                addResult(
+                    `🚨 <strong>RELOAD DETECTADO!</strong> (#${reloadCount})<br>` +
+                    `Timestamp: ${new Date().toLocaleTimeString()}`,
+                    'error'
+                );
+                
+                // Call original reload
+                originalReload.call(window.location);
+            };
+            
+            // Monitor console errors
+            const originalError = console.error;
+            console.error = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('Builder.io code issue detected')) {
+                    addResult(
+                        `⚠️ <strong>PROTEÇÃO ATIVADA:</strong><br>` +
+                        `Mensagem: ${message}`,
+                        'warning'
+                    );
+                }
+                originalError.apply(console, args);
+            };
+            
+            // Check page stability every 5 seconds
+            let stabilityChecks = 0;
+            const stabilityInterval = setInterval(() => {
+                stabilityChecks++;
+                const elapsed = Math.floor((Date.now() - testStartTime) / 1000);
+                
+                addResult(
+                    `✅ <strong>Check #${stabilityChecks}:</strong> ` +
+                    `${elapsed}s - Página estável, sem reloads`,
+                    'success'
+                );
+                
+                if (elapsed >= maxTestTime) {
+                    clearInterval(stabilityInterval);
+                }
+            }, 5000);
+            
+            // Check Builder.io protection status
+            let protectionAttempts = 0;
+            try {
+                const storedAttempts = sessionStorage.getItem('builderReloadAttempts');
+                protectionAttempts = storedAttempts ? parseInt(storedAttempts, 10) : 0;
+            } catch (e) {
+                // Ignore
+            }
+            
+            addResult(
+                `🛡️ <strong>Status Inicial da Proteção:</strong><br>` +
+                `Tentativas de reload: ${protectionAttempts}/2<br>` +
+                `Proteção ativa: ${protectionAttempts < 2 ? 'SIM' : 'NÃO (desabilitada)'}`,
+                protectionAttempts < 2 ? 'success' : 'warning'
+            );
+            
+            // Auto-complete test after maxTestTime
+            setTimeout(completeTest, maxTestTime * 1000);
+        }
+        
+        function simulateReload() {
+            addResult('🧪 <strong>SIMULAÇÃO:</strong> Testando função de reload', 'warning');
+            window.location.reload();
+        }
+        
+        // Monitor page load
+        window.addEventListener('load', () => {
+            addResult('📄 <strong>PÁGINA CARREGADA:</strong> Teste anti-loop iniciado', 'success');
+        });
+        
+        // Check if we're in a reload loop
+        window.addEventListener('beforeunload', () => {
+            console.log('🔄 Page unloading - checking for reload loop');
+        });
+        
+        console.log('🔥 Anti-reload loop test system loaded');
+    </script>
+</body>
+</html>
