@@ -1209,6 +1209,8 @@ export default function App() {
         <BrowserRouter>{AppContent}</BrowserRouter>
         <Toaster />
         <Sonner />
+        {/* Builder.io Debug Component - only in development */}
+        {import.meta.env.DEV && <BuilderDebugger />}
       </TooltipProvider>
     </QueryClientProvider>
   );
