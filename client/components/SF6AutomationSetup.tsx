@@ -382,6 +382,14 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
               )}
               Testar Automação
             </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowInstallation(!showInstallation)}
+            >
+              <Database className="w-4 h-4 mr-2" />
+              {showInstallation ? "Ocultar" : "Baixar"} Schema
+            </Button>
           </div>
 
           {setupResult && (
@@ -452,7 +460,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
       {/* Show installation downloader when needed */}
       {showInstallation && (
         <GenericSQLDownloader
-          title="Instalação Obrigat��ria - Schema SF6"
+          title="Instalação Obrigatória - Schema SF6"
           description="Para utilizar o Sistema de Bridge entre Tarefas e Tickets, você deve instalar primeiro o schema SF6 no seu banco Supabase."
           files={[
             {
