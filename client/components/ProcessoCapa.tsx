@@ -79,8 +79,8 @@ export default function ProcessoCapa({ numeroCnj }: ProcessoCapaProps) {
     queryKey: ['partes', numeroCnj],
     queryFn: async () => {
       try {
-        // Try legalflow schema first
-        const { data, error } = await supabase
+        // Use legalflow schema for partes_processo
+        const { data, error } = await lf
           .from('partes_processo')
           .select('*')
           .eq('numero_cnj', numeroCnj);
@@ -108,7 +108,7 @@ export default function ProcessoCapa({ numeroCnj }: ProcessoCapaProps) {
         .eq('numero_cnj', numeroCnj)
         .order('data_movimentacao', { ascending: false });
 
-      // Aplicar filtro de período
+      // Aplicar filtro de per��odo
       if (printOptions.periodo !== 'todos') {
         const days = {
           '30dias': 30,
