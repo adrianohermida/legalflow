@@ -392,10 +392,7 @@ export default function ProcessoOverviewV3() {
                           </label>
                           <p className="text-sm flex items-center gap-2" style={{ color: colors.neutral[600] }}>
                             <DollarSign className="w-4 h-4" />
-                            {new Intl.NumberFormat('pt-BR', { 
-                              style: 'currency', 
-                              currency: 'BRL' 
-                            }).format(parseFloat(adviseData.valor))}
+                            {formatCurrency(adviseData.valor)}
                           </p>
                         </div>
                       )}
