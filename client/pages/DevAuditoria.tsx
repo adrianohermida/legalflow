@@ -428,7 +428,7 @@ const DevAuditoria: React.FC = () => {
     setAuditProgress(0);
 
     try {
-      console.log("🔍 Iniciando auditoria completa do sistema...");
+      console.log("�� Iniciando auditoria completa do sistema...");
 
       const totalModules = modules.length;
       let completedModules = 0;
@@ -1167,109 +1167,7 @@ const DevAuditoria: React.FC = () => {
             </TabsList>
 
             <TabsContent value="audit" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Módulos do Sistema</h3>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" disabled={isRunningAutofix}>
-                      <Zap className="w-4 h-4 mr-2" />
-                      Autofix
-                      <ChevronDown className="w-4 h-4 ml-2" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {autofixPatches.map((patch) => (
-                      <DropdownMenuItem
-                        key={patch.code}
-                        onClick={() => runAutofix(patch.code)}
-                      >
-                        <div>
-                          <div className="font-medium">{patch.name}</div>
-                          <div className="text-sm text-neutral-600">
-                            {patch.description}
-                          </div>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <div className="grid gap-4">
-                {modules.map((module) => (
-                  <Card
-                    key={module.id}
-                    className={`transition-all duration-200 cursor-pointer hover:shadow-md ${getStatusColor(module.status)}`}
-                    onClick={() =>
-                      setSelectedModule(
-                        selectedModule === module.id ? null : module.id,
-                      )
-                    }
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {module.icon}
-                          <div>
-                            <CardTitle className="text-base">
-                              {module.name}
-                            </CardTitle>
-                            <CardDescription className="text-sm">
-                              {module.description}
-                            </CardDescription>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(module.status)}
-                          <Badge variant="outline">
-                            {module.status === "ok"
-                              ? "OK"
-                              : module.status === "error"
-                                ? "Erro"
-                                : module.status === "checking"
-                                  ? "Verificando"
-                                  : "Pendente"}
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardHeader>
-
-                    {selectedModule === module.id && (
-                      <CardContent className="pt-0">
-                        <div className="space-y-2">
-                          {module.checks.map((check) => (
-                            <div
-                              key={check.id}
-                              className="flex items-center justify-between p-2 rounded bg-white/50"
-                            >
-                              <div>
-                                <div className="font-medium text-sm">
-                                  {check.name}
-                                </div>
-                                <div className="text-xs text-neutral-600">
-                                  {check.description}
-                                </div>
-                                {check.details && (
-                                  <div className="text-xs text-neutral-500 mt-1">
-                                    {check.details}
-                                  </div>
-                                )}
-                              </div>
-                              {getStatusIcon(check.status)}
-                            </div>
-                          ))}
-                        </div>
-                        {module.lastChecked && (
-                          <div className="text-xs text-neutral-500 mt-3">
-                            Última verificação:{" "}
-                            {new Date(module.lastChecked).toLocaleString()}
-                          </div>
-                        )}
-                      </CardContent>
-                    )}
-                  </Card>
-                ))}
-              </div>
+              <CompletionPackAudit />
             </TabsContent>
 
             <TabsContent value="testing" className="space-y-4">
