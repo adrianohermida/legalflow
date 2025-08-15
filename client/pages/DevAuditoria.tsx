@@ -123,6 +123,9 @@ const DevAuditoria: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "audit" | "testing" | "backlog" | "routes" | "config" | "history"
   >("audit");
+  const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const { processAuditResults, createItemsFromSuggestions, getStats } = useAuditBacklogIntegration();
   const [isRunningAutofix, setIsRunningAutofix] = useState(false);
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
