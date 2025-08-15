@@ -872,6 +872,14 @@ function RegularAppRoutes() {
           }
         />
         <Route
+          path="/api-example"
+          element={
+            <ProtectedRoute userType="advogado">
+              <ApiExample />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/servicos"
           element={
             <ProtectedRoute userType="advogado">
