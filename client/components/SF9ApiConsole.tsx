@@ -813,9 +813,10 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
           <CardTitle>1. Selecionar Endpoint</CardTitle>
         </CardHeader>
         <CardContent>
-          <Select 
-            value={currentEndpoint?.id || ""} 
+          <Select
+            value={currentEndpoint?.id || "none"}
             onValueChange={(value) => {
+              if (value === "none") return;
               const endpoint = endpoints.find(e => e.id === value);
               setCurrentEndpoint(endpoint || null);
               setStep("prepare");
