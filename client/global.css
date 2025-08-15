@@ -64,7 +64,7 @@
   --border: var(--mono-gray-200);
   --border-hover: var(--mono-gray-300);
   --border-focus: var(--brand-700);
-  --focus-ring: 2px solid var(--brand-700);
+  --focus-ring: 3px solid var(--brand-700);
   --radius: 12px;
 
   /* Sombras monocromáticas */
