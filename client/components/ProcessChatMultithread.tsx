@@ -226,7 +226,44 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
           });
           if (ticketError) throw ticketError;
           return ticketData;
-          
+
+        case 'request_document':
+          const { data: docData, error: docError } = await lf.rpc('sf2_quick_action_request_document', {
+            p_thread_id: activeThreadId,
+            p_document_name: actionData.document_name,
+            p_document_description: actionData.description,
+            p_required: actionData.required || true
+          });
+          if (docError) throw docError;
+          return docData;
+
+        case 'complete_stage':
+          const { data: stageData, error: stageError } = await lf.rpc('sf2_quick_action_complete_stage', {
+            p_thread_id: activeThreadId,
+            p_stage_instance_id: actionData.stage_instance_id,
+            p_notes: actionData.notes
+          });
+          if (stageError) throw stageError;
+          return stageData;
+
+        case 'advogaai_analysis':
+          const { data: analysisData, error: analysisError } = await lf.rpc('sf2_quick_action_advogaai_analysis', {
+            p_thread_id: activeThreadId,
+            p_analysis_type: actionData.analysis_type || 'general',
+            p_context: actionData.context
+          });
+          if (analysisError) throw analysisError;
+          return analysisData;
+
+        case 'start_journey':
+          const { data: journeyData, error: journeyError } = await lf.rpc('sf2_quick_action_start_journey', {
+            p_thread_id: activeThreadId,
+            p_journey_type_id: actionData.journey_type_id,
+            p_title: actionData.title
+          });
+          if (journeyError) throw journeyError;
+          return journeyData;
+
         default:
           throw new Error('Ação não implementada');
       }
