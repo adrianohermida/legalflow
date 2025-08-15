@@ -1406,6 +1406,11 @@ export function ProcessoDetail() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* SF-2: Chat Multi-thread do Processo */}
+        {numero_cnj && (
+          <ProcessChatMultithread numeroCnj={numero_cnj} />
+        )}
       </div>
     </PageErrorBoundary>
   );
