@@ -178,16 +178,8 @@ export function FlowA0AuditoriaAutofix() {
     try {
       console.log('🔍 Iniciando auditoria Flow A0...');
 
-      // Chamar RPC do Supabase LegalFlow
-      const { data: auditResults, error } = await lf.rpc('impl_audit');
-
-      if (error) {
-        throw new Error(`RPC Error: ${error.message}`);
-      }
-
-      if (!auditResults) {
-        throw new Error('Nenhum resultado retornado da auditoria');
-      }
+      // Chamar implementação local que usa supabaseLF
+      const auditResults = await flowA0ImplAudit();
 
       console.log('📊 Resultados da auditoria:', auditResults);
 
