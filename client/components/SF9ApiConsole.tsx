@@ -34,6 +34,7 @@ import {
 import { Alert, AlertDescription } from "./ui/alert";
 import { useToast } from "../hooks/use-toast";
 import { supabase } from "../lib/supabase";
+import { implAutofix } from "../lib/audit-rpcs";
 import {
   Server,
   Play,
@@ -811,7 +812,7 @@ const ApiTestingPanel: React.FC<ApiTestingPanelProps> = ({
       {currentEndpoint && (
         <Card>
           <CardHeader>
-            <CardTitle>2. Parâmetros da Requisi��ão</CardTitle>
+            <CardTitle>2. Parâmetros da Requisição</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
