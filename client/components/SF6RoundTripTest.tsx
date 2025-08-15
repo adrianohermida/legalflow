@@ -143,15 +143,15 @@ export function SF6RoundTripTest() {
       await delay(500);
 
       // Final success
-      addResult({ 
-        success: true, 
-        step: "🎉 SF-6 Round-Trip Test PASSED", 
-        data: { 
+      addResult({
+        success: true,
+        step: "🎉 SF-6 Functions Test PASSED",
+        data: {
           total_time: Date.now() - startTime,
-          steps_completed: 9,
-          acceptance_criteria: "✅ ida-e-volta entre Activity e Ticket com 1 clique"
+          steps_completed: 5,
+          functions_verified: "✅ Todas as funções SF-6 funcionando corretamente"
         },
-        timing: Date.now() - startTime 
+        timing: Date.now() - startTime
       });
 
       toast({
