@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Sidebar } from "./Sidebar";
+import { SidebarCustomizable } from "./SidebarCustomizable";
 import { Header } from "./Header";
-import { OfficeModulesWindow } from "./OfficeModulesWindow";
+import { AppLauncherMosaic } from "./AppLauncherMosaic";
 import { NotificationPanel } from "./NotificationPanel";
 import { ChatDock } from "./ChatDock";
-import { CommandPalette } from "./CommandPalette";
+import { GlobalSearchPalette } from "./GlobalSearchPalette";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
 interface AppShellProps {
