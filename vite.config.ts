@@ -1,40 +1,41 @@
-import { defineConfig, Plugin } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 import path from "path";
-import { createServer } from "./server";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  server: {
-    host: "0.0.0.0",
-    port: 8080,
-    strictPort: true,
-    fs: {
-      allow: ["./client", "./shared"],
-      deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
-    },
-  },
-  build: {
-    outDir: "dist/spa",
-  },
-  plugins: [react(), expressPlugin()],
+export default defineConfig({
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
-}));
-
-function expressPlugin(): Plugin {
-  return {
-    name: "express-plugin",
-    apply: "serve", // Only apply during development (serve mode)
-    configureServer(server) {
-      const app = createServer();
-
-      // Add Express app as middleware to Vite dev server
-      server.middlewares.use(app);
+  server: {
+    port: 8080,
+    host: true, // Enable external access for Builder.io
+  },
+  build: {
+    outDir: "dist/spa",
+    emptyOutDir: true,
+    rollupOptions: {
+      input: path.resolve(__dirname, "index.html"),
+      output: {
+        // Optimize for Builder.io deployment
+        manualChunks: undefined,
+      },
     },
-  };
-}
+    // Optimize for Builder.io
+    target: 'es2015',
+    minify: 'esbuild',
+    sourcemap: false,
+  },
+  define: {
+    // Builder.io environment variables
+    __BUILDER_IO_ENV__: JSON.stringify(process.env.NODE_ENV || 'production'),
+  },
+  // Builder.io optimizations
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+  },
+});
