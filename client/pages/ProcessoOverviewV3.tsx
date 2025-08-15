@@ -48,6 +48,7 @@ import {
   ChevronRight,
   X,
   ChevronDown,
+  BookOpen,
   ChevronUp,
   Send,
   Paperclip,
