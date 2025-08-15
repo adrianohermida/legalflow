@@ -89,6 +89,64 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
     setStats(currentStats);
   };
 
+  const runRouteDiagnostics = async () => {
+    setIsRunningDiagnostics(true);
+    try {
+      console.log('🔍 Executando diagnóstico completo das rotas...');
+
+      const issues = await runDiagnostics();
+      const stats = await getHealthStats();
+
+      setDiagnosticsResults(issues);
+      setHealthStats(stats);
+      setShowDiagnostics(true);
+
+      toast({
+        title: "Diagnóstico concluído",
+        description: `${issues.length} problemas identificados. ${stats.autoFixableIssues} podem ser corrigidos automaticamente.`,
+      });
+    } catch (error) {
+      console.error('Erro no diagnóstico:', error);
+      toast({
+        title: "Erro no diagnóstico",
+        description: "Falha ao executar diagnóstico das rotas.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningDiagnostics(false);
+    }
+  };
+
+  const applyAutomaticFixes = async () => {
+    if (diagnosticsResults.length === 0) return;
+
+    setIsApplyingFixes(true);
+    try {
+      console.log('🔧 Aplicando correções automáticas...');
+
+      const fixResults = await applyAutoFixes(diagnosticsResults);
+      const successfulFixes = fixResults.filter(r => r.success);
+
+      // Atualizar dados após aplicar correções
+      await refreshData();
+      await runRouteDiagnostics();
+
+      toast({
+        title: "Correções aplicadas",
+        description: `${successfulFixes.length} de ${fixResults.length} correções aplicadas com sucesso.`,
+      });
+    } catch (error) {
+      console.error('Erro ao aplicar correções:', error);
+      toast({
+        title: "Erro nas correções",
+        description: "Falha ao aplicar algumas correções automáticas.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApplyingFixes(false);
+    }
+  };
+
   const runAllTests = async () => {
     setIsRunningTests(true);
     setCurrentTestProgress({ current: 0, total: routes.length });
