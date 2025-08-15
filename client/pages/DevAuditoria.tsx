@@ -1570,6 +1570,11 @@ const DevAuditoria: React.FC = () => {
           <SF9ApiConsole />
         </TabsContent>
 
+        {/* SF10 Tab */}
+        <TabsContent value="sf10">
+          <SF10StripeWizard />
+        </TabsContent>
+
         {/* Schema Diagnostics Tab */}
         <TabsContent value="diagnostics">
           <div className="space-y-6">
