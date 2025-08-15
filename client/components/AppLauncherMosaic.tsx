@@ -80,9 +80,9 @@ interface AppModule {
   isBeta?: boolean;
 }
 
-// Todos os módulos disponíveis - cores harmonizadas
+// Todos os módulos disponíveis - reorganizados por categoria
 const allAdvogadoModules: AppModule[] = [
-  // Módulos principais (padrão no sidebar)
+  // APLICAÇÕES PRINCIPAIS - Core do escritório
   {
     id: "dashboard",
     title: "Dashboard",
@@ -90,15 +90,15 @@ const allAdvogadoModules: AppModule[] = [
     href: "/",
     icon: LayoutDashboard,
     color: colors.neutral[700],
-    category: "Principal",
+    category: "Principais",
     inSidebar: true,
     isDefault: true,
   },
   {
     id: "processos",
     title: "Processos",
-    description: "Gestão de processos",
-    href: "/processos-v2",
+    description: "Gestão de processos jurídicos",
+    href: "/processos",
     icon: FileText,
     color: colors.brand.primary,
     category: "Principal",
