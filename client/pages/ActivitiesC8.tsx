@@ -673,8 +673,8 @@ export default function ActivitiesC8() {
                       onClick={() => handleViewActivity(activity)}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-medium text-sm line-clamp-2">
-                          {activity.title}
+                        <h4 className="font-medium text-sm overflow-hidden">
+                          {activity.title.length > 40 ? `${activity.title.substring(0, 40)}...` : activity.title}
                         </h4>
                         <Badge className={priorityConfig.color} variant="outline">
                           {priorityConfig.icon}
