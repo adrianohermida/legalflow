@@ -301,53 +301,30 @@ export const implAutofix = async (
 
   try {
     switch (patchCode) {
+      case "API_SEED":
       case "api_library_seed":
-        // Try to create api_endpoints table and seed basic data
+        // Call the dedicated seeding function from the schema
         try {
-          const endpointsToSeed = [
-            {
-              id: "1",
-              name: "tribunals",
-              endpoint: "/api/tribunals",
-              method: "GET",
-              description: "Lista tribunais",
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: "2",
-              name: "processes",
-              endpoint: "/api/processes",
-              method: "GET",
-              description: "Lista processos",
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: "3",
-              name: "clients",
-              endpoint: "/api/clients",
-              method: "GET",
-              description: "Lista clientes",
-              created_at: new Date().toISOString(),
-            },
-          ];
-
-          const { error } = await supabase
-            .from("legalflow.api_endpoints")
-            .upsert(endpointsToSeed, { onConflict: "id" });
+          const { data: seedResult, error } = await supabase.rpc("legalflow.seed_api_library");
 
           if (error) {
-            result.errors.push(`Erro ao criar endpoints: ${error.message}`);
+            result.errors.push(`Erro ao executar seed: ${error.message}`);
+          } else if (seedResult?.success) {
+            result.changes.push(
+              `${seedResult.message}: ${seedResult.providers_count} provedores, ${seedResult.endpoints_count} endpoints`
+            );
+            result.success = true;
+            result.message = "API Library configurada com sucesso";
           } else {
-            result.changes.push("3 endpoints API básicos criados");
+            result.errors.push(seedResult?.message || "Erro desconhecido no seed");
           }
         } catch (error) {
-          result.errors.push(`Tabela api_endpoints não existe: ${error}`);
+          result.errors.push(`Função seed_api_library não encontrada: ${error}`);
         }
 
-        result.success = result.errors.length === 0;
-        result.message = result.success
-          ? "API Library configurada"
-          : "Falha ao configurar API Library";
+        if (!result.success) {
+          result.message = "Falha ao configurar API Library";
+        }
         break;
 
       case "journey_triggers_fix":
