@@ -227,7 +227,9 @@ function DemoAppRoutes() {
   const { user } = useDemoAuth();
 
   return (
-    <Routes>
+    <>
+      <RedirectHandler />
+      <Routes>
       <Route
         path="/login"
         element={user ? <Navigate to="/" replace /> : <DemoLoginPage />}
@@ -633,7 +635,8 @@ function DemoAppRoutes() {
       />
 
       <Route path="*" element={<NotFound />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 
@@ -641,7 +644,9 @@ function RegularAppRoutes() {
   const { user } = useAuth();
 
   return (
-    <Routes>
+    <>
+      <RedirectHandler />
+      <Routes>
       <Route
         path="/login"
         element={user ? <Navigate to="/" replace /> : <SupabaseLoginPage />}
@@ -1070,7 +1075,8 @@ function RegularAppRoutes() {
       />
 
       <Route path="*" element={<NotFound />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 
