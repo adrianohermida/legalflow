@@ -1123,6 +1123,16 @@ export default function App() {
 
   // Run schema validation on app startup
   useEffect(() => {
+    // Mark React as loaded for Builder.io
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.setAttribute('data-react-loaded', 'true');
+    }
+
+    // Builder.io debug logging
+    console.log('✅ LegalFlow React App loaded successfully');
+    console.log('🌐 Environment:', window.location.hostname.includes('builder.codes') ? 'Builder.io' : 'Development');
+
     validateSchemaOnStartup().catch((error) => {
       console.error("Schema validation failed on startup:", error);
     });
