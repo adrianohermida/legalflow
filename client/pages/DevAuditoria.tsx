@@ -79,6 +79,7 @@ import {
   MessageSquare,
   Calendar,
   Search,
+  BookOpen,
 } from "lucide-react";
 import {
   createAutofixTables,
