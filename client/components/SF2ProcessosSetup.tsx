@@ -31,6 +31,26 @@ export function SF2ProcessosSetup() {
   const [showInstallation, setShowInstallation] = useState(false);
   const { toast } = useToast();
 
+  // Helper function to detect schema-related errors
+  const isSchemaError = (errorMessage: string): boolean => {
+    const schemaErrorPatterns = [
+      "function sf2_",
+      "does not exist",
+      "schema not found",
+      "table thread_links",
+      "table ai_messages",
+      "table conversation_properties",
+      "relation does not exist",
+      "Esquema SF-2 não instalado",
+      "undefined function",
+      "invalid function name"
+    ];
+
+    return schemaErrorPatterns.some(pattern =>
+      errorMessage.toLowerCase().includes(pattern.toLowerCase())
+    );
+  };
+
   // Schema SQL completo do SF-2
   const SF2_SCHEMA_SQL = `
 -- Verificar se as tabelas principais existem, caso contrário criar
