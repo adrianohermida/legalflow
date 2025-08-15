@@ -216,26 +216,23 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_subscriptions")
-        .select(
-          `
-          *,
-          customer:customer_id(email, name)
-        `,
-        )
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+          console.log("Tabela stripe_subscriptions não existe. Execute o setup SF-10 primeiro.");
+          setSubscriptions([]);
+          return;
+        }
+        throw error;
+      }
 
-      const formatted = (data || []).map((sub) => ({
-        ...sub,
-        customer_email: sub.customer?.email || "",
-        customer_name: sub.customer?.name || "",
-      }));
-
-      setSubscriptions(formatted);
+      setSubscriptions(data || []);
     } catch (error) {
       console.error("Error loading subscriptions:", error instanceof Error ? error.message : String(error));
+      setSubscriptions([]);
     }
   };
 
