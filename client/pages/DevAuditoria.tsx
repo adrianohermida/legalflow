@@ -26,6 +26,7 @@ import { useAuditBacklogIntegration } from "../lib/audit-backlog-integration";
 import RouteCoveragePanel from "../components/RouteCoveragePanel";
 import SF5JourneyCardTest from "../components/SF5JourneyCardTest";
 import { SF6AutomationSetup } from "../components/SF6AutomationSetup";
+import { SF2ProcessosSetup } from "../components/SF2ProcessosSetup";
 import {
   Tabs,
   TabsContent,
@@ -414,7 +415,7 @@ const DevAuditoria: React.FC = () => {
       let completedModules = 0;
 
       for (const module of modules) {
-        console.log(`���� Auditando módulo: ${module.name}`);
+        console.log(`🔍 Auditando módulo: ${module.name}`);
 
         // Simular progresso do módulo
         const moduleChecks = module.checks.length;
