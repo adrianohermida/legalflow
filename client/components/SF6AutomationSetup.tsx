@@ -449,6 +449,48 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
         </CardContent>
       </Card>
 
+      {/* Show installation downloader when needed */}
+      {showInstallation && (
+        <GenericSQLDownloader
+          title="Instalação Obrigatória - Schema SF6"
+          description="Para utilizar o Sistema de Bridge entre Tarefas e Tickets, você deve instalar primeiro o schema SF6 no seu banco Supabase."
+          files={[
+            {
+              filename: "SF6_SUPABASE_COMPATIBLE_SCHEMA.sql",
+              content: `-- SF-6: Activities ↔ Tickets Bridge - Supabase Compatible Schema
+--
+-- Este é um preview. Baixe o arquivo completo para obter todo o schema.
+-- O arquivo completo contém:
+-- - Funções RPC para bridge automático
+-- - Triggers para etapas concluídas
+-- - Estatísticas e verificações
+-- - Limpeza de dados de teste
+-- - Todas as permissões necessárias
+
+-- IMPORTANTE: Baixe o arquivo completo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql do projeto
+-- e execute no Supabase SQL Editor para instalação completa.`,
+              title: "🔄 SF-6: Schema Bridge Activities ↔ Tickets",
+              description: "Schema completo com funções RPC para automação entre tarefas e tickets",
+              variant: "default"
+            }
+          ]}
+          instructions={[
+            "Baixe o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql",
+            "Abra o Supabase SQL Editor",
+            "Execute o script completo",
+            "Volte aqui e clique em 'Verificar Instalação'"
+          ]}
+          additionalInfo={[
+            "✅ Cria funções RPC compatíveis com Supabase",
+            "✅ Bridge automático entre Activities e Tickets",
+            "✅ Triggers para etapas do tipo 'task'",
+            "✅ Sistema de estatísticas e verificação",
+            "⚠️ Requer que o schema 'legalflow' já exista"
+          ]}
+          className="border-orange-200 bg-orange-50"
+        />
+      )}
+
       {/* SF-6 Bridge Manager */}
       <SF6BridgeManager />
 
