@@ -67,6 +67,7 @@ import {
   Cog,
   History,
   List,
+  Plus,
 } from "lucide-react";
 import {
   createAutofixTables,
@@ -691,7 +692,7 @@ const DevAuditoria: React.FC = () => {
         description: "Todos os testes foram executados com sucesso.",
       });
     } catch (error) {
-      console.error("�� Erro durante testes:", error);
+      console.error("❌ Erro durante testes:", error);
       toast({
         title: "Erro nos testes",
         description:
