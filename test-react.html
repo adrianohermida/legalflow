@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>React Test - LegalFlow</title>
+    <style>body { font-family: system-ui; margin: 20px; }</style>
+</head>
+<body>
+    <h1>🧪 React Component Test</h1>
+    <div id="root">⏳ Loading React...</div>
+    
+    <script type="module">
+        console.log('🔍 Testing React component loading...');
+        
+        try {
+            // Import and test the main App component
+            const module = await import('/client/App.tsx');
+            console.log('✅ React module loaded successfully');
+            console.log('📦 Module exports:', Object.keys(module));
+            
+            // Check if the component is not empty
+            if (module.default) {
+                const componentString = module.default.toString();
+                console.log('🔍 Component preview:', componentString.slice(0, 200) + '...');
+                
+                if (componentString.includes('return <></>') || componentString.includes('return <>')) {
+                    console.error('🐛 BUG FOUND: Component returns empty fragment!');
+                    document.getElementById('root').innerHTML = '❌ BUG: Component is empty!';
+                } else {
+                    console.log('✅ Component appears to have content');
+                    document.getElementById('root').innerHTML = '✅ React component loaded and has content!';
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to load React:', error);
+            document.getElementById('root').innerHTML = `❌ Error: ${error.message}`;
+        }
+    </script>
+</body>
+</html>
