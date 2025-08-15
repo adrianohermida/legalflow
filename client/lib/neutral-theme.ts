@@ -86,18 +86,30 @@ export const MONOCHROMATIC_THEME = {
     black: "#ffffff",
     white: "#000000",
 
-    // Escala de cinza invertida
+    // Escala de cinza invertida expandida
     gray: {
-      50: "#111827", // Quase preto
-      100: "#1f2937", // Cinza muito escuro
-      200: "#374151", // Cinza escuro
-      300: "#4b5563", // Cinza médio
-      400: "#6b7280", // Cinza neutro
-      500: "#9ca3af", // Cinza médio-claro
-      600: "#d1d5db", // Cinza claro
-      700: "#e5e7eb", // Cinza muito claro
-      800: "#f3f4f6", // Branco acinzentado
-      900: "#f9fafb", // Quase branco
+      25: "#060a0f", // Preto quase absoluto
+      50: "#0d1117", // Preto quase absoluto
+      75: "#111827", // Quase preto
+      100: "#1a202c", // Cinza muito escuro médio
+      150: "#1f2937", // Cinza muito escuro
+      200: "#2f3944", // Cinza escuro médio
+      250: "#374151", // Cinza escuro
+      300: "#434954", // Cinza médio escuro
+      350: "#4b5563", // Cinza médio
+      400: "#5d646d", // Cinza neutro escuro
+      450: "#6b7280", // Cinza neutro
+      500: "#8a9199", // Cinza médio-claro escuro
+      550: "#9ca3af", // Cinza médio-claro
+      600: "#c8cdd3", // Cinza claro médio
+      650: "#d1d5db", // Cinza claro
+      700: "#dde0e4", // Cinza muito claro médio
+      750: "#e5e7eb", // Cinza muito claro
+      800: "#eef0f2", // Cinza ultra claro
+      850: "#f3f4f6", // Branco acinzentado
+      900: "#f6f7f8", // Branco levemente acinzentado
+      925: "#f9fafb", // Quase branco
+      950: "#fcfcfc", // Branco quase absoluto
     },
 
     primary: "#f9fafb", // Quase branco
