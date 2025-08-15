@@ -89,6 +89,7 @@ import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
 import { themeUtils, colors } from "../lib/theme-colors";
 import ProcessoChatMultiThread from "../components/ProcessoChatMultiThread";
+import { FlipbookViewerC6 } from "../components/FlipbookViewerC6";
 import {
   fetchProcessoCompleto,
   fetchTimelineRecente,
