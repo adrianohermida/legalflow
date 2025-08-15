@@ -29,6 +29,7 @@ import { SF6AutomationSetup } from "../components/SF6AutomationSetup";
 import { SF2ProcessosSetup } from "../components/SF2ProcessosSetup";
 import { SF7AgendaSetup } from "../components/SF7AgendaSetup";
 import { SF8DocumentosSetup } from "../components/SF8DocumentosSetup";
+import { SF9ApiConsole } from "../components/SF9ApiConsole";
 import { SchemaDiagnostics } from "../components/SchemaDiagnostics";
 import { SchemaVerificationHelper } from "../components/SchemaVerificationHelper";
 import {
