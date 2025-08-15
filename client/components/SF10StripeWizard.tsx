@@ -248,7 +248,7 @@ export const SF10StripeWizard: React.FC = () => {
 
       setInvoices(formatted);
     } catch (error) {
-      console.error("Error loading invoices:", error);
+      console.error("Error loading invoices:", error instanceof Error ? error.message : String(error));
     }
   };
 
