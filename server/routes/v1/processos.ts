@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { processosApi } from "../../../client/lib/api";
+import {
+  mockProcessosApi as processosApi,
+  mockMovimentacoesApi,
+  mockPublicacoesApi
+} from "../../lib/mock-api";
 import { validateRequest, commonSchemas } from "../../middleware/validation";
 import { CreateProcessoRequest, UpdateRequest, ProcessoFilters, PaginationParams } from "@shared/api";
 
