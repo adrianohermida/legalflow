@@ -117,9 +117,9 @@ function ProcessListExample() {
     isLoading,
     error,
     execute,
-    LoadingComponent,
-    ErrorComponent,
-    EmptyComponent,
+    loadingConfig,
+    errorConfig,
+    emptyConfig,
     shouldShowContent,
   } = useAsyncList<Process[]>("processos", {
     emptyActionLabel: "Sincronizar Processos",
@@ -130,9 +130,9 @@ function ProcessListExample() {
     execute(fetchProcesses);
   }, []);
 
-  if (isLoading) return <LoadingComponent />;
-  if (error) return <ErrorComponent />;
-  if (!shouldShowContent()) return <EmptyComponent />;
+  if (isLoading) return <LoadingState {...loadingConfig} />;
+  if (error) return <ErrorState {...errorConfig} />;
+  if (!shouldShowContent()) return <EmptyState {...emptyConfig} />;
 
   return (
     <Stack spacing="md">
