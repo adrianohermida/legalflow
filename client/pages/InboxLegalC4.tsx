@@ -488,13 +488,21 @@ export default function InboxLegalC4() {
     });
   };
 
-  const submitNotificacao = () => {
+  const submitNotificacao = async () => {
     if (!selectedItem || !notificacaoMensagem.trim()) return;
+
+    // Get responsible attorney if process is linked
+    let responsavel_oab: number | undefined;
+    if (selectedItem.numero_cnj) {
+      const responsible = await getProcessResponsible(selectedItem.numero_cnj);
+      responsavel_oab = responsible?.oab;
+    }
 
     notificarMutation.mutate({
       tipo: activeTab.slice(0, -1) as "publicacao" | "movimentacao",
       item_id: selectedItem.id,
       numero_cnj: selectedItem.numero_cnj,
+      responsavel_oab,
       mensagem: notificacaoMensagem,
     });
   };
