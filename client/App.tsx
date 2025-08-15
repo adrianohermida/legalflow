@@ -25,6 +25,7 @@ import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
 import { runEnumConsistencyCheck } from "./lib/enum-validator";
 import BuilderDebugger from "./components/BuilderDebugger";
+import EmergencyDebug from "./components/EmergencyDebug";
 // Import Builder.io fix to ensure all components are available
 import "./lib/builder-fix";
 
