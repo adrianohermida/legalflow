@@ -220,16 +220,8 @@ export default function ProcessoOverviewV3() {
 
   const addPeticaoMutation = useMutation({
     mutationFn: async ({ tipo, conteudo }: { tipo: string; conteudo: string }) => {
-      const { data, error } = await supabase
-        .from("peticoes")
-        .insert([{
-          numero_cnj,
-          tipo,
-          conteudo,
-        }]);
-
-      if (error) throw error;
-      return data;
+      if (!numero_cnj) throw new Error("CNJ não informado");
+      return createPeticao(numero_cnj, tipo, conteudo);
     },
     onSuccess: () => {
       setShowAddPeticaoDialog(false);
