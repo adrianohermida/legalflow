@@ -182,6 +182,7 @@ export const SF10StripeWizard: React.FC = () => {
 
   const loadCustomers = async () => {
     try {
+      // Primeiro verifica se a função RPC existe
       const { data, error } = await supabase.rpc(
         "legalflow.list_stripe_customers",
         {
@@ -190,10 +191,24 @@ export const SF10StripeWizard: React.FC = () => {
         },
       );
 
-      if (error) throw error;
+      if (error) {
+        // Se função não existe, tenta consulta direta na tabela
+        if (error.message?.includes('function') && error.message?.includes('does not exist')) {
+          const { data: tableData, error: tableError } = await supabase
+            .from("legalflow.stripe_customers")
+            .select("*")
+            .limit(50);
+
+          if (tableError) throw new Error("Tabela stripe_customers não encontrada. Execute o setup SF-10 primeiro.");
+          setCustomers(tableData || []);
+          return;
+        }
+        throw error;
+      }
       setCustomers(data || []);
     } catch (error) {
       console.error("Error loading customers:", error instanceof Error ? error.message : String(error));
+      setCustomers([]);
     }
   };
 
