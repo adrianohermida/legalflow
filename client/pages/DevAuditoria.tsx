@@ -136,20 +136,27 @@ const DevAuditoria: React.FC = () => {
   const [auditProgress, setAuditProgress] = useState(0);
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
+    | "system"
+    | "features"
+    | "diagnostics"
+  >("system");
+  const [activeSystemTab, setActiveSystemTab] = useState<
     | "audit"
     | "testing"
     | "backlog"
     | "routes"
     | "config"
     | "history"
+  >("audit");
+  const [activeFeaturesTab, setActiveFeaturesTab] = useState<
+    | "sf2"
     | "sf5"
     | "sf6"
-    | "sf2"
     | "sf7"
     | "sf8"
     | "sf9"
-    | "diagnostics"
-  >("audit");
+    | "sf10"
+  >("sf2");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { processAuditResults, createItemsFromSuggestions, getStats } =
