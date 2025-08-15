@@ -294,7 +294,7 @@ export const SF10StripeWizard: React.FC = () => {
       if (error) throw error;
       setAvailablePrices(data || []);
     } catch (error) {
-      console.error("Error loading prices:", error);
+      console.error("Error loading prices:", error instanceof Error ? error.message : String(error));
     }
   };
 
