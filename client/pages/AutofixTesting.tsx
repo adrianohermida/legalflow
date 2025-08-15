@@ -16,6 +16,7 @@ import { quickBuilderAPIDiagnostic } from "../lib/builder-api-diagnostics";
 import { useToast } from "../hooks/use-toast";
 import SQLFileDownloader from "../components/SQLFileDownloader";
 import RouteCoveragePanel from "../components/RouteCoveragePanel";
+import AutofixBacklog from "../components/AutofixBacklog";
 
 interface TestResult {
   name: string;
