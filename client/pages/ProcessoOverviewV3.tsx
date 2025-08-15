@@ -135,6 +135,7 @@ export default function ProcessoOverviewV3() {
   const [showAddAndamentoDialog, setShowAddAndamentoDialog] = useState(false);
   const [showAddPublicacaoDialog, setShowAddPublicacaoDialog] = useState(false);
   const [showAddPeticaoDialog, setShowAddPeticaoDialog] = useState(false);
+  const [showFlipbook, setShowFlipbook] = useState(false);
   const [historicoPage, setHistoricoPage] = useState(1);
 
   // Fetch process data with related information
