@@ -76,6 +76,17 @@ export function createServer() {
     }
   });
 
+  // React debug page
+  app.get("/debug-react", (req, res) => {
+    try {
+      const debugHtml = readFileSync(join(process.cwd(), 'debug-simple.html'), 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(debugHtml);
+    } catch (error) {
+      res.error("React debug page not found", 404);
+    }
+  });
+
   // Simple test page
   app.get("/test", (req, res) => {
     res.set('Content-Type', 'text/html');
