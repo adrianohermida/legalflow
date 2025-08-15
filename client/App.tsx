@@ -25,6 +25,8 @@ import { useNeutralTheme } from "./hooks/useNeutralTheme";
 import { validateSchemaOnStartup } from "./lib/schema-validator";
 import { runEnumConsistencyCheck } from "./lib/enum-validator";
 import BuilderDebugger from "./components/BuilderDebugger";
+// Import Builder.io fix to ensure all components are available
+import "./lib/builder-fix";
 
 // Initialize development data only when Supabase is configured
 if (supabaseConfigured) {
