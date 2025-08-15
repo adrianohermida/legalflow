@@ -166,43 +166,28 @@
       </div>
     </div>
 
+    <div id="root"></div>
+    <script type="module" src="/client/App.tsx"></script>
+
     <script>
-      // Update debug info
-      document.getElementById("timestamp").textContent =
-        new Date().toISOString();
-      document.getElementById("userAgent").textContent =
-        navigator.userAgent.slice(0, 60) + "...";
-      document.getElementById("currentUrl").textContent = window.location.href;
+      // Development fallback - show loading info
+      console.log("✅ LegalFlow loading React app...");
 
-      console.log("✅ LegalFlow main page loaded successfully");
+      // Show loading message if React takes time to load
+      setTimeout(() => {
+        const root = document.getElementById('root');
+        if (!root || !root.children.length) {
+          console.log("🔄 React app is loading...");
+        }
+      }, 1000);
 
-      // Test API connection
-      fetch("/api/health")
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("✅ API is working:", data);
-          }
-        })
-        .catch((error) => {
-          console.error("❌ API error:", error);
-        });
-
-      function tryReactVersion() {
-        // Try to dynamically load React
-        const script = document.createElement("script");
-        script.type = "module";
-        script.src = "/client/UltraSimpleApp.tsx";
-        script.onload = () => {
-          console.log("✅ React script loaded");
-        };
-        script.onerror = () => {
-          alert(
-            "❌ React não pôde ser carregado. O site HTML está funcionando normalmente.",
-          );
-        };
-        document.head.appendChild(script);
-      }
+      // Fallback after 5 seconds if React doesn't load
+      setTimeout(() => {
+        const root = document.getElementById('root');
+        if (!root || !root.children.length) {
+          root.innerHTML = '<div style="padding: 40px; text-align: center; font-family: system-ui;"><h2>🔄 Carregando LegalFlow...</h2><p>Se esta mensagem persistir, verifique a conexão.</p></div>';
+        }
+      }, 5000);
     </script>
   </body>
 </html>
