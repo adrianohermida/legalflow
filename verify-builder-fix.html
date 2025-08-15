@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>✅ Builder.io Fix Verification</title>
+    <style>
+        body { font-family: system-ui; margin: 20px; background: #f5f5f5; }
+        .check { margin: 10px 0; padding: 15px; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .status { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>✅ LegalFlow - Builder.io Fix Verification</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        const results = document.getElementById('results');
+        
+        function addCheck(type, title, status, details) {
+            const div = document.createElement('div');
+            div.className = `check ${type}`;
+            div.innerHTML = `
+                <div class="status">${title}: ${status}</div>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+            results.appendChild(div);
+        }
+
+        // Test 1: Environment Detection
+        const environment = window.location.hostname.includes('builder.codes') ? 'Builder.io Production' : 
+                           window.location.hostname.includes('fly.dev') ? 'Fly.dev Production' : 'Development';
+        addCheck('info', '1. Environment Detection', environment, 
+            `URL: ${window.location.href}\nHostname: ${window.location.hostname}`);
+
+        // Test 2: HTML Structure
+        const rootElement = document.getElementById('root');
+        const hasCorrectStructure = !!rootElement;
+        addCheck(hasCorrectStructure ? 'success' : 'error', 
+            '2. HTML Structure', 
+            hasCorrectStructure ? 'CORRECT' : 'MISSING ROOT', 
+            hasCorrectStructure ? 'Root element found and ready for React' : 'Root element missing!');
+
+        // Test 3: React Loading Test
+        try {
+            addCheck('info', '3. React Module Test', 'TESTING...', 'Attempting to load React app...');
+            
+            import('/client/App.tsx')
+                .then(module => {
+                    const hasDefaultExport = !!module.default;
+                    const componentName = module.default?.name || 'Unknown';
+                    
+                    addCheck(hasDefaultExport ? 'success' : 'error',
+                        '3. React Module Test',
+                        hasDefaultExport ? 'SUCCESS' : 'FAILED',
+                        `Component: ${componentName}\nExports: ${Object.keys(module).join(', ')}`);
+                    
+                    // Test for empty component
+                    if (hasDefaultExport) {
+                        const componentString = module.default.toString();
+                        const isEmpty = componentString.includes('return <></>') || 
+                                       componentString.includes('return <>') ||
+                                       componentName === 'MyComponent';
+                        
+                        addCheck(isEmpty ? 'error' : 'success',
+                            '4. Component Content Check',
+                            isEmpty ? '🚨 EMPTY COMPONENT DETECTED' : '✅ COMPONENT HAS CONTENT',
+                            isEmpty ? 'Found empty component - this is the bug!' : 'Component appears to have proper content');
+                    }
+                })
+                .catch(error => {
+                    addCheck('error', '3. React Module Test', 'FAILED', 
+                        `Error: ${error.message}\nStack: ${error.stack?.slice(0, 200)}...`);
+                });
+        } catch (error) {
+            addCheck('error', '3. React Module Test', 'FAILED', 
+                `Import error: ${error.message}`);
+        }
+
+        // Test 4: API Connectivity
+        fetch('/api/health')
+            .then(response => response.json())
+            .then(data => {
+                addCheck('success', '4. API Connectivity', 'WORKING', 
+                    `Status: ${data.message}\nEnvironment: ${data.data.environment}\nTimestamp: ${data.data.timestamp}`);
+            })
+            .catch(error => {
+                addCheck('error', '4. API Connectivity', 'FAILED', 
+                    `Error: ${error.message}`);
+            });
+
+        // Test 5: Builder.io Specific Checks
+        setTimeout(() => {
+            const builderChecks = {
+                hasBuilderSDK: !!(window as any).Builder,
+                hasReactLoaded: !!document.querySelector('[data-react-loaded]'),
+                builderEnvironment: environment.includes('Builder.io'),
+                hasMyComponent: document.body.innerHTML.includes('MyComponent'),
+                emptyElementsCount: document.querySelectorAll('*').length
+            };
+            
+            addCheck('info', '5. Builder.io Environment', 
+                builderChecks.builderEnvironment ? 'BUILDER.IO DETECTED' : 'OTHER ENVIRONMENT',
+                JSON.stringify(builderChecks, null, 2));
+            
+            // Final recommendation
+            if (builderChecks.hasMyComponent) {
+                addCheck('error', '🎯 PROBLEM IDENTIFIED', 'MyComponent FOUND', 
+                    'The empty MyComponent is still present. Check Builder.io dashboard for cached components.');
+            } else if (builderChecks.hasReactLoaded) {
+                addCheck('success', '🎉 FIX SUCCESSFUL', 'NO ISSUES DETECTED', 
+                    'React is loading correctly and no empty components found.');
+            } else {
+                addCheck('warning', '⚠️ PARTIAL SUCCESS', 'REACT NOT FULLY LOADED', 
+                    'React module loads but may not be rendering. Check console for errors.');
+            }
+        }, 3000);
+
+        // Test 6: Console Monitoring
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        let errorCount = 0;
+        let warnCount = 0;
+        
+        console.error = function(...args) {
+            errorCount++;
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            warnCount++;
+            originalWarn.apply(console, args);
+        };
+        
+        setTimeout(() => {
+            const status = errorCount === 0 ? 'success' : errorCount < 3 ? 'warning' : 'error';
+            addCheck(status, '6. Console Health', 
+                `${errorCount} errors, ${warnCount} warnings`,
+                errorCount === 0 ? 'No JavaScript errors detected' : 'Check browser console for details');
+        }, 4000);
+    </script>
+</body>
+</html>
