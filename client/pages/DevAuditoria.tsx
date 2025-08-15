@@ -81,6 +81,7 @@ import {
   Calendar,
   Search,
   BookOpen,
+  Globe,
 } from "lucide-react";
 import {
   createAutofixTables,
