@@ -42,6 +42,7 @@ import ProcessosV2 from "./pages/ProcessosV2";
 import { ProcessoOverview } from "./pages/ProcessoOverview";
 import { ProcessoDetail } from "./pages/ProcessoDetail";
 import ProcessoDetailV2 from "./pages/ProcessoDetailV2";
+import ProcessoOverviewV3 from "./pages/ProcessoOverviewV3";
 import { Clientes } from "./pages/Clientes";
 import Jornadas from "./pages/Jornadas";
 import JourneyDesignerPage from "./pages/JourneyDesigner";
