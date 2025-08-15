@@ -82,6 +82,7 @@ import {
   Search,
   BookOpen,
   Globe,
+  Settings,
 } from "lucide-react";
 import {
   createAutofixTables,
