@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalFlow - Teste Básico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .debug-info {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">✅ LegalFlow</div>
+        <div class="subtitle">Software Jurídico Inteligente</div>
+        
+        <div class="status">
+            <h2 style="margin: 0 0 10px 0;">🎉 Site Funcionando!</h2>
+            <p style="margin: 0;">
+                Esta é uma versão básica funcionando no Builder.io + Fly.dev
+            </p>
+        </div>
+
+        <div>
+            <button class="btn" onclick="window.location.href='/test'">
+                🔧 Página de Teste do Servidor
+            </button>
+            <button class="btn" onclick="window.location.href='/fallback'">
+                🔄 Página de Fallback
+            </button>
+            <button class="btn" onclick="window.location.href='/debug-react'">
+                ⚛️ Debug React
+            </button>
+        </div>
+
+        <div class="debug-info">
+            <strong>Status Técnico:</strong><br>
+            ✅ HTML: Funcionando<br>
+            ✅ CSS: Funcionando<br>
+            ✅ JavaScript: Funcionando<br>
+            ✅ Servidor Express: Funcionando<br>
+            ✅ API REST: Funcionando<br>
+            ⚠️ React: Em investigação<br><br>
+            
+            <strong>Detalhes:</strong><br>
+            Timestamp: <span id="timestamp"></span><br>
+            User Agent: <span id="userAgent"></span><br>
+            URL: <span id="currentUrl"></span>
+        </div>
+    </div>
+
+    <script>
+        // Update debug info
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+        document.getElementById('userAgent').textContent = navigator.userAgent.slice(0, 60) + '...';
+        document.getElementById('currentUrl').textContent = window.location.href;
+
+        // Test JavaScript
+        console.log('✅ JavaScript is working');
+        
+        // Test API
+        fetch('/api/health')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('✅ API is working');
+                } else {
+                    console.error('❌ API failed');
+                }
+            })
+            .catch(error => {
+                console.error('❌ API error:', error);
+            });
+    </script>
+</body>
+</html>
