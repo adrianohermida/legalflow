@@ -408,19 +408,68 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
               filename: "SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql",
               content: `-- SF-2: Processos > Detalhes — Chat Multi-thread + Memória - SCHEMA COMPLETO
 --
--- Este é um preview. Baixe o arquivo completo para obter todo o schema.
--- O arquivo completo contém:
--- - Tabelas thread_links, ai_messages, conversation_properties
--- - 10+ funções RPC para operações de chat
--- - Sistema de quick-actions integrado
--- - Triggers e automações
--- - Indexes para performance
--- - Dados de teste
+-- IMPORTANTE: Este arquivo contém 733 linhas de código SQL.
+-- Por limitação de tamanho, apenas um preview é mostrado aqui.
+-- Baixe o arquivo completo do projeto para obter todas as funções.
 
--- IMPORTANTE: Baixe o arquivo completo SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql do projeto
--- e execute no Supabase SQL Editor para instalação completa.`,
+-- =====================================================
+-- PREVIEW DO CONTEÚDO (apenas início do arquivo)
+-- =====================================================
+
+-- Verificar se as tabelas principais existem, caso contrário criar
+CREATE TABLE IF NOT EXISTS public.thread_links (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  channel TEXT NOT NULL DEFAULT 'chat',
+  title TEXT,
+  summary TEXT,
+  status TEXT DEFAULT 'active',
+  properties JSONB DEFAULT '{}',
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.ai_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  thread_link_id TEXT NOT NULL REFERENCES public.thread_links(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+  content TEXT NOT NULL,
+  attachments JSONB DEFAULT '[]',
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabela para propriedades de conversação (legalflow schema)
+CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  thread_link_id TEXT NOT NULL REFERENCES public.thread_links(id) ON DELETE CASCADE,
+  numero_cnj TEXT,
+  context_type TEXT DEFAULT 'processo',
+  context_data JSONB DEFAULT '{}',
+  quick_actions JSONB DEFAULT '[]',
+  preferences JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ... [+ 700 linhas adicionais com funções RPC, triggers, indexes, etc.]
+
+-- =====================================================
+-- CONTEÚDO COMPLETO INCLUI:
+-- =====================================================
+-- ✅ Todas as tabelas necessárias
+-- ✅ 10+ funções RPC para operações de chat
+-- ✅ Sistema de quick-actions completo
+-- ✅ Triggers e automações
+-- ✅ Índices para performance
+-- ✅ Dados de teste
+-- ✅ Verificação de instalação
+
+-- BAIXE O ARQUIVO COMPLETO SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql (733 linhas)
+-- do diretório raiz do projeto para instalação completa.`,
               title: "💬 SF-2: Schema Chat Multi-thread + Memória",
-              description: "Schema completo para chat multi-thread com memória e quick-actions",
+              description: "Schema completo para chat multi-thread com memória e quick-actions (733 linhas)",
               variant: "default"
             }
           ]}
