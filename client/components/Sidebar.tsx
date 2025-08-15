@@ -59,10 +59,10 @@ const advogadoNavItems = [
     description: "Compromissos e prazos",
   },
   {
-    title: "Autofix Testing",
-    href: "/autofix-testing",
+    title: "Painel de Auditoria",
+    href: "/dev-auditoria",
     icon: TestTube,
-    description: "Sistema de testes do autofix",
+    description: "Sistema de auditoria e autofix",
   },
 ];
 
