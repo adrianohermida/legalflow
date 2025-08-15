@@ -22,6 +22,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { cn } from "../lib/utils";
+import SystemNotifications from "./SystemNotifications";
 
 interface HeaderProps {
   userType: "advogado" | "cliente";
