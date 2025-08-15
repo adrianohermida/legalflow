@@ -77,7 +77,7 @@ const defaultAdvogadoItems: SidebarItem[] = [
   {
     id: "processos",
     title: "Processos",
-    href: "/processos-v2",
+    href: "/processos",
     icon: FileText,
     description: "Gestão de processos",
     isVisible: true,
@@ -104,7 +104,7 @@ const defaultAdvogadoItems: SidebarItem[] = [
   {
     id: "jornadas",
     title: "Jornadas",
-    href: "/jornadas-d1",
+    href: "/jornadas",
     icon: Target,
     description: "Templates e automação",
     isVisible: true,
