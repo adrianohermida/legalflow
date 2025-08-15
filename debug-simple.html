@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug React - LegalFlow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .debug-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        #react-test {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h1>🔧 Debug React Loading - LegalFlow</h1>
+        
+        <div id="status" class="status info">
+            🔄 Iniciando diagnósticos...
+        </div>
+
+        <div class="debug-panel">
+            <h3>1. Testes de Conectividade</h3>
+            <div id="connectivity-results"></div>
+        </div>
+
+        <div class="debug-panel">
+            <h3>2. Teste de React</h3>
+            <div id="react-test">
+                <div id="react-status">⏳ Carregando React...</div>
+                <div id="react-mount-point"></div>
+            </div>
+        </div>
+
+        <div class="debug-panel">
+            <h3>3. Logs e Erros</h3>
+            <pre id="error-log"></pre>
+        </div>
+
+        <div class="debug-panel">
+            <h3>4. Ações</h3>
+            <button class="btn" onclick="testAPI()">🔄 Testar API</button>
+            <button class="btn" onclick="testReact()">⚛️ Testar React</button>
+            <button class="btn" onclick="testViteClient()">🏗️ Testar Vite</button>
+            <button class="btn" onclick="clearAndReload()">🗑️ Limpar e Recarregar</button>
+            <button class="btn" onclick="goToFallback()">🔄 Ir para Fallback</button>
+        </div>
+    </div>
+
+    <script>
+        let errorLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString();
+            errorLog.push(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+            updateErrorLog();
+            console.log(`[${type}]`, message);
+        }
+
+        function updateErrorLog() {
+            document.getElementById('error-log').textContent = errorLog.join('\n');
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        // Capture all errors
+        window.addEventListener('error', function(e) {
+            log(`JavaScript Error: ${e.error?.message || e.message}`, 'error');
+            log(`Stack: ${e.error?.stack || 'No stack trace'}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', function(e) {
+            log(`Unhandled Promise Rejection: ${e.reason}`, 'error');
+        });
+
+        async function testAPI() {
+            log('Testing API connectivity...');
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ API Health Check: Success', 'success');
+                    document.getElementById('connectivity-results').innerHTML = 
+                        '<div class="status success">✅ API funcionando</div>';
+                } else {
+                    throw new Error('API returned non-success response');
+                }
+            } catch (error) {
+                log(`❌ API Error: ${error.message}`, 'error');
+                document.getElementById('connectivity-results').innerHTML = 
+                    `<div class="status error">❌ API Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testViteClient() {
+            log('Testing Vite client...');
+            try {
+                const response = await fetch('/@vite/client');
+                if (response.ok) {
+                    log('✅ Vite Client: Available', 'success');
+                } else {
+                    throw new Error(`Vite client responded with status ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Vite Client Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testReact() {
+            log('Testing React loading...');
+            const reactStatus = document.getElementById('react-status');
+            
+            try {
+                reactStatus.textContent = '🔄 Loading React dependencies...';
+                
+                // Try to load React dependencies
+                const reactScript = document.createElement('script');
+                reactScript.type = 'module';
+                reactScript.textContent = `
+                    import React from '/node_modules/.vite/deps/react.js?v=bde815dd';
+                    import ReactDOM from '/node_modules/.vite/deps/react-dom_client.js?v=bde815dd';
+                    
+                    window.testReactLoaded = true;
+                    
+                    const { createRoot } = ReactDOM;
+                    const root = createRoot(document.getElementById('react-mount-point'));
+                    
+                    const TestComponent = () => React.createElement('div', 
+                        { style: { background: '#d4edda', padding: '10px', borderRadius: '4px' } },
+                        '✅ React está funcionando!'
+                    );
+                    
+                    root.render(React.createElement(TestComponent));
+                    
+                    document.getElementById('react-status').textContent = '✅ React carregado com sucesso!';
+                `;
+                
+                reactScript.onerror = (error) => {
+                    log('❌ Failed to load React script', 'error');
+                    reactStatus.textContent = '❌ Erro ao carregar React';
+                };
+                
+                document.head.appendChild(reactScript);
+                
+                // Check if React loaded after a delay
+                setTimeout(() => {
+                    if (!window.testReactLoaded) {
+                        log('❌ React did not load within timeout', 'error');
+                        reactStatus.textContent = '❌ React não carregou no tempo esperado';
+                    }
+                }, 5000);
+                
+            } catch (error) {
+                log(`❌ React Test Error: ${error.message}`, 'error');
+                reactStatus.textContent = `❌ Erro: ${error.message}`;
+            }
+        }
+
+        function clearAndReload() {
+            log('Clearing storage and reloading...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                location.reload();
+            } catch (error) {
+                log(`❌ Clear storage error: ${error.message}`, 'error');
+            }
+        }
+
+        function goToFallback() {
+            window.location.href = '/fallback';
+        }
+
+        // Auto-run diagnostics
+        window.addEventListener('load', () => {
+            log('Starting automatic diagnostics...');
+            updateStatus('🔄 Executando diagnósticos automáticos...');
+            
+            setTimeout(async () => {
+                await testAPI();
+                await testViteClient();
+                updateStatus('✅ Diagnósticos básicos completos', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
