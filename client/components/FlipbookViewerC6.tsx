@@ -32,12 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -90,7 +85,11 @@ interface FlipbookViewerProps {
   initialCNJ?: string;
 }
 
-export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewerProps) {
+export function FlipbookViewerC6({
+  isOpen,
+  onClose,
+  initialCNJ,
+}: FlipbookViewerProps) {
   const { toast } = useToast();
 
   // States
@@ -102,7 +101,9 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState<FlipbookItem | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
-  const [filterType, setFilterType] = useState<"all" | "documents" | "peticoes">("all");
+  const [filterType, setFilterType] = useState<
+    "all" | "documents" | "peticoes"
+  >("all");
 
   const itemsPerPage = 12;
 
@@ -152,7 +153,8 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
           id: `doc-${doc.id}`,
           type: "document",
           title: doc.file_name,
-          subtitle: doc.metadata?.description || `${formatFileSize(doc.file_size)}`,
+          subtitle:
+            doc.metadata?.description || `${formatFileSize(doc.file_size)}`,
           date: doc.created_at,
           cnj: doc.numero_cnj || doc.metadata?.numero_cnj,
           document: doc,
@@ -178,9 +180,10 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
     // Filter by search term
     let filtered = items;
     if (searchTerm) {
-      filtered = items.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.subtitle?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = items.filter(
+        (item) =>
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.subtitle?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -210,7 +213,7 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
   const totalPages = Math.ceil(flipbookItems.length / itemsPerPage);
   const currentItems = flipbookItems.slice(
     currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
+    (currentPage + 1) * itemsPerPage,
   );
 
   useEffect(() => {
@@ -344,7 +347,8 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
                       if (!cnj) {
                         toast({
                           title: "CNJ requerido",
-                          description: "Digite um número CNJ para buscar documentos.",
+                          description:
+                            "Digite um número CNJ para buscar documentos.",
                           variant: "destructive",
                         });
                       }
@@ -388,17 +392,29 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  onClick={() =>
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  }
                 >
-                  {sortOrder === "asc" ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                  {sortOrder === "asc" ? (
+                    <SortAsc className="h-4 w-4" />
+                  ) : (
+                    <SortDesc className="h-4 w-4" />
+                  )}
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+                  onClick={() =>
+                    setViewMode(viewMode === "grid" ? "list" : "grid")
+                  }
                 >
-                  {viewMode === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
+                  {viewMode === "grid" ? (
+                    <List className="h-4 w-4" />
+                  ) : (
+                    <Grid className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -411,7 +427,8 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
                   Flipbook de Documentos
                 </h3>
                 <p className="text-gray-500">
-                  Digite um número CNJ para visualizar todos os documentos e peças do processo
+                  Digite um número CNJ para visualizar todos os documentos e
+                  peças do processo
                 </p>
               </div>
             ) : isLoading ? (
@@ -447,7 +464,10 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
                         <div className="flex items-center justify-center w-16 h-16 bg-gray-50 rounded-lg">
                           {getItemIcon(item)}
                         </div>
-                        <h4 className="font-medium text-sm truncate w-full" title={item.title}>
+                        <h4
+                          className="font-medium text-sm truncate w-full"
+                          title={item.title}
+                        >
                           {item.title}
                         </h4>
                         <p className="text-xs text-gray-500 truncate w-full">
@@ -514,8 +534,11 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
                   Mostrando {currentPage * itemsPerPage + 1} a{" "}
-                  {Math.min((currentPage + 1) * itemsPerPage, flipbookItems.length)} de{" "}
-                  {flipbookItems.length} itens
+                  {Math.min(
+                    (currentPage + 1) * itemsPerPage,
+                    flipbookItems.length,
+                  )}{" "}
+                  de {flipbookItems.length} itens
                 </p>
                 <div className="flex space-x-2">
                   <Button
@@ -532,7 +555,9 @@ export function FlipbookViewerC6({ isOpen, onClose, initialCNJ }: FlipbookViewer
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages - 1, currentPage + 1))
+                    }
                     disabled={currentPage === totalPages - 1}
                   >
                     <ChevronRight className="h-4 w-4" />

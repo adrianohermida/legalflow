@@ -19,12 +19,7 @@ import {
   Play,
   Pause,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
@@ -37,12 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "./ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -129,7 +119,11 @@ const PRIORITY_CONFIG = {
   },
 };
 
-export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetailModalProps) {
+export function ActivityDetailModal({
+  activity,
+  isOpen,
+  onClose,
+}: ActivityDetailModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState("");
@@ -209,18 +203,18 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
 
   const addCommentMutation = useMutation({
     mutationFn: async (body: string) => {
-      const { error } = await lf
-        .from("activity_comments")
-        .insert({
-          activity_id: activity.id,
-          author_id: "current-user", // TODO: Get from auth context
-          body,
-        });
+      const { error } = await lf.from("activity_comments").insert({
+        activity_id: activity.id,
+        author_id: "current-user", // TODO: Get from auth context
+        body,
+      });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activity-comments", activity.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["activity-comments", activity.id],
+      });
       queryClient.invalidateQueries({ queryKey: ["activities"] });
       setNewComment("");
       toast({
@@ -241,7 +235,9 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
       title: editForm.title,
       priority: editForm.priority,
       due_at: editForm.due_at || null,
-      assigned_oab: editForm.assigned_oab ? parseInt(editForm.assigned_oab) : null,
+      assigned_oab: editForm.assigned_oab
+        ? parseInt(editForm.assigned_oab)
+        : null,
     };
 
     updateMultipleFieldsMutation.mutate(updates);
@@ -249,19 +245,25 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
 
   const getDueStatus = (dueDate?: string, status?: string) => {
     if (!dueDate || status === "done") return null;
-    
+
     const now = new Date();
     const due = new Date(dueDate);
-    const diffHours = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60));
-    
+    const diffHours = Math.ceil(
+      (due.getTime() - now.getTime()) / (1000 * 60 * 60),
+    );
+
     if (diffHours < 0) {
       return { text: "Atrasado", color: "text-red-600", urgent: true };
     } else if (diffHours < 24) {
       return { text: "Vence hoje", color: "text-orange-600", urgent: true };
     } else if (diffHours < 72) {
-      return { text: "Vence em breve", color: "text-yellow-600", urgent: false };
+      return {
+        text: "Vence em breve",
+        color: "text-yellow-600",
+        urgent: false,
+      };
     }
-    
+
     return null;
   };
 
@@ -278,7 +280,9 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
               {isEditing ? (
                 <Input
                   value={editForm.title}
-                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, title: e.target.value })
+                  }
                   className="text-xl font-semibold"
                   placeholder="Título da atividade"
                 />
@@ -295,20 +299,15 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                   <span className="ml-1">{priorityConfig.label}</span>
                 </Badge>
                 {dueStatus && (
-                  <Badge variant="destructive">
-                    {dueStatus.text}
-                  </Badge>
+                  <Badge variant="destructive">{dueStatus.text}</Badge>
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {isEditing ? (
                 <>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
-                  >
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
                     Cancelar
                   </Button>
                   <Button
@@ -320,10 +319,7 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                 </>
               ) : (
                 <>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(true)}
-                  >
+                  <Button variant="outline" onClick={() => setIsEditing(true)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Editar
                   </Button>
@@ -350,7 +346,11 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full">
+          <Tabs
+            value={selectedTab}
+            onValueChange={setSelectedTab}
+            className="h-full"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="comments">
                 <MessageSquare className="mr-2 h-4 w-4" />
@@ -368,18 +368,25 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                 {loadingComments ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-gray-600 mt-2">Carregando comentários...</p>
+                    <p className="text-gray-600 mt-2">
+                      Carregando comentários...
+                    </p>
                   </div>
                 ) : comments.length > 0 ? (
                   comments.map((comment) => (
-                    <div key={comment.id} className="border-l-2 border-gray-200 pl-4 pb-4">
+                    <div
+                      key={comment.id}
+                      className="border-l-2 border-gray-200 pl-4 pb-4"
+                    >
                       <div className="flex items-start space-x-3">
                         <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                           <User className="h-4 w-4 text-gray-600" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 text-sm">
-                            <span className="font-medium">{comment.author_id}</span>
+                            <span className="font-medium">
+                              {comment.author_id}
+                            </span>
                             <span className="text-gray-500">
                               {formatDate(comment.created_at)}
                             </span>
@@ -417,7 +424,9 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                     <Button
                       size="sm"
                       onClick={handleAddComment}
-                      disabled={!newComment.trim() || addCommentMutation.isPending}
+                      disabled={
+                        !newComment.trim() || addCommentMutation.isPending
+                      }
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -431,7 +440,9 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Informações Básicas</CardTitle>
+                    <CardTitle className="text-sm">
+                      Informações Básicas
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {isEditing ? (
@@ -443,7 +454,10 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                           <Select
                             value={editForm.priority}
                             onValueChange={(value) =>
-                              setEditForm({ ...editForm, priority: value as any })
+                              setEditForm({
+                                ...editForm,
+                                priority: value as any,
+                              })
                             }
                           >
                             <SelectTrigger className="w-full">
@@ -465,7 +479,10 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                             type="datetime-local"
                             value={editForm.due_at}
                             onChange={(e) =>
-                              setEditForm({ ...editForm, due_at: e.target.value })
+                              setEditForm({
+                                ...editForm,
+                                due_at: e.target.value,
+                              })
                             }
                           />
                         </div>
@@ -485,7 +502,10 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                             <SelectContent>
                               <SelectItem value="">Não atribuído</SelectItem>
                               {advogados.map((adv) => (
-                                <SelectItem key={adv.oab} value={adv.oab.toString()}>
+                                <SelectItem
+                                  key={adv.oab}
+                                  value={adv.oab.toString()}
+                                >
                                   {adv.nome} (OAB {adv.oab})
                                 </SelectItem>
                               ))}
@@ -496,26 +516,39 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                     ) : (
                       <>
                         <div>
-                          <label className="text-xs text-gray-500">Status:</label>
-                          <p className="text-sm font-medium">{statusConfig.label}</p>
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-500">Prioridade:</label>
-                          <p className="text-sm font-medium">{priorityConfig.label}</p>
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-500">Vence em:</label>
+                          <label className="text-xs text-gray-500">
+                            Status:
+                          </label>
                           <p className="text-sm font-medium">
-                            {activity.due_at ? formatDate(activity.due_at) : "Não definido"}
+                            {statusConfig.label}
                           </p>
                         </div>
                         <div>
-                          <label className="text-xs text-gray-500">Responsável:</label>
+                          <label className="text-xs text-gray-500">
+                            Prioridade:
+                          </label>
                           <p className="text-sm font-medium">
-                            {activity.advogado_nome ? 
-                              `${activity.advogado_nome} (OAB ${activity.assigned_oab})` : 
-                              "Não atribuído"
-                            }
+                            {priorityConfig.label}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500">
+                            Vence em:
+                          </label>
+                          <p className="text-sm font-medium">
+                            {activity.due_at
+                              ? formatDate(activity.due_at)
+                              : "Não definido"}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500">
+                            Responsável:
+                          </label>
+                          <p className="text-sm font-medium">
+                            {activity.advogado_nome
+                              ? `${activity.advogado_nome} (OAB ${activity.assigned_oab})`
+                              : "Não atribuído"}
                           </p>
                         </div>
                       </>
@@ -534,11 +567,15 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                         {activity.cliente_nome || "Não vinculado"}
                       </p>
                       {activity.cliente_cpfcnpj && (
-                        <p className="text-xs text-gray-500">{activity.cliente_cpfcnpj}</p>
+                        <p className="text-xs text-gray-500">
+                          {activity.cliente_cpfcnpj}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Processo CNJ:</label>
+                      <label className="text-xs text-gray-500">
+                        Processo CNJ:
+                      </label>
                       <p className="text-sm font-medium">
                         {activity.numero_cnj || "Não vinculado"}
                       </p>
@@ -558,17 +595,25 @@ export function ActivityDetailModal({ activity, isOpen, onClose }: ActivityDetai
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <label className="text-xs text-gray-500">Criado por:</label>
-                      <p className="text-sm font-medium">{activity.created_by}</p>
+                      <label className="text-xs text-gray-500">
+                        Criado por:
+                      </label>
+                      <p className="text-sm font-medium">
+                        {activity.created_by}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Criado em:</label>
+                      <label className="text-xs text-gray-500">
+                        Criado em:
+                      </label>
                       <p className="text-sm font-medium">
                         {formatDate(activity.created_at)}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Atualizado em:</label>
+                      <label className="text-xs text-gray-500">
+                        Atualizado em:
+                      </label>
                       <p className="text-sm font-medium">
                         {formatDate(activity.updated_at)}
                       </p>

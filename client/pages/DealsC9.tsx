@@ -7,14 +7,53 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { Search, Plus, Filter, Grid3X3, Kanban, MoreHorizontal, TrendingUp, DollarSign, Target, Calendar, ChevronDown, SortAsc, SortDesc, Eye, Edit, Trash2 } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Filter,
+  Grid3X3,
+  Kanban,
+  MoreHorizontal,
+  TrendingUp,
+  DollarSign,
+  Target,
+  Calendar,
+  ChevronDown,
+  SortAsc,
+  SortDesc,
+  Eye,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "../components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "../components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { useToast } from "../hooks/use-toast";
 import {
   Deal,
@@ -33,7 +72,7 @@ import {
   formatRelativeTime,
   isDealOverdue,
   getDaysUntilClose,
-  calculateWeightedValue
+  calculateWeightedValue,
 } from "../lib/deals-utils";
 
 interface DealsC9Props {
@@ -45,11 +84,11 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
   const queryClient = useQueryClient();
 
   // States
-  const [viewMode, setViewMode] = useState<'kanban' | 'grid'>('kanban');
-  const [selectedPipeline, setSelectedPipeline] = useState<string>('');
+  const [viewMode, setViewMode] = useState<"kanban" | "grid">("kanban");
+  const [selectedPipeline, setSelectedPipeline] = useState<string>("");
   const [filters, setFilters] = useState<DealFilters>({});
-  const [sortBy, setSortBy] = useState<string>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState<string>("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedDeals, setSelectedDeals] = useState<string[]>([]);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
@@ -66,7 +105,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           description: "Pipeline principal de vendas",
           is_default: true,
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-01-01T00:00:00Z",
         },
         {
           id: "2",
@@ -74,11 +113,11 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           description: "Pipeline de serviços de consultoria",
           is_default: false,
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
-        }
+          updated_at: "2024-01-01T00:00:00Z",
+        },
       ];
       return mockPipelines;
-    }
+    },
   });
 
   // Fetch pipeline stages
@@ -95,7 +134,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           pipeline_id: selectedPipeline || "1",
           color: "#3B82F6",
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-01-01T00:00:00Z",
         },
         {
           id: "2",
@@ -105,7 +144,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           pipeline_id: selectedPipeline || "1",
           color: "#8B5CF6",
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-01-01T00:00:00Z",
         },
         {
           id: "3",
@@ -115,7 +154,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           pipeline_id: selectedPipeline || "1",
           color: "#F59E0B",
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-01-01T00:00:00Z",
         },
         {
           id: "4",
@@ -125,7 +164,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           pipeline_id: selectedPipeline || "1",
           color: "#10B981",
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
+          updated_at: "2024-01-01T00:00:00Z",
         },
         {
           id: "5",
@@ -135,12 +174,12 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           pipeline_id: selectedPipeline || "1",
           color: "#059669",
           created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z"
-        }
+          updated_at: "2024-01-01T00:00:00Z",
+        },
       ];
       return mockStages;
     },
-    enabled: !!selectedPipeline
+    enabled: !!selectedPipeline,
   });
 
   // Fetch deals
@@ -164,11 +203,12 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           company_id: "company-1",
           owner_id: "user-1",
           tags: ["trabalhista", "consultoria"],
-          notes: "Cliente interessado em consultoria trabalhista para implementação de novo RH",
+          notes:
+            "Cliente interessado em consultoria trabalhista para implementação de novo RH",
           status: "open",
           custom_fields: {},
           activities_count: 5,
-          last_activity_at: "2024-01-08T00:00:00Z"
+          last_activity_at: "2024-01-08T00:00:00Z",
         },
         {
           id: "2",
@@ -188,7 +228,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           status: "open",
           custom_fields: {},
           activities_count: 8,
-          last_activity_at: "2024-01-12T00:00:00Z"
+          last_activity_at: "2024-01-12T00:00:00Z",
         },
         {
           id: "3",
@@ -210,18 +250,19 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           won_at: "2024-01-15T00:00:00Z",
           custom_fields: {},
           activities_count: 12,
-          last_activity_at: "2024-01-15T00:00:00Z"
-        }
+          last_activity_at: "2024-01-15T00:00:00Z",
+        },
       ];
       return mockDeals;
     },
-    enabled: !!selectedPipeline
+    enabled: !!selectedPipeline,
   });
 
   // Initialize with first pipeline
   useEffect(() => {
     if (pipelines.length > 0 && !selectedPipeline) {
-      const defaultPipeline = pipelines.find(p => p.is_default) || pipelines[0];
+      const defaultPipeline =
+        pipelines.find((p) => p.is_default) || pipelines[0];
       setSelectedPipeline(defaultPipeline.id);
     }
   }, [pipelines, selectedPipeline]);
@@ -237,13 +278,13 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
     if (!result.destination) return;
 
     const { source, destination, draggableId } = result;
-    
+
     if (source.droppableId === destination.droppableId) return;
 
     // Move deal to new stage
     const dealId = draggableId;
     const newStageId = destination.droppableId;
-    
+
     // Update deal stage (mock - replace with actual API call)
     toast({
       title: "Deal atualizado",
@@ -302,18 +343,22 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       className={`space-y-3 min-h-[200px] ${
-                        snapshot.isDraggingOver ? 'bg-blue-50' : ''
+                        snapshot.isDraggingOver ? "bg-blue-50" : ""
                       }`}
                     >
                       {dealsByStage[stage.id]?.map((deal, index) => (
-                        <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                        <Draggable
+                          key={deal.id}
+                          draggableId={deal.id}
+                          index={index}
+                        >
                           {(provided, snapshot) => (
                             <Card
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               className={`cursor-pointer hover:shadow-md transition-shadow ${
-                                snapshot.isDragging ? 'shadow-lg' : ''
+                                snapshot.isDragging ? "shadow-lg" : ""
                               }`}
                               onClick={() => handleViewDeal(deal)}
                             >
@@ -335,17 +380,23 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
                                         </Button>
                                       </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => handleViewDeal(deal)}>
+                                        <DropdownMenuItem
+                                          onClick={() => handleViewDeal(deal)}
+                                        >
                                           <Eye className="mr-2 h-4 w-4" />
                                           Visualizar
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleEditDeal(deal)}>
+                                        <DropdownMenuItem
+                                          onClick={() => handleEditDeal(deal)}
+                                        >
                                           <Edit className="mr-2 h-4 w-4" />
                                           Editar
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem 
-                                          onClick={() => handleDeleteDeal(deal.id)}
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            handleDeleteDeal(deal.id)
+                                          }
                                           className="text-red-600"
                                         >
                                           <Trash2 className="mr-2 h-4 w-4" />
@@ -359,32 +410,46 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
                                     <span className="font-semibold text-green-600">
                                       {formatCurrency(deal.value)}
                                     </span>
-                                    <Badge variant={isDealOverdue(deal) ? "destructive" : "outline"}>
+                                    <Badge
+                                      variant={
+                                        isDealOverdue(deal)
+                                          ? "destructive"
+                                          : "outline"
+                                      }
+                                    >
                                       {formatProbability(deal.probability)}
                                     </Badge>
                                   </div>
 
                                   <div className="flex items-center justify-between text-xs text-gray-500">
-                                    <span>{formatRelativeTime(deal.updated_at)}</span>
                                     <span>
-                                      {getDaysUntilClose(deal) > 0 
+                                      {formatRelativeTime(deal.updated_at)}
+                                    </span>
+                                    <span>
+                                      {getDaysUntilClose(deal) > 0
                                         ? `${getDaysUntilClose(deal)} dias`
-                                        : isDealOverdue(deal) 
-                                        ? 'Atrasado'
-                                        : 'Hoje'
-                                      }
+                                        : isDealOverdue(deal)
+                                          ? "Atrasado"
+                                          : "Hoje"}
                                     </span>
                                   </div>
 
                                   {deal.tags.length > 0 && (
                                     <div className="flex gap-1 flex-wrap">
                                       {deal.tags.slice(0, 2).map((tag) => (
-                                        <Badge key={tag} variant="secondary" className="text-xs">
+                                        <Badge
+                                          key={tag}
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
                                           {tag}
                                         </Badge>
                                       ))}
                                       {deal.tags.length > 2 && (
-                                        <Badge variant="secondary" className="text-xs">
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
                                           +{deal.tags.length - 2}
                                         </Badge>
                                       )}
@@ -410,7 +475,10 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
   const renderGridView = () => (
     <div className="space-y-4">
       {sortedDeals.map((deal) => (
-        <Card key={deal.id} className="cursor-pointer hover:shadow-md transition-shadow">
+        <Card
+          key={deal.id}
+          className="cursor-pointer hover:shadow-md transition-shadow"
+        >
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 space-y-2">
@@ -418,11 +486,19 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
                   <h3 className="font-medium text-lg">{deal.title}</h3>
                   <div className="flex items-center gap-2">
                     <Badge className={getDealStatusColor(deal.status)}>
-                      {deal.status === 'won' ? 'Ganho' : deal.status === 'lost' ? 'Perdido' : 'Aberto'}
+                      {deal.status === "won"
+                        ? "Ganho"
+                        : deal.status === "lost"
+                          ? "Perdido"
+                          : "Aberto"}
                     </Badge>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -436,7 +512,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
                           Editar
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => handleDeleteDeal(deal.id)}
                           className="text-red-600"
                         >
@@ -463,14 +539,19 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
                   </div>
                   <div>
                     <span className="text-gray-500">Fechamento:</span>
-                    <div className={`font-medium ${isDealOverdue(deal) ? 'text-red-600' : ''}`}>
-                      {new Date(deal.expected_close_date).toLocaleDateString('pt-BR')}
+                    <div
+                      className={`font-medium ${isDealOverdue(deal) ? "text-red-600" : ""}`}
+                    >
+                      {new Date(deal.expected_close_date).toLocaleDateString(
+                        "pt-BR",
+                      )}
                     </div>
                   </div>
                   <div>
                     <span className="text-gray-500">Estágio:</span>
                     <div className="font-medium">
-                      {stages.find(s => s.id === deal.stage_id)?.name || 'N/A'}
+                      {stages.find((s) => s.id === deal.stage_id)?.name ||
+                        "N/A"}
                     </div>
                   </div>
                 </div>
@@ -522,7 +603,9 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dealStats.total_value)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(dealStats.total_value)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {dealStats.total_deals} deals em andamento
             </p>
@@ -546,16 +629,16 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Conversão</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Taxa de Conversão
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {formatProbability(dealStats.conversion_rate)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média de fechamento
-            </p>
+            <p className="text-xs text-muted-foreground">Média de fechamento</p>
           </CardContent>
         </Card>
 
@@ -568,9 +651,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
             <div className="text-2xl font-bold">
               {formatCurrency(dealStats.avg_deal_value)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Por deal fechado
-            </p>
+            <p className="text-xs text-muted-foreground">Por deal fechado</p>
           </CardContent>
         </Card>
       </div>
@@ -582,8 +663,10 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Buscar deals..."
-              value={filters.search || ''}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              value={filters.search || ""}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value })
+              }
               className="pl-10"
             />
           </div>
@@ -622,22 +705,28 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                {sortOrder === 'asc' ? <SortAsc className="mr-2 h-4 w-4" /> : <SortDesc className="mr-2 h-4 w-4" />}
+                {sortOrder === "asc" ? (
+                  <SortAsc className="mr-2 h-4 w-4" />
+                ) : (
+                  <SortDesc className="mr-2 h-4 w-4" />
+                )}
                 Ordenar
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSortBy('created_at')}>
+              <DropdownMenuItem onClick={() => setSortBy("created_at")}>
                 Data de Criação
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy('value')}>
+              <DropdownMenuItem onClick={() => setSortBy("value")}>
                 Valor
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy('probability')}>
+              <DropdownMenuItem onClick={() => setSortBy("probability")}>
                 Probabilidade
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy('expected_close_date')}>
+              <DropdownMenuItem
+                onClick={() => setSortBy("expected_close_date")}
+              >
                 Data de Fechamento
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -645,17 +734,17 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
 
           <div className="flex border rounded-md">
             <Button
-              variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+              variant={viewMode === "kanban" ? "default" : "ghost"}
               size="sm"
-              onClick={() => setViewMode('kanban')}
+              onClick={() => setViewMode("kanban")}
               className="rounded-r-none"
             >
               <Kanban className="h-4 w-4" />
             </Button>
             <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
-              onClick={() => setViewMode('grid')}
+              onClick={() => setViewMode("grid")}
               className="rounded-l-none"
             >
               <Grid3X3 className="h-4 w-4" />
@@ -665,7 +754,7 @@ export default function DealsC9({ userType = "advogado" }: DealsC9Props) {
       </div>
 
       {/* Views */}
-      {viewMode === 'kanban' ? renderKanbanView() : renderGridView()}
+      {viewMode === "kanban" ? renderKanbanView() : renderGridView()}
     </div>
   );
 }

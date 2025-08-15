@@ -7,13 +7,28 @@
 
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, User, FileText, UserCheck, Calendar, Play, X, AlertCircle } from "lucide-react";
+import {
+  Search,
+  User,
+  FileText,
+  UserCheck,
+  Calendar,
+  Play,
+  X,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Alert, AlertDescription } from "./ui/alert";
@@ -33,7 +48,7 @@ interface Client {
   cpf_cnpj: string;
   email?: string;
   phone?: string;
-  type: 'pessoa_fisica' | 'pessoa_juridica';
+  type: "pessoa_fisica" | "pessoa_juridica";
 }
 
 interface ProcessCase {
@@ -58,26 +73,32 @@ export default function StartJourneyModalD3({
   isOpen,
   onClose,
   selectedTemplate,
-  onSuccess
+  onSuccess,
 }: StartJourneyModalD3Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Form state
   const [step, setStep] = useState(1);
-  const [clientSearch, setClientSearch] = useState('');
+  const [clientSearch, setClientSearch] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [selectedProcess, setSelectedProcess] = useState<ProcessCase | null>(null);
-  const [selectedTemplate_internal, setSelectedTemplate_internal] = useState<JourneyTemplate | null>(selectedTemplate || null);
-  const [selectedResponsible, setSelectedResponsible] = useState<Responsible | null>(null);
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedProcess, setSelectedProcess] = useState<ProcessCase | null>(
+    null,
+  );
+  const [selectedTemplate_internal, setSelectedTemplate_internal] =
+    useState<JourneyTemplate | null>(selectedTemplate || null);
+  const [selectedResponsible, setSelectedResponsible] =
+    useState<Responsible | null>(null);
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
 
   // Search clients
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ["clients-search", clientSearch],
     queryFn: async () => {
       if (!clientSearch || clientSearch.length < 3) return [];
-      
+
       // Mock data - replace with actual API call
       const mockClients: Client[] = [
         {
@@ -86,7 +107,7 @@ export default function StartJourneyModalD3({
           cpf_cnpj: "12.345.678/0001-90",
           email: "contato@techsolutions.com",
           phone: "(11) 99999-9999",
-          type: "pessoa_juridica"
+          type: "pessoa_juridica",
         },
         {
           id: "2",
@@ -94,23 +115,24 @@ export default function StartJourneyModalD3({
           cpf_cnpj: "987.654.321-00",
           email: "maria@email.com",
           phone: "(11) 88888-8888",
-          type: "pessoa_fisica"
+          type: "pessoa_fisica",
         },
         {
           id: "3",
           name: "João Silva Comércio",
           cpf_cnpj: "98.765.432/0001-10",
           email: "joao@comercio.com",
-          type: "pessoa_juridica"
-        }
+          type: "pessoa_juridica",
+        },
       ];
 
-      return mockClients.filter(client => 
-        client.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
-        client.cpf_cnpj.includes(clientSearch)
+      return mockClients.filter(
+        (client) =>
+          client.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+          client.cpf_cnpj.includes(clientSearch),
       );
     },
-    enabled: clientSearch.length >= 3
+    enabled: clientSearch.length >= 3,
   });
 
   // Fetch processes for selected client
@@ -118,7 +140,7 @@ export default function StartJourneyModalD3({
     queryKey: ["client-processes", selectedClient?.id],
     queryFn: async () => {
       if (!selectedClient) return [];
-      
+
       // Mock data - replace with actual API call
       const mockProcesses: ProcessCase[] = [
         {
@@ -128,7 +150,7 @@ export default function StartJourneyModalD3({
           area: "Cível",
           status: "Em andamento",
           client_id: selectedClient.id,
-          created_at: "2024-01-15T00:00:00Z"
+          created_at: "2024-01-15T00:00:00Z",
         },
         {
           id: "2",
@@ -137,13 +159,13 @@ export default function StartJourneyModalD3({
           area: "Trabalhista",
           status: "Inicial",
           client_id: selectedClient.id,
-          created_at: "2024-01-10T00:00:00Z"
-        }
+          created_at: "2024-01-10T00:00:00Z",
+        },
       ];
 
       return mockProcesses;
     },
-    enabled: !!selectedClient
+    enabled: !!selectedClient,
   });
 
   // Fetch available templates
@@ -164,7 +186,7 @@ export default function StartJourneyModalD3({
           created_at: "2024-01-01T00:00:00Z",
           updated_at: "2024-01-10T00:00:00Z",
           created_by: "user-1",
-          tags: ["empresarial", "abertura", "cnpj"]
+          tags: ["empresarial", "abertura", "cnpj"],
         },
         {
           id: "2",
@@ -178,11 +200,11 @@ export default function StartJourneyModalD3({
           created_at: "2024-01-02T00:00:00Z",
           updated_at: "2024-01-15T00:00:00Z",
           created_by: "user-1",
-          tags: ["trabalhista", "processo", "tst"]
-        }
+          tags: ["trabalhista", "processo", "tst"],
+        },
       ];
       return mockTemplates;
-    }
+    },
   });
 
   // Fetch available responsibles
@@ -196,25 +218,25 @@ export default function StartJourneyModalD3({
           name: "Dr. João Silva",
           oab: "SP123456",
           email: "joao@escritorio.com",
-          specialty: "Empresarial"
+          specialty: "Empresarial",
         },
         {
           id: "2",
           name: "Dra. Ana Costa",
           oab: "SP789012",
           email: "ana@escritorio.com",
-          specialty: "Trabalhista"
+          specialty: "Trabalhista",
         },
         {
           id: "3",
           name: "Dr. Carlos Santos",
           oab: "SP456789",
           email: "carlos@escritorio.com",
-          specialty: "Cível"
-        }
+          specialty: "Cível",
+        },
       ];
       return mockResponsibles;
-    }
+    },
   });
 
   // Start journey mutation
@@ -227,8 +249,8 @@ export default function StartJourneyModalD3({
       start_date: string;
     }) => {
       // Mock RPC call - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const newInstance: JourneyInstance = {
         id: `instance-${Date.now()}`,
         template_id: data.template_id,
@@ -243,7 +265,7 @@ export default function StartJourneyModalD3({
         next_action: "🚀 Iniciar primeira etapa",
         started_at: data.start_date,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       return newInstance;
@@ -253,34 +275,34 @@ export default function StartJourneyModalD3({
         title: "Jornada iniciada com sucesso!",
         description: `Jornada "${selectedTemplate_internal?.name}" foi iniciada para ${selectedClient?.name}`,
       });
-      
+
       queryClient.invalidateQueries({ queryKey: ["journey-instances"] });
-      
+
       if (onSuccess) {
         onSuccess(instance);
       }
-      
+
       handleClose();
     },
     onError: () => {
       toast({
         title: "Erro ao iniciar jornada",
         description: "Ocorreu um erro ao iniciar a jornada. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setStep(1);
-      setClientSearch('');
+      setClientSearch("");
       setSelectedClient(null);
       setSelectedProcess(null);
       setSelectedTemplate_internal(selectedTemplate || null);
       setSelectedResponsible(null);
-      setStartDate(new Date().toISOString().split('T')[0]);
+      setStartDate(new Date().toISOString().split("T")[0]);
     }
   }, [isOpen, selectedTemplate]);
 
@@ -289,11 +311,11 @@ export default function StartJourneyModalD3({
   };
 
   const handleNext = () => {
-    setStep(prev => prev + 1);
+    setStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
-    setStep(prev => prev - 1);
+    setStep((prev) => prev - 1);
   };
 
   const handleStartJourney = () => {
@@ -301,7 +323,7 @@ export default function StartJourneyModalD3({
       toast({
         title: "Dados incompletos",
         description: "Preencha todos os campos obrigatórios",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -311,7 +333,7 @@ export default function StartJourneyModalD3({
       cpf_cnpj: selectedClient.cpf_cnpj,
       numero_cnj: selectedProcess?.numero_cnj,
       responsible_oab: selectedResponsible.oab,
-      start_date: startDate
+      start_date: startDate,
     });
   };
 
@@ -332,13 +354,19 @@ export default function StartJourneyModalD3({
           <div className="flex items-center gap-2 mt-2">
             {[1, 2, 3, 4].map((stepNum) => (
               <div key={stepNum} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step >= stepNum ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    step >= stepNum
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
                   {stepNum}
                 </div>
                 {stepNum < 4 && (
-                  <div className={`w-8 h-1 ${step > stepNum ? 'bg-blue-600' : 'bg-gray-200'}`} />
+                  <div
+                    className={`w-8 h-1 ${step > stepNum ? "bg-blue-600" : "bg-gray-200"}`}
+                  />
                 )}
               </div>
             ))}
@@ -350,7 +378,9 @@ export default function StartJourneyModalD3({
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium mb-2">1. Selecionar Cliente</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  1. Selecionar Cliente
+                </h3>
                 <p className="text-sm text-gray-600 mb-4">
                   Busque pelo nome ou CPF/CNPJ do cliente
                 </p>
@@ -379,10 +409,12 @@ export default function StartJourneyModalD3({
               {clients.length > 0 && (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {clients.map((client) => (
-                    <Card 
-                      key={client.id} 
+                    <Card
+                      key={client.id}
                       className={`cursor-pointer transition-colors ${
-                        selectedClient?.id === client.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                        selectedClient?.id === client.id
+                          ? "ring-2 ring-blue-500 bg-blue-50"
+                          : "hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedClient(client)}
                     >
@@ -390,13 +422,23 @@ export default function StartJourneyModalD3({
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium">{client.name}</h4>
-                            <p className="text-sm text-gray-600">{client.cpf_cnpj}</p>
+                            <p className="text-sm text-gray-600">
+                              {client.cpf_cnpj}
+                            </p>
                             {client.email && (
-                              <p className="text-xs text-gray-500">{client.email}</p>
+                              <p className="text-xs text-gray-500">
+                                {client.email}
+                              </p>
                             )}
                           </div>
-                          <Badge variant={client.type === 'pessoa_juridica' ? 'default' : 'secondary'}>
-                            {client.type === 'pessoa_juridica' ? 'PJ' : 'PF'}
+                          <Badge
+                            variant={
+                              client.type === "pessoa_juridica"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {client.type === "pessoa_juridica" ? "PJ" : "PF"}
                           </Badge>
                         </div>
                       </CardContent>
@@ -409,7 +451,8 @@ export default function StartJourneyModalD3({
                 <Alert>
                   <User className="h-4 w-4" />
                   <AlertDescription>
-                    Cliente selecionado: <strong>{selectedClient.name}</strong> ({selectedClient.cpf_cnpj})
+                    Cliente selecionado: <strong>{selectedClient.name}</strong>{" "}
+                    ({selectedClient.cpf_cnpj})
                   </AlertDescription>
                 </Alert>
               )}
@@ -420,9 +463,12 @@ export default function StartJourneyModalD3({
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium mb-2">2. Processo e Template</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  2. Processo e Template
+                </h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Vincule a jornada a um processo (opcional) e escolha o template
+                  Vincule a jornada a um processo (opcional) e escolha o
+                  template
                 </p>
               </div>
 
@@ -435,29 +481,39 @@ export default function StartJourneyModalD3({
                   </div>
                 ) : processes.length > 0 ? (
                   <div className="space-y-2 max-h-32 overflow-y-auto">
-                    <Card 
+                    <Card
                       className={`cursor-pointer transition-colors ${
-                        !selectedProcess ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                        !selectedProcess
+                          ? "ring-2 ring-blue-500 bg-blue-50"
+                          : "hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedProcess(null)}
                     >
                       <CardContent className="p-3">
-                        <span className="text-sm text-gray-600">Não vincular a processo</span>
+                        <span className="text-sm text-gray-600">
+                          Não vincular a processo
+                        </span>
                       </CardContent>
                     </Card>
                     {processes.map((process) => (
-                      <Card 
-                        key={process.id} 
+                      <Card
+                        key={process.id}
                         className={`cursor-pointer transition-colors ${
-                          selectedProcess?.id === process.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                          selectedProcess?.id === process.id
+                            ? "ring-2 ring-blue-500 bg-blue-50"
+                            : "hover:bg-gray-50"
                         }`}
                         onClick={() => setSelectedProcess(process)}
                       >
                         <CardContent className="p-3">
                           <div className="flex items-center justify-between">
                             <div>
-                              <h5 className="font-medium text-sm">{process.titulo}</h5>
-                              <p className="text-xs text-gray-600">{process.numero_cnj}</p>
+                              <h5 className="font-medium text-sm">
+                                {process.titulo}
+                              </h5>
+                              <p className="text-xs text-gray-600">
+                                {process.numero_cnj}
+                              </p>
                             </div>
                             <Badge variant="outline">{process.area}</Badge>
                           </div>
@@ -466,7 +522,9 @@ export default function StartJourneyModalD3({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 py-2">Nenhum processo encontrado para este cliente</p>
+                  <p className="text-sm text-gray-500 py-2">
+                    Nenhum processo encontrado para este cliente
+                  </p>
                 )}
               </div>
 
@@ -477,10 +535,12 @@ export default function StartJourneyModalD3({
                 <Label>Template da Jornada *</Label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {templates.map((template) => (
-                    <Card 
-                      key={template.id} 
+                    <Card
+                      key={template.id}
                       className={`cursor-pointer transition-colors ${
-                        selectedTemplate_internal?.id === template.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                        selectedTemplate_internal?.id === template.id
+                          ? "ring-2 ring-blue-500 bg-blue-50"
+                          : "hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedTemplate_internal(template)}
                     >
@@ -488,11 +548,14 @@ export default function StartJourneyModalD3({
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium">{template.name}</h4>
-                            <p className="text-sm text-gray-600">{template.description}</p>
+                            <p className="text-sm text-gray-600">
+                              {template.description}
+                            </p>
                             <div className="flex items-center gap-2 mt-1">
                               <Badge variant="outline">{template.area}</Badge>
                               <span className="text-xs text-gray-500">
-                                {template.stage_count} etapas • {template.estimated_duration_days} dias
+                                {template.stage_count} etapas •{" "}
+                                {template.estimated_duration_days} dias
                               </span>
                             </div>
                           </div>
@@ -519,10 +582,12 @@ export default function StartJourneyModalD3({
                 <Label>Advogado Responsável *</Label>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {responsibles.map((responsible) => (
-                    <Card 
-                      key={responsible.id} 
+                    <Card
+                      key={responsible.id}
                       className={`cursor-pointer transition-colors ${
-                        selectedResponsible?.id === responsible.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                        selectedResponsible?.id === responsible.id
+                          ? "ring-2 ring-blue-500 bg-blue-50"
+                          : "hover:bg-gray-50"
                       }`}
                       onClick={() => setSelectedResponsible(responsible)}
                     >
@@ -530,11 +595,17 @@ export default function StartJourneyModalD3({
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium">{responsible.name}</h4>
-                            <p className="text-sm text-gray-600">OAB: {responsible.oab}</p>
-                            <p className="text-xs text-gray-500">{responsible.email}</p>
+                            <p className="text-sm text-gray-600">
+                              OAB: {responsible.oab}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {responsible.email}
+                            </p>
                           </div>
                           {responsible.specialty && (
-                            <Badge variant="secondary">{responsible.specialty}</Badge>
+                            <Badge variant="secondary">
+                              {responsible.specialty}
+                            </Badge>
                           )}
                         </div>
                       </CardContent>
@@ -549,7 +620,9 @@ export default function StartJourneyModalD3({
           {step === 4 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium mb-2">4. Revisão e Início</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  4. Revisão e Início
+                </h3>
                 <p className="text-sm text-gray-600 mb-4">
                   Revise os dados e confirme o início da jornada
                 </p>
@@ -566,29 +639,40 @@ export default function StartJourneyModalD3({
                       <br />
                       {selectedClient?.name}
                       <br />
-                      <span className="text-gray-600">{selectedClient?.cpf_cnpj}</span>
+                      <span className="text-gray-600">
+                        {selectedClient?.cpf_cnpj}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium">Template:</span>
                       <br />
                       {selectedTemplate_internal?.name}
                       <br />
-                      <span className="text-gray-600">{selectedTemplate_internal?.estimated_duration_days} dias estimados</span>
+                      <span className="text-gray-600">
+                        {selectedTemplate_internal?.estimated_duration_days}{" "}
+                        dias estimados
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium">Responsável:</span>
                       <br />
                       {selectedResponsible?.name}
                       <br />
-                      <span className="text-gray-600">OAB: {selectedResponsible?.oab}</span>
+                      <span className="text-gray-600">
+                        OAB: {selectedResponsible?.oab}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium">Processo:</span>
                       <br />
-                      {selectedProcess ? selectedProcess.numero_cnj : 'Não vinculado'}
+                      {selectedProcess
+                        ? selectedProcess.numero_cnj
+                        : "Não vinculado"}
                       <br />
                       {selectedProcess && (
-                        <span className="text-gray-600">{selectedProcess.titulo}</span>
+                        <span className="text-gray-600">
+                          {selectedProcess.titulo}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -610,9 +694,7 @@ export default function StartJourneyModalD3({
 
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 border-t">
-          <div className="text-sm text-gray-500">
-            Passo {step} de 4
-          </div>
+          <div className="text-sm text-gray-500">Passo {step} de 4</div>
           <div className="flex gap-2">
             {step > 1 && (
               <Button variant="outline" onClick={handleBack}>
@@ -620,7 +702,7 @@ export default function StartJourneyModalD3({
               </Button>
             )}
             {step < 4 ? (
-              <Button 
+              <Button
                 onClick={handleNext}
                 disabled={
                   (step === 1 && !canProceedStep1) ||
@@ -631,13 +713,15 @@ export default function StartJourneyModalD3({
                 Próximo
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={handleStartJourney}
                 disabled={startJourneyMutation.isPending}
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Play className="mr-2 h-4 w-4" />
-                {startJourneyMutation.isPending ? 'Iniciando...' : 'Iniciar Jornada'}
+                {startJourneyMutation.isPending
+                  ? "Iniciando..."
+                  : "Iniciar Jornada"}
               </Button>
             )}
           </div>

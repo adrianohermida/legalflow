@@ -3,10 +3,13 @@
  * F1.0 - Progressive Disclosure para revelação gradual de conteúdo
  */
 
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { useProgressiveDisclosure, disclosureClasses } from '../../lib/progressive-disclosure';
+import React from "react";
+import { ChevronDown } from "lucide-react";
+import { cn } from "../../lib/utils";
+import {
+  useProgressiveDisclosure,
+  disclosureClasses,
+} from "../../lib/progressive-disclosure";
 
 interface DisclosurePanelProps {
   title: React.ReactNode;
@@ -33,7 +36,7 @@ export function DisclosurePanel({
   icon,
   disabled = false,
   headerActions,
-  onToggle
+  onToggle,
 }: DisclosurePanelProps) {
   const { isExpanded, toggle } = useProgressiveDisclosure(defaultExpanded);
 
@@ -55,29 +58,25 @@ export function DisclosurePanel({
           "w-full flex items-center justify-between p-4 text-left",
           "border-b border-gray-200 last:border-b-0",
           disabled && "opacity-50 cursor-not-allowed",
-          titleClassName
+          titleClassName,
         )}
         aria-expanded={isExpanded}
-        aria-controls={`disclosure-content-${persistKey || 'panel'}`}
+        aria-controls={`disclosure-content-${persistKey || "panel"}`}
       >
         <div className="flex items-center gap-3">
-          {icon && (
-            <div className="flex-shrink-0 text-gray-500">
-              {icon}
-            </div>
-          )}
-          <div className="font-medium text-gray-900">
-            {title}
-          </div>
+          {icon && <div className="flex-shrink-0 text-gray-500">{icon}</div>}
+          <div className="font-medium text-gray-900">{title}</div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {headerActions}
           <ChevronDown
             className={cn(
               disclosureClasses.icon,
               "h-4 w-4 text-gray-500",
-              isExpanded ? disclosureClasses.iconExpanded : disclosureClasses.iconCollapsed
+              isExpanded
+                ? disclosureClasses.iconExpanded
+                : disclosureClasses.iconCollapsed,
             )}
           />
         </div>
@@ -85,22 +84,18 @@ export function DisclosurePanel({
 
       {/* Content */}
       <div
-        id={`disclosure-content-${persistKey || 'panel'}`}
+        id={`disclosure-content-${persistKey || "panel"}`}
         className={cn(
           disclosureClasses.content,
           isExpanded ? disclosureClasses.expanded : disclosureClasses.collapsed,
-          contentClassName
+          contentClassName,
         )}
         style={{
-          maxHeight: isExpanded ? 'none' : '0',
+          maxHeight: isExpanded ? "none" : "0",
           opacity: isExpanded ? 1 : 0,
         }}
       >
-        {isExpanded && (
-          <div className="p-4">
-            {children}
-          </div>
-        )}
+        {isExpanded && <div className="p-4">{children}</div>}
       </div>
     </div>
   );
@@ -113,7 +108,7 @@ export function DisclosureCard({
   defaultExpanded = false,
   className,
   ...props
-}: Omit<DisclosurePanelProps, 'className'> & { className?: string }) {
+}: Omit<DisclosurePanelProps, "className"> & { className?: string }) {
   return (
     <DisclosurePanel
       {...props}
@@ -134,13 +129,16 @@ export function DisclosureInline({
   defaultExpanded = false,
   className,
   ...props
-}: Omit<DisclosurePanelProps, 'className'> & { className?: string }) {
+}: Omit<DisclosurePanelProps, "className"> & { className?: string }) {
   return (
     <DisclosurePanel
       {...props}
       title={title}
       defaultExpanded={defaultExpanded}
-      className={cn("border-0 border-b border-gray-200 rounded-none", className)}
+      className={cn(
+        "border-0 border-b border-gray-200 rounded-none",
+        className,
+      )}
       titleClassName="p-3"
       contentClassName="border-t border-gray-100"
     >
@@ -163,7 +161,7 @@ export function DisclosureGroup({
   className,
   showControls = true,
   onExpandAll,
-  onCollapseAll
+  onCollapseAll,
 }: DisclosureGroupProps) {
   return (
     <div className={cn("space-y-2", className)}>

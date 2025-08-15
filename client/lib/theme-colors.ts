@@ -24,23 +24,23 @@ export const colors = {
     300: "var(--mono-gray-300)", // #d1d5db - Very light gray
     200: "var(--mono-gray-200)", // #e5e7eb - Ultra light gray
     100: "var(--mono-gray-100)", // #f3f4f6 - Almost white
-    50: "var(--mono-gray-50)",   // #f9fafb - White-ish
+    50: "var(--mono-gray-50)", // #f9fafb - White-ish
   },
 
   // Semantic colors
   semantic: {
     success: "var(--success)", // #16a34a - Green for success
-    warning: "var(--warn)",    // #f59e0b - Yellow for warnings
-    error: "var(--danger)",    // #ef4444 - Red for errors
-    info: "var(--brand-700)",  // Brand color for info
+    warning: "var(--warn)", // #f59e0b - Yellow for warnings
+    error: "var(--danger)", // #ef4444 - Red for errors
+    info: "var(--brand-700)", // Brand color for info
   },
 
   // Surface colors
   surface: {
-    primary: "var(--mono-white)",     // #ffffff
+    primary: "var(--mono-white)", // #ffffff
     secondary: "var(--mono-gray-50)", // #f9fafb
-    elevated: "var(--mono-white)",    // #ffffff with shadow
-    overlay: "rgba(0, 0, 0, 0.50)",   // Modal overlays
+    elevated: "var(--mono-white)", // #ffffff with shadow
+    overlay: "rgba(0, 0, 0, 0.50)", // Modal overlays
   },
 };
 
@@ -104,17 +104,21 @@ export const themeUtils = {
 
   // Get card shadow
   cardShadow: {
-    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+    boxShadow:
+      "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
   },
 
   // Get elevated card shadow
   elevatedCardShadow: {
-    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    boxShadow:
+      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
   },
 };
 
 // Helper functions for common patterns
-export const getStatusColor = (status: "success" | "warning" | "error" | "info" | "neutral") => {
+export const getStatusColor = (
+  status: "success" | "warning" | "error" | "info" | "neutral",
+) => {
   switch (status) {
     case "success":
       return colors.semantic.success;
@@ -130,7 +134,9 @@ export const getStatusColor = (status: "success" | "warning" | "error" | "info" 
   }
 };
 
-export const getBadgeVariant = (variant: "primary" | "success" | "warning" | "error" | "secondary") => {
+export const getBadgeVariant = (
+  variant: "primary" | "success" | "warning" | "error" | "secondary",
+) => {
   switch (variant) {
     case "primary":
       return themeUtils.brandBadge;

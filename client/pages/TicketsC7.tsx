@@ -75,7 +75,7 @@ interface Ticket {
   created_by: string;
   created_at: string;
   updated_at: string;
-  
+
   // Joined data
   cliente_nome?: string;
   advogado_nome?: string;
@@ -125,7 +125,7 @@ export default function TicketsC7() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  
+
   const [ticketForm, setTicketForm] = useState<TicketForm>({
     subject: "",
     priority: "media",
@@ -137,19 +137,29 @@ export default function TicketsC7() {
 
   // Queries
   const { data: tickets = [], isLoading } = useQuery({
-    queryKey: ["tickets", searchTerm, statusFilter, priorityFilter, channelFilter],
+    queryKey: [
+      "tickets",
+      searchTerm,
+      statusFilter,
+      priorityFilter,
+      channelFilter,
+    ],
     queryFn: async () => {
       let query = lf
         .from("tickets")
-        .select(`
+        .select(
+          `
           *,
           clientes:cliente_cpfcnpj(nome),
           advogados:assigned_oab(nome)
-        `)
+        `,
+        )
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`subject.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `subject.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (statusFilter !== "all") {
@@ -181,7 +191,7 @@ export default function TicketsC7() {
             advogado_nome: ticket.advogados?.nome,
             thread_count: count || 0,
           };
-        })
+        }),
       );
 
       return ticketsWithCounts;
@@ -192,7 +202,10 @@ export default function TicketsC7() {
   const createTicketMutation = useMutation({
     mutationFn: async (form: TicketForm) => {
       // Calculate SLA times using utility function
-      const { frtDue, ttrDue } = calculateSLADueDates(new Date(), form.priority);
+      const { frtDue, ttrDue } = calculateSLADueDates(
+        new Date(),
+        form.priority,
+      );
 
       const { data, error } = await lf
         .from("tickets")
@@ -448,7 +461,9 @@ export default function TicketsC7() {
                           </Badge>
                           <Badge className={PRIORITY_COLORS[ticket.priority]}>
                             {getPriorityIcon(ticket.priority)}
-                            <span className="ml-1 capitalize">{ticket.priority}</span>
+                            <span className="ml-1 capitalize">
+                              {ticket.priority}
+                            </span>
                           </Badge>
                         </div>
 
@@ -505,7 +520,7 @@ export default function TicketsC7() {
                                 e.stopPropagation();
                                 updateStatusMutation.mutate({
                                   id: ticket.id,
-                                  status: "em_andamento"
+                                  status: "em_andamento",
                                 });
                               }}
                             >
@@ -517,7 +532,7 @@ export default function TicketsC7() {
                                 e.stopPropagation();
                                 updateStatusMutation.mutate({
                                   id: ticket.id,
-                                  status: "resolvido"
+                                  status: "resolvido",
                                 });
                               }}
                             >
@@ -529,7 +544,7 @@ export default function TicketsC7() {
                                 e.stopPropagation();
                                 updateStatusMutation.mutate({
                                   id: ticket.id,
-                                  status: "fechado"
+                                  status: "fechado",
                                 });
                               }}
                             >
@@ -554,7 +569,9 @@ export default function TicketsC7() {
                 Nenhum ticket encontrado
               </h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm || statusFilter !== "all" || priorityFilter !== "all"
+                {searchTerm ||
+                statusFilter !== "all" ||
+                priorityFilter !== "all"
                   ? "Tente ajustar os filtros de busca"
                   : "Crie o primeiro ticket de atendimento"}
               </p>
@@ -636,7 +653,10 @@ export default function TicketsC7() {
                   id="cliente_cpfcnpj"
                   value={ticketForm.cliente_cpfcnpj}
                   onChange={(e) =>
-                    setTicketForm({ ...ticketForm, cliente_cpfcnpj: e.target.value })
+                    setTicketForm({
+                      ...ticketForm,
+                      cliente_cpfcnpj: e.target.value,
+                    })
                   }
                   placeholder="000.000.000-00"
                 />
@@ -669,10 +689,7 @@ export default function TicketsC7() {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-              >
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                 Cancelar
               </Button>
               <Button

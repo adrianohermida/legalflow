@@ -137,7 +137,7 @@ export function GlobalSearchPalette({
         setIsSearching(false);
       }
     }, 300),
-    []
+    [],
   );
 
   // Trigger search when term or category changes
@@ -146,7 +146,10 @@ export function GlobalSearchPalette({
   }, [searchTerm, selectedCategory, debouncedSearch]);
 
   // Perform search based on category and bindings
-  const performSearch = async (term: string, category: string): Promise<SearchResult[]> => {
+  const performSearch = async (
+    term: string,
+    category: string,
+  ): Promise<SearchResult[]> => {
     const searchResults: SearchResult[] = [];
 
     try {
@@ -155,7 +158,9 @@ export function GlobalSearchPalette({
           // Search processos by numero_cnj
           const { data: processos, error: processosError } = await supabase
             .from("processos")
-            .select("numero_cnj, titulo_polo_ativo, titulo_polo_passivo, tribunal_sigla, created_at")
+            .select(
+              "numero_cnj, titulo_polo_ativo, titulo_polo_passivo, tribunal_sigla, created_at",
+            )
             .or(`numero_cnj.ilike.%${term}%`)
             .limit(10);
 
@@ -193,7 +198,9 @@ export function GlobalSearchPalette({
                 type: "cliente",
                 title: cliente.nome || "Cliente sem nome",
                 subtitle: cliente.cpfcnpj,
-                description: cliente.whatsapp ? `WhatsApp: ${cliente.whatsapp}` : undefined,
+                description: cliente.whatsapp
+                  ? `WhatsApp: ${cliente.whatsapp}`
+                  : undefined,
                 href: `/clientes?search=${encodeURIComponent(cliente.cpfcnpj)}`,
                 icon: Users,
                 metadata: {
@@ -217,16 +224,18 @@ export function GlobalSearchPalette({
 
           if (!publicacoesError && publicacoes) {
             publicacoes.forEach((publicacao) => {
-              const dataPublicacao = publicacao.data_publicacao 
+              const dataPublicacao = publicacao.data_publicacao
                 ? new Date(publicacao.data_publicacao).toLocaleDateString()
                 : "Data não informada";
-              
+
               searchResults.push({
                 id: `publicacao-${publicacao.id}`,
                 type: "publicacao",
                 title: `Publicação - ${publicacao.numero_cnj || "CNJ não informado"}`,
                 subtitle: `Publicado em ${dataPublicacao}`,
-                description: publicacao.numero_cnj ? `Processo: ${publicacao.numero_cnj}` : undefined,
+                description: publicacao.numero_cnj
+                  ? `Processo: ${publicacao.numero_cnj}`
+                  : undefined,
                 href: `/inbox-v2?search=${encodeURIComponent(term)}`,
                 icon: Inbox,
                 metadata: {
@@ -241,25 +250,28 @@ export function GlobalSearchPalette({
 
         case "movimentacoes":
           // Search movimentacoes
-          const { data: movimentacoes, error: movimentacoesError } = await supabase
-            .from("movimentacoes")
-            .select("id, numero_cnj, data_movimentacao, created_at")
-            .or(`numero_cnj.ilike.%${term}%`)
-            .order("data_movimentacao", { ascending: false })
-            .limit(10);
+          const { data: movimentacoes, error: movimentacoesError } =
+            await supabase
+              .from("movimentacoes")
+              .select("id, numero_cnj, data_movimentacao, created_at")
+              .or(`numero_cnj.ilike.%${term}%`)
+              .order("data_movimentacao", { ascending: false })
+              .limit(10);
 
           if (!movimentacoesError && movimentacoes) {
             movimentacoes.forEach((movimentacao) => {
               const dataMovimentacao = movimentacao.data_movimentacao
                 ? new Date(movimentacao.data_movimentacao).toLocaleDateString()
                 : "Data não informada";
-              
+
               searchResults.push({
                 id: `movimentacao-${movimentacao.id}`,
                 type: "movimentacao",
                 title: `Movimentação - ${movimentacao.numero_cnj || "CNJ não informado"}`,
                 subtitle: `Movimentação em ${dataMovimentacao}`,
-                description: movimentacao.numero_cnj ? `Processo: ${movimentacao.numero_cnj}` : undefined,
+                description: movimentacao.numero_cnj
+                  ? `Processo: ${movimentacao.numero_cnj}`
+                  : undefined,
                 href: `/processos-v2/${encodeURIComponent(movimentacao.numero_cnj || "")}`,
                 icon: Activity,
                 metadata: {
@@ -302,7 +314,9 @@ export function GlobalSearchPalette({
         break;
       case "Tab":
         e.preventDefault();
-        const currentIndex = searchCategories.findIndex(cat => cat.key === selectedCategory);
+        const currentIndex = searchCategories.findIndex(
+          (cat) => cat.key === selectedCategory,
+        );
         const nextIndex = (currentIndex + 1) % searchCategories.length;
         setSelectedCategory(searchCategories[nextIndex].key);
         break;
@@ -316,7 +330,9 @@ export function GlobalSearchPalette({
   };
 
   // Get current category info
-  const currentCategory = searchCategories.find(cat => cat.key === selectedCategory);
+  const currentCategory = searchCategories.find(
+    (cat) => cat.key === selectedCategory,
+  );
 
   if (!isOpen) return null;
 
@@ -334,12 +350,7 @@ export function GlobalSearchPalette({
             placeholder={currentCategory?.placeholder || "Buscar..."}
             className="flex-1 border-0 focus:ring-0 text-lg"
           />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="ml-2"
-          >
+          <Button variant="ghost" size="sm" onClick={onClose} className="ml-2">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -349,7 +360,7 @@ export function GlobalSearchPalette({
           {searchCategories.map((category) => {
             const Icon = category.icon;
             const isActive = category.key === selectedCategory;
-            
+
             return (
               <button
                 key={category.key}
@@ -358,7 +369,7 @@ export function GlobalSearchPalette({
                   "flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors",
                   isActive
                     ? "border-b-2 border-brand-700 text-brand-700 bg-brand-50"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
                 )}
               >
                 <Icon className="w-4 h-4 mr-2" />
@@ -380,7 +391,7 @@ export function GlobalSearchPalette({
               {results.map((result, index) => {
                 const Icon = result.icon;
                 const isSelected = index === selectedIndex;
-                
+
                 return (
                   <div
                     key={result.id}
@@ -389,7 +400,7 @@ export function GlobalSearchPalette({
                       "flex items-center px-4 py-3 cursor-pointer transition-colors",
                       isSelected
                         ? "bg-brand-50 border-r-2 border-brand-700"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-gray-50",
                     )}
                   >
                     <Icon className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
@@ -445,7 +456,7 @@ export function GlobalSearchPalette({
 // Debounce utility
 function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
   return (...args: Parameters<T>) => {

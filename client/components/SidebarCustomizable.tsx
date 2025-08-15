@@ -13,7 +13,14 @@ import { Link, useLocation } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { useToast } from "../hooks/use-toast";
 import {
   LayoutDashboard,
@@ -234,14 +241,14 @@ const defaultClienteItems: SidebarItem[] = [
   },
 ];
 
-export function SidebarCustomizable({ 
-  userType, 
-  isCustomizing = false, 
-  onItemsChange 
+export function SidebarCustomizable({
+  userType,
+  isCustomizing = false,
+  onItemsChange,
 }: SidebarCustomizableProps) {
   const location = useLocation();
   const { toast } = useToast();
-  
+
   const [items, setItems] = useState<SidebarItem[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -251,17 +258,21 @@ export function SidebarCustomizable({
   useEffect(() => {
     const storageKey = `sidebar-layout-${userType}`;
     const savedLayout = localStorage.getItem(storageKey);
-    
+
     if (savedLayout) {
       try {
         const parsed = JSON.parse(savedLayout);
         setItems(parsed);
       } catch (error) {
         console.error("Erro ao carregar layout do sidebar:", error);
-        setItems(userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems);
+        setItems(
+          userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems,
+        );
       }
     } else {
-      setItems(userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems);
+      setItems(
+        userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems,
+      );
     }
   }, [userType]);
 
@@ -282,7 +293,7 @@ export function SidebarCustomizable({
   const saveLayout = () => {
     const storageKey = `sidebar-layout-${userType}`;
     localStorage.setItem(storageKey, JSON.stringify(items));
-    
+
     toast({
       title: "Layout salvo",
       description: "Suas preferências de menu foram salvas",
@@ -290,7 +301,8 @@ export function SidebarCustomizable({
   };
 
   const resetToDefault = () => {
-    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+    const defaultItems =
+      userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
     setItems(defaultItems);
     setHasChanges(true);
   };
@@ -309,10 +321,10 @@ export function SidebarCustomizable({
   const toggleItemVisibility = (itemId: string) => {
     if (!isCustomizing) return;
 
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? { ...item, isVisible: !item.isVisible } : item
-      )
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === itemId ? { ...item, isVisible: !item.isVisible } : item,
+      ),
     );
     setHasChanges(true);
   };
@@ -364,7 +376,9 @@ export function SidebarCustomizable({
                 <span className="text-xs text-gray-400">Logo Cliente</span>
               </div>
               <div className="text-sm text-gray-600">CRM Jurídico</div>
-              <div className="text-xs text-gray-500 capitalize mt-1">{userType}</div>
+              <div className="text-xs text-gray-500 capitalize mt-1">
+                {userType}
+              </div>
             </div>
           </Link>
         </div>
@@ -379,13 +393,21 @@ export function SidebarCustomizable({
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="sidebar-items">
                 {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-1">
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-1"
+                  >
                     {items.map((item, index) => {
                       const Icon = item.icon;
                       const active = isActive(item.href);
 
                       return (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                        <Draggable
+                          key={item.id}
+                          draggableId={item.id}
+                          index={index}
+                        >
                           {(provided, snapshot) => (
                             <div
                               ref={provided.innerRef}
@@ -397,21 +419,27 @@ export function SidebarCustomizable({
                                     ? "text-white shadow-sm"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                   : "text-gray-400 bg-gray-50",
-                                snapshot.isDragging && "shadow-lg ring-2 ring-gray-700 ring-opacity-50"
+                                snapshot.isDragging &&
+                                  "shadow-lg ring-2 ring-gray-700 ring-opacity-50",
                               )}
                               style={
-                                item.isVisible && active 
-                                  ? { backgroundColor: "var(--gray-700)" } 
+                                item.isVisible && active
+                                  ? { backgroundColor: "var(--gray-700)" }
                                   : {}
                               }
                             >
-                              <div {...provided.dragHandleProps} className="mr-2">
+                              <div
+                                {...provided.dragHandleProps}
+                                className="mr-2"
+                              >
                                 <GripVertical className="w-4 h-4 text-gray-400" />
                               </div>
-                              
+
                               <Icon className="flex-shrink-0 w-5 h-5 mr-3" />
-                              
-                              <span className="truncate flex-1">{item.title}</span>
+
+                              <span className="truncate flex-1">
+                                {item.title}
+                              </span>
 
                               {/* Toggle visibilidade */}
                               <Button
@@ -420,7 +448,11 @@ export function SidebarCustomizable({
                                 onClick={() => toggleItemVisibility(item.id)}
                                 disabled={item.isDefault}
                                 className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
-                                title={item.isVisible ? "Ocultar do menu" : "Mostrar no menu"}
+                                title={
+                                  item.isVisible
+                                    ? "Ocultar do menu"
+                                    : "Mostrar no menu"
+                                }
                               >
                                 {item.isVisible ? (
                                   <Eye className="w-3 h-3" />
@@ -441,31 +473,31 @@ export function SidebarCustomizable({
           ) : (
             // Modo normal (sem customização)
             <div className="space-y-1">
-              {items.filter(item => item.isVisible).map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.href);
+              {items
+                .filter((item) => item.isVisible)
+                .map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
 
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.href}
-                    className={cn(
-                      "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-out",
-                      active
-                        ? "text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    )}
-                    style={
-                      active 
-                        ? { backgroundColor: "var(--gray-700)" } 
-                        : {}
-                    }
-                  >
-                    <Icon className="flex-shrink-0 w-5 h-5 mr-3" />
-                    <span className="truncate">{item.title}</span>
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.href}
+                      className={cn(
+                        "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-out",
+                        active
+                          ? "text-white shadow-sm"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                      )}
+                      style={
+                        active ? { backgroundColor: "var(--gray-700)" } : {}
+                      }
+                    >
+                      <Icon className="flex-shrink-0 w-5 h-5 mr-3" />
+                      <span className="truncate">{item.title}</span>
+                    </Link>
+                  );
+                })}
             </div>
           )}
         </nav>
@@ -480,9 +512,7 @@ export function SidebarCustomizable({
               <div className="text-sm font-medium text-gray-900 truncate">
                 {userType === "advogado" ? "Advogado" : "Cliente"}
               </div>
-              <div className="text-xs text-gray-500">
-                Sistema Jurídico
-              </div>
+              <div className="text-xs text-gray-500">Sistema Jurídico</div>
             </div>
           </div>
         </div>
@@ -494,7 +524,8 @@ export function SidebarCustomizable({
           <DialogHeader>
             <DialogTitle>Confirmar alterações</DialogTitle>
             <DialogDescription>
-              Você fez alterações no layout do menu. Deseja salvar essas mudanças?
+              Você fez alterações no layout do menu. Deseja salvar essas
+              mudanças?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -504,7 +535,10 @@ export function SidebarCustomizable({
             >
               Cancelar
             </Button>
-            <Button onClick={confirmSave} style={{ backgroundColor: "var(--gray-700)", color: "white" }}>
+            <Button
+              onClick={confirmSave}
+              style={{ backgroundColor: "var(--gray-700)", color: "white" }}
+            >
               Salvar mudanças
             </Button>
           </DialogFooter>

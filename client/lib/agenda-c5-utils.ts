@@ -9,9 +9,22 @@ export interface EventoAgendaC5 {
   id: string;
   title: string;
   description?: string;
-  event_type: "reuniao" | "audiencia" | "prazo" | "entrega" | "compromisso" | "videoconferencia" | "outros";
+  event_type:
+    | "reuniao"
+    | "audiencia"
+    | "prazo"
+    | "entrega"
+    | "compromisso"
+    | "videoconferencia"
+    | "outros";
   priority: "baixa" | "normal" | "alta" | "urgente";
-  status: "agendado" | "confirmado" | "em_andamento" | "realizado" | "cancelado" | "reagendado";
+  status:
+    | "agendado"
+    | "confirmado"
+    | "em_andamento"
+    | "realizado"
+    | "cancelado"
+    | "reagendado";
   starts_at: string;
   ends_at: string | null;
   location: string | null;
@@ -52,7 +65,9 @@ export const formatToSaoPauloTime = (date: Date): string => {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date).replace(" ", "T");
+  })
+    .format(date)
+    .replace(" ", "T");
 };
 
 /**
@@ -108,21 +123,21 @@ export const getSaoPauloNow = (): Date => {
 export const isToday = (dateString: string): boolean => {
   const date = new Date(dateString);
   const today = getSaoPauloNow();
-  
+
   const dateStr = new Intl.DateTimeFormat("sv-SE", {
     timeZone: SP_TIMEZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(date);
-  
+
   const todayStr = new Intl.DateTimeFormat("sv-SE", {
     timeZone: SP_TIMEZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(today);
-  
+
   return dateStr === todayStr;
 };
 
@@ -141,15 +156,15 @@ export const isPast = (dateString: string): boolean => {
 export const getWeekRange = (date: Date): { start: Date; end: Date } => {
   const start = new Date(date);
   const end = new Date(date);
-  
+
   // Sunday to Saturday
   const dayOfWeek = start.getDay();
   start.setDate(start.getDate() - dayOfWeek);
   end.setDate(start.getDate() + 6);
-  
+
   start.setHours(0, 0, 0, 0);
   end.setHours(23, 59, 59, 999);
-  
+
   return { start, end };
 };
 
@@ -159,10 +174,10 @@ export const getWeekRange = (date: Date): { start: Date; end: Date } => {
 export const getMonthRange = (date: Date): { start: Date; end: Date } => {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
   const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  
+
   start.setHours(0, 0, 0, 0);
   end.setHours(23, 59, 59, 999);
-  
+
   return { start, end };
 };
 
@@ -264,7 +279,7 @@ export const validateVideoLink = (link: string): boolean => {
  */
 export const detectVideoPlatform = (link: string): string => {
   if (!link) return "link";
-  
+
   const url = link.toLowerCase();
   if (url.includes("meet.google.com")) return "Google Meet";
   if (url.includes("zoom.us")) return "Zoom";
@@ -280,25 +295,29 @@ export const generateCalendarGrid = (year: number, month: number): Date[] => {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const startDate = new Date(firstDay);
-  
+
   // Start from Sunday of the week containing the first day
   startDate.setDate(startDate.getDate() - firstDay.getDay());
-  
+
   const days: Date[] = [];
-  for (let i = 0; i < 42; i++) { // 6 weeks * 7 days
+  for (let i = 0; i < 42; i++) {
+    // 6 weeks * 7 days
     const day = new Date(startDate);
     day.setDate(startDate.getDate() + i);
     days.push(day);
   }
-  
+
   return days;
 };
 
 /**
  * Get events for a specific day
  */
-export const getEventsForDay = (events: EventoAgendaC5[], day: Date): EventoAgendaC5[] => {
-  return events.filter(evento => {
+export const getEventsForDay = (
+  events: EventoAgendaC5[],
+  day: Date,
+): EventoAgendaC5[] => {
+  return events.filter((evento) => {
     const eventoDate = new Date(evento.starts_at);
     return eventoDate.toDateString() === day.toDateString();
   });
@@ -307,8 +326,12 @@ export const getEventsForDay = (events: EventoAgendaC5[], day: Date): EventoAgen
 /**
  * Sort events by start time
  */
-export const sortEventsByTime = (events: EventoAgendaC5[]): EventoAgendaC5[] => {
-  return events.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
+export const sortEventsByTime = (
+  events: EventoAgendaC5[],
+): EventoAgendaC5[] => {
+  return events.sort(
+    (a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime(),
+  );
 };
 
 /**
@@ -316,37 +339,49 @@ export const sortEventsByTime = (events: EventoAgendaC5[]): EventoAgendaC5[] => 
  */
 export const checkEventConflicts = (
   newEvent: { starts_at: string; ends_at?: string },
-  existingEvents: EventoAgendaC5[]
+  existingEvents: EventoAgendaC5[],
 ): EventoAgendaC5[] => {
   const newStart = new Date(newEvent.starts_at);
-  const newEnd = newEvent.ends_at ? new Date(newEvent.ends_at) : new Date(newStart.getTime() + 60 * 60 * 1000); // 1 hour default
-  
-  return existingEvents.filter(evento => {
+  const newEnd = newEvent.ends_at
+    ? new Date(newEvent.ends_at)
+    : new Date(newStart.getTime() + 60 * 60 * 1000); // 1 hour default
+
+  return existingEvents.filter((evento) => {
     const eventoStart = new Date(evento.starts_at);
-    const eventoEnd = evento.ends_at ? new Date(evento.ends_at) : new Date(eventoStart.getTime() + 60 * 60 * 1000);
-    
+    const eventoEnd = evento.ends_at
+      ? new Date(evento.ends_at)
+      : new Date(eventoStart.getTime() + 60 * 60 * 1000);
+
     // Check for overlap
-    return (newStart < eventoEnd && newEnd > eventoStart);
+    return newStart < eventoEnd && newEnd > eventoStart;
   });
 };
 
 /**
  * Calculate event duration in minutes
  */
-export const getEventDuration = (starts_at: string, ends_at?: string): number => {
+export const getEventDuration = (
+  starts_at: string,
+  ends_at?: string,
+): number => {
   const start = new Date(starts_at);
-  const end = ends_at ? new Date(ends_at) : new Date(start.getTime() + 60 * 60 * 1000);
+  const end = ends_at
+    ? new Date(ends_at)
+    : new Date(start.getTime() + 60 * 60 * 1000);
   return Math.round((end.getTime() - start.getTime()) / (1000 * 60));
 };
 
 /**
  * Format event duration for display
  */
-export const formatEventDuration = (starts_at: string, ends_at?: string): string => {
+export const formatEventDuration = (
+  starts_at: string,
+  ends_at?: string,
+): string => {
   const duration = getEventDuration(starts_at, ends_at);
   const hours = Math.floor(duration / 60);
   const minutes = duration % 60;
-  
+
   if (hours === 0) {
     return `${minutes}min`;
   } else if (minutes === 0) {
@@ -359,10 +394,12 @@ export const formatEventDuration = (starts_at: string, ends_at?: string): string
 /**
  * Get upcoming events (next 7 days)
  */
-export const getUpcomingEvents = async (limit: number = 10): Promise<EventoAgendaC5[]> => {
+export const getUpcomingEvents = async (
+  limit: number = 10,
+): Promise<EventoAgendaC5[]> => {
   const now = getSaoPauloNow();
   const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  
+
   const { data, error } = await lf
     .from("eventos_agenda")
     .select("*")
@@ -370,7 +407,7 @@ export const getUpcomingEvents = async (limit: number = 10): Promise<EventoAgend
     .lte("starts_at", oneWeekFromNow.toISOString())
     .order("starts_at", { ascending: true })
     .limit(limit);
-  
+
   if (error) throw error;
   return data as EventoAgendaC5[];
 };
@@ -381,7 +418,7 @@ export const getUpcomingEvents = async (limit: number = 10): Promise<EventoAgend
 export const createQuickEvent = async (
   title: string,
   starts_at: string,
-  options: Partial<EventoFormData> = {}
+  options: Partial<EventoFormData> = {},
 ): Promise<EventoAgendaC5> => {
   const eventData = {
     title,
@@ -396,13 +433,13 @@ export const createQuickEvent = async (
     numero_cnj: options.numero_cnj || null,
     cliente_cpfcnpj: options.cliente_cpfcnpj || null,
   };
-  
+
   const { data, error } = await lf
     .from("eventos_agenda")
     .insert([eventData])
     .select()
     .single();
-  
+
   if (error) throw error;
   return data as EventoAgendaC5;
 };
@@ -412,18 +449,24 @@ export const createQuickEvent = async (
  */
 export const updateEventStatus = async (
   eventId: string,
-  status: "agendado" | "confirmado" | "em_andamento" | "realizado" | "cancelado" | "reagendado"
+  status:
+    | "agendado"
+    | "confirmado"
+    | "em_andamento"
+    | "realizado"
+    | "cancelado"
+    | "reagendado",
 ): Promise<EventoAgendaC5> => {
   const { data, error } = await lf
     .from("eventos_agenda")
-    .update({ 
+    .update({
       status,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq("id", eventId)
     .select()
     .single();
-  
+
   if (error) throw error;
   return data as EventoAgendaC5;
 };
@@ -431,13 +474,15 @@ export const updateEventStatus = async (
 /**
  * Get events by CNJ
  */
-export const getEventsByCNJ = async (numero_cnj: string): Promise<EventoAgendaC5[]> => {
+export const getEventsByCNJ = async (
+  numero_cnj: string,
+): Promise<EventoAgendaC5[]> => {
   const { data, error } = await lf
     .from("eventos_agenda")
     .select("*")
     .eq("numero_cnj", numero_cnj)
     .order("starts_at", { ascending: true });
-  
+
   if (error) throw error;
   return data as EventoAgendaC5[];
 };
@@ -445,13 +490,15 @@ export const getEventsByCNJ = async (numero_cnj: string): Promise<EventoAgendaC5
 /**
  * Get events by client
  */
-export const getEventsByClient = async (cliente_cpfcnpj: string): Promise<EventoAgendaC5[]> => {
+export const getEventsByClient = async (
+  cliente_cpfcnpj: string,
+): Promise<EventoAgendaC5[]> => {
   const { data, error } = await lf
     .from("eventos_agenda")
     .select("*")
     .eq("cliente_cpfcnpj", cliente_cpfcnpj)
     .order("starts_at", { ascending: true });
-  
+
   if (error) throw error;
   return data as EventoAgendaC5[];
 };
@@ -461,13 +508,15 @@ export const getEventsByClient = async (cliente_cpfcnpj: string): Promise<Evento
  */
 export const generateICSEvent = (evento: EventoAgendaC5): string => {
   const formatICSDate = (date: string): string => {
-    return new Date(date).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    return (
+      new Date(date).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"
+    );
   };
-  
+
   const escapeText = (text: string): string => {
     return text.replace(/[,;\\]/g, "\\$&").replace(/\n/g, "\\n");
   };
-  
+
   let ics = "BEGIN:VEVENT\n";
   ics += `UID:${evento.id}@advogaai.com\n`;
   ics += `DTSTART:${formatICSDate(evento.starts_at)}\n`;
@@ -484,6 +533,6 @@ export const generateICSEvent = (evento: EventoAgendaC5): string => {
   ics += `STATUS:${evento.status.toUpperCase()}\n`;
   ics += `PRIORITY:${evento.priority === "urgente" ? "1" : evento.priority === "alta" ? "3" : "5"}\n`;
   ics += "END:VEVENT\n";
-  
+
   return ics;
 };

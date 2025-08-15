@@ -1,7 +1,7 @@
 /**
  * Flow C4: Inbox Legal (Publicações & Movimentações)
  * Behavior Goal: triagem → vínculo → notificação
- * 
+ *
  * Features:
  * - Tabs: Publicações | Movimentações
  * - Columns: Data, Origem/Tribunal, Resumo, Processo (badge "não vinculado"), Ações
@@ -138,7 +138,9 @@ interface NotificationData {
 }
 
 export default function InboxLegalC4() {
-  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">("publicacoes");
+  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">(
+    "publicacoes",
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTribunal, setSelectedTribunal] = useState<string>("todos");
   const [selectedStatus, setSelectedStatus] = useState<string>("todos");
@@ -149,8 +151,11 @@ export default function InboxLegalC4() {
   const [showVincularDialog, setShowVincularDialog] = useState(false);
   const [showNotificarDialog, setShowNotificarDialog] = useState(false);
   const [showCreateStageDialog, setShowCreateStageDialog] = useState(false);
-  const [showBuscarCadastrarDialog, setShowBuscarCadastrarDialog] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<PublicacaoItem | MovimentacaoItem | null>(null);
+  const [showBuscarCadastrarDialog, setShowBuscarCadastrarDialog] =
+    useState(false);
+  const [selectedItem, setSelectedItem] = useState<
+    PublicacaoItem | MovimentacaoItem | null
+  >(null);
 
   // Form states
   const [vinculoCnj, setVinculoCnj] = useState("");
@@ -166,7 +171,13 @@ export default function InboxLegalC4() {
     isLoading: isPublicacoesLoading,
     error: publicacoesError,
   } = useQuery({
-    queryKey: ["inbox-publicacoes-c4", searchTerm, selectedTribunal, selectedStatus, currentPage],
+    queryKey: [
+      "inbox-publicacoes-c4",
+      searchTerm,
+      selectedTribunal,
+      selectedStatus,
+      currentPage,
+    ],
     queryFn: async () => {
       let query = supabase
         .from("publicacoes")
@@ -176,7 +187,7 @@ export default function InboxLegalC4() {
       // Apply filters
       if (searchTerm) {
         query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,data->>resumo.ilike.%${searchTerm}%,data->>conteudo.ilike.%${searchTerm}%`
+          `numero_cnj.ilike.%${searchTerm}%,data->>resumo.ilike.%${searchTerm}%,data->>conteudo.ilike.%${searchTerm}%`,
         );
       }
 
@@ -228,7 +239,13 @@ export default function InboxLegalC4() {
     isLoading: isMovimentacoesLoading,
     error: movimentacoesError,
   } = useQuery({
-    queryKey: ["inbox-movimentacoes-c4", searchTerm, selectedTribunal, selectedStatus, currentPage],
+    queryKey: [
+      "inbox-movimentacoes-c4",
+      searchTerm,
+      selectedTribunal,
+      selectedStatus,
+      currentPage,
+    ],
     queryFn: async () => {
       let query = supabase
         .from("movimentacoes")
@@ -238,7 +255,7 @@ export default function InboxLegalC4() {
       // Apply filters
       if (searchTerm) {
         query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,data->>texto.ilike.%${searchTerm}%,data->>conteudo.ilike.%${searchTerm}%`
+          `numero_cnj.ilike.%${searchTerm}%,data->>texto.ilike.%${searchTerm}%,data->>conteudo.ilike.%${searchTerm}%`,
         );
       }
 
@@ -299,7 +316,7 @@ export default function InboxLegalC4() {
         .not("data", "is", null);
 
       const allTribunais = new Set<string>();
-      
+
       publicacoesTribunais?.forEach((item) => {
         const tribunal = item.data?.tribunal || item.data?.orgao;
         if (tribunal) allTribunais.add(tribunal);
@@ -316,9 +333,17 @@ export default function InboxLegalC4() {
 
   // Mutation to link CNJ
   const vincularCnjMutation = useMutation({
-    mutationFn: async ({ itemId, cnj, tipo }: { itemId: number; cnj: string; tipo: "publicacao" | "movimentacao" }) => {
+    mutationFn: async ({
+      itemId,
+      cnj,
+      tipo,
+    }: {
+      itemId: number;
+      cnj: string;
+      tipo: "publicacao" | "movimentacao";
+    }) => {
       const table = tipo === "publicacao" ? "publicacoes" : "movimentacoes";
-      
+
       const { data, error } = await supabase
         .from(table)
         .update({ numero_cnj: cnj })
@@ -352,33 +377,38 @@ export default function InboxLegalC4() {
     mutationFn: async (notificationData: NotificationData) => {
       // First, get the responsible attorney for the process
       let responsavel_oab = notificationData.responsavel_oab;
-      
+
       if (notificationData.numero_cnj && !responsavel_oab) {
         const { data: processoData } = await supabase
           .from("processos")
-          .select(`
+          .select(
+            `
             advogados_processos (
               advogados (
                 oab,
                 nome
               )
             )
-          `)
+          `,
+          )
           .eq("numero_cnj", notificationData.numero_cnj)
           .single();
 
-        responsavel_oab = processoData?.advogados_processos?.[0]?.advogados?.oab;
+        responsavel_oab =
+          processoData?.advogados_processos?.[0]?.advogados?.oab;
       }
 
       // Create notification
       const { data, error } = await supabase
         .from("notifications")
-        .insert([{
-          user_id: responsavel_oab?.toString() || "admin", // fallback to admin if no responsible
-          title: `Nova ${notificationData.tipo} - ${notificationData.numero_cnj || "Sem CNJ"}`,
-          message: notificationData.mensagem,
-          read: false,
-        }])
+        .insert([
+          {
+            user_id: responsavel_oab?.toString() || "admin", // fallback to admin if no responsible
+            title: `Nova ${notificationData.tipo} - ${notificationData.numero_cnj || "Sem CNJ"}`,
+            message: notificationData.mensagem,
+            read: false,
+          },
+        ])
         .select();
 
       if (error) throw error;
@@ -449,7 +479,9 @@ export default function InboxLegalC4() {
 
   const handleNotificar = (item: PublicacaoItem | MovimentacaoItem) => {
     setSelectedItem(item);
-    setNotificacaoMensagem(`Nova ${activeTab.slice(0, -1)} disponível: ${item.resumo_extraido?.substring(0, 100)}...`);
+    setNotificacaoMensagem(
+      `Nova ${activeTab.slice(0, -1)} disponível: ${item.resumo_extraido?.substring(0, 100)}...`,
+    );
     setShowNotificarDialog(true);
   };
 
@@ -512,8 +544,10 @@ export default function InboxLegalC4() {
     buscarCadastrarMutation.mutate(buscarTermo);
   };
 
-  const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
-  const isLoading = activeTab === "publicacoes" ? isPublicacoesLoading : isMovimentacoesLoading;
+  const currentData =
+    activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+  const isLoading =
+    activeTab === "publicacoes" ? isPublicacoesLoading : isMovimentacoesLoading;
   const totalPages = Math.ceil(currentData.total / pageSize);
 
   return (
@@ -521,7 +555,10 @@ export default function InboxLegalC4() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold" style={{ color: colors.neutral[900] }}>
+          <h1
+            className="text-2xl font-heading font-semibold"
+            style={{ color: colors.neutral[900] }}
+          >
             Inbox Legal
           </h1>
           <p className="text-neutral-600 mt-1">
@@ -540,7 +577,9 @@ export default function InboxLegalC4() {
           <Button
             variant="outline"
             onClick={() => {
-              queryClient.invalidateQueries({ queryKey: [`inbox-${activeTab}-c4`] });
+              queryClient.invalidateQueries({
+                queryKey: [`inbox-${activeTab}-c4`],
+              });
               toast({ title: "Dados atualizados" });
             }}
           >
@@ -608,17 +647,29 @@ export default function InboxLegalC4() {
       {/* Main Content with Tabs */}
       <Card style={themeUtils.elevatedCardShadow}>
         <CardContent className="p-0">
-          <Tabs value={activeTab} onValueChange={(value) => {
-            setActiveTab(value as "publicacoes" | "movimentacoes");
-            setCurrentPage(1);
-          }}>
-            <div className="p-6 border-b" style={{ borderColor: colors.neutral[200] }}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => {
+              setActiveTab(value as "publicacoes" | "movimentacoes");
+              setCurrentPage(1);
+            }}
+          >
+            <div
+              className="p-6 border-b"
+              style={{ borderColor: colors.neutral[200] }}
+            >
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="publicacoes" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="publicacoes"
+                  className="flex items-center gap-2"
+                >
                   <FileText className="w-4 h-4" />
                   Publicações
                 </TabsTrigger>
-                <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="movimentacoes"
+                  className="flex items-center gap-2"
+                >
                   <Activity className="w-4 h-4" />
                   Movimentações
                 </TabsTrigger>
@@ -635,7 +686,10 @@ export default function InboxLegalC4() {
 
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.brand.primary }} />
+                    <Loader2
+                      className="w-8 h-8 animate-spin"
+                      style={{ color: colors.brand.primary }}
+                    />
                     <span className="ml-2">Carregando publicações...</span>
                   </div>
                 ) : (
@@ -661,19 +715,27 @@ export default function InboxLegalC4() {
                         </TableRow>
                       ) : (
                         currentData.data.map((item) => (
-                          <TableRow key={item.id} className="hover:bg-neutral-50">
+                          <TableRow
+                            key={item.id}
+                            className="hover:bg-neutral-50"
+                          >
                             <TableCell>
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-neutral-400" />
                                 <span className="text-sm">
-                                  {formatDate(item.data_publicacao || item.data_movimentacao)}
+                                  {formatDate(
+                                    item.data_publicacao ||
+                                      item.data_movimentacao,
+                                  )}
                                 </span>
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
                                 <Building className="w-4 h-4 text-neutral-400" />
-                                <span className="text-sm">{item.tribunal_origem}</span>
+                                <span className="text-sm">
+                                  {item.tribunal_origem}
+                                </span>
                               </div>
                             </TableCell>
                             <TableCell>
@@ -689,8 +751,8 @@ export default function InboxLegalC4() {
                                   {formatCNJ(item.numero_cnj)}
                                 </Badge>
                               ) : (
-                                <Badge 
-                                  variant="outline" 
+                                <Badge
+                                  variant="outline"
                                   className="border-orange-300 text-orange-700 bg-orange-50"
                                 >
                                   <Unlink className="w-3 h-3 mr-1" />
@@ -706,15 +768,21 @@ export default function InboxLegalC4() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleVincular(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleVincular(item)}
+                                  >
                                     <Link2 className="w-4 h-4 mr-2" />
                                     Vincular ao CNJ
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleCriarEtapa(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleCriarEtapa(item)}
+                                  >
                                     <Target className="w-4 h-4 mr-2" />
                                     Criar etapa
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleNotificar(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleNotificar(item)}
+                                  >
                                     <Bell className="w-4 h-4 mr-2" />
                                     Notificar responsável
                                   </DropdownMenuItem>
@@ -740,7 +808,10 @@ export default function InboxLegalC4() {
 
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.brand.primary }} />
+                    <Loader2
+                      className="w-8 h-8 animate-spin"
+                      style={{ color: colors.brand.primary }}
+                    />
                     <span className="ml-2">Carregando movimentações...</span>
                   </div>
                 ) : (
@@ -766,19 +837,27 @@ export default function InboxLegalC4() {
                         </TableRow>
                       ) : (
                         currentData.data.map((item) => (
-                          <TableRow key={item.id} className="hover:bg-neutral-50">
+                          <TableRow
+                            key={item.id}
+                            className="hover:bg-neutral-50"
+                          >
                             <TableCell>
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-neutral-400" />
                                 <span className="text-sm">
-                                  {formatDate(item.data_movimentacao || item.data_publicacao)}
+                                  {formatDate(
+                                    item.data_movimentacao ||
+                                      item.data_publicacao,
+                                  )}
                                 </span>
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
                                 <Building className="w-4 h-4 text-neutral-400" />
-                                <span className="text-sm">{item.tribunal_origem}</span>
+                                <span className="text-sm">
+                                  {item.tribunal_origem}
+                                </span>
                               </div>
                             </TableCell>
                             <TableCell>
@@ -794,8 +873,8 @@ export default function InboxLegalC4() {
                                   {formatCNJ(item.numero_cnj)}
                                 </Badge>
                               ) : (
-                                <Badge 
-                                  variant="outline" 
+                                <Badge
+                                  variant="outline"
                                   className="border-orange-300 text-orange-700 bg-orange-50"
                                 >
                                   <Unlink className="w-3 h-3 mr-1" />
@@ -811,15 +890,21 @@ export default function InboxLegalC4() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleVincular(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleVincular(item)}
+                                  >
                                     <Link2 className="w-4 h-4 mr-2" />
                                     Vincular ao CNJ
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleCriarEtapa(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleCriarEtapa(item)}
+                                  >
                                     <Target className="w-4 h-4 mr-2" />
                                     Criar etapa
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleNotificar(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleNotificar(item)}
+                                  >
                                     <Bell className="w-4 h-4 mr-2" />
                                     Notificar responsável
                                   </DropdownMenuItem>
@@ -930,9 +1015,7 @@ export default function InboxLegalC4() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Mensagem
-              </label>
+              <label className="block text-sm font-medium mb-2">Mensagem</label>
               <Textarea
                 value={notificacaoMensagem}
                 onChange={(e) => setNotificacaoMensagem(e.target.value)}
@@ -968,7 +1051,10 @@ export default function InboxLegalC4() {
       </Dialog>
 
       {/* Buscar e Cadastrar Dialog */}
-      <Dialog open={showBuscarCadastrarDialog} onOpenChange={setShowBuscarCadastrarDialog}>
+      <Dialog
+        open={showBuscarCadastrarDialog}
+        onOpenChange={setShowBuscarCadastrarDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Buscar no Escavador/Advise e Cadastrar</DialogTitle>

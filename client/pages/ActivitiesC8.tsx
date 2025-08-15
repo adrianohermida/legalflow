@@ -66,7 +66,7 @@ import { ActivityDetailModal } from "../components/ActivityDetailModal";
 import {
   getDueDateStatus,
   sortActivitiesByPriority,
-  calculateActivityStats
+  calculateActivityStats,
 } from "../lib/activity-utils";
 
 interface Activity {
@@ -158,7 +158,9 @@ export default function ActivitiesC8() {
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null,
+  );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const [activityForm, setActivityForm] = useState<ActivityForm>({
@@ -173,19 +175,29 @@ export default function ActivitiesC8() {
 
   // Queries
   const { data: activities = [], isLoading } = useQuery({
-    queryKey: ["activities", searchTerm, statusFilter, priorityFilter, assigneeFilter],
+    queryKey: [
+      "activities",
+      searchTerm,
+      statusFilter,
+      priorityFilter,
+      assigneeFilter,
+    ],
     queryFn: async () => {
       let query = lf
         .from("activities")
-        .select(`
+        .select(
+          `
           *,
           clientes:cliente_cpfcnpj(nome),
           advogados:assigned_oab(nome)
-        `)
+        `,
+        )
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `title.ilike.%${searchTerm}%,cliente_cpfcnpj.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       if (statusFilter !== "all") {
@@ -217,7 +229,7 @@ export default function ActivitiesC8() {
             advogado_nome: activity.advogados?.nome,
             comment_count: count || 0,
           };
-        })
+        }),
       );
 
       return activitiesWithCounts;
@@ -308,10 +320,7 @@ export default function ActivitiesC8() {
 
   const deleteActivityMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await lf
-        .from("activities")
-        .delete()
-        .eq("id", id);
+      const { error } = await lf.from("activities").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -343,11 +352,17 @@ export default function ActivitiesC8() {
   };
 
   const getStatusColor = (status: string) => {
-    return STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.color || "bg-gray-100 text-gray-800";
+    return (
+      STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.color ||
+      "bg-gray-100 text-gray-800"
+    );
   };
 
   const getPriorityColor = (priority: string) => {
-    return PRIORITY_CONFIG[priority as keyof typeof PRIORITY_CONFIG]?.color || "bg-gray-100 text-gray-800";
+    return (
+      PRIORITY_CONFIG[priority as keyof typeof PRIORITY_CONFIG]?.color ||
+      "bg-gray-100 text-gray-800"
+    );
   };
 
   const isOverdue = (dueDate?: string) => {
@@ -360,18 +375,27 @@ export default function ActivitiesC8() {
   };
 
   // Group activities by status for kanban view
-  const groupedActivities = activities.reduce((acc, activity) => {
-    if (!acc[activity.status]) {
-      acc[activity.status] = [];
-    }
-    acc[activity.status].push(activity);
-    return acc;
-  }, {} as Record<string, Activity[]>);
+  const groupedActivities = activities.reduce(
+    (acc, activity) => {
+      if (!acc[activity.status]) {
+        acc[activity.status] = [];
+      }
+      acc[activity.status].push(activity);
+      return acc;
+    },
+    {} as Record<string, Activity[]>,
+  );
 
-  const filteredActivities = activities.filter(activity => {
-    if (statusFilter !== "all" && activity.status !== statusFilter) return false;
-    if (priorityFilter !== "all" && activity.priority !== priorityFilter) return false;
-    if (assigneeFilter !== "all" && activity.assigned_oab?.toString() !== assigneeFilter) return false;
+  const filteredActivities = activities.filter((activity) => {
+    if (statusFilter !== "all" && activity.status !== statusFilter)
+      return false;
+    if (priorityFilter !== "all" && activity.priority !== priorityFilter)
+      return false;
+    if (
+      assigneeFilter !== "all" &&
+      activity.assigned_oab?.toString() !== assigneeFilter
+    )
+      return false;
     return true;
   });
 
@@ -487,7 +511,10 @@ export default function ActivitiesC8() {
             ) : filteredActivities.length > 0 ? (
               <div className="space-y-4">
                 {filteredActivities.map((activity) => {
-                  const dueStatus = getDueStatus(activity.due_at, activity.status);
+                  const dueStatus = getDueStatus(
+                    activity.due_at,
+                    activity.status,
+                  );
                   const statusConfig = STATUS_CONFIG[activity.status];
                   const priorityConfig = PRIORITY_CONFIG[activity.priority];
 
@@ -507,7 +534,9 @@ export default function ActivitiesC8() {
                             </Badge>
                             <Badge className={priorityConfig.color}>
                               {priorityConfig.icon}
-                              <span className="ml-1">{priorityConfig.label}</span>
+                              <span className="ml-1">
+                                {priorityConfig.label}
+                              </span>
                             </Badge>
                             {dueStatus && (
                               <Badge variant="destructive">
@@ -548,7 +577,9 @@ export default function ActivitiesC8() {
                           </div>
 
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                            <span>Criado em {formatDate(activity.created_at)}</span>
+                            <span>
+                              Criado em {formatDate(activity.created_at)}
+                            </span>
                           </div>
                         </div>
 
@@ -561,7 +592,7 @@ export default function ActivitiesC8() {
                                 e.stopPropagation();
                                 updateStatusMutation.mutate({
                                   id: activity.id,
-                                  status: "done"
+                                  status: "done",
                                 });
                               }}
                             >
@@ -580,7 +611,7 @@ export default function ActivitiesC8() {
                                   e.stopPropagation();
                                   updateStatusMutation.mutate({
                                     id: activity.id,
-                                    status: "in_progress"
+                                    status: "in_progress",
                                   });
                                 }}
                               >
@@ -592,7 +623,7 @@ export default function ActivitiesC8() {
                                   e.stopPropagation();
                                   updateStatusMutation.mutate({
                                     id: activity.id,
-                                    status: "blocked"
+                                    status: "blocked",
                                   });
                                 }}
                               >
@@ -626,7 +657,9 @@ export default function ActivitiesC8() {
                   Nenhuma atividade encontrada
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  {searchTerm || statusFilter !== "all" || priorityFilter !== "all"
+                  {searchTerm ||
+                  statusFilter !== "all" ||
+                  priorityFilter !== "all"
                     ? "Tente ajustar os filtros de busca"
                     : "Crie a primeira atividade"}
                 </p>
@@ -654,7 +687,10 @@ export default function ActivitiesC8() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {(groupedActivities[status] || []).map((activity) => {
-                  const dueStatus = getDueStatus(activity.due_at, activity.status);
+                  const dueStatus = getDueStatus(
+                    activity.due_at,
+                    activity.status,
+                  );
                   const priorityConfig = PRIORITY_CONFIG[activity.priority];
 
                   return (
@@ -665,13 +701,18 @@ export default function ActivitiesC8() {
                     >
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-medium text-sm overflow-hidden">
-                          {activity.title.length > 40 ? `${activity.title.substring(0, 40)}...` : activity.title}
+                          {activity.title.length > 40
+                            ? `${activity.title.substring(0, 40)}...`
+                            : activity.title}
                         </h4>
-                        <Badge className={priorityConfig.color} variant="outline">
+                        <Badge
+                          className={priorityConfig.color}
+                          variant="outline"
+                        >
                           {priorityConfig.icon}
                         </Badge>
                       </div>
-                      
+
                       {activity.due_at && (
                         <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
                           <Calendar className="h-3 w-3" />
@@ -692,7 +733,7 @@ export default function ActivitiesC8() {
                         {activity.advogado_nome && (
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            <span>{activity.advogado_nome.split(' ')[0]}</span>
+                            <span>{activity.advogado_nome.split(" ")[0]}</span>
                           </div>
                         )}
                       </div>
@@ -786,7 +827,10 @@ export default function ActivitiesC8() {
                   id="cliente_cpfcnpj"
                   value={activityForm.cliente_cpfcnpj}
                   onChange={(e) =>
-                    setActivityForm({ ...activityForm, cliente_cpfcnpj: e.target.value })
+                    setActivityForm({
+                      ...activityForm,
+                      cliente_cpfcnpj: e.target.value,
+                    })
                   }
                   placeholder="000.000.000-00"
                 />
@@ -799,7 +843,10 @@ export default function ActivitiesC8() {
                 id="numero_cnj"
                 value={activityForm.numero_cnj}
                 onChange={(e) =>
-                  setActivityForm({ ...activityForm, numero_cnj: e.target.value })
+                  setActivityForm({
+                    ...activityForm,
+                    numero_cnj: e.target.value,
+                  })
                 }
                 placeholder="0000000-00.0000.0.00.0000"
               />
@@ -811,7 +858,10 @@ export default function ActivitiesC8() {
                 id="description"
                 value={activityForm.description}
                 onChange={(e) =>
-                  setActivityForm({ ...activityForm, description: e.target.value })
+                  setActivityForm({
+                    ...activityForm,
+                    description: e.target.value,
+                  })
                 }
                 placeholder="Descreva a atividade..."
                 rows={3}
@@ -819,17 +869,16 @@ export default function ActivitiesC8() {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-              >
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                 Cancelar
               </Button>
               <Button
                 onClick={handleCreateActivity}
                 disabled={createActivityMutation.isPending}
               >
-                {createActivityMutation.isPending ? "Criando..." : "Criar Atividade"}
+                {createActivityMutation.isPending
+                  ? "Criando..."
+                  : "Criar Atividade"}
               </Button>
             </div>
           </div>

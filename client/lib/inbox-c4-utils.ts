@@ -35,21 +35,28 @@ export interface EtlSearchResult {
 /**
  * Extract resumo from publication or movement data
  */
-export const extractResumo = (data: any, tipo: "publicacao" | "movimentacao"): string => {
+export const extractResumo = (
+  data: any,
+  tipo: "publicacao" | "movimentacao",
+): string => {
   if (!data) return "Sem resumo";
-  
+
   if (tipo === "publicacao") {
-    return data.resumo || 
-           data.conteudo || 
-           data.texto ||
-           data.description ||
-           "Sem resumo disponível";
+    return (
+      data.resumo ||
+      data.conteudo ||
+      data.texto ||
+      data.description ||
+      "Sem resumo disponível"
+    );
   } else {
-    return data.texto || 
-           data.conteudo || 
-           data.movimento ||
-           data.description ||
-           "Sem resumo disponível";
+    return (
+      data.texto ||
+      data.conteudo ||
+      data.movimento ||
+      data.description ||
+      "Sem resumo disponível"
+    );
   }
 };
 
@@ -58,13 +65,15 @@ export const extractResumo = (data: any, tipo: "publicacao" | "movimentacao"): s
  */
 export const extractTribunalOrigem = (data: any): string => {
   if (!data) return "Não informado";
-  
-  return data.tribunal ||
-         data.orgao ||
-         data.orgaoJulgador ||
-         data.source ||
-         data.origem ||
-         "Não informado";
+
+  return (
+    data.tribunal ||
+    data.orgao ||
+    data.orgaoJulgador ||
+    data.source ||
+    data.origem ||
+    "Não informado"
+  );
 };
 
 /**
@@ -92,7 +101,7 @@ export const formatCNJForInput = (cnj: string): string => {
   if (clean.length === 20) {
     return clean.replace(
       /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
-      "$1-$2.$3.$4.$5.$6"
+      "$1-$2.$3.$4.$5.$6",
     );
   }
   return cnj;
@@ -101,30 +110,45 @@ export const formatCNJForInput = (cnj: string): string => {
 /**
  * Calculate priority based on content analysis
  */
-export const calculatePriority = (item: TriagemItem): "alta" | "media" | "baixa" => {
+export const calculatePriority = (
+  item: TriagemItem,
+): "alta" | "media" | "baixa" => {
   const content = item.resumo_extraido?.toLowerCase() || "";
-  
+
   // High priority keywords
   const highPriorityKeywords = [
-    "urgente", "liminar", "tutela", "medida cautelar", 
-    "citação", "intimação", "prazo", "recurso",
-    "sentença", "acórdão", "decisão"
+    "urgente",
+    "liminar",
+    "tutela",
+    "medida cautelar",
+    "citação",
+    "intimação",
+    "prazo",
+    "recurso",
+    "sentença",
+    "acórdão",
+    "decisão",
   ];
-  
-  // Medium priority keywords  
+
+  // Medium priority keywords
   const mediumPriorityKeywords = [
-    "manifestação", "petição", "juntada", "certidão",
-    "conclusão", "vista", "carga"
+    "manifestação",
+    "petição",
+    "juntada",
+    "certidão",
+    "conclusão",
+    "vista",
+    "carga",
   ];
-  
-  const hasHighPriority = highPriorityKeywords.some(keyword => 
-    content.includes(keyword)
+
+  const hasHighPriority = highPriorityKeywords.some((keyword) =>
+    content.includes(keyword),
   );
-  
-  const hasMediumPriority = mediumPriorityKeywords.some(keyword => 
-    content.includes(keyword)
+
+  const hasMediumPriority = mediumPriorityKeywords.some((keyword) =>
+    content.includes(keyword),
   );
-  
+
   if (hasHighPriority) return "alta";
   if (hasMediumPriority) return "media";
   return "baixa";
@@ -133,7 +157,9 @@ export const calculatePriority = (item: TriagemItem): "alta" | "media" | "baixa"
 /**
  * Get priority color for UI display
  */
-export const getPriorityColor = (prioridade: "alta" | "media" | "baixa"): string => {
+export const getPriorityColor = (
+  prioridade: "alta" | "media" | "baixa",
+): string => {
   switch (prioridade) {
     case "alta":
       return "text-red-600 bg-red-50 border-red-200";
@@ -154,7 +180,7 @@ export const checkProcessExists = async (cnj: string): Promise<boolean> => {
       .select("numero_cnj")
       .eq("numero_cnj", cnj)
       .single();
-    
+
     return !error && !!data;
   } catch {
     return false;
@@ -164,23 +190,27 @@ export const checkProcessExists = async (cnj: string): Promise<boolean> => {
 /**
  * Get responsible attorney for process
  */
-export const getProcessResponsible = async (cnj: string): Promise<{ oab: number; nome: string } | null> => {
+export const getProcessResponsible = async (
+  cnj: string,
+): Promise<{ oab: number; nome: string } | null> => {
   try {
     const { data, error } = await supabase
       .from("processos")
-      .select(`
+      .select(
+        `
         advogados_processos (
           advogados (
             oab,
             nome
           )
         )
-      `)
+      `,
+      )
       .eq("numero_cnj", cnj)
       .single();
-    
+
     if (error || !data?.advogados_processos?.[0]) return null;
-    
+
     return data.advogados_processos[0].advogados;
   } catch {
     return null;
@@ -194,33 +224,35 @@ export const createNotification = async (
   userId: string,
   title: string,
   message: string,
-  processoCnj?: string
+  processoCnj?: string,
 ): Promise<NotificationResult> => {
   try {
     const { data, error } = await supabase
       .from("notifications")
-      .insert([{
-        user_id: userId,
-        title,
-        message,
-        read: false,
-        created_at: new Date().toISOString(),
-      }])
+      .insert([
+        {
+          user_id: userId,
+          title,
+          message,
+          read: false,
+          created_at: new Date().toISOString(),
+        },
+      ])
       .select("id")
       .single();
-    
+
     if (error) {
       return { success: false, error: error.message };
     }
-    
-    return { 
-      success: true, 
-      notification_id: data.id 
+
+    return {
+      success: true,
+      notification_id: data.id,
     };
   } catch (error: any) {
-    return { 
-      success: false, 
-      error: error.message || "Erro ao criar notificação" 
+    return {
+      success: false,
+      error: error.message || "Erro ao criar notificação",
     };
   }
 };
@@ -230,20 +262,21 @@ export const createNotification = async (
  */
 export const bulkLinkCNJ = async (
   items: { id: number; tipo: "publicacao" | "movimentacao" }[],
-  cnj: string
+  cnj: string,
 ): Promise<{ success: number; errors: number }> => {
   let success = 0;
   let errors = 0;
-  
+
   for (const item of items) {
     try {
-      const table = item.tipo === "publicacao" ? "publicacoes" : "movimentacoes";
-      
+      const table =
+        item.tipo === "publicacao" ? "publicacoes" : "movimentacoes";
+
       const { error } = await supabase
         .from(table)
         .update({ numero_cnj: cnj })
         .eq("id", item.id);
-      
+
       if (error) {
         errors++;
       } else {
@@ -253,7 +286,7 @@ export const bulkLinkCNJ = async (
       errors++;
     }
   }
-  
+
   return { success, errors };
 };
 
@@ -262,16 +295,16 @@ export const bulkLinkCNJ = async (
  */
 export const searchAndImportExternal = async (
   searchTerm: string,
-  apis: ("advise" | "escavador")[] = ["advise", "escavador"]
+  apis: ("advise" | "escavador")[] = ["advise", "escavador"],
 ): Promise<EtlSearchResult> => {
   try {
     const results: EtlSearchResult = {
       success: false,
       imported: 0,
       errors: 0,
-      items: []
+      items: [],
     };
-    
+
     for (const api of apis) {
       try {
         const response = await fetch(`/api/ingest/${api}/publicacoes`, {
@@ -285,7 +318,7 @@ export const searchAndImportExternal = async (
             limit: 50,
           }),
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           results.imported += data.imported || 0;
@@ -297,7 +330,7 @@ export const searchAndImportExternal = async (
         results.errors++;
       }
     }
-    
+
     results.success = results.imported > 0 || results.errors === 0;
     return results;
   } catch (error) {
@@ -305,7 +338,7 @@ export const searchAndImportExternal = async (
       success: false,
       imported: 0,
       errors: 1,
-      items: []
+      items: [],
     };
   }
 };
@@ -313,7 +346,9 @@ export const searchAndImportExternal = async (
 /**
  * Generate workflow summary for item
  */
-export const generateWorkflowSummary = (item: TriagemItem): {
+export const generateWorkflowSummary = (
+  item: TriagemItem,
+): {
   status: "triagem" | "vinculo" | "notificacao" | "concluido";
   nextAction: string;
   canProceed: boolean;
@@ -322,30 +357,32 @@ export const generateWorkflowSummary = (item: TriagemItem): {
     return {
       status: "triagem",
       nextAction: "Vincular ao CNJ",
-      canProceed: true
+      canProceed: true,
     };
   }
-  
+
   if (item.vinculada && item.numero_cnj) {
     return {
       status: "vinculo",
       nextAction: "Notificar responsável",
-      canProceed: true
+      canProceed: true,
     };
   }
-  
+
   // This would be extended based on notification tracking
   return {
     status: "concluido",
     nextAction: "Fluxo concluído",
-    canProceed: false
+    canProceed: false,
   };
 };
 
 /**
  * Get workflow progress percentage
  */
-export const getWorkflowProgress = (items: TriagemItem[]): {
+export const getWorkflowProgress = (
+  items: TriagemItem[],
+): {
   triagem: number;
   vinculo: number;
   notificacao: number;
@@ -357,8 +394,8 @@ export const getWorkflowProgress = (items: TriagemItem[]): {
   let vinculo = 0;
   let notificacao = 0;
   let concluido = 0;
-  
-  items.forEach(item => {
+
+  items.forEach((item) => {
     const summary = generateWorkflowSummary(item);
     switch (summary.status) {
       case "triagem":
@@ -375,7 +412,7 @@ export const getWorkflowProgress = (items: TriagemItem[]): {
         break;
     }
   });
-  
+
   return { triagem, vinculo, notificacao, concluido, total };
 };
 
@@ -385,34 +422,39 @@ export const getWorkflowProgress = (items: TriagemItem[]): {
 export const autoSuggestCNJ = async (content: string): Promise<string[]> => {
   // First, try to detect CNJ patterns in content
   const detectedCNJs = detectCNJInContent(content);
-  
+
   if (detectedCNJs.length > 0) {
     return detectedCNJs;
   }
-  
+
   // If no CNJ detected, try to find similar processes by content keywords
   try {
     const keywords = content
       .toLowerCase()
       .replace(/[^\w\s]/g, "")
       .split(/\s+/)
-      .filter(word => word.length > 3)
+      .filter((word) => word.length > 3)
       .slice(0, 5); // Take first 5 meaningful words
-    
+
     if (keywords.length > 0) {
       const { data } = await supabase
         .from("processos")
         .select("numero_cnj, titulo_polo_ativo, titulo_polo_passivo")
-        .or(keywords.map(keyword => 
-          `titulo_polo_ativo.ilike.%${keyword}%,titulo_polo_passivo.ilike.%${keyword}%`
-        ).join(","))
+        .or(
+          keywords
+            .map(
+              (keyword) =>
+                `titulo_polo_ativo.ilike.%${keyword}%,titulo_polo_passivo.ilike.%${keyword}%`,
+            )
+            .join(","),
+        )
         .limit(5);
-      
-      return data?.map(processo => processo.numero_cnj) || [];
+
+      return data?.map((processo) => processo.numero_cnj) || [];
     }
   } catch {
     // Silent fail for suggestion feature
   }
-  
+
   return [];
 };

@@ -288,7 +288,10 @@ export function Processos() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold" style={{ color: colors.neutral[900] }}>
+            <h1
+              className="text-2xl font-heading font-semibold"
+              style={{ color: colors.neutral[900] }}
+            >
               Processos
             </h1>
             <p className="text-neutral-600 mt-1">
@@ -299,12 +302,18 @@ export function Processos() {
         <Card style={themeUtils.cardShadow}>
           <CardContent className="p-6">
             <div className="text-center">
-              <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: colors.semantic.error }} />
+              <AlertTriangle
+                className="w-12 h-12 mx-auto mb-4"
+                style={{ color: colors.semantic.error }}
+              />
               <h3 className="text-lg font-medium mb-2">
                 Erro ao carregar processos
               </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
-              <Button onClick={() => refetch()} style={themeUtils.primaryButton}>
+              <Button
+                onClick={() => refetch()}
+                style={themeUtils.primaryButton}
+              >
                 Tentar novamente
               </Button>
             </div>
@@ -319,7 +328,10 @@ export function Processos() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold" style={{ color: colors.neutral[900] }}>
+          <h1
+            className="text-2xl font-heading font-semibold"
+            style={{ color: colors.neutral[900] }}
+          >
             Processos
           </h1>
           <p className="text-neutral-600 mt-1">
@@ -412,7 +424,10 @@ export function Processos() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.brand.primary }} />
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: colors.brand.primary }}
+              />
               <span className="ml-2 text-neutral-600">
                 Carregando processos...
               </span>
@@ -486,7 +501,10 @@ export function Processos() {
                               `OAB ${processo.responsavel_oab}`}
                           </Badge>
                         ) : (
-                          <Badge variant="destructive" style={themeUtils.errorBadge}>
+                          <Badge
+                            variant="destructive"
+                            style={themeUtils.errorBadge}
+                          >
                             Sem responsável
                           </Badge>
                         )}
@@ -623,8 +641,8 @@ export function Processos() {
               >
                 Cancelar
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={atribuirOabMutation.isPending}
                 style={themeUtils.primaryButton}
               >

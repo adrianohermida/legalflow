@@ -166,7 +166,7 @@ export function Clientes() {
       queryClient.invalidateQueries({ queryKey: ["clientes"] });
       setIsDialogOpen(false);
       setEditingCliente(null);
-      
+
       toast({
         title: editingCliente ? "Cliente atualizado" : "Cliente criado",
         description: editingCliente
@@ -386,7 +386,7 @@ export function Clientes() {
                                 onClick={() =>
                                   window.open(
                                     `https://wa.me/55${cliente.whatsapp?.replace(/\D/g, "")}`,
-                                    "_blank"
+                                    "_blank",
                                   )
                                 }
                                 className="p-1 h-auto"

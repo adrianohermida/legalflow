@@ -1,7 +1,7 @@
 /**
  * Flow C5: Agenda
  * Behavior Goal: compromissos claros; TZ correta
- * 
+ *
  * Features:
  * - Weekly/Monthly calendar views
  * - Event creation with: Título, Início/Fim, Local/Link, CNJ, CPF/CNPJ
@@ -71,9 +71,22 @@ interface EventoAgenda {
   id: string;
   title: string;
   description?: string;
-  event_type: "reuniao" | "audiencia" | "prazo" | "entrega" | "compromisso" | "videoconferencia" | "outros";
+  event_type:
+    | "reuniao"
+    | "audiencia"
+    | "prazo"
+    | "entrega"
+    | "compromisso"
+    | "videoconferencia"
+    | "outros";
   priority: "baixa" | "normal" | "alta" | "urgente";
-  status: "agendado" | "confirmado" | "em_andamento" | "realizado" | "cancelado" | "reagendado";
+  status:
+    | "agendado"
+    | "confirmado"
+    | "em_andamento"
+    | "realizado"
+    | "cancelado"
+    | "reagendado";
   starts_at: string;
   ends_at: string | null;
   location: string | null;
@@ -104,7 +117,9 @@ export default function AgendaC5() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [editingEvento, setEditingEvento] = useState<EventoAgenda | null>(null);
-  const [selectedEvento, setSelectedEvento] = useState<EventoAgenda | null>(null);
+  const [selectedEvento, setSelectedEvento] = useState<EventoAgenda | null>(
+    null,
+  );
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -120,7 +135,9 @@ export default function AgendaC5() {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-    }).format(date).replace(" ", "T");
+    })
+      .format(date)
+      .replace(" ", "T");
   };
 
   const formatDisplayDate = (dateString: string): string => {
@@ -194,19 +211,21 @@ export default function AgendaC5() {
     mutationFn: async (eventoData: EventoFormData) => {
       const { data, error } = await lf
         .from("eventos_agenda")
-        .insert([{
-          title: eventoData.title,
-          description: eventoData.description || null,
-          event_type: eventoData.event_type as any,
-          priority: eventoData.priority as any,
-          status: "agendado",
-          starts_at: eventoData.starts_at,
-          ends_at: eventoData.ends_at || null,
-          location: eventoData.location || null,
-          video_link: eventoData.video_link || null,
-          numero_cnj: eventoData.numero_cnj || null,
-          cliente_cpfcnpj: eventoData.cliente_cpfcnpj || null,
-        }])
+        .insert([
+          {
+            title: eventoData.title,
+            description: eventoData.description || null,
+            event_type: eventoData.event_type as any,
+            priority: eventoData.priority as any,
+            status: "agendado",
+            starts_at: eventoData.starts_at,
+            ends_at: eventoData.ends_at || null,
+            location: eventoData.location || null,
+            video_link: eventoData.video_link || null,
+            numero_cnj: eventoData.numero_cnj || null,
+            cliente_cpfcnpj: eventoData.cliente_cpfcnpj || null,
+          },
+        ])
         .select();
 
       if (error) throw error;
@@ -232,7 +251,10 @@ export default function AgendaC5() {
 
   // Update event mutation
   const updateEventoMutation = useMutation({
-    mutationFn: async ({ id, ...eventoData }: EventoFormData & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...eventoData
+    }: EventoFormData & { id: string }) => {
       const { data, error } = await lf
         .from("eventos_agenda")
         .update({
@@ -268,10 +290,7 @@ export default function AgendaC5() {
   // Delete event mutation
   const deleteEventoMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await lf
-        .from("eventos_agenda")
-        .delete()
-        .eq("id", id);
+      const { error } = await lf.from("eventos_agenda").delete().eq("id", id);
 
       if (error) throw error;
     },
@@ -312,13 +331,13 @@ export default function AgendaC5() {
 
   const navigateDate = (direction: "prev" | "next") => {
     const newDate = new Date(currentDate);
-    
+
     if (viewMode === "week") {
       newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
     } else {
       newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
     }
-    
+
     setCurrentDate(newDate);
   };
 
@@ -380,15 +399,21 @@ export default function AgendaC5() {
     return (
       <div className="grid grid-cols-7 gap-1">
         {/* Headers */}
-        {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dayName, index) => (
-          <div key={dayName} className="p-2 text-center font-medium text-sm" style={{ color: colors.neutral[600] }}>
-            {dayName}
-          </div>
-        ))}
-        
+        {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(
+          (dayName, index) => (
+            <div
+              key={dayName}
+              className="p-2 text-center font-medium text-sm"
+              style={{ color: colors.neutral[600] }}
+            >
+              {dayName}
+            </div>
+          ),
+        )}
+
         {/* Day cells */}
         {days.map((day, index) => {
-          const dayEvents = eventos.filter(evento => {
+          const dayEvents = eventos.filter((evento) => {
             const eventoDate = new Date(evento.starts_at);
             return eventoDate.toDateString() === day.toDateString();
           });
@@ -399,12 +424,16 @@ export default function AgendaC5() {
             <div
               key={index}
               className={`min-h-[120px] p-2 border rounded-lg ${
-                isToday ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"
+                isToday
+                  ? "bg-blue-50 border-blue-200"
+                  : "bg-white border-gray-200"
               }`}
             >
-              <div className={`text-sm font-medium mb-2 ${
-                isToday ? "text-blue-700" : "text-gray-700"
-              }`}>
+              <div
+                className={`text-sm font-medium mb-2 ${
+                  isToday ? "text-blue-700" : "text-gray-700"
+                }`}
+              >
                 {day.getDate()}
               </div>
               <div className="space-y-1">
@@ -418,8 +447,12 @@ export default function AgendaC5() {
                     className={`p-1 rounded text-xs cursor-pointer hover:opacity-80 border ${getEventTypeColor(evento.event_type)}`}
                   >
                     <div className="flex items-center gap-1">
-                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(evento.priority)}`} />
-                      <span className="font-medium truncate">{formatDisplayTime(evento.starts_at)}</span>
+                      <div
+                        className={`w-2 h-2 rounded-full ${getPriorityColor(evento.priority)}`}
+                      />
+                      <span className="font-medium truncate">
+                        {formatDisplayTime(evento.starts_at)}
+                      </span>
                     </div>
                     <div className="truncate">{evento.title}</div>
                   </div>
@@ -451,14 +484,18 @@ export default function AgendaC5() {
       <div className="grid grid-cols-7 gap-1">
         {/* Headers */}
         {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dayName) => (
-          <div key={dayName} className="p-2 text-center font-medium text-sm" style={{ color: colors.neutral[600] }}>
+          <div
+            key={dayName}
+            className="p-2 text-center font-medium text-sm"
+            style={{ color: colors.neutral[600] }}
+          >
             {dayName}
           </div>
         ))}
-        
+
         {/* Day cells */}
         {days.map((day, index) => {
-          const dayEvents = eventos.filter(evento => {
+          const dayEvents = eventos.filter((evento) => {
             const eventoDate = new Date(evento.starts_at);
             return eventoDate.toDateString() === day.toDateString();
           });
@@ -470,20 +507,22 @@ export default function AgendaC5() {
             <div
               key={index}
               className={`min-h-[80px] p-1 border rounded ${
-                isCurrentMonth 
-                  ? isToday 
-                    ? "bg-blue-50 border-blue-200" 
+                isCurrentMonth
+                  ? isToday
+                    ? "bg-blue-50 border-blue-200"
                     : "bg-white border-gray-200"
                   : "bg-gray-50 border-gray-100"
               }`}
             >
-              <div className={`text-xs font-medium mb-1 ${
-                isCurrentMonth 
-                  ? isToday 
-                    ? "text-blue-700" 
-                    : "text-gray-700"
-                  : "text-gray-400"
-              }`}>
+              <div
+                className={`text-xs font-medium mb-1 ${
+                  isCurrentMonth
+                    ? isToday
+                      ? "text-blue-700"
+                      : "text-gray-700"
+                    : "text-gray-400"
+                }`}
+              >
                 {day.getDate()}
               </div>
               <div className="space-y-1">
@@ -500,7 +539,9 @@ export default function AgendaC5() {
                   </div>
                 ))}
                 {dayEvents.length > 2 && (
-                  <div className="text-xs text-gray-500">+{dayEvents.length - 2} mais</div>
+                  <div className="text-xs text-gray-500">
+                    +{dayEvents.length - 2} mais
+                  </div>
                 )}
               </div>
             </div>
@@ -515,10 +556,17 @@ export default function AgendaC5() {
       <div className="space-y-6 p-6">
         <Card>
           <CardContent className="p-6 text-center">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: colors.semantic.error }} />
-            <h3 className="text-lg font-medium mb-2">Erro ao carregar agenda</h3>
+            <AlertTriangle
+              className="w-12 h-12 mx-auto mb-4"
+              style={{ color: colors.semantic.error }}
+            />
+            <h3 className="text-lg font-medium mb-2">
+              Erro ao carregar agenda
+            </h3>
             <p className="text-neutral-600 mb-4">{error.message}</p>
-            <Button onClick={() => window.location.reload()}>Tentar novamente</Button>
+            <Button onClick={() => window.location.reload()}>
+              Tentar novamente
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -530,7 +578,10 @@ export default function AgendaC5() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold" style={{ color: colors.neutral[900] }}>
+          <h1
+            className="text-2xl font-heading font-semibold"
+            style={{ color: colors.neutral[900] }}
+          >
             Agenda
           </h1>
           <p className="text-neutral-600 mt-1">
@@ -611,13 +662,14 @@ export default function AgendaC5() {
         <CardContent className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.brand.primary }} />
+              <Loader2
+                className="w-8 h-8 animate-spin"
+                style={{ color: colors.brand.primary }}
+              />
               <span className="ml-2">Carregando agenda...</span>
             </div>
           ) : (
-            <>
-              {viewMode === "week" ? renderWeekView() : renderMonthView()}
-            </>
+            <>{viewMode === "week" ? renderWeekView() : renderMonthView()}</>
           )}
         </CardContent>
       </Card>
@@ -666,7 +718,11 @@ export default function AgendaC5() {
                   <label className="block text-sm font-medium mb-2">
                     Tipo *
                   </label>
-                  <Select name="event_type" defaultValue={editingEvento?.event_type || "compromisso"} required>
+                  <Select
+                    name="event_type"
+                    defaultValue={editingEvento?.event_type || "compromisso"}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -676,7 +732,9 @@ export default function AgendaC5() {
                       <SelectItem value="prazo">Prazo</SelectItem>
                       <SelectItem value="entrega">Entrega</SelectItem>
                       <SelectItem value="compromisso">Compromisso</SelectItem>
-                      <SelectItem value="videoconferencia">Videoconferência</SelectItem>
+                      <SelectItem value="videoconferencia">
+                        Videoconferência
+                      </SelectItem>
                       <SelectItem value="outros">Outros</SelectItem>
                     </SelectContent>
                   </Select>
@@ -686,7 +744,11 @@ export default function AgendaC5() {
                   <label className="block text-sm font-medium mb-2">
                     Prioridade *
                   </label>
-                  <Select name="priority" defaultValue={editingEvento?.priority || "normal"} required>
+                  <Select
+                    name="priority"
+                    defaultValue={editingEvento?.priority || "normal"}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -709,7 +771,11 @@ export default function AgendaC5() {
                   <Input
                     name="starts_at"
                     type="datetime-local"
-                    defaultValue={editingEvento?.starts_at ? editingEvento.starts_at.slice(0, 16) : ""}
+                    defaultValue={
+                      editingEvento?.starts_at
+                        ? editingEvento.starts_at.slice(0, 16)
+                        : ""
+                    }
                     required
                   />
                 </div>
@@ -721,7 +787,11 @@ export default function AgendaC5() {
                   <Input
                     name="ends_at"
                     type="datetime-local"
-                    defaultValue={editingEvento?.ends_at ? editingEvento.ends_at.slice(0, 16) : ""}
+                    defaultValue={
+                      editingEvento?.ends_at
+                        ? editingEvento.ends_at.slice(0, 16)
+                        : ""
+                    }
                   />
                 </div>
               </div>
@@ -755,9 +825,7 @@ export default function AgendaC5() {
               {/* Legal References */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    CNJ
-                  </label>
+                  <label className="block text-sm font-medium mb-2">CNJ</label>
                   <Input
                     name="numero_cnj"
                     defaultValue={editingEvento?.numero_cnj || ""}
@@ -791,10 +859,14 @@ export default function AgendaC5() {
               </Button>
               <Button
                 type="submit"
-                disabled={createEventoMutation.isPending || updateEventoMutation.isPending}
+                disabled={
+                  createEventoMutation.isPending ||
+                  updateEventoMutation.isPending
+                }
                 style={themeUtils.primaryButton}
               >
-                {(createEventoMutation.isPending || updateEventoMutation.isPending) && (
+                {(createEventoMutation.isPending ||
+                  updateEventoMutation.isPending) && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 )}
                 <Save className="w-4 h-4 mr-2" />
@@ -812,47 +884,63 @@ export default function AgendaC5() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${getPriorityColor(selectedEvento.priority)}`} />
+                  <div
+                    className={`w-3 h-3 rounded-full ${getPriorityColor(selectedEvento.priority)}`}
+                  />
                   {selectedEvento.title}
                 </DialogTitle>
-                <DialogDescription>
-                  Detalhes do compromisso
-                </DialogDescription>
+                <DialogDescription>Detalhes do compromisso</DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Tipo</label>
-                    <div className={`mt-1 inline-block px-2 py-1 rounded-md text-xs border ${getEventTypeColor(selectedEvento.event_type)}`}>
+                    <label className="text-sm font-medium text-gray-600">
+                      Tipo
+                    </label>
+                    <div
+                      className={`mt-1 inline-block px-2 py-1 rounded-md text-xs border ${getEventTypeColor(selectedEvento.event_type)}`}
+                    >
                       {selectedEvento.event_type}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Prioridade</label>
-                    <p className="text-sm capitalize">{selectedEvento.priority}</p>
+                    <label className="text-sm font-medium text-gray-600">
+                      Prioridade
+                    </label>
+                    <p className="text-sm capitalize">
+                      {selectedEvento.priority}
+                    </p>
                   </div>
                 </div>
 
                 {selectedEvento.description && (
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Descrição</label>
+                    <label className="text-sm font-medium text-gray-600">
+                      Descrição
+                    </label>
                     <p className="text-sm mt-1">{selectedEvento.description}</p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Início</label>
+                    <label className="text-sm font-medium text-gray-600">
+                      Início
+                    </label>
                     <p className="text-sm">
-                      {formatDisplayDate(selectedEvento.starts_at)} às {formatDisplayTime(selectedEvento.starts_at)}
+                      {formatDisplayDate(selectedEvento.starts_at)} às{" "}
+                      {formatDisplayTime(selectedEvento.starts_at)}
                     </p>
                   </div>
                   {selectedEvento.ends_at && (
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Fim</label>
+                      <label className="text-sm font-medium text-gray-600">
+                        Fim
+                      </label>
                       <p className="text-sm">
-                        {formatDisplayDate(selectedEvento.ends_at)} às {formatDisplayTime(selectedEvento.ends_at)}
+                        {formatDisplayDate(selectedEvento.ends_at)} às{" "}
+                        {formatDisplayTime(selectedEvento.ends_at)}
                       </p>
                     </div>
                   )}
@@ -860,7 +948,9 @@ export default function AgendaC5() {
 
                 {selectedEvento.location && (
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Local</label>
+                    <label className="text-sm font-medium text-gray-600">
+                      Local
+                    </label>
                     <p className="text-sm flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
                       {selectedEvento.location}
@@ -870,7 +960,9 @@ export default function AgendaC5() {
 
                 {selectedEvento.video_link && (
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Link da Videoconferência</label>
+                    <label className="text-sm font-medium text-gray-600">
+                      Link da Videoconferência
+                    </label>
                     <p className="text-sm">
                       <a
                         href={selectedEvento.video_link}
@@ -888,7 +980,9 @@ export default function AgendaC5() {
 
                 {selectedEvento.numero_cnj && (
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Processo</label>
+                    <label className="text-sm font-medium text-gray-600">
+                      Processo
+                    </label>
                     <p className="text-sm flex items-center gap-2">
                       <Gavel className="w-4 h-4" />
                       {formatCNJ(selectedEvento.numero_cnj)}
@@ -898,7 +992,9 @@ export default function AgendaC5() {
 
                 {selectedEvento.cliente_cpfcnpj && (
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Cliente</label>
+                    <label className="text-sm font-medium text-gray-600">
+                      Cliente
+                    </label>
                     <p className="text-sm flex items-center gap-2">
                       <User className="w-4 h-4" />
                       {selectedEvento.cliente_cpfcnpj}

@@ -7,17 +7,56 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { Plus, Save, Settings, Trash2, Copy, Play, ArrowRight, Bell, Activity, Calendar, Webhook, FileText, Upload, Users, CheckCircle, Clock, X } from "lucide-react";
+import {
+  Plus,
+  Save,
+  Settings,
+  Trash2,
+  Copy,
+  Play,
+  ArrowRight,
+  Bell,
+  Activity,
+  Calendar,
+  Webhook,
+  FileText,
+  Upload,
+  Users,
+  CheckCircle,
+  Clock,
+  X,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Switch } from "../components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
 import {
   JourneyTemplate,
@@ -25,7 +64,7 @@ import {
   StageRule,
   StageType,
   DEFAULT_STAGE_TYPES,
-  generateDefaultRules
+  generateDefaultRules,
 } from "../lib/journey-utils";
 
 interface JourneyDesignerD2Props {
@@ -38,7 +77,11 @@ interface CanvasStage extends JourneyTemplateStage {
   position: { x: number; y: number };
 }
 
-export default function JourneyDesignerD2({ templateId, onSave, onCancel }: JourneyDesignerD2Props) {
+export default function JourneyDesignerD2({
+  templateId,
+  onSave,
+  onCancel,
+}: JourneyDesignerD2Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -50,31 +93,37 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
     area: "",
     category: "",
     tags: [],
-    is_active: true
+    is_active: true,
   });
 
   // Canvas stages
   const [canvasStages, setCanvasStages] = useState<CanvasStage[]>([]);
   const [selectedStage, setSelectedStage] = useState<CanvasStage | null>(null);
   const [stageRules, setStageRules] = useState<Record<string, StageRule[]>>({});
-  
+
   // UI state
   const [showStageConfig, setShowStageConfig] = useState(false);
   const [showRulesConfig, setShowRulesConfig] = useState(false);
-  const [draggedStageType, setDraggedStageType] = useState<StageType | null>(null);
+  const [draggedStageType, setDraggedStageType] = useState<StageType | null>(
+    null,
+  );
   const [isCanvasMode, setIsCanvasMode] = useState(true);
 
   // Save template mutation
   const saveTemplateMutation = useMutation({
-    mutationFn: async (data: { template: Partial<JourneyTemplate>; stages: CanvasStage[]; rules: Record<string, StageRule[]> }) => {
+    mutationFn: async (data: {
+      template: Partial<JourneyTemplate>;
+      stages: CanvasStage[];
+      rules: Record<string, StageRule[]>;
+    }) => {
       // Mock API call - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return data;
     },
     onSuccess: () => {
       toast({
         title: "Template salvo",
-        description: "Template de jornada foi salvo com sucesso"
+        description: "Template de jornada foi salvo com sucesso",
       });
       if (onSave) {
         onSave(template as JourneyTemplate);
@@ -84,9 +133,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
       toast({
         title: "Erro",
         description: "Erro ao salvar template",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   // Handle canvas drop
@@ -110,21 +159,24 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
       config: {},
       position: { x, y },
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
-    setCanvasStages(prev => [...prev, newStage]);
-    
+    setCanvasStages((prev) => [...prev, newStage]);
+
     // Generate default rules for this stage type
     const defaultRules = generateDefaultRules(draggedStageType.type);
-    setStageRules(prev => ({
+    setStageRules((prev) => ({
       ...prev,
-      [newStage.id]: defaultRules.map(rule => ({
-        ...rule,
-        id: `rule-${Date.now()}-${Math.random()}`,
-        stage_id: newStage.id,
-        created_at: new Date().toISOString()
-      } as StageRule))
+      [newStage.id]: defaultRules.map(
+        (rule) =>
+          ({
+            ...rule,
+            id: `rule-${Date.now()}-${Math.random()}`,
+            stage_id: newStage.id,
+            created_at: new Date().toISOString(),
+          }) as StageRule,
+      ),
     }));
 
     setDraggedStageType(null);
@@ -140,21 +192,21 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
   const handleStageUpdate = (updatedStage: Partial<CanvasStage>) => {
     if (!selectedStage) return;
 
-    setCanvasStages(prev => 
-      prev.map(stage => 
-        stage.id === selectedStage.id 
+    setCanvasStages((prev) =>
+      prev.map((stage) =>
+        stage.id === selectedStage.id
           ? { ...stage, ...updatedStage, updated_at: new Date().toISOString() }
-          : stage
-      )
+          : stage,
+      ),
     );
 
-    setSelectedStage(prev => prev ? { ...prev, ...updatedStage } : null);
+    setSelectedStage((prev) => (prev ? { ...prev, ...updatedStage } : null));
   };
 
   // Handle stage delete
   const handleStageDelete = (stageId: string) => {
-    setCanvasStages(prev => prev.filter(stage => stage.id !== stageId));
-    setStageRules(prev => {
+    setCanvasStages((prev) => prev.filter((stage) => stage.id !== stageId));
+    setStageRules((prev) => {
       const { [stageId]: deleted, ...rest } = prev;
       return rest;
     });
@@ -166,9 +218,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
 
   // Handle rule update
   const handleRuleUpdate = (stageId: string, rules: StageRule[]) => {
-    setStageRules(prev => ({
+    setStageRules((prev) => ({
       ...prev,
-      [stageId]: rules
+      [stageId]: rules,
     }));
   };
 
@@ -178,7 +230,7 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
       toast({
         title: "Erro de validação",
         description: "Nome do template é obrigatório",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -187,7 +239,7 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
       toast({
         title: "Erro de validação",
         description: "Adicione pelo menos uma etapa",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -195,20 +247,25 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
     const templateWithStats = {
       ...template,
       stage_count: canvasStages.length,
-      estimated_duration_days: canvasStages.reduce((total, stage) => total + stage.sla_days, 0)
+      estimated_duration_days: canvasStages.reduce(
+        (total, stage) => total + stage.sla_days,
+        0,
+      ),
     };
 
     saveTemplateMutation.mutate({
       template: templateWithStats,
       stages: canvasStages,
-      rules: stageRules
+      rules: stageRules,
     });
   };
 
   // Render stage block on canvas
   const renderStageBlock = (stage: CanvasStage) => {
-    const stageType = DEFAULT_STAGE_TYPES.find(t => t.id === stage.stage_type_id);
-    
+    const stageType = DEFAULT_STAGE_TYPES.find(
+      (t) => t.id === stage.stage_type_id,
+    );
+
     return (
       <div
         key={stage.id}
@@ -216,16 +273,14 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
         style={{
           left: stage.position.x,
           top: stage.position.y,
-          borderColor: selectedStage?.id === stage.id ? '#3B82F6' : '#D1D5DB'
+          borderColor: selectedStage?.id === stage.id ? "#3B82F6" : "#D1D5DB",
         }}
         onClick={() => handleStageClick(stage)}
       >
         <div className="text-center">
-          <div className="text-2xl mb-1">{stageType?.icon || '📋'}</div>
+          <div className="text-2xl mb-1">{stageType?.icon || "📋"}</div>
           <div className="text-xs font-medium">{stage.title}</div>
-          <div className="text-xs text-gray-500 mt-1">
-            {stage.sla_days}d
-          </div>
+          <div className="text-xs text-gray-500 mt-1">{stage.sla_days}d</div>
           {stage.is_mandatory && (
             <Badge variant="destructive" className="text-xs mt-1">
               Obrigatório
@@ -240,7 +295,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
   const renderStageConfig = () => {
     if (!selectedStage) return null;
 
-    const stageType = DEFAULT_STAGE_TYPES.find(t => t.id === selectedStage.stage_type_id);
+    const stageType = DEFAULT_STAGE_TYPES.find(
+      (t) => t.id === selectedStage.stage_type_id,
+    );
 
     return (
       <Dialog open={showStageConfig} onOpenChange={setShowStageConfig}>
@@ -265,7 +322,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                   <Input
                     id="stage-title"
                     value={selectedStage.title}
-                    onChange={(e) => handleStageUpdate({ title: e.target.value })}
+                    onChange={(e) =>
+                      handleStageUpdate({ title: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -274,7 +333,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                     id="stage-sla"
                     type="number"
                     value={selectedStage.sla_days}
-                    onChange={(e) => handleStageUpdate({ sla_days: Number(e.target.value) })}
+                    onChange={(e) =>
+                      handleStageUpdate({ sla_days: Number(e.target.value) })
+                    }
                   />
                 </div>
               </div>
@@ -283,8 +344,10 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                 <Label htmlFor="stage-description">Descrição</Label>
                 <Textarea
                   id="stage-description"
-                  value={selectedStage.description || ''}
-                  onChange={(e) => handleStageUpdate({ description: e.target.value })}
+                  value={selectedStage.description || ""}
+                  onChange={(e) =>
+                    handleStageUpdate({ description: e.target.value })
+                  }
                   rows={3}
                 />
               </div>
@@ -293,7 +356,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                 <Switch
                   id="stage-mandatory"
                   checked={selectedStage.is_mandatory}
-                  onCheckedChange={(checked) => handleStageUpdate({ is_mandatory: checked })}
+                  onCheckedChange={(checked) =>
+                    handleStageUpdate({ is_mandatory: checked })
+                  }
                 />
                 <Label htmlFor="stage-mandatory">Etapa obrigatória</Label>
               </div>
@@ -301,20 +366,30 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
 
             <TabsContent value="config" className="space-y-4">
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">Configuração Específica: {stageType?.name}</h4>
-                <p className="text-sm text-gray-600 mb-4">{stageType?.description}</p>
-                
+                <h4 className="font-medium mb-2">
+                  Configuração Específica: {stageType?.name}
+                </h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  {stageType?.description}
+                </p>
+
                 {/* Dynamic config based on stage type */}
-                {selectedStage.stage_type_id === 'form' && (
+                {selectedStage.stage_type_id === "form" && (
                   <div className="space-y-3">
                     <Label>Campos do Formulário</Label>
                     <Textarea
                       placeholder='Ex: ["nome", "email", "telefone"]'
-                      value={JSON.stringify(selectedStage.config.fields || [], null, 2)}
+                      value={JSON.stringify(
+                        selectedStage.config.fields || [],
+                        null,
+                        2,
+                      )}
                       onChange={(e) => {
                         try {
                           const fields = JSON.parse(e.target.value);
-                          handleStageUpdate({ config: { ...selectedStage.config, fields } });
+                          handleStageUpdate({
+                            config: { ...selectedStage.config, fields },
+                          });
                         } catch (error) {
                           // Handle JSON parse error
                         }
@@ -324,17 +399,27 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                   </div>
                 )}
 
-                {selectedStage.stage_type_id === 'upload' && (
+                {selectedStage.stage_type_id === "upload" && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label>Tipos Permitidos</Label>
                         <Input
                           placeholder="pdf,jpg,png"
-                          value={(selectedStage.config.allowed_types || []).join(',')}
+                          value={(
+                            selectedStage.config.allowed_types || []
+                          ).join(",")}
                           onChange={(e) => {
-                            const allowed_types = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
-                            handleStageUpdate({ config: { ...selectedStage.config, allowed_types } });
+                            const allowed_types = e.target.value
+                              .split(",")
+                              .map((t) => t.trim())
+                              .filter(Boolean);
+                            handleStageUpdate({
+                              config: {
+                                ...selectedStage.config,
+                                allowed_types,
+                              },
+                            });
                           }}
                         />
                       </div>
@@ -343,16 +428,21 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                         <Input
                           type="number"
                           value={selectedStage.config.max_files || 5}
-                          onChange={(e) => handleStageUpdate({ 
-                            config: { ...selectedStage.config, max_files: Number(e.target.value) }
-                          })}
+                          onChange={(e) =>
+                            handleStageUpdate({
+                              config: {
+                                ...selectedStage.config,
+                                max_files: Number(e.target.value),
+                              },
+                            })
+                          }
                         />
                       </div>
                     </div>
                   </div>
                 )}
 
-                {selectedStage.stage_type_id === 'meeting' && (
+                {selectedStage.stage_type_id === "meeting" && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -360,25 +450,37 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                         <Input
                           type="number"
                           value={selectedStage.config.duration_minutes || 60}
-                          onChange={(e) => handleStageUpdate({ 
-                            config: { ...selectedStage.config, duration_minutes: Number(e.target.value) }
-                          })}
+                          onChange={(e) =>
+                            handleStageUpdate({
+                              config: {
+                                ...selectedStage.config,
+                                duration_minutes: Number(e.target.value),
+                              },
+                            })
+                          }
                         />
                       </div>
                       <div>
                         <Label>Tipo</Label>
-                        <Select 
-                          value={selectedStage.config.meeting_type || 'online'}
-                          onValueChange={(value) => handleStageUpdate({ 
-                            config: { ...selectedStage.config, meeting_type: value }
-                          })}
+                        <Select
+                          value={selectedStage.config.meeting_type || "online"}
+                          onValueChange={(value) =>
+                            handleStageUpdate({
+                              config: {
+                                ...selectedStage.config,
+                                meeting_type: value,
+                              },
+                            })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="online">Online</SelectItem>
-                            <SelectItem value="presencial">Presencial</SelectItem>
+                            <SelectItem value="presencial">
+                              Presencial
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -386,26 +488,36 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                   </div>
                 )}
 
-                {selectedStage.stage_type_id === 'task' && (
+                {selectedStage.stage_type_id === "task" && (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label>Responsável</Label>
                         <Input
                           placeholder="OAB ou nome"
-                          value={selectedStage.config.assignee || ''}
-                          onChange={(e) => handleStageUpdate({ 
-                            config: { ...selectedStage.config, assignee: e.target.value }
-                          })}
+                          value={selectedStage.config.assignee || ""}
+                          onChange={(e) =>
+                            handleStageUpdate({
+                              config: {
+                                ...selectedStage.config,
+                                assignee: e.target.value,
+                              },
+                            })
+                          }
                         />
                       </div>
                       <div>
                         <Label>Prioridade</Label>
-                        <Select 
-                          value={selectedStage.config.priority || 'medium'}
-                          onValueChange={(value) => handleStageUpdate({ 
-                            config: { ...selectedStage.config, priority: value }
-                          })}
+                        <Select
+                          value={selectedStage.config.priority || "medium"}
+                          onValueChange={(value) =>
+                            handleStageUpdate({
+                              config: {
+                                ...selectedStage.config,
+                                priority: value,
+                              },
+                            })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -427,10 +539,7 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">Regras de Automação</h4>
-                  <Button 
-                    size="sm" 
-                    onClick={() => setShowRulesConfig(true)}
-                  >
+                  <Button size="sm" onClick={() => setShowRulesConfig(true)}>
                     <Plus className="mr-2 h-4 w-4" />
                     Nova Regra
                   </Button>
@@ -444,26 +553,36 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <Badge variant="outline">
-                                {rule.trigger_event === 'on_enter' ? 'Ao Entrar' :
-                                 rule.trigger_event === 'on_done' ? 'Ao Concluir' : 'Atrasado'}
+                                {rule.trigger_event === "on_enter"
+                                  ? "Ao Entrar"
+                                  : rule.trigger_event === "on_done"
+                                    ? "Ao Concluir"
+                                    : "Atrasado"}
                               </Badge>
                               <ArrowRight className="h-4 w-4 text-gray-400" />
                               <Badge variant="secondary">
-                                {rule.action_type === 'notify' ? '🔔 Notificar' :
-                                 rule.action_type === 'create_activity' ? '📋 Criar Atividade' :
-                                 rule.action_type === 'create_ticket' ? '🎫 Criar Ticket' :
-                                 rule.action_type === 'schedule' ? '📅 Agendar' : '🔗 Webhook'}
+                                {rule.action_type === "notify"
+                                  ? "🔔 Notificar"
+                                  : rule.action_type === "create_activity"
+                                    ? "📋 Criar Atividade"
+                                    : rule.action_type === "create_ticket"
+                                      ? "🎫 Criar Ticket"
+                                      : rule.action_type === "schedule"
+                                        ? "📅 Agendar"
+                                        : "🔗 Webhook"}
                               </Badge>
                             </div>
                             <p className="text-sm text-gray-600">
                               {JSON.stringify(rule.action_config)}
                             </p>
                           </div>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const newRules = stageRules[selectedStage.id].filter(r => r.id !== rule.id);
+                              const newRules = stageRules[
+                                selectedStage.id
+                              ].filter((r) => r.id !== rule.id);
                               handleRuleUpdate(selectedStage.id, newRules);
                             }}
                           >
@@ -479,15 +598,18 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
           </Tabs>
 
           <div className="flex justify-between">
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => handleStageDelete(selectedStage.id)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir Etapa
             </Button>
             <div className="space-x-2">
-              <Button variant="outline" onClick={() => setShowStageConfig(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowStageConfig(false)}
+              >
                 Fechar
               </Button>
             </div>
@@ -505,8 +627,10 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
           <div className="flex-1 max-w-md">
             <Input
               placeholder="Nome do template..."
-              value={template.name || ''}
-              onChange={(e) => setTemplate(prev => ({ ...prev, name: e.target.value }))}
+              value={template.name || ""}
+              onChange={(e) =>
+                setTemplate((prev) => ({ ...prev, name: e.target.value }))
+              }
               className="text-lg font-medium"
             />
           </div>
@@ -514,12 +638,12 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
             <Button variant="outline" onClick={onCancel}>
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={handleSave}
               disabled={saveTemplateMutation.isPending}
             >
               <Save className="mr-2 h-4 w-4" />
-              {saveTemplateMutation.isPending ? 'Salvando...' : 'Salvar'}
+              {saveTemplateMutation.isPending ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </div>
@@ -527,20 +651,27 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
         <div className="grid grid-cols-3 gap-4 mt-4">
           <Input
             placeholder="Área (ex: Trabalhista)"
-            value={template.area || ''}
-            onChange={(e) => setTemplate(prev => ({ ...prev, area: e.target.value }))}
+            value={template.area || ""}
+            onChange={(e) =>
+              setTemplate((prev) => ({ ...prev, area: e.target.value }))
+            }
           />
           <Input
             placeholder="Categoria"
-            value={template.category || ''}
-            onChange={(e) => setTemplate(prev => ({ ...prev, category: e.target.value }))}
+            value={template.category || ""}
+            onChange={(e) =>
+              setTemplate((prev) => ({ ...prev, category: e.target.value }))
+            }
           />
           <Input
             placeholder="Tags (separadas por vírgula)"
-            value={(template.tags || []).join(', ')}
+            value={(template.tags || []).join(", ")}
             onChange={(e) => {
-              const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
-              setTemplate(prev => ({ ...prev, tags }));
+              const tags = e.target.value
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean);
+              setTemplate((prev) => ({ ...prev, tags }));
             }}
           />
         </div>
@@ -571,7 +702,7 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
         </div>
 
         {/* Canvas */}
-        <div 
+        <div
           ref={canvasRef}
           className="flex-1 relative bg-gray-100 overflow-auto"
           onDrop={handleCanvasDrop}
@@ -582,8 +713,12 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
               <div className="flex items-center justify-center h-full">
                 <div className="text-center text-gray-500">
                   <div className="text-4xl mb-4">🎨</div>
-                  <h3 className="text-lg font-medium mb-2">Arraste etapas para o canvas</h3>
-                  <p className="text-sm">Clique em uma etapa para configurá-la</p>
+                  <h3 className="text-lg font-medium mb-2">
+                    Arraste etapas para o canvas
+                  </h3>
+                  <p className="text-sm">
+                    Clique em uma etapa para configurá-la
+                  </p>
                 </div>
               </div>
             )}
@@ -597,7 +732,9 @@ export default function JourneyDesignerD2({ templateId, onSave, onCancel }: Jour
                   .sort((a, b) => a.order_index - b.order_index)
                   .slice(0, -1)
                   .map((stage, index) => {
-                    const nextStage = canvasStages.find(s => s.order_index === stage.order_index + 1);
+                    const nextStage = canvasStages.find(
+                      (s) => s.order_index === stage.order_index + 1,
+                    );
                     if (!nextStage) return null;
 
                     return (

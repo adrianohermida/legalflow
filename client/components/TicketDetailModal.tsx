@@ -20,12 +20,7 @@ import {
   UserPlus,
   Settings,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
@@ -36,12 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "./ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -103,7 +93,11 @@ const CHANNEL_ICONS = {
   sistema: <User className="h-4 w-4" />,
 };
 
-export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModalProps) {
+export function TicketDetailModal({
+  ticket,
+  isOpen,
+  onClose,
+}: TicketDetailModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newMessage, setNewMessage] = useState("");
@@ -116,13 +110,15 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
       // Get thread link for this ticket
       const { data: ticketThreads, error: threadError } = await lf
         .from("ticket_threads")
-        .select(`
+        .select(
+          `
           thread_link_id,
           thread_links!inner(
             id,
             ai_messages(*)
           )
-        `)
+        `,
+        )
         .eq("ticket_id", ticket.id);
 
       if (threadError) throw threadError;
@@ -179,18 +175,18 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
 
       if (!ticketThreads) throw new Error("Thread not found");
 
-      const { error } = await lf
-        .from("ai_messages")
-        .insert({
-          thread_link_id: ticketThreads.thread_link_id,
-          sender_type: "user",
-          content,
-        });
+      const { error } = await lf.from("ai_messages").insert({
+        thread_link_id: ticketThreads.thread_link_id,
+        sender_type: "user",
+        content,
+      });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ticket-messages", ticket.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["ticket-messages", ticket.id],
+      });
       setNewMessage("");
       toast({
         title: "Mensagem enviada",
@@ -260,7 +256,7 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Select
                 value={ticket.status}
@@ -285,7 +281,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
             {frtSLA && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">First Response Time (FRT):</span>
+                <span className="text-sm text-gray-600">
+                  First Response Time (FRT):
+                </span>
                 <span className={`text-sm font-medium ${frtSLA.color}`}>
                   {frtSLA.text}
                 </span>
@@ -293,7 +291,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
             )}
             {ttrSLA && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Time To Resolution (TTR):</span>
+                <span className="text-sm text-gray-600">
+                  Time To Resolution (TTR):
+                </span>
                 <span className={`text-sm font-medium ${ttrSLA.color}`}>
                   {ttrSLA.text}
                 </span>
@@ -303,7 +303,11 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full">
+          <Tabs
+            value={selectedTab}
+            onValueChange={setSelectedTab}
+            className="h-full"
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="conversas">
                 <MessageSquare className="mr-2 h-4 w-4" />
@@ -325,14 +329,18 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                 {loadingMessages ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-gray-600 mt-2">Carregando mensagens...</p>
+                    <p className="text-gray-600 mt-2">
+                      Carregando mensagens...
+                    </p>
                   </div>
                 ) : messages.length > 0 ? (
                   messages.map((message) => (
                     <div
                       key={message.id}
                       className={`flex ${
-                        message.sender_type === "user" ? "justify-end" : "justify-start"
+                        message.sender_type === "user"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
                       <div
@@ -383,7 +391,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                     <Button
                       size="sm"
                       onClick={handleSendMessage}
-                      disabled={!newMessage.trim() || sendMessageMutation.isPending}
+                      disabled={
+                        !newMessage.trim() || sendMessageMutation.isPending
+                      }
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -397,7 +407,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Informações do Cliente</CardTitle>
+                    <CardTitle className="text-sm">
+                      Informações do Cliente
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
@@ -413,7 +425,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Processo CNJ:</label>
+                      <label className="text-xs text-gray-500">
+                        Processo CNJ:
+                      </label>
                       <p className="text-sm font-medium">
                         {ticket.numero_cnj || "Não vinculado"}
                       </p>
@@ -427,7 +441,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <label className="text-xs text-gray-500">Responsável:</label>
+                      <label className="text-xs text-gray-500">
+                        Responsável:
+                      </label>
                       <p className="text-sm font-medium">
                         {ticket.advogado_nome || "Não atribuído"}
                       </p>
@@ -439,7 +455,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Criado por:</label>
+                      <label className="text-xs text-gray-500">
+                        Criado por:
+                      </label>
                       <p className="text-sm font-medium">{ticket.created_by}</p>
                     </div>
                   </CardContent>
@@ -451,15 +469,23 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <label className="text-xs text-gray-500">Primeira Resposta:</label>
+                      <label className="text-xs text-gray-500">
+                        Primeira Resposta:
+                      </label>
                       <p className="text-sm font-medium">
-                        {ticket.frt_due_at ? formatDate(ticket.frt_due_at) : "Não definido"}
+                        {ticket.frt_due_at
+                          ? formatDate(ticket.frt_due_at)
+                          : "Não definido"}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Resolução:</label>
+                      <label className="text-xs text-gray-500">
+                        Resolução:
+                      </label>
                       <p className="text-sm font-medium">
-                        {ticket.ttr_due_at ? formatDate(ticket.ttr_due_at) : "Não definido"}
+                        {ticket.ttr_due_at
+                          ? formatDate(ticket.ttr_due_at)
+                          : "Não definido"}
                       </p>
                     </div>
                   </CardContent>
@@ -477,7 +503,10 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                       <Select
                         value={ticket.priority}
                         onValueChange={(value) =>
-                          updateTicketMutation.mutate({ field: "priority", value })
+                          updateTicketMutation.mutate({
+                            field: "priority",
+                            value,
+                          })
                         }
                       >
                         <SelectTrigger className="w-full">
@@ -501,10 +530,15 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {activities.length > 0 ? (
                   activities.map((activity) => (
-                    <div key={activity.id} className="border-l-2 border-gray-200 pl-4 pb-4">
+                    <div
+                      key={activity.id}
+                      className="border-l-2 border-gray-200 pl-4 pb-4"
+                    >
                       <div className="flex items-start justify-between">
                         <div>
-                          <h4 className="font-medium text-sm">{activity.title}</h4>
+                          <h4 className="font-medium text-sm">
+                            {activity.title}
+                          </h4>
                           <p className="text-xs text-gray-500">
                             {formatDate(activity.created_at)}
                           </p>
@@ -518,7 +552,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose }: TicketDetailModal
                 ) : (
                   <div className="text-center py-8">
                     <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-600">Nenhuma atividade registrada</p>
+                    <p className="text-gray-600">
+                      Nenhuma atividade registrada
+                    </p>
                     <p className="text-gray-500 text-sm">
                       Atividades aparecem aqui conforme o ticket é processado
                     </p>

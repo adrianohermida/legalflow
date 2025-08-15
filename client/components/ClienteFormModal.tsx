@@ -31,7 +31,12 @@ import {
   FolderPlus,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import { directDataApi, viaCepApi, cpfUtils, cnpjUtils } from "../lib/external-apis";
+import {
+  directDataApi,
+  viaCepApi,
+  cpfUtils,
+  cnpjUtils,
+} from "../lib/external-apis";
 
 interface Cliente {
   cpfcnpj: string;
@@ -117,7 +122,7 @@ export function ClienteFormModal({
           cep: "",
         },
       });
-      
+
       // Detect document type
       const cleanDoc = editingCliente.cpfcnpj.replace(/\D/g, "");
       setDocumentType(cleanDoc.length === 11 ? "cpf" : "cnpj");
@@ -149,17 +154,17 @@ export function ClienteFormModal({
 
   const handleCpfCnpjChange = (value: string) => {
     const cleanValue = value.replace(/\D/g, "");
-    
+
     // Auto-detect document type
     if (cleanValue.length <= 11) {
       setDocumentType("cpf");
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         cpfcnpj: cpfUtils.format(value),
       }));
     } else if (cleanValue.length <= 14) {
       setDocumentType("cnpj");
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         cpfcnpj: cnpjUtils.format(value),
       }));
@@ -174,7 +179,7 @@ export function ClienteFormModal({
     if (documentType !== "cpf") return;
 
     const cleanCpf = formData.cpfcnpj.replace(/\D/g, "");
-    
+
     if (!cpfUtils.validate(cleanCpf)) {
       setCpfValidationError("CPF inválido");
       return;
@@ -185,13 +190,13 @@ export function ClienteFormModal({
 
     try {
       const data = await directDataApi.consultarCPF(cleanCpf);
-      
+
       if (data) {
         const whatsapp = directDataApi.extractWhatsAppFromData(data);
         const email = directDataApi.extractMainEmailFromData(data);
         const address = directDataApi.extractMainAddressFromData(data);
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           nome: data.retorno.nome || prev.nome,
           whatsapp: whatsapp || prev.whatsapp,
@@ -224,16 +229,16 @@ export function ClienteFormModal({
 
   const handleConsultarCEP = async (cep: string) => {
     const cleanCep = cep.replace(/\D/g, "");
-    
+
     if (cleanCep.length !== 8) return;
 
     setIsConsultingCEP(true);
 
     try {
       const data = await viaCepApi.consultarCEP(cleanCep);
-      
+
       if (data) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           endereco: {
             ...prev.endereco!,
@@ -315,8 +320,8 @@ export function ClienteFormModal({
               {editingCliente
                 ? "Atualize as informações do cliente"
                 : documentType === "cpf"
-                ? "Cadastre uma nova pessoa física"
-                : "Cadastre uma nova pessoa jurídica"}
+                  ? "Cadastre uma nova pessoa física"
+                  : "Cadastre uma nova pessoa jurídica"}
             </DialogDescription>
           </DialogHeader>
 
@@ -343,8 +348,8 @@ export function ClienteFormModal({
                       cpfValidationError || cnpjValidationError
                         ? "border-red-500"
                         : cpfConsultSuccess
-                        ? "border-green-500"
-                        : ""
+                          ? "border-green-500"
+                          : ""
                     }
                   />
                   {documentType === "cpf" && !editingCliente && (
@@ -364,10 +369,14 @@ export function ClienteFormModal({
                   )}
                 </div>
                 {cpfValidationError && (
-                  <p className="text-sm text-red-500 mt-1">{cpfValidationError}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {cpfValidationError}
+                  </p>
                 )}
                 {cnpjValidationError && (
-                  <p className="text-sm text-red-500 mt-1">{cnpjValidationError}</p>
+                  <p className="text-sm text-red-500 mt-1">
+                    {cnpjValidationError}
+                  </p>
                 )}
                 {cpfConsultSuccess && (
                   <div className="flex items-center gap-2 text-sm text-green-600 mt-1">
@@ -388,7 +397,7 @@ export function ClienteFormModal({
                   id="nome"
                   value={formData.nome}
                   onChange={(e) =>
-                    setFormData(prev => ({ ...prev, nome: e.target.value }))
+                    setFormData((prev) => ({ ...prev, nome: e.target.value }))
                   }
                   placeholder={
                     documentType === "cpf"
@@ -408,7 +417,7 @@ export function ClienteFormModal({
                       id="whatsapp"
                       value={formData.whatsapp}
                       onChange={(e) =>
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
                           whatsapp: formatPhoneDisplay(e.target.value),
                         }))
@@ -428,7 +437,10 @@ export function ClienteFormModal({
                       type="email"
                       value={formData.email}
                       onChange={(e) =>
-                        setFormData(prev => ({ ...prev, email: e.target.value }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
                       }
                       placeholder="email@exemplo.com"
                       className="pl-10"
@@ -454,7 +466,7 @@ export function ClienteFormModal({
                       value={formData.endereco?.cep || ""}
                       onChange={(e) => {
                         const value = viaCepApi.formatCEP(e.target.value);
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
                           endereco: { ...prev.endereco!, cep: value },
                         }));
@@ -485,9 +497,12 @@ export function ClienteFormModal({
                     id="logradouro"
                     value={formData.endereco?.logradouro || ""}
                     onChange={(e) =>
-                      setFormData(prev => ({
+                      setFormData((prev) => ({
                         ...prev,
-                        endereco: { ...prev.endereco!, logradouro: e.target.value },
+                        endereco: {
+                          ...prev.endereco!,
+                          logradouro: e.target.value,
+                        },
                       }))
                     }
                     placeholder="Rua, Avenida, etc."
@@ -502,7 +517,7 @@ export function ClienteFormModal({
                     id="numero"
                     value={formData.endereco?.numero || ""}
                     onChange={(e) =>
-                      setFormData(prev => ({
+                      setFormData((prev) => ({
                         ...prev,
                         endereco: { ...prev.endereco!, numero: e.target.value },
                       }))
@@ -517,9 +532,12 @@ export function ClienteFormModal({
                     id="complemento"
                     value={formData.endereco?.complemento || ""}
                     onChange={(e) =>
-                      setFormData(prev => ({
+                      setFormData((prev) => ({
                         ...prev,
-                        endereco: { ...prev.endereco!, complemento: e.target.value },
+                        endereco: {
+                          ...prev.endereco!,
+                          complemento: e.target.value,
+                        },
                       }))
                     }
                     placeholder="Apto, Sala"
@@ -532,7 +550,7 @@ export function ClienteFormModal({
                     id="bairro"
                     value={formData.endereco?.bairro || ""}
                     onChange={(e) =>
-                      setFormData(prev => ({
+                      setFormData((prev) => ({
                         ...prev,
                         endereco: { ...prev.endereco!, bairro: e.target.value },
                       }))
@@ -546,7 +564,7 @@ export function ClienteFormModal({
                   <Select
                     value={formData.endereco?.uf || ""}
                     onValueChange={(value) =>
-                      setFormData(prev => ({
+                      setFormData((prev) => ({
                         ...prev,
                         endereco: { ...prev.endereco!, uf: value },
                       }))
@@ -594,7 +612,7 @@ export function ClienteFormModal({
                   id="cidade"
                   value={formData.endereco?.cidade || ""}
                   onChange={(e) =>
-                    setFormData(prev => ({
+                    setFormData((prev) => ({
                       ...prev,
                       endereco: { ...prev.endereco!, cidade: e.target.value },
                     }))

@@ -43,7 +43,7 @@ export const extractAdviseData = (data: any): ProcessoAdviseData => {
   if (!data) {
     return {
       area: "Não informado",
-      classe: "Não informado", 
+      classe: "Não informado",
       assunto: "Não informado",
       orgao: "Não informado",
       valor: null,
@@ -52,43 +52,49 @@ export const extractAdviseData = (data: any): ProcessoAdviseData => {
   }
 
   // Handle different data structures from Advise/Escavador
-  const area = data.area || 
-               data.classe?.area || 
-               data.classeProcessual?.area ||
-               "Não informado";
+  const area =
+    data.area ||
+    data.classe?.area ||
+    data.classeProcessual?.area ||
+    "Não informado";
 
-  const classe = data.classe?.nome || 
-                data.classeProcessual?.nome ||
-                data.classeProcessual ||
-                "Não informado";
+  const classe =
+    data.classe?.nome ||
+    data.classeProcessual?.nome ||
+    data.classeProcessual ||
+    "Não informado";
 
-  const assunto = data.assunto?.[0]?.nome ||
-                 data.assuntoPrincipal?.nome ||
-                 data.assuntoPrincipal ||
-                 data.assuntos?.[0] ||
-                 "Não informado";
+  const assunto =
+    data.assunto?.[0]?.nome ||
+    data.assuntoPrincipal?.nome ||
+    data.assuntoPrincipal ||
+    data.assuntos?.[0] ||
+    "Não informado";
 
-  const orgao = data.orgaoJulgador?.nome ||
-               data.tribunal?.nome ||
-               data.tribunal ||
-               data.varaDistribuicao ||
-               "Não informado";
+  const orgao =
+    data.orgaoJulgador?.nome ||
+    data.tribunal?.nome ||
+    data.tribunal ||
+    data.varaDistribuicao ||
+    "Não informado";
 
-  const valor = data.valorCausa || 
-               data.valor ||
-               data.valorDaCausa ||
-               null;
+  const valor = data.valorCausa || data.valor || data.valorDaCausa || null;
 
-  const audiencias = data.audiencias || 
-                    data.proximasAudiencias ||
-                    [];
+  const audiencias = data.audiencias || data.proximasAudiencias || [];
 
   return {
     area,
     classe,
     assunto,
     orgao,
-    valor: valor ? parseFloat(valor.toString().replace(/[^\d.,]/g, '').replace(',', '.')) : null,
+    valor: valor
+      ? parseFloat(
+          valor
+            .toString()
+            .replace(/[^\d.,]/g, "")
+            .replace(",", "."),
+        )
+      : null,
     audiencias: Array.isArray(audiencias) ? audiencias : [],
   };
 };
@@ -96,10 +102,13 @@ export const extractAdviseData = (data: any): ProcessoAdviseData => {
 /**
  * Fetch complete process data with all relationships
  */
-export const fetchProcessoCompleto = async (numero_cnj: string): Promise<ProcessoCompleto> => {
+export const fetchProcessoCompleto = async (
+  numero_cnj: string,
+): Promise<ProcessoCompleto> => {
   const { data: processo, error } = await supabase
     .from("processos")
-    .select(`
+    .select(
+      `
       numero_cnj,
       tribunal_sigla,
       titulo_polo_ativo,
@@ -118,7 +127,8 @@ export const fetchProcessoCompleto = async (numero_cnj: string): Promise<Process
           oab
         )
       )
-    `)
+    `,
+    )
     .eq("numero_cnj", numero_cnj)
     .single();
 
@@ -129,12 +139,24 @@ export const fetchProcessoCompleto = async (numero_cnj: string): Promise<Process
     { count: documentosCount },
     { count: peticoesCount },
     { count: movimentacoesCount },
-    { count: publicacoesCount }
+    { count: publicacoesCount },
   ] = await Promise.all([
-    supabase.from("documents").select("*", { count: "exact", head: true }).eq("numero_cnj", numero_cnj),
-    supabase.from("peticoes").select("*", { count: "exact", head: true }).eq("numero_cnj", numero_cnj),
-    supabase.from("movimentacoes").select("*", { count: "exact", head: true }).eq("numero_cnj", numero_cnj),
-    supabase.from("publicacoes").select("*", { count: "exact", head: true }).eq("numero_cnj", numero_cnj),
+    supabase
+      .from("documents")
+      .select("*", { count: "exact", head: true })
+      .eq("numero_cnj", numero_cnj),
+    supabase
+      .from("peticoes")
+      .select("*", { count: "exact", head: true })
+      .eq("numero_cnj", numero_cnj),
+    supabase
+      .from("movimentacoes")
+      .select("*", { count: "exact", head: true })
+      .eq("numero_cnj", numero_cnj),
+    supabase
+      .from("publicacoes")
+      .select("*", { count: "exact", head: true })
+      .eq("numero_cnj", numero_cnj),
   ]);
 
   return {
@@ -151,7 +173,10 @@ export const fetchProcessoCompleto = async (numero_cnj: string): Promise<Process
 /**
  * Fetch recent timeline events (last 30 days)
  */
-export const fetchTimelineRecente = async (numero_cnj: string, limit: number = 10) => {
+export const fetchTimelineRecente = async (
+  numero_cnj: string,
+  limit: number = 10,
+) => {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -171,9 +196,9 @@ export const fetchTimelineRecente = async (numero_cnj: string, limit: number = 1
  * Fetch complete timeline with pagination
  */
 export const fetchTimelineCompleto = async (
-  numero_cnj: string, 
-  page: number = 1, 
-  pageSize: number = 20
+  numero_cnj: string,
+  page: number = 1,
+  pageSize: number = 20,
 ) => {
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize - 1;
@@ -195,13 +220,15 @@ export const fetchTimelineCompleto = async (
 export const fetchProcessThreads = async (numero_cnj: string) => {
   const { data, error } = await supabase
     .from("thread_links")
-    .select(`
+    .select(
+      `
       id,
       context_type,
       properties,
       created_at,
       updated_at
-    `)
+    `,
+    )
     .eq("context_type", "processo")
     .contains("properties", { numero_cnj })
     .order("updated_at", { ascending: false });
@@ -216,15 +243,17 @@ export const fetchProcessThreads = async (numero_cnj: string) => {
 export const createAndamento = async (numero_cnj: string, conteudo: string) => {
   const { data, error } = await supabase
     .from("movimentacoes")
-    .insert([{
-      numero_cnj,
-      data: { 
-        texto: conteudo, 
-        tipo: "andamento_manual",
-        origem: "sistema_interno"
+    .insert([
+      {
+        numero_cnj,
+        data: {
+          texto: conteudo,
+          tipo: "andamento_manual",
+          origem: "sistema_interno",
+        },
+        data_movimentacao: new Date().toISOString(),
       },
-      data_movimentacao: new Date().toISOString(),
-    }])
+    ])
     .select();
 
   if (error) throw error;
@@ -234,18 +263,23 @@ export const createAndamento = async (numero_cnj: string, conteudo: string) => {
 /**
  * Create a new publication
  */
-export const createPublicacao = async (numero_cnj: string, conteudo: string) => {
+export const createPublicacao = async (
+  numero_cnj: string,
+  conteudo: string,
+) => {
   const { data, error } = await supabase
     .from("publicacoes")
-    .insert([{
-      numero_cnj,
-      data: { 
-        resumo: conteudo, 
-        tipo: "publicacao_manual",
-        origem: "sistema_interno"
+    .insert([
+      {
+        numero_cnj,
+        data: {
+          resumo: conteudo,
+          tipo: "publicacao_manual",
+          origem: "sistema_interno",
+        },
+        data_publicacao: new Date().toISOString(),
       },
-      data_publicacao: new Date().toISOString(),
-    }])
+    ])
     .select();
 
   if (error) throw error;
@@ -255,14 +289,20 @@ export const createPublicacao = async (numero_cnj: string, conteudo: string) => 
 /**
  * Create a new petition
  */
-export const createPeticao = async (numero_cnj: string, tipo: string, conteudo: string) => {
+export const createPeticao = async (
+  numero_cnj: string,
+  tipo: string,
+  conteudo: string,
+) => {
   const { data, error } = await supabase
     .from("peticoes")
-    .insert([{
-      numero_cnj,
-      tipo,
-      conteudo,
-    }])
+    .insert([
+      {
+        numero_cnj,
+        tipo,
+        conteudo,
+      },
+    ])
     .select();
 
   if (error) throw error;
@@ -277,7 +317,7 @@ export const formatCNJDisplay = (cnj: string): string => {
   if (clean.length === 20) {
     return clean.replace(
       /(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})/,
-      "$1-$2.$3.$4.$5.$6"
+      "$1-$2.$3.$4.$5.$6",
     );
   }
   return cnj;
@@ -287,9 +327,9 @@ export const formatCNJDisplay = (cnj: string): string => {
  * Format currency value
  */
 export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('pt-BR', { 
-    style: 'currency', 
-    currency: 'BRL' 
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
   }).format(value);
 };
 
@@ -300,15 +340,17 @@ export const formatDateDisplay = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString("pt-BR", {
     day: "2-digit",
-    month: "2-digit", 
-    year: "numeric"
+    month: "2-digit",
+    year: "numeric",
   });
 };
 
 /**
  * Get event icon type based on event type
  */
-export const getEventIconType = (tipo: string): "movement" | "publication" | "document" => {
+export const getEventIconType = (
+  tipo: string,
+): "movement" | "publication" | "document" => {
   if (tipo.includes("movimentacao") || tipo.includes("andamento")) {
     return "movement";
   } else if (tipo.includes("publicacao")) {
@@ -323,19 +365,21 @@ export const getEventIconType = (tipo: string): "movement" | "publication" | "do
  */
 export const getProcessActionContext = (processo: ProcessoCompleto) => {
   const adviseData = extractAdviseData(processo.data);
-  
+
   return {
     canAddAndamento: true,
     canAddPublicacao: true,
     canCreatePeticao: true,
     hasActiveAudiencias: adviseData.audiencias.length > 0,
     hasResponsavel: !!processo.responsavel,
-    isRecent: new Date(processo.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    isRecent:
+      new Date(processo.created_at) >
+      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     summary: {
       totalDocumentos: processo.documentos_count || 0,
       totalPeticoes: processo.peticoes_count || 0,
       totalMovimentacoes: processo.movimentacoes_count || 0,
       totalPublicacoes: processo.publicacoes_count || 0,
-    }
+    },
   };
 };

@@ -1,27 +1,37 @@
 /**
  * Exemplo de implementação de Progressive Disclosure
  * F1.0 - Demonstra padrões UX de revelação gradual
- * 
+ *
  * Use este componente como referência para implementar
  * progressive disclosure em outras partes do sistema
  */
 
-import React from 'react';
-import { FileText, Users, Clock, CreditCard, Settings } from 'lucide-react';
-import { 
-  DisclosurePanel, 
-  DisclosureCard, 
-  DisclosureGroup 
-} from '../ui/disclosure-panel';
-import { useMultipleDisclosure, disclosurePresets } from '../../lib/progressive-disclosure';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import React from "react";
+import { FileText, Users, Clock, CreditCard, Settings } from "lucide-react";
+import {
+  DisclosurePanel,
+  DisclosureCard,
+  DisclosureGroup,
+} from "../ui/disclosure-panel";
+import {
+  useMultipleDisclosure,
+  disclosurePresets,
+} from "../../lib/progressive-disclosure";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
 // Exemplo 1: Painel de informações do processo com revelação progressiva
 export function ProcessoDisclosureExample() {
   const disclosure = useMultipleDisclosure(
-    ['basicInfo', 'timeline', 'documents', 'parties', 'financials', 'monitoring'],
-    disclosurePresets.processoDetail
+    [
+      "basicInfo",
+      "timeline",
+      "documents",
+      "parties",
+      "financials",
+      "monitoring",
+    ],
+    disclosurePresets.processoDetail,
   );
 
   return (
@@ -38,8 +48,8 @@ export function ProcessoDisclosureExample() {
         <DisclosureCard
           title="Informações Básicas"
           icon={<FileText className="h-5 w-5" />}
-          defaultExpanded={disclosure.isExpanded('basicInfo')}
-          onToggle={() => disclosure.toggle('basicInfo')}
+          defaultExpanded={disclosure.isExpanded("basicInfo")}
+          onToggle={() => disclosure.toggle("basicInfo")}
           headerActions={<Badge variant="secondary">Ativo</Badge>}
         >
           <div className="grid grid-cols-2 gap-4">
@@ -48,7 +58,9 @@ export function ProcessoDisclosureExample() {
               <dd className="text-base text-gray-900">TJAC</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Valor da Causa</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                Valor da Causa
+              </dt>
               <dd className="text-base text-gray-900">R$ 50.000,00</dd>
             </div>
           </div>
@@ -58,13 +70,15 @@ export function ProcessoDisclosureExample() {
         <DisclosureCard
           title="Linha do Tempo"
           icon={<Clock className="h-5 w-5" />}
-          defaultExpanded={disclosure.isExpanded('timeline')}
-          onToggle={() => disclosure.toggle('timeline')}
+          defaultExpanded={disclosure.isExpanded("timeline")}
+          onToggle={() => disclosure.toggle("timeline")}
           headerActions={<Badge variant="outline">12 eventos</Badge>}
         >
           <div className="space-y-3">
             <div className="border-l-2 border-brand-200 pl-4">
-              <div className="text-sm font-medium">Petição Inicial Protocolada</div>
+              <div className="text-sm font-medium">
+                Petição Inicial Protocolada
+              </div>
               <div className="text-sm text-gray-500">15/12/2024 14:30</div>
             </div>
             <div className="border-l-2 border-brand-200 pl-4">
@@ -78,8 +92,8 @@ export function ProcessoDisclosureExample() {
         <DisclosureCard
           title="Documentos"
           icon={<FileText className="h-5 w-5" />}
-          defaultExpanded={disclosure.isExpanded('documents')}
-          onToggle={() => disclosure.toggle('documents')}
+          defaultExpanded={disclosure.isExpanded("documents")}
+          onToggle={() => disclosure.toggle("documents")}
           headerActions={<Badge variant="outline">8 arquivos</Badge>}
         >
           <div className="space-y-2">
@@ -98,8 +112,8 @@ export function ProcessoDisclosureExample() {
         <DisclosureCard
           title="Partes Envolvidas"
           icon={<Users className="h-5 w-5" />}
-          defaultExpanded={disclosure.isExpanded('parties')}
-          onToggle={() => disclosure.toggle('parties')}
+          defaultExpanded={disclosure.isExpanded("parties")}
+          onToggle={() => disclosure.toggle("parties")}
         >
           <div className="space-y-4">
             <div>
@@ -117,14 +131,16 @@ export function ProcessoDisclosureExample() {
         <DisclosureCard
           title="Informações Financeiras"
           icon={<CreditCard className="h-5 w-5" />}
-          defaultExpanded={disclosure.isExpanded('financials')}
-          onToggle={() => disclosure.toggle('financials')}
+          defaultExpanded={disclosure.isExpanded("financials")}
+          onToggle={() => disclosure.toggle("financials")}
           headerActions={<Badge variant="secondary">R$ 12.500</Badge>}
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
               <dt className="text-sm font-medium text-gray-500">Honorários</dt>
-              <dd className="text-base text-brand-700 font-medium">R$ 10.000,00</dd>
+              <dd className="text-base text-brand-700 font-medium">
+                R$ 10.000,00
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Custas</dt>
@@ -137,8 +153,8 @@ export function ProcessoDisclosureExample() {
         <DisclosureCard
           title="Configurações de Monitoramento"
           icon={<Settings className="h-5 w-5" />}
-          defaultExpanded={disclosure.isExpanded('monitoring')}
-          onToggle={() => disclosure.toggle('monitoring')}
+          defaultExpanded={disclosure.isExpanded("monitoring")}
+          onToggle={() => disclosure.toggle("monitoring")}
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -215,18 +231,24 @@ export function ProgressiveDisclosureDemo() {
       {/* Tabs ou seções para diferentes exemplos */}
       <div className="grid lg:grid-cols-2 gap-8">
         <div>
-          <h3 className="text-lg font-medium mb-4">Exemplo: Detalhes do Processo</h3>
+          <h3 className="text-lg font-medium mb-4">
+            Exemplo: Detalhes do Processo
+          </h3>
           <ProcessoDisclosureExample />
         </div>
-        
+
         <div>
-          <h3 className="text-lg font-medium mb-4">Exemplo: Configurações Simples</h3>
+          <h3 className="text-lg font-medium mb-4">
+            Exemplo: Configurações Simples
+          </h3>
           <SimpleDisclosureExample />
         </div>
       </div>
 
       <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mt-8">
-        <h4 className="font-medium text-brand-900 mb-2">Padrão F1.0 - Progressive Disclosure</h4>
+        <h4 className="font-medium text-brand-900 mb-2">
+          Padrão F1.0 - Progressive Disclosure
+        </h4>
         <ul className="text-sm text-brand-700 space-y-1">
           <li>• Informações essenciais sempre visíveis</li>
           <li>• Detalhes expandem sob demanda</li>

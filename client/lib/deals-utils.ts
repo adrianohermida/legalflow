@@ -19,7 +19,7 @@ export interface Deal {
   owner_id: string;
   tags: string[];
   notes: string;
-  status: 'open' | 'won' | 'lost';
+  status: "open" | "won" | "lost";
   lost_reason?: string;
   won_at?: string;
   lost_at?: string;
@@ -82,13 +82,13 @@ export function calculateDealStats(deals: Deal[]): DealStats {
     won_deals: 0,
     conversion_rate: 0,
     avg_deal_value: 0,
-    stage_breakdown: {}
+    stage_breakdown: {},
   };
 
-  deals.forEach(deal => {
+  deals.forEach((deal) => {
     stats.total_value += deal.value;
-    
-    if (deal.status === 'won') {
+
+    if (deal.status === "won") {
       stats.won_value += deal.value;
       stats.won_deals++;
     }
@@ -101,8 +101,10 @@ export function calculateDealStats(deals: Deal[]): DealStats {
     stats.stage_breakdown[deal.stage_id].value += deal.value;
   });
 
-  stats.conversion_rate = stats.total_deals > 0 ? (stats.won_deals / stats.total_deals) * 100 : 0;
-  stats.avg_deal_value = stats.total_deals > 0 ? stats.total_value / stats.total_deals : 0;
+  stats.conversion_rate =
+    stats.total_deals > 0 ? (stats.won_deals / stats.total_deals) * 100 : 0;
+  stats.avg_deal_value =
+    stats.total_deals > 0 ? stats.total_value / stats.total_deals : 0;
 
   return stats;
 }
@@ -110,33 +112,37 @@ export function calculateDealStats(deals: Deal[]): DealStats {
 /**
  * Sort deals by different criteria
  */
-export function sortDeals(deals: Deal[], sortBy: string, sortOrder: 'asc' | 'desc' = 'desc'): Deal[] {
+export function sortDeals(
+  deals: Deal[],
+  sortBy: string,
+  sortOrder: "asc" | "desc" = "desc",
+): Deal[] {
   const sorted = [...deals].sort((a, b) => {
     let aValue: any;
     let bValue: any;
 
     switch (sortBy) {
-      case 'value':
+      case "value":
         aValue = a.value;
         bValue = b.value;
         break;
-      case 'probability':
+      case "probability":
         aValue = a.probability;
         bValue = b.probability;
         break;
-      case 'expected_close_date':
+      case "expected_close_date":
         aValue = new Date(a.expected_close_date);
         bValue = new Date(b.expected_close_date);
         break;
-      case 'created_at':
+      case "created_at":
         aValue = new Date(a.created_at);
         bValue = new Date(b.created_at);
         break;
-      case 'updated_at':
+      case "updated_at":
         aValue = new Date(a.updated_at);
         bValue = new Date(b.updated_at);
         break;
-      case 'title':
+      case "title":
         aValue = a.title.toLowerCase();
         bValue = b.title.toLowerCase();
         break;
@@ -145,10 +151,10 @@ export function sortDeals(deals: Deal[], sortBy: string, sortOrder: 'asc' | 'des
     }
 
     if (aValue < bValue) {
-      return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === "asc" ? -1 : 1;
     }
     if (aValue > bValue) {
-      return sortOrder === 'asc' ? 1 : -1;
+      return sortOrder === "asc" ? 1 : -1;
     }
     return 0;
   });
@@ -160,15 +166,15 @@ export function sortDeals(deals: Deal[], sortBy: string, sortOrder: 'asc' | 'des
  * Filter deals based on various criteria
  */
 export function filterDeals(deals: Deal[], filters: DealFilters): Deal[] {
-  return deals.filter(deal => {
+  return deals.filter((deal) => {
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      const matchesSearch = 
+      const matchesSearch =
         deal.title.toLowerCase().includes(searchLower) ||
         deal.notes.toLowerCase().includes(searchLower) ||
-        deal.tags.some(tag => tag.toLowerCase().includes(searchLower));
-      
+        deal.tags.some((tag) => tag.toLowerCase().includes(searchLower));
+
       if (!matchesSearch) return false;
     }
 
@@ -214,8 +220,8 @@ export function filterDeals(deals: Deal[], filters: DealFilters): Deal[] {
 
     // Tags filter
     if (filters.tags && filters.tags.length > 0) {
-      const hasMatchingTag = filters.tags.some(tag => 
-        deal.tags.includes(tag)
+      const hasMatchingTag = filters.tags.some((tag) =>
+        deal.tags.includes(tag),
       );
       if (!hasMatchingTag) return false;
     }
@@ -227,16 +233,19 @@ export function filterDeals(deals: Deal[], filters: DealFilters): Deal[] {
 /**
  * Group deals by stage for Kanban view
  */
-export function groupDealsByStage(deals: Deal[], stages: PipelineStage[]): Record<string, Deal[]> {
+export function groupDealsByStage(
+  deals: Deal[],
+  stages: PipelineStage[],
+): Record<string, Deal[]> {
   const grouped: Record<string, Deal[]> = {};
-  
+
   // Initialize with empty arrays for all stages
-  stages.forEach(stage => {
+  stages.forEach((stage) => {
     grouped[stage.id] = [];
   });
 
   // Group deals by stage
-  deals.forEach(deal => {
+  deals.forEach((deal) => {
     if (grouped[deal.stage_id]) {
       grouped[deal.stage_id].push(deal);
     }
@@ -248,9 +257,12 @@ export function groupDealsByStage(deals: Deal[], stages: PipelineStage[]): Recor
 /**
  * Format currency value
  */
-export function formatCurrency(value: number, currency: string = 'BRL'): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
+export function formatCurrency(
+  value: number,
+  currency: string = "BRL",
+): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
     currency: currency,
   }).format(value);
 }
@@ -267,14 +279,14 @@ export function formatProbability(probability: number): string {
  */
 export function getDealStatusColor(status: string): string {
   switch (status) {
-    case 'won':
-      return 'text-green-600 bg-green-100';
-    case 'lost':
-      return 'text-red-600 bg-red-100';
-    case 'open':
-      return 'text-blue-600 bg-blue-100';
+    case "won":
+      return "text-green-600 bg-green-100";
+    case "lost":
+      return "text-red-600 bg-red-100";
+    case "open":
+      return "text-blue-600 bg-blue-100";
     default:
-      return 'text-gray-600 bg-gray-100';
+      return "text-gray-600 bg-gray-100";
   }
 }
 
@@ -282,7 +294,7 @@ export function getDealStatusColor(status: string): string {
  * Get stage color or default
  */
 export function getStageColor(stage: PipelineStage): string {
-  return stage.color || '#3B82F6';
+  return stage.color || "#3B82F6";
 }
 
 /**
@@ -300,29 +312,29 @@ export function formatRelativeTime(date: string): string {
   const dateObj = new Date(date);
   const diffMs = now.getTime() - dateObj.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 0) {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     if (diffHours === 0) {
       const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return diffMinutes <= 1 ? 'agora' : `${diffMinutes} min atrás`;
+      return diffMinutes <= 1 ? "agora" : `${diffMinutes} min atrás`;
     }
-    return diffHours === 1 ? '1 hora atrás' : `${diffHours} horas atrás`;
+    return diffHours === 1 ? "1 hora atrás" : `${diffHours} horas atrás`;
   }
-  
-  if (diffDays === 1) return 'ontem';
+
+  if (diffDays === 1) return "ontem";
   if (diffDays < 7) return `${diffDays} dias atrás`;
   if (diffDays < 30) {
     const weeks = Math.floor(diffDays / 7);
-    return weeks === 1 ? '1 semana atrás' : `${weeks} semanas atrás`;
+    return weeks === 1 ? "1 semana atrás" : `${weeks} semanas atrás`;
   }
   if (diffDays < 365) {
     const months = Math.floor(diffDays / 30);
-    return months === 1 ? '1 mês atrás' : `${months} meses atrás`;
+    return months === 1 ? "1 mês atrás" : `${months} meses atrás`;
   }
-  
+
   const years = Math.floor(diffDays / 365);
-  return years === 1 ? '1 ano atrás' : `${years} anos atrás`;
+  return years === 1 ? "1 ano atrás" : `${years} anos atrás`;
 }
 
 /**
@@ -331,7 +343,7 @@ export function formatRelativeTime(date: string): string {
 export function isDealOverdue(deal: Deal): boolean {
   const now = new Date();
   const expectedClose = new Date(deal.expected_close_date);
-  return deal.status === 'open' && expectedClose < now;
+  return deal.status === "open" && expectedClose < now;
 }
 
 /**

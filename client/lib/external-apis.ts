@@ -65,7 +65,7 @@ export const directDataApi = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -73,7 +73,7 @@ export const directDataApi = {
       }
 
       const data = await response.json();
-      
+
       if (data.metaDados?.mensagem !== "Sucesso") {
         throw new Error(data.metaDados?.mensagem || "Erro na consulta CPF");
       }
@@ -87,7 +87,7 @@ export const directDataApi = {
 
   extractWhatsAppFromData(data: DirectDataResponse): string | null {
     const whatsappPhone = data.retorno.telefones?.find(
-      (phone) => phone.whatsApp && phone.telefoneComDDD
+      (phone) => phone.whatsApp && phone.telefoneComDDD,
     );
     return whatsappPhone?.telefoneComDDD || null;
   },
@@ -127,7 +127,7 @@ export const viaCepApi = {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -135,7 +135,7 @@ export const viaCepApi = {
       }
 
       const data = await response.json();
-      
+
       if (data.erro) {
         throw new Error("CEP não encontrado");
       }
@@ -167,10 +167,10 @@ export const cpfUtils = {
 
   validate(cpf: string): boolean {
     const clean = cpf.replace(/\D/g, "");
-    
+
     if (clean.length !== 11) return false;
     if (/^(\d)\1{10}$/.test(clean)) return false; // All same digits
-    
+
     // Validate check digits
     let sum = 0;
     for (let i = 0; i < 9; i++) {
@@ -178,16 +178,16 @@ export const cpfUtils = {
     }
     let checkDigit1 = 11 - (sum % 11);
     if (checkDigit1 === 10 || checkDigit1 === 11) checkDigit1 = 0;
-    
+
     if (checkDigit1 !== parseInt(clean.charAt(9))) return false;
-    
+
     sum = 0;
     for (let i = 0; i < 10; i++) {
       sum += parseInt(clean.charAt(i)) * (11 - i);
     }
     let checkDigit2 = 11 - (sum % 11);
     if (checkDigit2 === 10 || checkDigit2 === 11) checkDigit2 = 0;
-    
+
     return checkDigit2 === parseInt(clean.charAt(10));
   },
 };
@@ -198,7 +198,7 @@ export const cnpjUtils = {
     if (clean.length === 14) {
       return clean.replace(
         /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-        "$1.$2.$3/$4-$5"
+        "$1.$2.$3/$4-$5",
       );
     }
     return cnpj;
@@ -206,30 +206,30 @@ export const cnpjUtils = {
 
   validate(cnpj: string): boolean {
     const clean = cnpj.replace(/\D/g, "");
-    
+
     if (clean.length !== 14) return false;
     if (/^(\d)\1{13}$/.test(clean)) return false; // All same digits
-    
+
     // Validate check digits
     const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
     const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-    
+
     let sum = 0;
     for (let i = 0; i < 12; i++) {
       sum += parseInt(clean.charAt(i)) * weights1[i];
     }
     let checkDigit1 = sum % 11;
     checkDigit1 = checkDigit1 < 2 ? 0 : 11 - checkDigit1;
-    
+
     if (checkDigit1 !== parseInt(clean.charAt(12))) return false;
-    
+
     sum = 0;
     for (let i = 0; i < 13; i++) {
       sum += parseInt(clean.charAt(i)) * weights2[i];
     }
     let checkDigit2 = sum % 11;
     checkDigit2 = checkDigit2 < 2 ? 0 : 11 - checkDigit2;
-    
+
     return checkDigit2 === parseInt(clean.charAt(13));
   },
 };

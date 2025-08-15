@@ -33,18 +33,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
@@ -97,7 +87,10 @@ interface PecasAIManagerProps {
   selectedCNJ?: string;
 }
 
-export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerProps) {
+export function PecasAIManager({
+  searchTerm = "",
+  selectedCNJ,
+}: PecasAIManagerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -119,7 +112,13 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
 
   // Queries
   const { data: peticoes = [], isLoading } = useQuery({
-    queryKey: ["peticoes-ai", searchTerm, selectedCNJ, filterStatus, filterTipo],
+    queryKey: [
+      "peticoes-ai",
+      searchTerm,
+      selectedCNJ,
+      filterStatus,
+      filterTipo,
+    ],
     queryFn: async () => {
       let query = supabase
         .from("peticoes")
@@ -127,7 +126,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%,conteudo.ilike.%${searchTerm}%`);
+        query = query.or(
+          `tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%,conteudo.ilike.%${searchTerm}%`,
+        );
       }
 
       if (selectedCNJ) {
@@ -140,10 +141,10 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
       // Apply client-side filters
       let filtered = data || [];
       if (filterStatus !== "all") {
-        filtered = filtered.filter(p => p.status === filterStatus);
+        filtered = filtered.filter((p) => p.status === filterStatus);
       }
       if (filterTipo !== "all") {
-        filtered = filtered.filter(p => p.tipo === filterTipo);
+        filtered = filtered.filter((p) => p.tipo === filterTipo);
       }
 
       return filtered;
@@ -187,7 +188,7 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
   const generateAIMutation = useMutation({
     mutationFn: async (prompt: string) => {
       setIsGenerating(true);
-      
+
       // Call AI generation function
       const response = await fetch("/.netlify/functions/generate-peca-ai", {
         method: "POST",
@@ -202,12 +203,12 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
       });
 
       if (!response.ok) throw new Error("Falha na geração IA");
-      
+
       const result = await response.json();
       return result.conteudo;
     },
     onSuccess: (conteudo) => {
-      setPecaForm(prev => ({ ...prev, conteudo }));
+      setPecaForm((prev) => ({ ...prev, conteudo }));
       setIsGenerating(false);
       toast({
         title: "Conteúdo gerado com IA!",
@@ -226,10 +227,7 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
 
   const deletePecaMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("peticoes")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("peticoes").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -334,7 +332,8 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
     navigator.clipboard.writeText(conteudo).then(() => {
       toast({
         title: "Conteúdo copiado",
-        description: "O texto da peça foi copiado para a área de transferência.",
+        description:
+          "O texto da peça foi copiado para a área de transferência.",
       });
     });
   };
@@ -348,7 +347,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
       case "approved":
         return <Badge className="bg-green-100 text-green-800">Aprovado</Badge>;
       case "filed":
-        return <Badge className="bg-purple-100 text-purple-800">Protocolado</Badge>;
+        return (
+          <Badge className="bg-purple-100 text-purple-800">Protocolado</Badge>
+        );
       default:
         return <Badge variant="outline">-</Badge>;
     }
@@ -421,10 +422,7 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
         {isLoading ? (
           <div className="grid gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="animate-pulse border rounded-lg p-4"
-              >
+              <div key={i} className="animate-pulse border rounded-lg p-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2"></div>
               </div>
@@ -439,7 +437,8 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                     <div className="flex items-center space-x-2 mb-2">
                       {getStatusIcon(peca.status)}
                       <h4 className="font-medium">
-                        {TIPOS_PECA.find(t => t.value === peca.tipo)?.label || peca.tipo}
+                        {TIPOS_PECA.find((t) => t.value === peca.tipo)?.label ||
+                          peca.tipo}
                       </h4>
                       {getStatusBadge(peca.status)}
                       {peca.numero_cnj && (
@@ -462,9 +461,7 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                           {peca.tribunal}
                         </span>
                       )}
-                      {peca.vara_forum && (
-                        <span>{peca.vara_forum}</span>
-                      )}
+                      {peca.vara_forum && <span>{peca.vara_forum}</span>}
                     </div>
                   </div>
 
@@ -512,7 +509,10 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
               Nenhuma peça encontrada
             </h3>
             <p className="text-gray-500 mb-4">
-              {searchTerm || selectedCNJ || filterStatus !== "all" || filterTipo !== "all"
+              {searchTerm ||
+              selectedCNJ ||
+              filterStatus !== "all" ||
+              filterTipo !== "all"
                 ? "Tente ajustar os filtros de busca"
                 : "Crie sua primeira peça processual com IA"}
             </p>
@@ -537,7 +537,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                 <Label htmlFor="tipo">Tipo de Peça *</Label>
                 <Select
                   value={pecaForm.tipo}
-                  onValueChange={(value) => setPecaForm({ ...pecaForm, tipo: value })}
+                  onValueChange={(value) =>
+                    setPecaForm({ ...pecaForm, tipo: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
@@ -557,7 +559,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                 <Input
                   id="numero_cnj"
                   value={pecaForm.numero_cnj}
-                  onChange={(e) => setPecaForm({ ...pecaForm, numero_cnj: e.target.value })}
+                  onChange={(e) =>
+                    setPecaForm({ ...pecaForm, numero_cnj: e.target.value })
+                  }
                   placeholder="0000000-00.0000.0.00.0000"
                 />
               </div>
@@ -567,7 +571,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                 <Input
                   id="tribunal"
                   value={pecaForm.tribunal}
-                  onChange={(e) => setPecaForm({ ...pecaForm, tribunal: e.target.value })}
+                  onChange={(e) =>
+                    setPecaForm({ ...pecaForm, tribunal: e.target.value })
+                  }
                   placeholder="Ex: TJSP, TJRJ, STJ"
                 />
               </div>
@@ -577,7 +583,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                 <Input
                   id="vara_forum"
                   value={pecaForm.vara_forum}
-                  onChange={(e) => setPecaForm({ ...pecaForm, vara_forum: e.target.value })}
+                  onChange={(e) =>
+                    setPecaForm({ ...pecaForm, vara_forum: e.target.value })
+                  }
                   placeholder="Ex: 1ª Vara Cível"
                 />
               </div>
@@ -595,14 +603,18 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                   <Textarea
                     id="prompt_ia"
                     value={pecaForm.prompt_ia}
-                    onChange={(e) => setPecaForm({ ...pecaForm, prompt_ia: e.target.value })}
+                    onChange={(e) =>
+                      setPecaForm({ ...pecaForm, prompt_ia: e.target.value })
+                    }
                     placeholder="Descreva os detalhes do caso, argumentos principais, pedidos específicos..."
                     rows={3}
                   />
                 </div>
                 <Button
                   onClick={handleGenerateAI}
-                  disabled={!pecaForm.tipo || !pecaForm.prompt_ia || isGenerating}
+                  disabled={
+                    !pecaForm.tipo || !pecaForm.prompt_ia || isGenerating
+                  }
                   className="w-full"
                 >
                   {isGenerating ? (
@@ -626,7 +638,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
               <Textarea
                 id="conteudo"
                 value={pecaForm.conteudo}
-                onChange={(e) => setPecaForm({ ...pecaForm, conteudo: e.target.value })}
+                onChange={(e) =>
+                  setPecaForm({ ...pecaForm, conteudo: e.target.value })
+                }
                 placeholder="Digite ou gere o conteúdo da peça..."
                 rows={15}
                 className="font-mono text-sm"
@@ -639,7 +653,11 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={!pecaForm.tipo || !pecaForm.conteudo || createPecaMutation.isPending}
+                disabled={
+                  !pecaForm.tipo ||
+                  !pecaForm.conteudo ||
+                  createPecaMutation.isPending
+                }
               >
                 {createPecaMutation.isPending ? (
                   <>
@@ -660,9 +678,9 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedPeca && (
-                TIPOS_PECA.find(t => t.value === selectedPeca.tipo)?.label || selectedPeca.tipo
-              )}
+              {selectedPeca &&
+                (TIPOS_PECA.find((t) => t.value === selectedPeca.tipo)?.label ||
+                  selectedPeca.tipo)}
             </DialogTitle>
           </DialogHeader>
 
@@ -703,8 +721,12 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
 
               <div className="text-xs text-gray-500 flex items-center space-x-4">
                 <span>Criado em {formatDate(selectedPeca.created_at)}</span>
-                {selectedPeca.tribunal && <span>Tribunal: {selectedPeca.tribunal}</span>}
-                {selectedPeca.vara_forum && <span>Vara: {selectedPeca.vara_forum}</span>}
+                {selectedPeca.tribunal && (
+                  <span>Tribunal: {selectedPeca.tribunal}</span>
+                )}
+                {selectedPeca.vara_forum && (
+                  <span>Vara: {selectedPeca.vara_forum}</span>
+                )}
               </div>
             </div>
           )}

@@ -103,7 +103,9 @@ const DocumentosC6 = () => {
   // States
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("biblioteca");
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null,
+  );
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isFlipbookOpen, setIsFlipbookOpen] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -118,7 +120,9 @@ const DocumentosC6 = () => {
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`file_name.ilike.%${searchTerm}%,metadata->>numero_cnj.ilike.%${searchTerm}%`);
+        query = query.or(
+          `file_name.ilike.%${searchTerm}%,metadata->>numero_cnj.ilike.%${searchTerm}%`,
+        );
       }
 
       const { data, error } = await query;
@@ -136,7 +140,9 @@ const DocumentosC6 = () => {
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%,conteudo.ilike.%${searchTerm}%`);
+        query = query.or(
+          `tipo.ilike.%${searchTerm}%,numero_cnj.ilike.%${searchTerm}%,conteudo.ilike.%${searchTerm}%`,
+        );
       }
 
       const { data, error } = await query;
@@ -145,22 +151,25 @@ const DocumentosC6 = () => {
     },
   });
 
-  const { data: processoDocuments = [], isLoading: loadingProcessoDocs } = useQuery({
-    queryKey: ["processo-documents", flipbookCNJ],
-    queryFn: async () => {
-      if (!flipbookCNJ) return [];
-      
-      const { data, error } = await supabase
-        .from("documents")
-        .select("*")
-        .or(`numero_cnj.eq.${flipbookCNJ},metadata->>numero_cnj.eq.${flipbookCNJ}`)
-        .order("created_at", { ascending: false });
+  const { data: processoDocuments = [], isLoading: loadingProcessoDocs } =
+    useQuery({
+      queryKey: ["processo-documents", flipbookCNJ],
+      queryFn: async () => {
+        if (!flipbookCNJ) return [];
 
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!flipbookCNJ,
-  });
+        const { data, error } = await supabase
+          .from("documents")
+          .select("*")
+          .or(
+            `numero_cnj.eq.${flipbookCNJ},metadata->>numero_cnj.eq.${flipbookCNJ}`,
+          )
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+      },
+      enabled: !!flipbookCNJ,
+    });
 
   // Mutations
 
@@ -247,10 +256,7 @@ const DocumentosC6 = () => {
         </div>
 
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setIsFlipbookOpen(true)}
-          >
+          <Button variant="outline" onClick={() => setIsFlipbookOpen(true)}>
             <BookOpen className="mr-2 h-4 w-4" />
             Flipbook CNJ
           </Button>
@@ -333,7 +339,9 @@ const DocumentosC6 = () => {
                             <span>{formatFileSize(doc.file_size)}</span>
                             <span>{formatDate(doc.created_at)}</span>
                             {doc.metadata?.document_type && (
-                              <span className="capitalize">{doc.metadata.document_type}</span>
+                              <span className="capitalize">
+                                {doc.metadata.document_type}
+                              </span>
                             )}
                           </div>
                         </div>

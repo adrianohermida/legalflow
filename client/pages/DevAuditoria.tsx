@@ -143,7 +143,13 @@ const DevAuditoria: React.FC = () => {
     "system" | "features" | "diagnostics"
   >("system");
   const [activeSystemTab, setActiveSystemTab] = useState<
-    "audit" | "flow-a0" | "testing" | "backlog" | "routes" | "config" | "history"
+    | "audit"
+    | "flow-a0"
+    | "testing"
+    | "backlog"
+    | "routes"
+    | "config"
+    | "history"
   >("audit");
   const [activeFeaturesTab, setActiveFeaturesTab] = useState<
     "sf2" | "sf5" | "sf6" | "sf7" | "sf8" | "sf9" | "sf10" | "sf11"

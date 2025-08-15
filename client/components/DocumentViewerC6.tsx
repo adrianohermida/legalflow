@@ -17,12 +17,7 @@ import {
   File,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Badge } from "./ui/badge";
 import { useToast } from "../hooks/use-toast";
 import { supabase } from "../lib/supabase";
@@ -62,11 +57,12 @@ export function DocumentViewerC6({
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
 
-  const currentDocument = documents.length > 0 ? documents[currentIndex] : document;
+  const currentDocument =
+    documents.length > 0 ? documents[currentIndex] : document;
 
   useEffect(() => {
     if (document && documents.length > 0) {
-      const index = documents.findIndex(d => d.id === document.id);
+      const index = documents.findIndex((d) => d.id === document.id);
       setCurrentIndex(index >= 0 ? index : 0);
     }
   }, [document, documents]);
@@ -149,7 +145,8 @@ export function DocumentViewerC6({
     navigator.clipboard.writeText(text).then(() => {
       toast({
         title: "Link copiado",
-        description: "O link do documento foi copiado para a área de transferência.",
+        description:
+          "O link do documento foi copiado para a área de transferência.",
       });
     });
   };
@@ -173,11 +170,11 @@ export function DocumentViewerC6({
   };
 
   const adjustZoom = (delta: number) => {
-    setZoom(prev => Math.max(25, Math.min(200, prev + delta)));
+    setZoom((prev) => Math.max(25, Math.min(200, prev + delta)));
   };
 
   const rotateDocument = () => {
-    setRotation(prev => (prev + 90) % 360);
+    setRotation((prev) => (prev + 90) % 360);
   };
 
   const getFileIcon = (fileName: string) => {
@@ -224,21 +221,27 @@ export function DocumentViewerC6({
           <div className="flex items-center space-x-3">
             {getFileIcon(currentDocument.file_name)}
             <div>
-              <DialogTitle className="text-lg">{currentDocument.file_name}</DialogTitle>
+              <DialogTitle className="text-lg">
+                {currentDocument.file_name}
+              </DialogTitle>
               <div className="flex items-center space-x-2 text-sm text-gray-500">
                 <span>{formatFileSize(currentDocument.file_size)}</span>
-                {(currentDocument.numero_cnj || currentDocument.metadata?.numero_cnj) && (
+                {(currentDocument.numero_cnj ||
+                  currentDocument.metadata?.numero_cnj) && (
                   <>
                     <span>•</span>
                     <Badge variant="outline" className="text-xs">
-                      {currentDocument.numero_cnj || currentDocument.metadata?.numero_cnj}
+                      {currentDocument.numero_cnj ||
+                        currentDocument.metadata?.numero_cnj}
                     </Badge>
                   </>
                 )}
                 {currentDocument.metadata?.document_type && (
                   <>
                     <span>•</span>
-                    <span className="capitalize">{currentDocument.metadata.document_type}</span>
+                    <span className="capitalize">
+                      {currentDocument.metadata.document_type}
+                    </span>
                   </>
                 )}
               </div>
@@ -273,7 +276,8 @@ export function DocumentViewerC6({
             )}
 
             {/* Zoom Controls */}
-            {(isImage(currentDocument.file_name) || isPDF(currentDocument.file_name)) && (
+            {(isImage(currentDocument.file_name) ||
+              isPDF(currentDocument.file_name)) && (
               <>
                 <Button
                   variant="ghost"
@@ -292,11 +296,7 @@ export function DocumentViewerC6({
                 >
                   <ZoomIn className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={rotateDocument}
-                >
+                <Button variant="ghost" size="sm" onClick={rotateDocument}>
                   <RotateCw className="h-4 w-4" />
                 </Button>
                 <div className="w-px h-6 bg-gray-300 mx-2" />
@@ -318,11 +318,7 @@ export function DocumentViewerC6({
             >
               <Share className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={printDocument}
-            >
+            <Button variant="ghost" size="sm" onClick={printDocument}>
               <Printer className="h-4 w-4" />
             </Button>
             {signedUrl && (
@@ -334,11 +330,7 @@ export function DocumentViewerC6({
                 <ExternalLink className="h-4 w-4" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-            >
+            <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -349,7 +341,9 @@ export function DocumentViewerC6({
           {isLoading ? (
             <div className="flex items-center justify-center h-96">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-gray-600">Carregando documento...</span>
+              <span className="ml-2 text-gray-600">
+                Carregando documento...
+              </span>
             </div>
           ) : signedUrl ? (
             <div className="h-full overflow-auto">
@@ -369,7 +363,7 @@ export function DocumentViewerC6({
                 <iframe
                   src={`${signedUrl}#zoom=${zoom}`}
                   className="w-full h-full border-0"
-                  style={{ 
+                  style={{
                     minHeight: "70vh",
                     transform: `rotate(${rotation}deg)`,
                   }}

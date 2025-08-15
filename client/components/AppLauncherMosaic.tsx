@@ -11,7 +11,13 @@ import { Link } from "react-router-dom";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { useToast } from "../hooks/use-toast";
 import {
   X,
@@ -46,7 +52,11 @@ import {
   EyeOff,
   PanelLeft,
 } from "lucide-react";
-import { SidebarItem, defaultAdvogadoItems, defaultClienteItems } from "./SidebarCustomizable";
+import {
+  SidebarItem,
+  defaultAdvogadoItems,
+  defaultClienteItems,
+} from "./SidebarCustomizable";
 import { themeUtils, colors } from "../lib/theme-colors";
 
 interface AppLauncherMosaicProps {
@@ -352,18 +362,21 @@ export function AppLauncherMosaic({
 
   useEffect(() => {
     // Carregar módulos baseado no tipo de usuário
-    const allModules = userType === "advogado" ? allAdvogadoModules : allClienteModules;
-    
+    const allModules =
+      userType === "advogado" ? allAdvogadoModules : allClienteModules;
+
     // Sincronizar com o estado do sidebar
     const storageKey = `sidebar-layout-${userType}`;
     const savedLayout = localStorage.getItem(storageKey);
-    
+
     if (savedLayout) {
       try {
         const sidebarItems = JSON.parse(savedLayout);
-        const syncedModules = allModules.map(module => ({
+        const syncedModules = allModules.map((module) => ({
           ...module,
-          inSidebar: sidebarItems.some((item: any) => item.id === module.id && item.isVisible)
+          inSidebar: sidebarItems.some(
+            (item: any) => item.id === module.id && item.isVisible,
+          ),
         }));
         setModules(syncedModules);
       } catch (error) {
@@ -374,34 +387,42 @@ export function AppLauncherMosaic({
     }
 
     // Carregar itens do sidebar
-    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+    const defaultItems =
+      userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
     setSidebarItems(savedLayout ? JSON.parse(savedLayout) : defaultItems);
   }, [userType, isOpen]);
 
-  const categories = ["Todos", ...Array.from(new Set(modules.map(m => m.category)))];
+  const categories = [
+    "Todos",
+    ...Array.from(new Set(modules.map((m) => m.category))),
+  ];
 
-  const filteredModules = modules.filter(module => {
-    const matchesSearch = module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         module.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "Todos" || module.category === selectedCategory;
+  const filteredModules = modules.filter((module) => {
+    const matchesSearch =
+      module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      module.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "Todos" || module.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const toggleModuleInSidebar = (moduleId: string) => {
     if (!isSidebarCustomizing) return;
 
-    const module = modules.find(m => m.id === moduleId);
+    const module = modules.find((m) => m.id === moduleId);
     if (!module || module.isDefault) return;
 
     // Atualizar módulos
-    const updatedModules = modules.map(module => 
-      module.id === moduleId ? { ...module, inSidebar: !module.inSidebar } : module
+    const updatedModules = modules.map((module) =>
+      module.id === moduleId
+        ? { ...module, inSidebar: !module.inSidebar }
+        : module,
     );
     setModules(updatedModules);
 
     // Atualizar itens do sidebar
-    const updatedSidebarItems = sidebarItems.map(item => 
-      item.id === moduleId ? { ...item, isVisible: !item.isVisible } : item
+    const updatedSidebarItems = sidebarItems.map((item) =>
+      item.id === moduleId ? { ...item, isVisible: !item.isVisible } : item,
     );
     setSidebarItems(updatedSidebarItems);
     setHasChanges(true);
@@ -418,14 +439,14 @@ export function AppLauncherMosaic({
   const saveSidebarChanges = () => {
     const storageKey = `sidebar-layout-${userType}`;
     localStorage.setItem(storageKey, JSON.stringify(sidebarItems));
-    
+
     if (onUpdateSidebar) {
       onUpdateSidebar(sidebarItems);
     }
 
     setIsSidebarCustomizing(false);
     setHasChanges(false);
-    
+
     toast({
       title: "Layout salvo",
       description: "Suas preferências de menu foram salvas",
@@ -433,13 +454,15 @@ export function AppLauncherMosaic({
   };
 
   const resetSidebarToDefault = () => {
-    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
-    const allModules = userType === "advogado" ? allAdvogadoModules : allClienteModules;
-    
+    const defaultItems =
+      userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+    const allModules =
+      userType === "advogado" ? allAdvogadoModules : allClienteModules;
+
     setSidebarItems(defaultItems);
     setModules(allModules);
     setHasChanges(true);
-    
+
     toast({
       title: "Layout resetado",
       description: "Menu restaurado para configuração padrão",
@@ -450,19 +473,23 @@ export function AppLauncherMosaic({
     // Recarregar do localStorage
     const storageKey = `sidebar-layout-${userType}`;
     const savedLayout = localStorage.getItem(storageKey);
-    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
-    
+    const defaultItems =
+      userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+
     const items = savedLayout ? JSON.parse(savedLayout) : defaultItems;
     setSidebarItems(items);
-    
+
     // Resincronizar módulos
-    const allModules = userType === "advogado" ? allAdvogadoModules : allClienteModules;
-    const syncedModules = allModules.map(module => ({
+    const allModules =
+      userType === "advogado" ? allAdvogadoModules : allClienteModules;
+    const syncedModules = allModules.map((module) => ({
       ...module,
-      inSidebar: items.some((item: any) => item.id === module.id && item.isVisible)
+      inSidebar: items.some(
+        (item: any) => item.id === module.id && item.isVisible,
+      ),
     }));
     setModules(syncedModules);
-    
+
     setIsSidebarCustomizing(false);
     setHasChanges(false);
   };
@@ -470,18 +497,24 @@ export function AppLauncherMosaic({
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 flex items-center justify-center z-50" 
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
       style={{ backgroundColor: colors.surface.overlay }}
     >
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
         style={themeUtils.elevatedCardShadow}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: colors.neutral[200] }}>
+        <div
+          className="flex items-center justify-between p-6 border-b"
+          style={{ borderColor: colors.neutral[200] }}
+        >
           <div>
-            <h2 className="text-2xl font-bold" style={{ color: colors.neutral[900] }}>
+            <h2
+              className="text-2xl font-bold"
+              style={{ color: colors.neutral[900] }}
+            >
               Módulos do Sistema
             </h2>
             <p className="mt-1" style={{ color: colors.neutral[600] }}>
@@ -543,7 +576,10 @@ export function AppLauncherMosaic({
         </div>
 
         {/* Search and Filters */}
-        <div className="p-6 border-b" style={{ borderColor: colors.neutral[200] }}>
+        <div
+          className="p-6 border-b"
+          style={{ borderColor: colors.neutral[200] }}
+        >
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -552,9 +588,9 @@ export function AppLauncherMosaic({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent"
-                style={{ 
+                style={{
                   borderColor: colors.neutral[300],
-                  boxShadow: `0 0 0 2px ${colors.brand.primaryLight}`
+                  boxShadow: `0 0 0 2px ${colors.brand.primaryLight}`,
                 }}
               />
             </div>
@@ -562,11 +598,13 @@ export function AppLauncherMosaic({
               {categories.map((category) => (
                 <Button
                   key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  variant={
+                    selectedCategory === category ? "default" : "outline"
+                  }
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
                   style={
-                    selectedCategory === category 
+                    selectedCategory === category
                       ? themeUtils.primaryButton
                       : {}
                   }
@@ -579,21 +617,28 @@ export function AppLauncherMosaic({
 
           {/* Status do modo de personalização */}
           {isSidebarCustomizing && (
-            <div 
+            <div
               className="mt-4 p-3 rounded-lg border"
-              style={{ 
+              style={{
                 backgroundColor: colors.brand.primaryLight,
-                borderColor: colors.brand.primary 
+                borderColor: colors.brand.primary,
               }}
             >
-              <div className="flex items-center gap-2" style={{ color: colors.brand.primaryDark }}>
+              <div
+                className="flex items-center gap-2"
+                style={{ color: colors.brand.primaryDark }}
+              >
                 <Settings className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   Modo Personalização Ativo
                 </span>
               </div>
-              <p className="text-xs mt-1" style={{ color: colors.brand.primary }}>
-                Clique nos ícones de olho para adicionar/remover módulos do menu lateral
+              <p
+                className="text-xs mt-1"
+                style={{ color: colors.brand.primary }}
+              >
+                Clique nos ícones de olho para adicionar/remover módulos do menu
+                lateral
               </p>
             </div>
           )}
@@ -609,9 +654,13 @@ export function AppLauncherMosaic({
                   key={module.id}
                   className={cn(
                     "relative group bg-white border rounded-lg p-4 hover:shadow-md transition-all duration-200",
-                    isSidebarCustomizing && "hover:border-gray-400 cursor-pointer"
+                    isSidebarCustomizing &&
+                      "hover:border-gray-400 cursor-pointer",
                   )}
-                  style={{ borderColor: colors.neutral[200], ...themeUtils.cardShadow }}
+                  style={{
+                    borderColor: colors.neutral[200],
+                    ...themeUtils.cardShadow,
+                  }}
                 >
                   {/* Badge de status no sidebar */}
                   {isSidebarCustomizing && (
@@ -623,32 +672,41 @@ export function AppLauncherMosaic({
                         disabled={module.isDefault}
                         className="h-6 w-6 p-0"
                         title={
-                          module.isDefault 
-                            ? "Módulo obrigatório" 
-                            : module.inSidebar 
-                            ? "Remover do menu" 
-                            : "Adicionar ao menu"
+                          module.isDefault
+                            ? "Módulo obrigatório"
+                            : module.inSidebar
+                              ? "Remover do menu"
+                              : "Adicionar ao menu"
                         }
                       >
                         {module.inSidebar ? (
-                          <Eye className="w-3 h-3" style={{ color: colors.semantic.success }} />
+                          <Eye
+                            className="w-3 h-3"
+                            style={{ color: colors.semantic.success }}
+                          />
                         ) : (
-                          <EyeOff className="w-3 h-3" style={{ color: colors.neutral[400] }} />
+                          <EyeOff
+                            className="w-3 h-3"
+                            style={{ color: colors.neutral[400] }}
+                          />
                         )}
                       </Button>
                     </div>
                   )}
 
                   <div className="flex items-start space-x-3">
-                    <div 
-                      className="w-10 h-10 rounded-lg flex items-center justify-center" 
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
                       style={{ backgroundColor: module.color }}
                     >
                       <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold truncate" style={{ color: colors.neutral[900] }}>
+                        <h3
+                          className="text-sm font-semibold truncate"
+                          style={{ color: colors.neutral[900] }}
+                        >
                           {module.title}
                         </h3>
                         {module.inSidebar && (
@@ -657,7 +715,10 @@ export function AppLauncherMosaic({
                           </Badge>
                         )}
                         {module.isNew && (
-                          <Badge className="text-xs" style={themeUtils.successBadge}>
+                          <Badge
+                            className="text-xs"
+                            style={themeUtils.successBadge}
+                          >
                             Novo
                           </Badge>
                         )}
@@ -667,7 +728,10 @@ export function AppLauncherMosaic({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs mt-1 line-clamp-2" style={{ color: colors.neutral[600] }}>
+                      <p
+                        className="text-xs mt-1 line-clamp-2"
+                        style={{ color: colors.neutral[600] }}
+                      >
                         {module.description}
                       </p>
                       <div className="flex items-center justify-between mt-3">
@@ -693,7 +757,10 @@ export function AppLauncherMosaic({
           </div>
 
           {filteredModules.length === 0 && (
-            <div className="text-center py-12" style={{ color: colors.neutral[500] }}>
+            <div
+              className="text-center py-12"
+              style={{ color: colors.neutral[500] }}
+            >
               <p>Nenhum módulo encontrado para "{searchTerm}"</p>
             </div>
           )}

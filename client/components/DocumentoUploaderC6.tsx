@@ -21,12 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -102,12 +97,17 @@ export function DocumentoUploaderC6({
   });
 
   const [files, setFiles] = useState<FileWithPreview[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [uploadProgress, setUploadProgress] = useState<{
+    [key: string]: number;
+  }>({});
   const [tagInput, setTagInput] = useState("");
 
   // Upload mutation
   const uploadMutation = useMutation({
-    mutationFn: async (fileData: { file: FileWithPreview; form: DocumentUploadForm }) => {
+    mutationFn: async (fileData: {
+      file: FileWithPreview;
+      form: DocumentUploadForm;
+    }) => {
       const { file, form } = fileData;
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `documents/${fileName}`;
@@ -118,7 +118,7 @@ export function DocumentoUploaderC6({
         .upload(filePath, file, {
           onUploadProgress: (progress) => {
             const percentage = (progress.loaded / progress.total) * 100;
-            setUploadProgress(prev => ({ ...prev, [file.id]: percentage }));
+            setUploadProgress((prev) => ({ ...prev, [file.id]: percentage }));
           },
         });
 
@@ -195,56 +195,59 @@ export function DocumentoUploaderC6({
     return null;
   };
 
-  const handleFiles = useCallback((newFiles: FileList | File[]) => {
-    const validFiles: FileWithPreview[] = [];
-    const errors: string[] = [];
+  const handleFiles = useCallback(
+    (newFiles: FileList | File[]) => {
+      const validFiles: FileWithPreview[] = [];
+      const errors: string[] = [];
 
-    Array.from(newFiles).forEach((file) => {
-      const error = validateFile(file);
-      if (error) {
-        errors.push(`${file.name}: ${error}`);
-        return;
+      Array.from(newFiles).forEach((file) => {
+        const error = validateFile(file);
+        if (error) {
+          errors.push(`${file.name}: ${error}`);
+          return;
+        }
+
+        const fileWithPreview: FileWithPreview = Object.assign(file, {
+          id: `${Date.now()}-${Math.random()}`,
+          preview: file.type.startsWith("image/")
+            ? URL.createObjectURL(file)
+            : undefined,
+        });
+
+        validFiles.push(fileWithPreview);
+      });
+
+      if (errors.length > 0) {
+        toast({
+          title: "Alguns arquivos foram rejeitados",
+          description: errors.join(", "),
+          variant: "destructive",
+        });
       }
 
-      const fileWithPreview: FileWithPreview = Object.assign(file, {
-        id: `${Date.now()}-${Math.random()}`,
-        preview: file.type.startsWith("image/") 
-          ? URL.createObjectURL(file) 
-          : undefined,
-      });
+      setFiles((prev) => [...prev, ...validFiles]);
 
-      validFiles.push(fileWithPreview);
-    });
-
-    if (errors.length > 0) {
-      toast({
-        title: "Alguns arquivos foram rejeitados",
-        description: errors.join(", "),
-        variant: "destructive",
-      });
-    }
-
-    setFiles(prev => [...prev, ...validFiles]);
-
-    // Auto-fill title if single file and no title set
-    if (validFiles.length === 1 && !form.title) {
-      setForm(prev => ({
-        ...prev,
-        title: validFiles[0].name.replace(/\.[^/.]+$/, ""),
-      }));
-    }
-  }, [form.title, toast]);
+      // Auto-fill title if single file and no title set
+      if (validFiles.length === 1 && !form.title) {
+        setForm((prev) => ({
+          ...prev,
+          title: validFiles[0].name.replace(/\.[^/.]+$/, ""),
+        }));
+      }
+    },
+    [form.title, toast],
+  );
 
   const removeFile = (fileId: string) => {
-    setFiles(prev => {
-      const updated = prev.filter(f => f.id !== fileId);
-      const file = prev.find(f => f.id === fileId);
+    setFiles((prev) => {
+      const updated = prev.filter((f) => f.id !== fileId);
+      const file = prev.find((f) => f.id === fileId);
       if (file?.preview) {
         URL.revokeObjectURL(file.preview);
       }
       return updated;
     });
-    setUploadProgress(prev => {
+    setUploadProgress((prev) => {
       const updated = { ...prev };
       delete updated[fileId];
       return updated;
@@ -253,7 +256,7 @@ export function DocumentoUploaderC6({
 
   const addTag = () => {
     if (tagInput.trim() && !form.tags.includes(tagInput.trim())) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         tags: [...prev.tags, tagInput.trim()],
       }));
@@ -262,9 +265,9 @@ export function DocumentoUploaderC6({
   };
 
   const removeTag = (tag: string) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      tags: prev.tags.filter(t => t !== tag),
+      tags: prev.tags.filter((t) => t !== tag),
     }));
   };
 
@@ -278,15 +281,18 @@ export function DocumentoUploaderC6({
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files);
-    }
-  }, [handleFiles]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFiles(e.dataTransfer.files);
+      }
+    },
+    [handleFiles],
+  );
 
   const handleUpload = async () => {
     if (files.length === 0) {
@@ -314,9 +320,12 @@ export function DocumentoUploaderC6({
   };
 
   const getFileIcon = (type: string) => {
-    if (type.includes("pdf")) return <FileText className="h-6 w-6 text-red-600" />;
-    if (type.includes("image")) return <Image className="h-6 w-6 text-green-600" />;
-    if (type.includes("word")) return <FileText className="h-6 w-6 text-blue-600" />;
+    if (type.includes("pdf"))
+      return <FileText className="h-6 w-6 text-red-600" />;
+    if (type.includes("image"))
+      return <Image className="h-6 w-6 text-green-600" />;
+    if (type.includes("word"))
+      return <FileText className="h-6 w-6 text-blue-600" />;
     return <Paperclip className="h-6 w-6 text-gray-600" />;
   };
 
@@ -339,8 +348,8 @@ export function DocumentoUploaderC6({
           {/* Upload Area */}
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive 
-                ? "border-blue-400 bg-blue-50" 
+              dragActive
+                ? "border-blue-400 bg-blue-50"
                 : "border-gray-300 hover:border-gray-400"
             }`}
             onDragEnter={handleDrag}
@@ -375,7 +384,9 @@ export function DocumentoUploaderC6({
           {/* Selected Files */}
           {files.length > 0 && (
             <div className="space-y-3">
-              <h4 className="font-medium">Arquivos Selecionados ({files.length})</h4>
+              <h4 className="font-medium">
+                Arquivos Selecionados ({files.length})
+              </h4>
               {files.map((file) => (
                 <div
                   key={file.id}
@@ -390,11 +401,14 @@ export function DocumentoUploaderC6({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     {uploadProgress[file.id] !== undefined && (
                       <div className="w-24">
-                        <Progress value={uploadProgress[file.id]} className="h-2" />
+                        <Progress
+                          value={uploadProgress[file.id]}
+                          className="h-2"
+                        />
                       </div>
                     )}
                     {uploadProgress[file.id] === 100 ? (
@@ -434,7 +448,9 @@ export function DocumentoUploaderC6({
               <Textarea
                 id="description"
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 placeholder="Descrição opcional do documento"
                 rows={3}
               />
@@ -445,7 +461,9 @@ export function DocumentoUploaderC6({
               <Input
                 id="numero_cnj"
                 value={form.numero_cnj}
-                onChange={(e) => setForm({ ...form, numero_cnj: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, numero_cnj: e.target.value })
+                }
                 placeholder="0000000-00.0000.0.00.0000"
               />
             </div>
@@ -454,7 +472,9 @@ export function DocumentoUploaderC6({
               <Label htmlFor="document_type">Tipo do Documento</Label>
               <Select
                 value={form.document_type}
-                onValueChange={(value) => setForm({ ...form, document_type: value })}
+                onValueChange={(value) =>
+                  setForm({ ...form, document_type: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -474,7 +494,9 @@ export function DocumentoUploaderC6({
               <Input
                 id="categoria"
                 value={form.categoria}
-                onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, categoria: e.target.value })
+                }
                 placeholder="Ex: Contratos, Comprovantes"
               />
             </div>
@@ -487,7 +509,9 @@ export function DocumentoUploaderC6({
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   placeholder="Adicionar tag"
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addTag())
+                  }
                 />
                 <Button type="button" onClick={addTag} size="sm">
                   <Plus className="h-4 w-4" />
@@ -517,7 +541,9 @@ export function DocumentoUploaderC6({
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={files.length === 0 || !form.title || uploadMutation.isPending}
+              disabled={
+                files.length === 0 || !form.title || uploadMutation.isPending
+              }
             >
               {uploadMutation.isPending ? (
                 <>
@@ -527,7 +553,8 @@ export function DocumentoUploaderC6({
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  Enviar {files.length > 1 ? `${files.length} Arquivos` : "Arquivo"}
+                  Enviar{" "}
+                  {files.length > 1 ? `${files.length} Arquivos` : "Arquivo"}
                 </>
               )}
             </Button>

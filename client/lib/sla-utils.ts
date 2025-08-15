@@ -21,17 +21,17 @@ export interface SLAStatus {
 export const DEFAULT_SLA_CONFIG: Record<string, SLAConfig> = {
   urgente: {
     priority: "urgente",
-    frtHours: 2,  // 2 hours for first response
-    ttrHours: 8,  // 8 hours for resolution
+    frtHours: 2, // 2 hours for first response
+    ttrHours: 8, // 8 hours for resolution
   },
   alta: {
     priority: "alta",
-    frtHours: 4,  // 4 hours for first response
+    frtHours: 4, // 4 hours for first response
     ttrHours: 24, // 24 hours for resolution
   },
   media: {
     priority: "media",
-    frtHours: 8,  // 8 hours for first response
+    frtHours: 8, // 8 hours for first response
     ttrHours: 72, // 72 hours for resolution
   },
   baixa: {
@@ -46,7 +46,7 @@ export const DEFAULT_SLA_CONFIG: Record<string, SLAConfig> = {
  */
 export function calculateSLADueDates(
   createdAt: string | Date,
-  priority: "baixa" | "media" | "alta" | "urgente"
+  priority: "baixa" | "media" | "alta" | "urgente",
 ): { frtDue: Date; ttrDue: Date } {
   const created = new Date(createdAt);
   const config = DEFAULT_SLA_CONFIG[priority];
@@ -110,10 +110,11 @@ export function getSLAStatus(dueDate?: string | Date): SLAStatus | null {
     // Normal - more than 24 hours
     const days = Math.floor(hoursRemaining / 24);
     const remainingHours = hoursRemaining % 24;
-    const text = days > 0 
-      ? `${days}d ${remainingHours}h restantes`
-      : `${hoursRemaining}h restantes`;
-    
+    const text =
+      days > 0
+        ? `${days}d ${remainingHours}h restantes`
+        : `${hoursRemaining}h restantes`;
+
     return {
       text,
       color: "text-green-600",
@@ -152,17 +153,17 @@ export function calculateBusinessHours(startDate: Date, endDate: Date): number {
   let businessHours = 0;
 
   const businessStart = 9; // 9 AM
-  const businessEnd = 18;  // 6 PM
+  const businessEnd = 18; // 6 PM
   const hoursPerDay = businessEnd - businessStart; // 9 hours
 
   while (start < end) {
     const dayOfWeek = start.getDay();
-    
+
     // Skip weekends
     if (dayOfWeek !== 0 && dayOfWeek !== 6) {
       const startHour = start.getHours();
       const endHour = Math.min(businessEnd, end.getHours());
-      
+
       if (startHour < businessEnd && endHour > businessStart) {
         const effectiveStart = Math.max(businessStart, startHour);
         const effectiveEnd = Math.min(businessEnd, endHour);
@@ -225,7 +226,7 @@ export function getSLABadgeColor(status: SLAStatus): string {
  */
 export function isWithinSLA(dueDate: string | Date): boolean {
   if (!dueDate) return true;
-  
+
   const now = new Date();
   const due = new Date(dueDate);
   return now <= due;
@@ -234,7 +235,10 @@ export function isWithinSLA(dueDate: string | Date): boolean {
 /**
  * Get escalation level based on SLA status
  */
-export function getEscalationLevel(frtStatus: SLAStatus | null, ttrStatus: SLAStatus | null): "none" | "low" | "medium" | "high" | "critical" {
+export function getEscalationLevel(
+  frtStatus: SLAStatus | null,
+  ttrStatus: SLAStatus | null,
+): "none" | "low" | "medium" | "high" | "critical" {
   if (!frtStatus && !ttrStatus) return "none";
 
   const isAnyOverdue = frtStatus?.isOverdue || ttrStatus?.isOverdue;
@@ -243,9 +247,9 @@ export function getEscalationLevel(frtStatus: SLAStatus | null, ttrStatus: SLASt
   if (isAnyOverdue) {
     const maxOverdueHours = Math.max(
       Math.abs(frtStatus?.hoursRemaining || 0),
-      Math.abs(ttrStatus?.hoursRemaining || 0)
+      Math.abs(ttrStatus?.hoursRemaining || 0),
     );
-    
+
     if (maxOverdueHours > 48) return "critical";
     if (maxOverdueHours > 24) return "high";
     return "medium";

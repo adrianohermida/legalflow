@@ -1,7 +1,7 @@
 /**
  * Flow C3: Processo > Detalhes (Overview)
  * Behavior Goal: do contexto à ação em 1 clique
- * 
+ *
  * Components:
  * - Resumo (Capa): public.processos + data (Advise/Escavador)
  * - Timeline (Recentes 30d): legalflow.vw_timeline_processo
@@ -153,10 +153,7 @@ export default function ProcessoOverviewV3() {
   });
 
   // Fetch recent timeline (30 days)
-  const {
-    data: timelineRecente,
-    isLoading: isTimelineLoading,
-  } = useQuery({
+  const { data: timelineRecente, isLoading: isTimelineLoading } = useQuery({
     queryKey: ["timeline-recente", numero_cnj],
     queryFn: async () => {
       if (!numero_cnj) return [];
@@ -166,10 +163,7 @@ export default function ProcessoOverviewV3() {
   });
 
   // Fetch complete history for modal (paginated)
-  const {
-    data: historicoCompleto,
-    isLoading: isHistoricoLoading,
-  } = useQuery({
+  const { data: historicoCompleto, isLoading: isHistoricoLoading } = useQuery({
     queryKey: ["historico-completo", numero_cnj, historicoPage],
     queryFn: async () => {
       if (!numero_cnj) return { data: [], total: 0 };
@@ -179,9 +173,7 @@ export default function ProcessoOverviewV3() {
   });
 
   // Fetch process threads for chat dock
-  const {
-    data: processThreads,
-  } = useQuery({
+  const { data: processThreads } = useQuery({
     queryKey: ["process-threads", numero_cnj],
     queryFn: async () => {
       if (!numero_cnj) return [];
@@ -197,7 +189,9 @@ export default function ProcessoOverviewV3() {
       return createAndamento(numero_cnj, conteudo);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timeline-recente", numero_cnj] });
+      queryClient.invalidateQueries({
+        queryKey: ["timeline-recente", numero_cnj],
+      });
       setShowAddAndamentoDialog(false);
       toast({
         title: "Andamento adicionado",
@@ -212,7 +206,9 @@ export default function ProcessoOverviewV3() {
       return createPublicacao(numero_cnj, conteudo);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timeline-recente", numero_cnj] });
+      queryClient.invalidateQueries({
+        queryKey: ["timeline-recente", numero_cnj],
+      });
       setShowAddPublicacaoDialog(false);
       toast({
         title: "Publicação adicionada",
@@ -222,7 +218,13 @@ export default function ProcessoOverviewV3() {
   });
 
   const addPeticaoMutation = useMutation({
-    mutationFn: async ({ tipo, conteudo }: { tipo: string; conteudo: string }) => {
+    mutationFn: async ({
+      tipo,
+      conteudo,
+    }: {
+      tipo: string;
+      conteudo: string;
+    }) => {
       if (!numero_cnj) throw new Error("CNJ não informado");
       return createPeticao(numero_cnj, tipo, conteudo);
     },
@@ -236,7 +238,9 @@ export default function ProcessoOverviewV3() {
   });
 
   const adviseData = processoData ? extractAdviseData(processoData.data) : {};
-  const actionContext = processoData ? getProcessActionContext(processoData) : null;
+  const actionContext = processoData
+    ? getProcessActionContext(processoData)
+    : null;
 
   if (processoError) {
     return (
@@ -244,10 +248,18 @@ export default function ProcessoOverviewV3() {
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardContent className="p-6 text-center">
-              <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: colors.semantic.error }} />
-              <h3 className="text-lg font-medium mb-2">Erro ao carregar processo</h3>
+              <AlertTriangle
+                className="w-12 h-12 mx-auto mb-4"
+                style={{ color: colors.semantic.error }}
+              />
+              <h3 className="text-lg font-medium mb-2">
+                Erro ao carregar processo
+              </h3>
               <p className="text-neutral-600 mb-4">{processoError.message}</p>
-              <Button onClick={() => navigate("/processos")} style={themeUtils.primaryButton}>
+              <Button
+                onClick={() => navigate("/processos")}
+                style={themeUtils.primaryButton}
+              >
                 Voltar para Processos
               </Button>
             </CardContent>
@@ -260,7 +272,10 @@ export default function ProcessoOverviewV3() {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-white border-b" style={{ borderColor: colors.neutral[200] }}>
+      <div
+        className="bg-white border-b"
+        style={{ borderColor: colors.neutral[200] }}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -273,11 +288,15 @@ export default function ProcessoOverviewV3() {
                 Voltar
               </Button>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: colors.neutral[900] }}>
-              {numero_cnj ? formatCNJDisplay(numero_cnj) : "Carregando..."}
-            </h1>
+                <h1
+                  className="text-2xl font-bold"
+                  style={{ color: colors.neutral[900] }}
+                >
+                  {numero_cnj ? formatCNJDisplay(numero_cnj) : "Carregando..."}
+                </h1>
                 <p className="text-sm" style={{ color: colors.neutral[600] }}>
-                  {processoData?.titulo_polo_ativo} × {processoData?.titulo_polo_passivo}
+                  {processoData?.titulo_polo_ativo} ×{" "}
+                  {processoData?.titulo_polo_passivo}
                 </p>
               </div>
             </div>
@@ -340,69 +359,111 @@ export default function ProcessoOverviewV3() {
             <Card style={themeUtils.cardShadow}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Scale className="w-5 h-5" style={{ color: colors.brand.primary }} />
+                  <Scale
+                    className="w-5 h-5"
+                    style={{ color: colors.brand.primary }}
+                  />
                   Resumo do Processo
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {isProcessoLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin" style={{ color: colors.brand.primary }} />
+                    <Loader2
+                      className="w-6 h-6 animate-spin"
+                      style={{ color: colors.brand.primary }}
+                    />
                     <span className="ml-2">Carregando dados...</span>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                        <label
+                          className="text-sm font-medium"
+                          style={{ color: colors.neutral[700] }}
+                        >
                           Área
                         </label>
-                        <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                        <p
+                          className="text-sm"
+                          style={{ color: colors.neutral[600] }}
+                        >
                           {adviseData.area}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                        <label
+                          className="text-sm font-medium"
+                          style={{ color: colors.neutral[700] }}
+                        >
                           Classe
                         </label>
-                        <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                        <p
+                          className="text-sm"
+                          style={{ color: colors.neutral[600] }}
+                        >
                           {adviseData.classe}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                        <label
+                          className="text-sm font-medium"
+                          style={{ color: colors.neutral[700] }}
+                        >
                           Assunto
                         </label>
-                        <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                        <p
+                          className="text-sm"
+                          style={{ color: colors.neutral[600] }}
+                        >
                           {adviseData.assunto}
                         </p>
                       </div>
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                        <label
+                          className="text-sm font-medium"
+                          style={{ color: colors.neutral[700] }}
+                        >
                           Órgão Julgador
                         </label>
-                        <p className="text-sm flex items-center gap-2" style={{ color: colors.neutral[600] }}>
+                        <p
+                          className="text-sm flex items-center gap-2"
+                          style={{ color: colors.neutral[600] }}
+                        >
                           <Building className="w-4 h-4" />
                           {adviseData.orgao}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                        <label
+                          className="text-sm font-medium"
+                          style={{ color: colors.neutral[700] }}
+                        >
                           Cliente
                         </label>
-                        <p className="text-sm flex items-center gap-2" style={{ color: colors.neutral[600] }}>
+                        <p
+                          className="text-sm flex items-center gap-2"
+                          style={{ color: colors.neutral[600] }}
+                        >
                           <User className="w-4 h-4" />
                           {processoData?.cliente?.nome || "Não informado"}
                         </p>
                       </div>
                       {adviseData.valor && (
                         <div>
-                          <label className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                          <label
+                            className="text-sm font-medium"
+                            style={{ color: colors.neutral[700] }}
+                          >
                             Valor da Causa
                           </label>
-                          <p className="text-sm flex items-center gap-2" style={{ color: colors.neutral[600] }}>
+                          <p
+                            className="text-sm flex items-center gap-2"
+                            style={{ color: colors.neutral[600] }}
+                          >
                             <DollarSign className="w-4 h-4" />
                             {formatCurrency(adviseData.valor)}
                           </p>
@@ -419,7 +480,10 @@ export default function ProcessoOverviewV3() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" style={{ color: colors.brand.primary }} />
+                    <Activity
+                      className="w-5 h-5"
+                      style={{ color: colors.brand.primary }}
+                    />
                     Movimentações Recentes (30 dias)
                   </CardTitle>
                   <Button
@@ -435,39 +499,62 @@ export default function ProcessoOverviewV3() {
               <CardContent>
                 {isTimelineLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin" style={{ color: colors.brand.primary }} />
+                    <Loader2
+                      className="w-6 h-6 animate-spin"
+                      style={{ color: colors.brand.primary }}
+                    />
                     <span className="ml-2">Carregando timeline...</span>
                   </div>
                 ) : timelineRecente && timelineRecente.length > 0 ? (
                   <div className="space-y-4">
                     {timelineRecente.map((evento, index) => (
-                      <div key={index} className="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
+                      <div
+                        key={index}
+                        className="flex gap-3 pb-4 border-b border-gray-100 last:border-0"
+                      >
                         <div className="flex-shrink-0">
-                          <div 
+                          <div
                             className="w-8 h-8 rounded-full flex items-center justify-center"
-                            style={{ backgroundColor: colors.brand.primaryLight }}
+                            style={{
+                              backgroundColor: colors.brand.primaryLight,
+                            }}
                           >
-                            {evento.tipo === 'movimentacao' ? (
-                              <Activity className="w-4 h-4" style={{ color: colors.brand.primary }} />
+                            {evento.tipo === "movimentacao" ? (
+                              <Activity
+                                className="w-4 h-4"
+                                style={{ color: colors.brand.primary }}
+                              />
                             ) : (
-                              <FileText className="w-4 h-4" style={{ color: colors.brand.primary }} />
+                              <FileText
+                                className="w-4 h-4"
+                                style={{ color: colors.brand.primary }}
+                              />
                             )}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge 
-                              variant="outline" 
+                            <Badge
+                              variant="outline"
                               className="text-xs"
-                              style={{ borderColor: colors.brand.primary, color: colors.brand.primary }}
+                              style={{
+                                borderColor: colors.brand.primary,
+                                color: colors.brand.primary,
+                              }}
                             >
                               {evento.tipo}
                             </Badge>
-                            <span className="text-xs" style={{ color: colors.neutral[500] }}>
+                            <span
+                              className="text-xs"
+                              style={{ color: colors.neutral[500] }}
+                            >
                               {formatDateDisplay(evento.data)}
                             </span>
                           </div>
-                          <p className="text-sm" style={{ color: colors.neutral[700] }}>
+                          <p
+                            className="text-sm"
+                            style={{ color: colors.neutral[700] }}
+                          >
                             {evento.conteudo}
                           </p>
                         </div>
@@ -476,7 +563,10 @@ export default function ProcessoOverviewV3() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Activity className="w-12 h-12 mx-auto mb-4" style={{ color: colors.neutral[300] }} />
+                    <Activity
+                      className="w-12 h-12 mx-auto mb-4"
+                      style={{ color: colors.neutral[300] }}
+                    />
                     <p style={{ color: colors.neutral[500] }}>
                       Nenhuma movimentação nos últimos 30 dias
                     </p>
@@ -495,7 +585,10 @@ export default function ProcessoOverviewV3() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm" style={{ color: colors.neutral[600] }}>
+                  <span
+                    className="text-sm"
+                    style={{ color: colors.neutral[600] }}
+                  >
                     Responsável
                   </span>
                   {processoData?.responsavel ? (
@@ -503,25 +596,42 @@ export default function ProcessoOverviewV3() {
                       {processoData.responsavel.nome}
                     </Badge>
                   ) : (
-                    <Badge variant="outline" style={{ color: colors.semantic.warning }}>
+                    <Badge
+                      variant="outline"
+                      style={{ color: colors.semantic.warning }}
+                    >
                       Não atribuído
                     </Badge>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm" style={{ color: colors.neutral[600] }}>
+                  <span
+                    className="text-sm"
+                    style={{ color: colors.neutral[600] }}
+                  >
                     Tribunal
                   </span>
-                  <span className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: colors.neutral[700] }}
+                  >
                     {processoData?.tribunal_sigla || "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm" style={{ color: colors.neutral[600] }}>
+                  <span
+                    className="text-sm"
+                    style={{ color: colors.neutral[600] }}
+                  >
                     Criado em
                   </span>
-                  <span className="text-sm" style={{ color: colors.neutral[600] }}>
-                    {processoData ? formatDateDisplay(processoData.created_at) : "N/A"}
+                  <span
+                    className="text-sm"
+                    style={{ color: colors.neutral[600] }}
+                  >
+                    {processoData
+                      ? formatDateDisplay(processoData.created_at)
+                      : "N/A"}
                   </span>
                 </div>
               </CardContent>
@@ -581,23 +691,37 @@ export default function ProcessoOverviewV3() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {adviseData.audiencias.slice(0, 3).map((audiencia: any, index: number) => (
-                      <div key={index} className="p-3 rounded-lg" style={{ backgroundColor: colors.neutral[50] }}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">
-                            {audiencia.tipo || "Audiência"}
-                          </span>
-                          <span className="text-xs" style={{ color: colors.neutral[500] }}>
-                            {audiencia.data ? formatDate(audiencia.data) : "Data não informada"}
-                          </span>
+                    {adviseData.audiencias
+                      .slice(0, 3)
+                      .map((audiencia: any, index: number) => (
+                        <div
+                          key={index}
+                          className="p-3 rounded-lg"
+                          style={{ backgroundColor: colors.neutral[50] }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">
+                              {audiencia.tipo || "Audiência"}
+                            </span>
+                            <span
+                              className="text-xs"
+                              style={{ color: colors.neutral[500] }}
+                            >
+                              {audiencia.data
+                                ? formatDate(audiencia.data)
+                                : "Data não informada"}
+                            </span>
+                          </div>
+                          {audiencia.local && (
+                            <p
+                              className="text-xs mt-1"
+                              style={{ color: colors.neutral[600] }}
+                            >
+                              {audiencia.local}
+                            </p>
+                          )}
                         </div>
-                        {audiencia.local && (
-                          <p className="text-xs mt-1" style={{ color: colors.neutral[600] }}>
-                            {audiencia.local}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </CardContent>
               </Card>
@@ -621,20 +745,22 @@ export default function ProcessoOverviewV3() {
           </div>
           <div className="h-full">
             {numero_cnj && (
-              <ProcessoChatMultiThread
-                numero_cnj={numero_cnj}
-                compact={true}
-              />
+              <ProcessoChatMultiThread numero_cnj={numero_cnj} compact={true} />
             )}
           </div>
         </div>
       )}
 
       {/* Histórico Completo Modal */}
-      <Dialog open={showHistoricoCompleto} onOpenChange={setShowHistoricoCompleto}>
+      <Dialog
+        open={showHistoricoCompleto}
+        onOpenChange={setShowHistoricoCompleto}
+      >
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle>Histórico Completo - {numero_cnj ? formatCNJ(numero_cnj) : ""}</DialogTitle>
+            <DialogTitle>
+              Histórico Completo - {numero_cnj ? formatCNJ(numero_cnj) : ""}
+            </DialogTitle>
             <DialogDescription>
               Todas as movimentações e publicações do processo
             </DialogDescription>
@@ -648,16 +774,25 @@ export default function ProcessoOverviewV3() {
             ) : historicoCompleto && historicoCompleto.data.length > 0 ? (
               <div className="space-y-4">
                 {historicoCompleto.data.map((evento, index) => (
-                  <div key={index} className="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
+                  <div
+                    key={index}
+                    className="flex gap-3 pb-4 border-b border-gray-100 last:border-0"
+                  >
                     <div className="flex-shrink-0">
-                      <div 
+                      <div
                         className="w-8 h-8 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: colors.brand.primaryLight }}
                       >
-                        {evento.tipo === 'movimentacao' ? (
-                          <Activity className="w-4 h-4" style={{ color: colors.brand.primary }} />
+                        {evento.tipo === "movimentacao" ? (
+                          <Activity
+                            className="w-4 h-4"
+                            style={{ color: colors.brand.primary }}
+                          />
                         ) : (
-                          <FileText className="w-4 h-4" style={{ color: colors.brand.primary }} />
+                          <FileText
+                            className="w-4 h-4"
+                            style={{ color: colors.brand.primary }}
+                          />
                         )}
                       </div>
                     </div>
@@ -666,11 +801,17 @@ export default function ProcessoOverviewV3() {
                         <Badge variant="outline" className="text-xs">
                           {evento.tipo}
                         </Badge>
-                        <span className="text-xs" style={{ color: colors.neutral[500] }}>
+                        <span
+                          className="text-xs"
+                          style={{ color: colors.neutral[500] }}
+                        >
                           {formatDate(evento.data)}
                         </span>
                       </div>
-                      <p className="text-sm" style={{ color: colors.neutral[700] }}>
+                      <p
+                        className="text-sm"
+                        style={{ color: colors.neutral[700] }}
+                      >
                         {evento.conteudo}
                       </p>
                     </div>
@@ -688,13 +829,17 @@ export default function ProcessoOverviewV3() {
           {historicoCompleto && historicoCompleto.total > 20 && (
             <div className="flex items-center justify-between pt-4 border-t">
               <span className="text-sm" style={{ color: colors.neutral[600] }}>
-                Mostrando {(historicoPage - 1) * 20 + 1} a {Math.min(historicoPage * 20, historicoCompleto.total)} de {historicoCompleto.total} registros
+                Mostrando {(historicoPage - 1) * 20 + 1} a{" "}
+                {Math.min(historicoPage * 20, historicoCompleto.total)} de{" "}
+                {historicoCompleto.total} registros
               </span>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setHistoricoPage(Math.max(1, historicoPage - 1))}
+                  onClick={() =>
+                    setHistoricoPage(Math.max(1, historicoPage - 1))
+                  }
                   disabled={historicoPage === 1}
                 >
                   Anterior
@@ -714,7 +859,10 @@ export default function ProcessoOverviewV3() {
       </Dialog>
 
       {/* Add Andamento Dialog */}
-      <Dialog open={showAddAndamentoDialog} onOpenChange={setShowAddAndamentoDialog}>
+      <Dialog
+        open={showAddAndamentoDialog}
+        onOpenChange={setShowAddAndamentoDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Adicionar Andamento</DialogTitle>
@@ -722,12 +870,14 @@ export default function ProcessoOverviewV3() {
               Registre uma nova movimentação para o processo
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const conteudo = formData.get("conteudo") as string;
-            addAndamentoMutation.mutate(conteudo);
-          }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const conteudo = formData.get("conteudo") as string;
+              addAndamentoMutation.mutate(conteudo);
+            }}
+          >
             <div className="space-y-4 py-4">
               <Textarea
                 name="conteudo"
@@ -760,7 +910,10 @@ export default function ProcessoOverviewV3() {
       </Dialog>
 
       {/* Add Publicação Dialog */}
-      <Dialog open={showAddPublicacaoDialog} onOpenChange={setShowAddPublicacaoDialog}>
+      <Dialog
+        open={showAddPublicacaoDialog}
+        onOpenChange={setShowAddPublicacaoDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Adicionar Publicação</DialogTitle>
@@ -768,12 +921,14 @@ export default function ProcessoOverviewV3() {
               Registre uma nova publicação para o processo
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const conteudo = formData.get("conteudo") as string;
-            addPublicacaoMutation.mutate(conteudo);
-          }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const conteudo = formData.get("conteudo") as string;
+              addPublicacaoMutation.mutate(conteudo);
+            }}
+          >
             <div className="space-y-4 py-4">
               <Textarea
                 name="conteudo"
@@ -806,7 +961,10 @@ export default function ProcessoOverviewV3() {
       </Dialog>
 
       {/* Add Petição Dialog */}
-      <Dialog open={showAddPeticaoDialog} onOpenChange={setShowAddPeticaoDialog}>
+      <Dialog
+        open={showAddPeticaoDialog}
+        onOpenChange={setShowAddPeticaoDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Criar Petição</DialogTitle>
@@ -814,13 +972,15 @@ export default function ProcessoOverviewV3() {
               Crie uma nova petição para o processo
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const tipo = formData.get("tipo") as string;
-            const conteudo = formData.get("conteudo") as string;
-            addPeticaoMutation.mutate({ tipo, conteudo });
-          }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const tipo = formData.get("tipo") as string;
+              const conteudo = formData.get("conteudo") as string;
+              addPeticaoMutation.mutate({ tipo, conteudo });
+            }}
+          >
             <div className="space-y-4 py-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
