@@ -97,9 +97,9 @@ const defaultAdvogadoItems: SidebarItem[] = [
   {
     id: "jornadas",
     title: "Jornadas",
-    href: "/jornadas",
+    href: "/jornadas-d1",
     icon: Target,
-    description: "Jornadas do cliente",
+    description: "Templates e automação",
     isVisible: true,
     isDefault: true,
   },
