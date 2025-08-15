@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { processosApi } from "@/lib/api";
+import { processosApi } from "../../../client/lib/api";
 import { validateRequest, commonSchemas } from "../../middleware/validation";
 import { CreateProcessoRequest, UpdateRequest, ProcessoFilters, PaginationParams } from "@shared/api";
 
