@@ -170,20 +170,7 @@ export default function ProcessoOverviewV3() {
     queryKey: ["historico-completo", numero_cnj, historicoPage],
     queryFn: async () => {
       if (!numero_cnj) return { data: [], total: 0 };
-
-      const pageSize = 20;
-      const startIndex = (historicoPage - 1) * pageSize;
-      const endIndex = startIndex + pageSize - 1;
-
-      const { data, error, count } = await supabase
-        .from("vw_timeline_processo")
-        .select("*", { count: "exact" })
-        .eq("numero_cnj", numero_cnj)
-        .order("data", { ascending: false })
-        .range(startIndex, endIndex);
-
-      if (error) throw error;
-      return { data: data as TimelineEvent[], total: count || 0 };
+      return fetchTimelineCompleto(numero_cnj, historicoPage, 20);
     },
     enabled: !!numero_cnj && showHistoricoCompleto,
   });
