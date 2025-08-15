@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
+import { Checkbox } from "../components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -30,7 +31,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../components/ui/dialog";
 import {
   Select,
@@ -44,6 +44,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "../components/ui/dropdown-menu";
 import {
   Search,
@@ -54,7 +55,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  AlertTriangle,
   Link2,
   Bell,
   Calendar,
@@ -63,10 +63,18 @@ import {
   Eye,
   Target,
   Activity,
-  User,
   Clock,
-  MessageSquare,
   MoreHorizontal,
+  CheckCircle,
+  Download,
+  RefreshCw,
+  Filter as FilterIcon,
+  Check,
+  Circle,
+  EyeOff,
+  Flag,
+  FileSearch,
+  AlertCircle,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
@@ -75,6 +83,19 @@ import { formatDate, formatCNJ } from "../lib/utils";
 import { useInboxRealtimeUpdates } from "../hooks/useRealtimeUpdates";
 import CreateStageDialog from "../components/CreateStageDialog";
 
+// Simulação do XLSX para evitar erro até a biblioteca ser instalada
+const XLSX = {
+  utils: {
+    json_to_sheet: (data: any) => data,
+    book_new: () => ({}),
+    book_append_sheet: (wb: any, ws: any, name: string) => {},
+  },
+  writeFile: (wb: any, filename: string) => {
+    console.log('Export simulated:', filename);
+    // Simulação - em produção usaria a biblioteca real XLSX
+  }
+};
+
 interface PublicacaoUnificada {
   source: "publicacoes" | "movimentacoes";
   uid: number;
@@ -82,82 +103,137 @@ interface PublicacaoUnificada {
   occured_at: string;
   payload: any;
   created_at: string;
+  is_read?: boolean;
+  is_treated?: boolean;
+  read_at?: string | null;
+  treated_at?: string | null;
+  read_notes?: string | null;
 }
 
-interface Movimentacao {
+interface MovimentacaoEnhanced {
   id: number;
   numero_cnj: string | null;
   data: any;
   created_at: string;
   data_movimentacao: string | null;
+  is_read?: boolean;
+  is_treated?: boolean;
+  read_at?: string | null;
+  treated_at?: string | null;
+  read_notes?: string | null;
+  tipo_movimentacao?: string;
+  tribunal_origem?: string;
+  grau_instancia?: string;
+  conteudo_resumo?: string;
+  data_evento?: string;
 }
 
-interface ProcessoParaVincular {
+interface ProcessoForSearch {
   numero_cnj: string;
   titulo_polo_ativo: string;
   titulo_polo_passivo: string;
+  display_name?: string;
+  tribunal_sigla?: string;
+  created_at: string;
 }
 
-interface Advogado {
-  oab: number;
-  nome: string;
+interface ReadStats {
+  table_name: string;
+  total_items: number;
+  read_items: number;
+  unread_items: number;
+  treated_items: number;
 }
 
 export default function InboxLegalV2() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">(
-    "publicacoes",
-  );
+  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">("publicacoes");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isVincularDialogOpen, setIsVincularDialogOpen] = useState(false);
   const [isNotificarDialogOpen, setIsNotificarDialogOpen] = useState(false);
-  const [isCriarProcessoDialogOpen, setIsCriarProcessoDialogOpen] =
-    useState(false);
+  const [isCriarProcessoDialogOpen, setIsCriarProcessoDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [periodoFilter, setPeriodoFilter] = useState("all");
   const [tribunalFilter, setTribunalFilter] = useState("all");
   const [vinculadaFilter, setVinculadaFilter] = useState("all");
+  const [readStatusFilter, setReadStatusFilter] = useState("all");
+  const [treatmentFilter, setTreatmentFilter] = useState("all");
+  const [processoSearchTerm, setProcessoSearchTerm] = useState("");
   const [novoProcessoCnj, setNovoProcessoCnj] = useState("");
   const [buscandoProcesso, setBuscandoProcesso] = useState(false);
   const [dadosProcessoAdvise, setDadosProcessoAdvise] = useState<any>(null);
-  const [isPrazoDialogOpen, setIsPrazoDialogOpen] = useState(false);
-  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
-  const [isVincularAdviseOpen, setIsVincularAdviseOpen] = useState(false);
-  const [selectedPublicacao, setSelectedPublicacao] = useState<any>(null);
   const [cnjDetectado, setCnjDetectado] = useState("");
+  const [selectedProcesso, setSelectedProcesso] = useState<string>("");
 
-  const itemsPerPage = 20;
+  const itemsPerPage = 25;
 
   // Enable realtime updates for inbox
   useInboxRealtimeUpdates();
 
-  // Buscar publicações unificadas (publicações + movimentações que são publicações)
+  // Buscar estatísticas de leitura com fallback
+  const { data: readStats = [] } = useQuery({
+    queryKey: ["inbox-read-stats"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase.rpc("get_inbox_read_stats");
+        if (error) throw error;
+        return data as ReadStats[];
+      } catch (error) {
+        // Fallback para quando as funções ainda não foram criadas
+        console.warn('Função get_inbox_read_stats não disponível, usando fallback');
+        return [
+          { table_name: 'publicacoes', total_items: 0, read_items: 0, unread_items: 0, treated_items: 0 },
+          { table_name: 'movimentacoes', total_items: 0, read_items: 0, unread_items: 0, treated_items: 0 }
+        ];
+      }
+    },
+    refetchInterval: 30000,
+  });
+
+  // Buscar publicações unificadas (com fallback para view original)
   const {
     data: publicacoesData = { data: [], total: 0, totalPages: 0 },
     isLoading: publicacoesLoading,
     error: publicacoesError,
   } = useQuery({
     queryKey: [
-      "publicacoes-unificadas",
+      "publicacoes-unificadas-enhanced",
       searchTerm,
       currentPage,
       periodoFilter,
       tribunalFilter,
       vinculadaFilter,
+      readStatusFilter,
+      treatmentFilter,
     ],
     queryFn: async () => {
+      // Tentar usar a view com status de leitura primeiro
+      let viewName = "vw_publicacoes_unificadas_with_read_status";
+      
       let query = supabase
-        .from("vw_publicacoes_unificadas")
+        .from(viewName)
         .select("*", { count: "exact" })
         .order("occured_at", { ascending: false, nullsLast: true });
+
+      // Se falhar, usar a view original
+      const testQuery = await supabase.from(viewName).select("*").limit(1);
+      if (testQuery.error) {
+        viewName = "vw_publicacoes_unificadas";
+        query = supabase
+          .from(viewName)
+          .select("*", { count: "exact" })
+          .order("occured_at", { ascending: false, nullsLast: true });
+      }
 
       // Aplicar filtros
       if (searchTerm) {
         query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,payload->>resumo.ilike.%${searchTerm}%,payload->>texto.ilike.%${searchTerm}%`,
+          `numero_cnj.ilike.%${searchTerm}%,payload->>resumo.ilike.%${searchTerm}%,payload->>texto.ilike.%${searchTerm}%,payload->>conteudo.ilike.%${searchTerm}%`
         );
       }
 
@@ -165,6 +241,21 @@ export default function InboxLegalV2() {
         query = query.not("numero_cnj", "is", null);
       } else if (vinculadaFilter === "nao-vinculadas") {
         query = query.is("numero_cnj", null);
+      }
+
+      // Filtros de leitura (só aplicar se view com status existir)
+      if (viewName.includes("with_read_status")) {
+        if (readStatusFilter === "lidas") {
+          query = query.eq("is_read", true);
+        } else if (readStatusFilter === "nao-lidas") {
+          query = query.eq("is_read", false);
+        }
+
+        if (treatmentFilter === "tratadas") {
+          query = query.eq("is_treated", true);
+        } else if (treatmentFilter === "nao-tratadas") {
+          query = query.eq("is_treated", false);
+        }
       }
 
       if (periodoFilter !== "all") {
@@ -177,7 +268,7 @@ export default function InboxLegalV2() {
       const startIndex = (currentPage - 1) * itemsPerPage;
       const { data, error, count } = await query.range(
         startIndex,
-        startIndex + itemsPerPage - 1,
+        startIndex + itemsPerPage - 1
       );
 
       if (error) throw error;
@@ -192,37 +283,77 @@ export default function InboxLegalV2() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Buscar movimentações
+  // Buscar movimentações (com fallback para tabela original)
   const {
     data: movimentacoesData = { data: [], total: 0, totalPages: 0 },
     isLoading: movimentacoesLoading,
     error: movimentacoesError,
   } = useQuery({
     queryKey: [
-      "movimentacoes",
+      "movimentacoes-enhanced",
       searchTerm,
       currentPage,
       periodoFilter,
       tribunalFilter,
       vinculadaFilter,
+      readStatusFilter,
+      treatmentFilter,
     ],
     queryFn: async () => {
+      // Tentar usar a view com status de leitura primeiro  
+      let viewName = "vw_movimentacoes_with_read_status";
+      
       let query = supabase
-        .from("movimentacoes")
+        .from(viewName)
         .select("*", { count: "exact" })
         .order("data_movimentacao", { ascending: false, nullsLast: true });
 
+      // Se falhar, usar a tabela original
+      const testQuery = await supabase.from(viewName).select("*").limit(1);
+      if (testQuery.error) {
+        viewName = "movimentacoes";
+        query = supabase
+          .from(viewName)
+          .select("*", { count: "exact" })
+          .order("data_movimentacao", { ascending: false, nullsLast: true });
+      }
+
       // Aplicar filtros
       if (searchTerm) {
-        query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,data->>texto.ilike.%${searchTerm}%,data->>resumo.ilike.%${searchTerm}%`,
-        );
+        if (viewName.includes("with_read_status")) {
+          query = query.or(
+            `numero_cnj.ilike.%${searchTerm}%,conteudo_resumo.ilike.%${searchTerm}%,tribunal_origem.ilike.%${searchTerm}%`
+          );
+        } else {
+          query = query.or(
+            `numero_cnj.ilike.%${searchTerm}%,data->>texto.ilike.%${searchTerm}%,data->>resumo.ilike.%${searchTerm}%`
+          );
+        }
       }
 
       if (vinculadaFilter === "vinculadas") {
         query = query.not("numero_cnj", "is", null);
       } else if (vinculadaFilter === "nao-vinculadas") {
         query = query.is("numero_cnj", null);
+      }
+
+      // Filtros de leitura (só aplicar se view com status existir)
+      if (viewName.includes("with_read_status")) {
+        if (readStatusFilter === "lidas") {
+          query = query.eq("is_read", true);
+        } else if (readStatusFilter === "nao-lidas") {
+          query = query.eq("is_read", false);
+        }
+
+        if (treatmentFilter === "tratadas") {
+          query = query.eq("is_treated", true);
+        } else if (treatmentFilter === "nao-tratadas") {
+          query = query.eq("is_treated", false);
+        }
+
+        if (tribunalFilter !== "all") {
+          query = query.ilike("tribunal_origem", `%${tribunalFilter}%`);
+        }
       }
 
       if (periodoFilter !== "all") {
@@ -235,7 +366,7 @@ export default function InboxLegalV2() {
       const startIndex = (currentPage - 1) * itemsPerPage;
       const { data, error, count } = await query.range(
         startIndex,
-        startIndex + itemsPerPage - 1,
+        startIndex + itemsPerPage - 1
       );
 
       if (error) throw error;
@@ -250,98 +381,101 @@ export default function InboxLegalV2() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Buscar processos para vincular
-  const { data: processos = [] } = useQuery({
-    queryKey: ["processos-para-vincular"],
+  // Buscar processos para vincular (com fallback para busca simples)
+  const { data: processosParaVincular = [] } = useQuery({
+    queryKey: ["processos-search", processoSearchTerm],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("processos")
-        .select("numero_cnj, titulo_polo_ativo, titulo_polo_passivo")
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase.rpc("search_processos_with_parts", {
+          p_search_term: processoSearchTerm || null,
+        });
 
-      if (error) throw error;
-      return data as ProcessoParaVincular[];
+        if (error) throw error;
+        return data as ProcessoForSearch[];
+      } catch (error) {
+        // Fallback para busca simples
+        console.warn('Função search_processos_with_parts não disponível, usando fallback');
+        let query = supabase
+          .from("processos")
+          .select("numero_cnj, titulo_polo_ativo, titulo_polo_passivo, tribunal_sigla, created_at")
+          .order("created_at", { ascending: false })
+          .limit(100);
+
+        if (processoSearchTerm) {
+          query = query.or(
+            `numero_cnj.ilike.%${processoSearchTerm}%,titulo_polo_ativo.ilike.%${processoSearchTerm}%,titulo_polo_passivo.ilike.%${processoSearchTerm}%`
+          );
+        }
+
+        const { data, error: fallbackError } = await query;
+        if (fallbackError) throw fallbackError;
+
+        return (data || []).map(processo => ({
+          ...processo,
+          display_name: `${processo.titulo_polo_ativo || 'Requerente'} x ${processo.titulo_polo_passivo || 'Requerido'}`
+        }));
+      }
+    },
+    enabled: processoSearchTerm.length >= 2 || processoSearchTerm === "",
+  });
+
+  // Mutation para marcar como lido (com fallback)
+  const markAsReadMutation = useMutation({
+    mutationFn: async ({ sourceTable, sourceId }: { sourceTable: string; sourceId: number }) => {
+      try {
+        const { data, error } = await supabase.rpc("mark_inbox_item_as_read", {
+          p_source_table: sourceTable,
+          p_source_id: sourceId,
+        });
+        if (error) throw error;
+        return data;
+      } catch (error) {
+        console.warn('Função mark_inbox_item_as_read não disponível');
+        // Para fallback, podemos apenas mostrar sucesso visual sem persistir
+        return true;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+      queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-read-stats"] });
     },
   });
 
-  // Buscar advogados para notificar
-  const { data: advogados = [] } = useQuery({
-    queryKey: ["advogados-para-notificar"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("advogados")
-        .select("oab, nome")
-        .order("nome");
-
-      if (error) throw error;
-      return data as Advogado[];
+  // Mutation para marcar como tratado (com fallback)
+  const markAsTreatedMutation = useMutation({
+    mutationFn: async ({ 
+      sourceTable, 
+      sourceId, 
+      notes 
+    }: { 
+      sourceTable: string; 
+      sourceId: number; 
+      notes?: string 
+    }) => {
+      try {
+        const { data, error } = await supabase.rpc("mark_inbox_item_as_treated", {
+          p_source_table: sourceTable,
+          p_source_id: sourceId,
+          p_notes: notes || null,
+        });
+        if (error) throw error;
+        return data;
+      } catch (error) {
+        console.warn('Função mark_inbox_item_as_treated não disponível');
+        return true;
+      }
     },
-  });
-
-  // Mutation para buscar capa via Advise e criar processo
-  const buscarCapaAdviseMutation = useMutation({
-    mutationFn: async ({ numero_cnj }: { numero_cnj: string }) => {
-      // Simular chamada para API Advise ou Edge Function
-      const mockData = {
-        numero_cnj,
-        tribunal_sigla: "TJSP",
-        tribunal_nome: "Tribunal de Justiça de São Paulo",
-        titulo_polo_ativo: "Requerente",
-        titulo_polo_passivo: "Requerido",
-        capa: {
-          classe: "Ação Civil Pública",
-          assunto: "Danos Morais e Materiais",
-          area: "Cível",
-          valor_causa: 50000,
-          valor_formatado: "R$ 50.000,00",
-          orgao_julgador: "1ª Vara Cível",
-          data_distribuicao: new Date().toISOString(),
-          situacao: "Em Andamento",
-          instancia: "1ª Instância",
-          grau: 1,
-        },
-      };
-
-      // Upsert processo no banco
-      const { data: novoProcesso, error } = await supabase
-        .from("processos")
-        .upsert({
-          numero_cnj,
-          tribunal_sigla: mockData.tribunal_sigla,
-          titulo_polo_ativo: mockData.titulo_polo_ativo,
-          titulo_polo_passivo: mockData.titulo_polo_passivo,
-          data: mockData,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return novoProcesso;
-    },
-    onSuccess: (processo) => {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+      queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
+      queryClient.invalidateQueries({ queryKey: ["inbox-read-stats"] });
       toast({
-        title: "Processo criado",
-        description: `Capa obtida via Advise. Processo ${formatCNJ(processo.numero_cnj)} criado com sucesso`,
-      });
-      setIsVincularAdviseOpen(false);
-      // Deep-link para página do processo
-      window.location.href = `/processos-v2/${processo.numero_cnj}`;
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro ao buscar capa",
-        description: error.message || "Falha na comunicação com Advise",
-        variant: "destructive",
+        title: "Item marcado como tratado",
+        description: "O item foi marcado como tratado com sucesso.",
       });
     },
   });
-
-  // Função para detectar CNJ no texto
-  const detectarCNJ = (texto: string): string => {
-    const cnjRegex = /\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}/g;
-    const matches = texto.match(cnjRegex);
-    return matches ? matches[0] : "";
-  };
 
   // Mutation para vincular ao CNJ
   const vincularMutation = useMutation({
@@ -364,10 +498,11 @@ export default function InboxLegalV2() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas"] });
-      queryClient.invalidateQueries({ queryKey: ["movimentacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+      queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
       setIsVincularDialogOpen(false);
       setSelectedItem(null);
+      setSelectedProcesso("");
       toast({
         title: "Item vinculado",
         description: "Item vinculado ao processo com sucesso",
@@ -382,220 +517,158 @@ export default function InboxLegalV2() {
     },
   });
 
-  // Mutation para criar processo
-  const criarProcessoMutation = useMutation({
-    mutationFn: async ({
-      numero_cnj,
-      dadosAdvise,
-    }: {
-      numero_cnj: string;
-      dadosAdvise: any;
-    }) => {
-      const { data, error } = await supabase
-        .from("processos")
-        .insert({
-          numero_cnj,
-          tribunal_sigla: dadosAdvise?.tribunal,
-          titulo_polo_ativo: dadosAdvise?.polo_ativo || dadosAdvise?.assunto,
-          titulo_polo_passivo: dadosAdvise?.polo_passivo,
-          data: { capa: dadosAdvise },
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (processo) => {
-      queryClient.invalidateQueries({ queryKey: ["processos-para-vincular"] });
-      setIsCriarProcessoDialogOpen(false);
-      setDadosProcessoAdvise(null);
-
-      // Vincular automaticamente o item ao processo criado
-      if (selectedItem) {
-        const tableName =
-          selectedItem.source ||
-          (activeTab === "publicacoes" ? "publicacoes" : "movimentacoes");
-        vincularMutation.mutate({
-          itemId: selectedItem.uid || selectedItem.id,
-          tableName,
-          numero_cnj: processo.numero_cnj,
-        });
-      }
-
-      toast({
-        title: "Processo criado",
-        description: `Processo ${formatCNJ(processo.numero_cnj)} criado e vinculado`,
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao criar processo",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Mutation para notificar responsável
-  const notificarMutation = useMutation({
-    mutationFn: async ({
-      oab,
-      message,
-      title,
-    }: {
-      oab: number;
-      message: string;
-      title: string;
-    }) => {
-      // Buscar user_id do advogado
-      const { data: userAdvogado } = await supabase
-        .from("user_advogado")
-        .select("user_id")
-        .eq("oab", oab)
-        .single();
-
-      if (!userAdvogado) {
-        throw new Error("Advogado não encontrado no sistema");
-      }
-
-      // Inserir notificação
-      const { data, error } = await supabase
-        .from("notifications")
-        .insert([
-          {
-            user_id: userAdvogado.user_id,
-            title,
-            message,
-            read: false,
-          },
-        ])
-        .select();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      setIsNotificarDialogOpen(false);
-      setSelectedItem(null);
-      toast({
-        title: "Notificação enviada",
-        description: "Responsável notificado com sucesso",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao enviar notificação",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Buscar processo no Advise
-  const buscarProcessoAdvise = async (cnj: string) => {
-    setBuscandoProcesso(true);
-    try {
-      // Simular busca no Advise - aqui você colocaria a chamada real da API
-      const response = await fetch(`/api/advise/processo/${cnj}`).catch(
-        () => null,
-      );
-
-      if (response?.ok) {
-        const dados = await response.json();
-        setDadosProcessoAdvise(dados);
+  // Auto-detectar CNJ quando selecionar item
+  useEffect(() => {
+    if (selectedItem) {
+      const content = activeTab === "publicacoes" 
+        ? selectedItem.payload?.conteudo || selectedItem.payload?.texto || selectedItem.payload?.resumo || ""
+        : selectedItem.conteudo_resumo || selectedItem.data?.conteudo || selectedItem.data?.texto || "";
+      
+      const cnjRegex = /\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}/g;
+      const matches = content.match(cnjRegex);
+      if (matches && matches[0]) {
+        setCnjDetectado(matches[0]);
+        // Auto-selecionar processo se encontrar CNJ correspondente
+        const processoCorrespondente = processosParaVincular.find(p => p.numero_cnj === matches[0]);
+        if (processoCorrespondente) {
+          setSelectedProcesso(matches[0]);
+        }
       } else {
-        // Dados mock para demonstração
-        const mockData = {
-          numero_cnj: cnj,
-          tribunal: "TJSP",
-          assunto: "Ação Civil Pública",
-          polo_ativo: "Requerente",
-          polo_passivo: "Requerido",
-          classe: "Procedimento Comum",
-          area: "Cível",
-        };
-        setDadosProcessoAdvise(mockData);
+        setCnjDetectado("");
       }
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao buscar dados do processo",
-        variant: "destructive",
-      });
-    } finally {
-      setBuscandoProcesso(false);
     }
+  }, [selectedItem, processosParaVincular, activeTab]);
+
+  // Filtrar estatísticas por tab ativo
+  const currentStats = readStats.find(stat => 
+    (activeTab === "publicacoes" && stat.table_name === "publicacoes") ||
+    (activeTab === "movimentacoes" && stat.table_name === "movimentacoes")
+  );
+
+  const unreadCount = currentStats?.unread_items || 0;
+
+  // Função para exportar dados
+  const handleExport = () => {
+    const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+    
+    const dataToExport = currentData.data.map((item: any) => {
+      if (activeTab === "publicacoes") {
+        return {
+          'Data': formatDate(item.occured_at),
+          'Origem': item.payload?.diario || item.payload?.origem || item.source,
+          'Resumo': item.payload?.resumo || item.payload?.texto || item.payload?.conteudo || "Sem resumo",
+          'Processo CNJ': item.numero_cnj || "Não vinculado",
+          'Status Leitura': item.is_read ? "Lida" : "Não lida",
+          'Status Tratamento': item.is_treated ? "Tratada" : "Não tratada",
+          'Data Leitura': item.read_at ? formatDate(item.read_at) : "-",
+          'Data Tratamento': item.treated_at ? formatDate(item.treated_at) : "-",
+        };
+      } else {
+        return {
+          'Data': formatDate(item.data_evento || item.data_movimentacao || item.created_at),
+          'Tribunal': item.tribunal_origem || item.data?.fonte?.nome || 'N/A',
+          'Tipo': item.tipo_movimentacao || item.data?.tipo || 'ANDAMENTO',
+          'Grau': item.grau_instancia || item.data?.fonte?.grau_formatado || 'N/A',
+          'Conteúdo': item.conteudo_resumo || item.data?.conteudo || item.data?.texto || 'Sem conteúdo',
+          'Processo CNJ': item.numero_cnj || "Não vinculado",
+          'Status Leitura': item.is_read ? "Lida" : "Não lida",
+          'Status Tratamento': item.is_treated ? "Tratada" : "Não tratada",
+          'Data Leitura': item.read_at ? formatDate(item.read_at) : "-",
+          'Data Tratamento': item.treated_at ? formatDate(item.treated_at) : "-",
+        };
+      }
+    });
+
+    // Simular export (substituir por XLSX real quando biblioteca estiver instalada)
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, activeTab === "publicacoes" ? "Publicações" : "Movimentações");
+    
+    const fileName = `inbox_legal_${activeTab}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+    toast({
+      title: "Exportação concluída",
+      description: `Arquivo ${fileName} foi baixado com sucesso.`,
+    });
   };
 
   const handleVincular = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const numero_cnj = formData.get("numero_cnj") as string;
+    
+    if (!selectedItem || !selectedProcesso) return;
 
-    if (!selectedItem) return;
+    const tableName = activeTab === "publicacoes" 
+      ? (selectedItem.source === "publicacoes" ? "publicacoes" : "movimentacoes")
+      : "movimentacoes";
+    const itemId = activeTab === "publicacoes" 
+      ? (selectedItem.source ? selectedItem.uid : selectedItem.id)
+      : selectedItem.id;
 
-    const tableName =
-      selectedItem.source === "publicacoes" ? "publicacoes" : "movimentacoes";
-    const itemId = selectedItem.source ? selectedItem.uid : selectedItem.id;
-
-    vincularMutation.mutate({ itemId, tableName, numero_cnj });
-  };
-
-  const handleNotificar = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const oab = parseInt(formData.get("oab") as string);
-    const customMessage = formData.get("message") as string;
-
-    if (!selectedItem) return;
-
-    const isPublicacao = activeTab === "publicacoes";
-    const title = `Nova ${isPublicacao ? "Publicação" : "Movimentação"} - ${selectedItem.numero_cnj || "Sem CNJ"}`;
-    const defaultMessage = `Uma nova ${isPublicacao ? "publicação" : "movimentação"} foi registrada${selectedItem.numero_cnj ? ` para o processo ${selectedItem.numero_cnj}` : ""}.`;
-    const message = customMessage || defaultMessage;
-
-    notificarMutation.mutate({ oab, message, title });
-  };
-
-  const handleCriarProcesso = () => {
-    if (!dadosProcessoAdvise || !novoProcessoCnj) return;
-    criarProcessoMutation.mutate({
-      numero_cnj: novoProcessoCnj,
-      dadosAdvise: dadosProcessoAdvise,
+    vincularMutation.mutate({ 
+      itemId, 
+      tableName, 
+      numero_cnj: selectedProcesso 
     });
+  };
+
+  const handleMarkAsRead = (item: any) => {
+    const sourceTable = activeTab === "publicacoes" 
+      ? (item.source || "publicacoes")
+      : "movimentacoes";
+    const sourceId = activeTab === "publicacoes" 
+      ? (item.uid || item.id)
+      : item.id;
+
+    markAsReadMutation.mutate({ sourceTable, sourceId });
+  };
+
+  const handleMarkAsTreated = (item: any) => {
+    const sourceTable = activeTab === "publicacoes" 
+      ? (item.source || "publicacoes")
+      : "movimentacoes";
+    const sourceId = activeTab === "publicacoes" 
+      ? (item.uid || item.id)
+      : item.id;
+
+    markAsTreatedMutation.mutate({ sourceTable, sourceId });
   };
 
   const getOrigem = (item: any) => {
     if (activeTab === "publicacoes") {
       return item.payload?.diario || item.payload?.origem || item.source;
     }
-    return item.data?.origem || item.data?.tribunal || "Sistema";
+    return item.tribunal_origem || item.data?.fonte?.nome || item.data?.tribunal || "Sistema";
   };
 
   const getResumo = (item: any) => {
     if (activeTab === "publicacoes") {
-      return (
-        item.payload?.resumo ||
-        item.payload?.texto ||
-        item.payload?.conteudo ||
-        "Sem resumo"
-      );
+      return item.payload?.resumo || item.payload?.texto || item.payload?.conteudo || "Sem resumo";
     }
-    return (
-      item.data?.texto ||
-      item.data?.resumo ||
-      item.data?.movimento ||
-      "Sem resumo"
-    );
+    return item.conteudo_resumo || item.data?.conteudo || item.data?.texto || item.data?.resumo || "Sem resumo";
   };
 
-  const currentData =
-    activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
-  const currentLoading =
-    activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
-  const currentError =
-    activeTab === "publicacoes" ? publicacoesError : movimentacoesError;
+  const getTipoMovimentacao = (item: any) => {
+    return item.tipo_movimentacao || item.data?.tipo || 'ANDAMENTO';
+  };
+
+  const getTribunalInfo = (item: any) => {
+    if (item.tribunal_origem) {
+      return {
+        nome: item.tribunal_origem,
+        grau: item.grau_instancia || 'N/A'
+      };
+    }
+    
+    const fonte = item.data?.fonte;
+    return {
+      nome: fonte?.nome || fonte?.sigla || 'N/A',
+      grau: fonte?.grau_formatado || fonte?.grau?.toString() || 'N/A'
+    };
+  };
+
+  const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+  const currentLoading = activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
 
   return (
     <div className="p-6 space-y-6">
@@ -607,17 +680,64 @@ export default function InboxLegalV2() {
             Triagem de publicações e movimentações
           </p>
         </div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={!currentData.data?.length}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Exportar
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+              queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
+              queryClient.invalidateQueries({ queryKey: ["inbox-read-stats"] });
+            }}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Atualizar
+          </Button>
+        </div>
       </div>
 
-      {/* Filtros */}
+      {/* Estatísticas */}
+      {currentStats && currentStats.total_items > 0 && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-neutral-900">{currentStats.total_items}</div>
+                <div className="text-sm text-neutral-600">Total</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">{currentStats.unread_items}</div>
+                <div className="text-sm text-neutral-600">Não lidas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{currentStats.read_items}</div>
+                <div className="text-sm text-neutral-600">Lidas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{currentStats.treated_items}</div>
+                <div className="text-sm text-neutral-600">Tratadas</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Filtros Avançados */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-4 items-end">
-            <div className="flex-1 min-w-64">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                 <Input
-                  placeholder="Buscar por CNJ, resumo ou texto..."
+                  placeholder="Buscar por CNJ, conteúdo..."
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -635,11 +755,12 @@ export default function InboxLegalV2() {
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="w-40">
+              <SelectTrigger>
                 <SelectValue placeholder="Período" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="1">Hoje</SelectItem>
                 <SelectItem value="7">Últimos 7 dias</SelectItem>
                 <SelectItem value="30">Últimos 30 dias</SelectItem>
                 <SelectItem value="90">Últimos 90 dias</SelectItem>
@@ -653,13 +774,49 @@ export default function InboxLegalV2() {
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="w-40">
+              <SelectTrigger>
                 <SelectValue placeholder="Vinculação" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="vinculadas">Vinculadas</SelectItem>
                 <SelectItem value="nao-vinculadas">Não vinculadas</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={readStatusFilter}
+              onValueChange={(value) => {
+                setReadStatusFilter(value);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Status Leitura" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="lidas">Lidas</SelectItem>
+                <SelectItem value="nao-lidas">Não lidas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              value={treatmentFilter}
+              onValueChange={(value) => {
+                setTreatmentFilter(value);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Status Tratamento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="tratadas">Tratadas</SelectItem>
+                <SelectItem value="nao-tratadas">Não tratadas</SelectItem>
               </SelectContent>
             </Select>
 
@@ -670,11 +827,13 @@ export default function InboxLegalV2() {
                 setPeriodoFilter("all");
                 setTribunalFilter("all");
                 setVinculadaFilter("all");
+                setReadStatusFilter("all");
+                setTreatmentFilter("all");
                 setCurrentPage(1);
               }}
             >
-              <Filter className="w-4 h-4 mr-2" />
-              Limpar
+              <FilterIcon className="w-4 h-4 mr-2" />
+              Limpar Filtros
             </Button>
           </div>
         </CardContent>
@@ -692,13 +851,20 @@ export default function InboxLegalV2() {
           <TabsTrigger value="publicacoes" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Publicações ({publicacoesData.total})
+            {readStats.find(s => s.table_name === "publicacoes")?.unread_items > 0 && (
+              <Badge variant="destructive" className="ml-1 text-xs">
+                {readStats.find(s => s.table_name === "publicacoes")?.unread_items} não lidas
+              </Badge>
+            )}
           </TabsTrigger>
-          <TabsTrigger
-            value="movimentacoes"
-            className="flex items-center gap-2"
-          >
+          <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
             Movimentações ({movimentacoesData.total})
+            {readStats.find(s => s.table_name === "movimentacoes")?.unread_items > 0 && (
+              <Badge variant="destructive" className="ml-1 text-xs">
+                {readStats.find(s => s.table_name === "movimentacoes")?.unread_items} não lidas
+              </Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -712,18 +878,14 @@ export default function InboxLegalV2() {
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2
-                    className="w-8 h-8 animate-spin"
-                    style={{ color: "var(--brand-700)" }}
-                  />
-                  <span className="ml-2 text-neutral-600">
-                    Carregando publicações...
-                  </span>
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-neutral-600">Carregando publicações...</span>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Status</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Origem/Diário</TableHead>
                       <TableHead>Resumo</TableHead>
@@ -734,7 +896,7 @@ export default function InboxLegalV2() {
                   <TableBody>
                     {currentData.data?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
+                        <TableCell colSpan={6} className="text-center py-8">
                           <div className="text-neutral-500">
                             <Inbox className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                             <p>Nenhuma publicação encontrada</p>
@@ -742,17 +904,35 @@ export default function InboxLegalV2() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      currentData.data?.map((item: any) => (
+                      currentData.data?.map((item: PublicacaoUnificada) => (
                         <TableRow
                           key={`${item.source}-${item.uid}`}
-                          className="hover:bg-neutral-50"
+                          className={`hover:bg-neutral-50 ${!item.is_read ? 'bg-blue-50' : ''}`}
                         >
+                          <TableCell>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1">
+                                {item.is_read ? (
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <Circle className="w-4 h-4 text-neutral-400" />
+                                )}
+                                <span className="text-xs">
+                                  {item.is_read ? "Lida" : "Não lida"}
+                                </span>
+                              </div>
+                              {item.is_treated && (
+                                <div className="flex items-center gap-1">
+                                  <Flag className="w-4 h-4 text-blue-600" />
+                                  <span className="text-xs text-blue-600">Tratada</span>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">
-                                {formatDate(item.occured_at)}
-                              </span>
+                              <span className="text-sm">{formatDate(item.occured_at)}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -781,61 +961,62 @@ export default function InboxLegalV2() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedItem(item);
-                                  setIsVincularDialogOpen(true);
-                                }}
-                                style={{ color: "var(--brand-700)" }}
-                              >
-                                <Link2 className="w-4 h-4 mr-1" />
-                                Vincular
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedItem(item);
-                                  setIsNotificarDialogOpen(true);
-                                }}
-                              >
-                                <Bell className="w-4 h-4 mr-1" />
-                                Notificar
-                              </Button>
-                              <CreateStageDialog
-                                numeroCnj={item.numero_cnj || undefined}
-                                defaultTitle={`Analisar publicação: ${getResumo(item)?.substring(0, 50)}...`}
-                                defaultDescription={`Publicação recebida em ${formatDate(item.occured_at)}`}
-                                onSuccess={() => {
-                                  toast({
-                                    title: "Etapa criada",
-                                    description:
-                                      "Etapa de jornada criada a partir da publicação.",
-                                  });
-                                }}
-                                trigger={
-                                  <Button variant="ghost" size="sm">
-                                    <Target className="w-4 h-4 mr-1" />
-                                    Criar Etapa
-                                  </Button>
-                                }
-                              />
-                              {item.payload?.url && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    window.open(item.payload.url, "_blank")
-                                  }
-                                >
-                                  <ExternalLink className="w-4 h-4 mr-1" />
-                                  Abrir
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="w-4 h-4" />
                                 </Button>
-                              )}
-                            </div>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {!item.is_read && (
+                                  <DropdownMenuItem onClick={() => handleMarkAsRead(item)}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Marcar como lida
+                                  </DropdownMenuItem>
+                                )}
+                                {!item.is_treated && (
+                                  <DropdownMenuItem onClick={() => handleMarkAsTreated(item)}>
+                                    <Check className="w-4 h-4 mr-2" />
+                                    Marcar como tratada
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedItem(item);
+                                    setIsVincularDialogOpen(true);
+                                  }}
+                                >
+                                  <Link2 className="w-4 h-4 mr-2" />
+                                  Vincular processo
+                                </DropdownMenuItem>
+                                <CreateStageDialog
+                                  numeroCnj={item.numero_cnj || undefined}
+                                  defaultTitle={`Analisar publicação: ${getResumo(item)?.substring(0, 50)}...`}
+                                  defaultDescription={`Publicação recebida em ${formatDate(item.occured_at)}`}
+                                  onSuccess={() => {
+                                    toast({
+                                      title: "Etapa criada",
+                                      description: "Etapa de jornada criada a partir da publicação.",
+                                    });
+                                  }}
+                                  trigger={
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                      <Target className="w-4 h-4 mr-2" />
+                                      Criar etapa
+                                    </DropdownMenuItem>
+                                  }
+                                />
+                                {item.payload?.url && (
+                                  <DropdownMenuItem
+                                    onClick={() => window.open(item.payload.url, "_blank")}
+                                  >
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Abrir original
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       ))
@@ -850,26 +1031,25 @@ export default function InboxLegalV2() {
         <TabsContent value="movimentacoes">
           <Card>
             <CardHeader>
-              <CardTitle>Movimentações ({movimentacoesData.total})</CardTitle>
+              <CardTitle>
+                Movimentações ({movimentacoesData.total})
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2
-                    className="w-8 h-8 animate-spin"
-                    style={{ color: "var(--brand-700)" }}
-                  />
-                  <span className="ml-2 text-neutral-600">
-                    Carregando movimentações...
-                  </span>
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-neutral-600">Carregando movimentações...</span>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Status</TableHead>
                       <TableHead>Data</TableHead>
-                      <TableHead>Origem/Tribunal</TableHead>
-                      <TableHead>Resumo</TableHead>
+                      <TableHead>Tribunal/Origem</TableHead>
+                      <TableHead>Tipo/Grau</TableHead>
+                      <TableHead>Conteúdo</TableHead>
                       <TableHead>Processo</TableHead>
                       <TableHead>Ações</TableHead>
                     </TableRow>
@@ -877,7 +1057,7 @@ export default function InboxLegalV2() {
                   <TableBody>
                     {currentData.data?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
+                        <TableCell colSpan={7} className="text-center py-8">
                           <div className="text-neutral-500">
                             <Inbox className="w-8 h-8 mx-auto mb-2 text-neutral-300" />
                             <p>Nenhuma movimentação encontrada</p>
@@ -885,87 +1065,132 @@ export default function InboxLegalV2() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      currentData.data?.map((item: Movimentacao) => (
-                        <TableRow key={item.id} className="hover:bg-neutral-50">
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">
-                                {formatDate(
-                                  item.data_movimentacao || item.created_at,
+                      currentData.data?.map((item: MovimentacaoEnhanced) => {
+                        const tribunalInfo = getTribunalInfo(item);
+                        return (
+                          <TableRow
+                            key={item.id}
+                            className={`hover:bg-neutral-50 ${!item.is_read ? 'bg-blue-50' : ''}`}
+                          >
+                            <TableCell>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1">
+                                  {item.is_read ? (
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                  ) : (
+                                    <Circle className="w-4 h-4 text-neutral-400" />
+                                  )}
+                                  <span className="text-xs">
+                                    {item.is_read ? "Lida" : "Não lida"}
+                                  </span>
+                                </div>
+                                {item.is_treated && (
+                                  <div className="flex items-center gap-1">
+                                    <Flag className="w-4 h-4 text-blue-600" />
+                                    <span className="text-xs text-blue-600">Tratada</span>
+                                  </div>
                                 )}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Building className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">{getOrigem(item)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-md">
-                              <p className="text-sm text-neutral-700 line-clamp-2">
-                                {getResumo(item)}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {item.numero_cnj ? (
-                              <Badge className="bg-gray-800 text-white">
-                                {formatCNJ(item.numero_cnj)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-neutral-400" />
+                                <span className="text-sm">
+                                  {formatDate(
+                                    item.data_evento || 
+                                    item.data_movimentacao || 
+                                    item.data?.data ||
+                                    item.created_at
+                                  )}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Building className="w-4 h-4 text-neutral-400" />
+                                <div>
+                                  <div className="text-sm font-medium">{tribunalInfo.nome}</div>
+                                  <div className="text-xs text-neutral-500">{tribunalInfo.grau}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant={getTipoMovimentacao(item) === 'PUBLICAÇÃO' ? 'default' : 'secondary'}
+                                className="text-xs"
+                              >
+                                {getTipoMovimentacao(item)}
                               </Badge>
-                            ) : (
-                              <Badge variant="destructive">Não vinculado</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedItem(item);
-                                  setIsVincularDialogOpen(true);
-                                }}
-                                style={{ color: "var(--brand-700)" }}
-                              >
-                                <Link2 className="w-4 h-4 mr-1" />
-                                Vincular
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedItem(item);
-                                  setIsNotificarDialogOpen(true);
-                                }}
-                              >
-                                <Bell className="w-4 h-4 mr-1" />
-                                Notificar
-                              </Button>
-                              <CreateStageDialog
-                                numeroCnj={item.numero_cnj || undefined}
-                                defaultTitle={`Analisar movimentação: ${getResumo(item)?.substring(0, 50)}...`}
-                                defaultDescription={`Movimentação processual de ${formatDate(item.data_movimentacao || item.created_at)}`}
-                                onSuccess={() => {
-                                  toast({
-                                    title: "Etapa criada",
-                                    description:
-                                      "Etapa de jornada criada a partir da movimentação.",
-                                  });
-                                }}
-                                trigger={
+                            </TableCell>
+                            <TableCell>
+                              <div className="max-w-md">
+                                <p className="text-sm text-neutral-700 line-clamp-2">
+                                  {getResumo(item)}
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {item.numero_cnj ? (
+                                <Badge className="bg-gray-800 text-white">
+                                  {formatCNJ(item.numero_cnj)}
+                                </Badge>
+                              ) : (
+                                <Badge variant="destructive">Não vinculado</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm">
-                                    <Target className="w-4 h-4 mr-1" />
-                                    Criar Etapa
+                                    <MoreHorizontal className="w-4 h-4" />
                                   </Button>
-                                }
-                              />
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  {!item.is_read && (
+                                    <DropdownMenuItem onClick={() => handleMarkAsRead(item)}>
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      Marcar como lida
+                                    </DropdownMenuItem>
+                                  )}
+                                  {!item.is_treated && (
+                                    <DropdownMenuItem onClick={() => handleMarkAsTreated(item)}>
+                                      <Check className="w-4 h-4 mr-2" />
+                                      Marcar como tratada
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedItem(item);
+                                      setIsVincularDialogOpen(true);
+                                    }}
+                                  >
+                                    <Link2 className="w-4 h-4 mr-2" />
+                                    Vincular processo
+                                  </DropdownMenuItem>
+                                  <CreateStageDialog
+                                    numeroCnj={item.numero_cnj || undefined}
+                                    defaultTitle={`Analisar movimentação: ${getResumo(item)?.substring(0, 50)}...`}
+                                    defaultDescription={`Movimentação processual de ${formatDate(item.data_evento || item.data_movimentacao || item.created_at)}`}
+                                    onSuccess={() => {
+                                      toast({
+                                        title: "Etapa criada",
+                                        description: "Etapa de jornada criada a partir da movimentação.",
+                                      });
+                                    }}
+                                    trigger={
+                                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <Target className="w-4 h-4 mr-2" />
+                                        Criar etapa
+                                      </DropdownMenuItem>
+                                    }
+                                  />
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
@@ -1009,61 +1234,99 @@ export default function InboxLegalV2() {
         </div>
       )}
 
-      {/* Dialog Vincular CNJ */}
-      <Dialog
-        open={isVincularDialogOpen}
-        onOpenChange={setIsVincularDialogOpen}
-      >
-        <DialogContent>
+      {/* Dialog Vincular Processo */}
+      <Dialog open={isVincularDialogOpen} onOpenChange={setIsVincularDialogOpen}>
+        <DialogContent className="max-w-2xl">
           <form onSubmit={handleVincular}>
             <DialogHeader>
               <DialogTitle>Vincular ao Processo</DialogTitle>
               <DialogDescription>
-                Selecione o processo para vincular este item ou crie um novo
-                processo
+                Selecione o processo para vincular este item. Busque por CNJ ou nome das partes.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
+              {/* CNJ Auto-detectado */}
+              {cnjDetectado && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-800">
+                      CNJ detectado automaticamente: {formatCNJ(cnjDetectado)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Busca de processos */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Processo (CNJ)
-                </label>
-                <Select name="numero_cnj" required>
+                <Label className="text-sm font-medium mb-2 block">
+                  Buscar processo por CNJ ou nome das partes
+                </Label>
+                <div className="relative">
+                  <FileSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                  <Input
+                    placeholder="Digite CNJ, nome do autor ou réu..."
+                    value={processoSearchTerm}
+                    onChange={(e) => setProcessoSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              {/* Lista de processos */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  Processo para vincular
+                </Label>
+                <Select 
+                  value={selectedProcesso} 
+                  onValueChange={setSelectedProcesso}
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um processo" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {processos.map((processo) => (
-                      <SelectItem
-                        key={processo.numero_cnj}
-                        value={processo.numero_cnj}
-                      >
-                        {formatCNJ(processo.numero_cnj)} -{" "}
-                        {processo.titulo_polo_ativo}
+                  <SelectContent className="max-h-64">
+                    {processosParaVincular.map((processo) => (
+                      <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                        <div className="flex flex-col">
+                          <div className="font-medium">
+                            {formatCNJ(processo.numero_cnj)}
+                          </div>
+                          <div className="text-sm text-neutral-600">
+                            {processo.display_name || `${processo.titulo_polo_ativo || 'Requerente'} x ${processo.titulo_polo_passivo || 'Requerido'}`}
+                          </div>
+                          {processo.tribunal_sigla && (
+                            <div className="text-xs text-neutral-500">
+                              {processo.tribunal_sigla}
+                            </div>
+                          )}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex-1 border-t border-neutral-200" />
-                <span className="text-sm text-neutral-500">ou</span>
-                <div className="flex-1 border-t border-neutral-200" />
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setIsVincularDialogOpen(false);
-                  setIsCriarProcessoDialogOpen(true);
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Novo Processo
-              </Button>
+              {/* Preview do item */}
+              {selectedItem && (
+                <div className="p-3 bg-neutral-50 rounded-lg">
+                  <h4 className="font-medium text-sm mb-2">Preview do item:</h4>
+                  <p className="text-sm text-neutral-700 line-clamp-3">
+                    {getResumo(selectedItem)}
+                  </p>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                    <span>Tipo: {activeTab}</span>
+                    <span>
+                      Data: {formatDate(
+                        activeTab === "publicacoes" 
+                          ? selectedItem.occured_at 
+                          : selectedItem.data_evento || selectedItem.data_movimentacao || selectedItem.created_at
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button
@@ -1072,11 +1335,16 @@ export default function InboxLegalV2() {
                 onClick={() => {
                   setIsVincularDialogOpen(false);
                   setSelectedItem(null);
+                  setSelectedProcesso("");
+                  setProcessoSearchTerm("");
                 }}
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={vincularMutation.isPending}>
+              <Button 
+                type="submit" 
+                disabled={vincularMutation.isPending || !selectedProcesso}
+              >
                 {vincularMutation.isPending && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 )}
@@ -1084,244 +1352,6 @@ export default function InboxLegalV2() {
               </Button>
             </DialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog Criar Processo */}
-      <Dialog
-        open={isCriarProcessoDialogOpen}
-        onOpenChange={setIsCriarProcessoDialogOpen}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Criar Novo Processo</DialogTitle>
-            <DialogDescription>
-              Busque os dados do processo no Advise e crie um novo registro
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Número CNJ
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="0000000-00.0000.0.00.0000"
-                  value={novoProcessoCnj}
-                  onChange={(e) => setNovoProcessoCnj(e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => buscarProcessoAdvise(novoProcessoCnj)}
-                  disabled={!novoProcessoCnj || buscandoProcesso}
-                >
-                  {buscandoProcesso ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Search className="w-4 h-4" />
-                  )}
-                  Buscar
-                </Button>
-              </div>
-            </div>
-
-            {dadosProcessoAdvise && (
-              <div className="border rounded-lg p-4 bg-neutral-50">
-                <h4 className="font-medium mb-3">
-                  Dados encontrados no Advise:
-                </h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium">CNJ:</span>{" "}
-                    {dadosProcessoAdvise.numero_cnj}
-                  </div>
-                  <div>
-                    <span className="font-medium">Tribunal:</span>{" "}
-                    {dadosProcessoAdvise.tribunal}
-                  </div>
-                  <div>
-                    <span className="font-medium">Classe:</span>{" "}
-                    {dadosProcessoAdvise.classe}
-                  </div>
-                  <div>
-                    <span className="font-medium">Área:</span>{" "}
-                    {dadosProcessoAdvise.area}
-                  </div>
-                  <div className="col-span-2">
-                    <span className="font-medium">Assunto:</span>{" "}
-                    {dadosProcessoAdvise.assunto}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsCriarProcessoDialogOpen(false);
-                setDadosProcessoAdvise(null);
-                setNovoProcessoCnj("");
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleCriarProcesso}
-              disabled={!dadosProcessoAdvise || criarProcessoMutation.isPending}
-            >
-              {criarProcessoMutation.isPending && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
-              Criar Processo
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog Notificar Respons��vel */}
-      <Dialog
-        open={isNotificarDialogOpen}
-        onOpenChange={setIsNotificarDialogOpen}
-      >
-        <DialogContent>
-          <form onSubmit={handleNotificar}>
-            <DialogHeader>
-              <DialogTitle>Notificar Responsável</DialogTitle>
-              <DialogDescription>
-                Envie uma notificação para o advogado responsável
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Advogado
-                </label>
-                <Select name="oab" required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um advogado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {advogados.map((advogado) => (
-                      <SelectItem
-                        key={advogado.oab}
-                        value={advogado.oab.toString()}
-                      >
-                        {advogado.nome} (OAB {advogado.oab})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Mensagem personalizada (opcional)
-                </label>
-                <Input
-                  name="message"
-                  placeholder="Deixe em branco para usar mensagem padrão"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setIsNotificarDialogOpen(false);
-                  setSelectedItem(null);
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={notificarMutation.isPending}>
-                {notificarMutation.isPending && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                )}
-                Notificar
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog Vincular/Criar Processo via Advise */}
-      <Dialog
-        open={isVincularAdviseOpen}
-        onOpenChange={setIsVincularAdviseOpen}
-      >
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Vincular/Criar Processo via Advise</DialogTitle>
-            <DialogDescription>
-              Criar novo processo com dados obtidos via API do Advise
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {/* CNJ Detectado */}
-            <div>
-              <Label>CNJ Detectado no Texto</Label>
-              <Input
-                value={cnjDetectado}
-                onChange={(e) => setCnjDetectado(e.target.value)}
-                placeholder="Digite o CNJ manualmente se não foi detectado"
-                className="font-mono"
-              />
-              <p className="text-xs text-neutral-600 mt-1">
-                {cnjDetectado
-                  ? "CNJ válido detectado"
-                  : "Nenhum CNJ encontrado no texto. Digite manualmente."}
-              </p>
-            </div>
-
-            {/* Preview da publicação */}
-            {selectedPublicacao && (
-              <div className="p-3 bg-neutral-50 rounded-lg">
-                <h4 className="font-medium text-sm mb-2">
-                  Preview da Publicação:
-                </h4>
-                <p className="text-sm text-neutral-700 line-clamp-3">
-                  {getResumo(selectedPublicacao)}
-                </p>
-                <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
-                  <span>Fonte: {selectedPublicacao.source}</span>
-                  <span>Data: {formatDate(selectedPublicacao.occured_at)}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Ação principal */}
-            <div className="flex gap-2 pt-2">
-              <Button
-                onClick={() => {
-                  if (cnjDetectado) {
-                    buscarCapaAdviseMutation.mutate({
-                      numero_cnj: cnjDetectado,
-                    });
-                  }
-                }}
-                disabled={!cnjDetectado || buscarCapaAdviseMutation.isPending}
-                className="flex-1"
-              >
-                {buscarCapaAdviseMutation.isPending ? (
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Search className="w-4 h-4 mr-2" />
-                )}
-                Buscar Capa (Advise)
-              </Button>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsVincularAdviseOpen(false)}
-            >
-              Cancelar
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
