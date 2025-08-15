@@ -1575,6 +1575,11 @@ const DevAuditoria: React.FC = () => {
         <TabsContent value="sf7">
           <SF7AgendaSetup />
         </TabsContent>
+
+        {/* Schema Diagnostics Tab */}
+        <TabsContent value="diagnostics">
+          <SchemaDiagnostics />
+        </TabsContent>
       </Tabs>
     </div>
   );
