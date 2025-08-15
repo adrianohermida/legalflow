@@ -142,6 +142,8 @@ export function Activities() {
       filterStatus,
       filterPriority,
       filterAssigned,
+      filterDueDate,
+      filterCliente,
       currentPage,
     ],
     queryFn: async () => {
