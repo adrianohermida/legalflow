@@ -231,8 +231,8 @@ function ClientTableExample() {
 // Example 3: Empty State Demo
 function EmptyStateExample() {
   const {
-    LoadingComponent,
-    EmptyComponent,
+    loadingConfig,
+    emptyConfig,
     execute,
     isLoading,
     shouldShowContent,
@@ -245,8 +245,8 @@ function EmptyStateExample() {
     execute(fetchEmptyData);
   }, []);
 
-  if (isLoading) return <LoadingComponent />;
-  if (!shouldShowContent()) return <EmptyComponent />;
+  if (isLoading) return <LoadingState {...loadingConfig} />;
+  if (!shouldShowContent()) return <EmptyState {...emptyConfig} />;
 
   return <div>Conteúdo carregado (nunca será mostrado neste exemplo)</div>;
 }
