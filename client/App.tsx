@@ -444,14 +444,6 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
-      <Route
-        path="/autofix-testing"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <DevAuditoria />
-          </DemoProtectedRoute>
-        }
-      />
 
       {/* CRM Routes */}
       <Route
