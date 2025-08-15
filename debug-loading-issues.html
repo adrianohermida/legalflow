@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Loading Issues - LegalFlow</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .status.info { background: #e3f2fd; border-color: #2196f3; }
+        .status.success { background: #e8f5e8; border-color: #4caf50; }
+        .status.warning { background: #fff3e0; border-color: #ff9800; }
+        .status.error { background: #ffebee; border-color: #f44336; }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        .test-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .test-link {
+            display: block;
+            padding: 10px;
+            background: #2196f3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .test-link:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 Debug Loading Issues</h1>
+        
+        <div id="status-container">
+            <div class="status info">
+                <h3>📋 Iniciando diagnóstico...</h3>
+                <p>Verificando por que o React app não está carregando.</p>
+            </div>
+        </div>
+
+        <div class="status">
+            <h3>🔗 Links de Teste</h3>
+            <div class="test-links">
+                <a href="/" class="test-link">🏠 App Principal</a>
+                <a href="/dashboard" class="test-link">📊 Dashboard</a>
+                <a href="/processos" class="test-link">⚖️ Processos</a>
+                <a href="/clientes" class="test-link">👥 Clientes</a>
+                <a href="/debug-app-loading.html" class="test-link">🛠️ Debug App</a>
+                <a href="/verificacao-sistema-completo.html" class="test-link">✅ Verificação</a>
+            </div>
+        </div>
+
+        <div class="status">
+            <h3>📝 Console Logs</h3>
+            <pre id="console-output">Aguardando logs...</pre>
+        </div>
+
+        <div class="status">
+            <h3>🌐 Network Status</h3>
+            <pre id="network-status">Verificando...</pre>
+        </div>
+
+        <div class="status">
+            <h3>⚙️ App Status</h3>
+            <pre id="app-status">Verificando...</pre>
+        </div>
+    </div>
+
+    <script>
+        const statusContainer = document.getElementById('status-container');
+        const consoleOutput = document.getElementById('console-output');
+        const networkStatus = document.getElementById('network-status');
+        const appStatus = document.getElementById('app-status');
+        
+        let logs = [];
+        
+        // Capturar console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = `[${timestamp}] [${type.toUpperCase()}] ${args.join(' ')}`;
+            logs.push(message);
+            consoleOutput.textContent = logs.slice(-20).join('\n');
+            
+            // Call original functions
+            if (type === 'log') originalLog(...args);
+            if (type === 'error') originalError(...args);
+            if (type === 'warn') originalWarn(...args);
+        }
+        
+        console.log = (...args) => addLog('log', ...args);
+        console.error = (...args) => addLog('error', ...args);
+        console.warn = (...args) => addLog('warn', ...args);
+        
+        console.log('🚀 Debug iniciado');
+        
+        async function runDiagnosis() {
+            try {
+                // 1. Verificar se conseguimos acessar o index.html
+                console.log('📍 Testando acesso ao index.html...');
+                
+                const indexResponse = await fetch('/');
+                console.log(`📄 Index response: ${indexResponse.status}`);
+                
+                if (indexResponse.ok) {
+                    const indexContent = await indexResponse.text();
+                    console.log(`📏 Index size: ${indexContent.length} chars`);
+                    
+                    // Verificar se o script está sendo carregado
+                    if (indexContent.includes('/client/App.tsx')) {
+                        console.log('✅ Script App.tsx encontrado no index.html');
+                    } else {
+                        console.log('❌ Script App.tsx NÃO encontrado no index.html');
+                    }
+                    
+                    // 2. Tentar carregar o App.tsx diretamente
+                    console.log('📍 Testando carregamento do App.tsx...');
+                    
+                    try {
+                        const appResponse = await fetch('/client/App.tsx');
+                        console.log(`📄 App.tsx response: ${appResponse.status}`);
+                        
+                        if (appResponse.ok) {
+                            const appContent = await appResponse.text();
+                            console.log(`📏 App.tsx size: ${appContent.length} chars`);
+                            
+                            // 3. Tentar importar como módulo
+                            console.log('📍 Testando import do módulo...');
+                            
+                            const module = await import('/client/App.tsx');
+                            console.log('✅ Módulo App.tsx importado com sucesso!');
+                            console.log('📦 Exports:', Object.keys(module));
+                            
+                            statusContainer.innerHTML += `
+                                <div class="status success">
+                                    <h3>✅ App.tsx carregando corretamente</h3>
+                                    <p>Módulo importado com sucesso. O problema pode estar na inicialização do React.</p>
+                                </div>
+                            `;
+                            
+                        } else {
+                            console.error(`❌ Erro ao carregar App.tsx: ${appResponse.status}`);
+                            statusContainer.innerHTML += `
+                                <div class="status error">
+                                    <h3>❌ Erro ao carregar App.tsx</h3>
+                                    <p>Status: ${appResponse.status}</p>
+                                </div>
+                            `;
+                        }
+                        
+                    } catch (appError) {
+                        console.error('❌ Erro ao importar App.tsx:', appError);
+                        statusContainer.innerHTML += `
+                            <div class="status error">
+                                <h3>❌ Erro de importação do App.tsx</h3>
+                                <pre>${appError.message}</pre>
+                            </div>
+                        `;
+                    }
+                    
+                } else {
+                    console.error(`❌ Erro ao acessar index.html: ${indexResponse.status}`);
+                    statusContainer.innerHTML += `
+                        <div class="status error">
+                            <h3>❌ Erro ao acessar página principal</h3>
+                            <p>Status: ${indexResponse.status}</p>
+                        </div>
+                    `;
+                }
+                
+                // 4. Verificar o DOM
+                console.log('📍 Verificando DOM...');
+                const rootElement = document.querySelector('#root');
+                if (rootElement) {
+                    console.log('✅ Elemento #root encontrado no DOM principal');
+                } else {
+                    console.log('❌ Elemento #root NÃO encontrado');
+                }
+                
+                // 5. Informações do ambiente
+                console.log('📍 Informações do ambiente:');
+                console.log(`- URL: ${window.location.href}`);
+                console.log(`- User Agent: ${navigator.userAgent}`);
+                console.log(`- Timestamp: ${new Date().toISOString()}`);
+                
+                networkStatus.textContent = `
+URL atual: ${window.location.href}
+Protocolo: ${window.location.protocol}
+Host: ${window.location.host}
+Pathname: ${window.location.pathname}
+                `;
+                
+                appStatus.textContent = `
+React disponível: ${typeof React !== 'undefined' ? 'Sim' : 'Não'}
+ReactDOM disponível: ${typeof ReactDOM !== 'undefined' ? 'Sim' : 'Não'}
+Vite HMR: ${typeof window.__vite_plugin_react_preamble_installed__ !== 'undefined' ? 'Sim' : 'Não'}
+                `;
+                
+            } catch (error) {
+                console.error('❌ Erro geral no diagnóstico:', error);
+                statusContainer.innerHTML += `
+                    <div class="status error">
+                        <h3>❌ Erro geral no diagnóstico</h3>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+        
+        // Executar diagnóstico
+        runDiagnosis();
+        
+        // Verificar mudanças no DOM principal a cada segundo
+        let checkCount = 0;
+        const checker = setInterval(() => {
+            checkCount++;
+            
+            try {
+                // Tentar acessar o DOM principal
+                const mainRoot = window.parent?.document?.getElementById('root') || 
+                                 window.top?.document?.getElementById('root');
+                
+                if (mainRoot && mainRoot.children.length > 0) {
+                    console.log('✅ React app detectado no DOM principal!');
+                    statusContainer.innerHTML += `
+                        <div class="status success">
+                            <h3>✅ React App Detectado!</h3>
+                            <p>O aplicativo foi carregado no DOM principal após ${checkCount} verificações.</p>
+                        </div>
+                    `;
+                    clearInterval(checker);
+                } else if (checkCount >= 10) {
+                    console.log('⚠️ React app ainda não detectado após 10 verificações');
+                    statusContainer.innerHTML += `
+                        <div class="status warning">
+                            <h3>⚠️ React App não detectado</h3>
+                            <p>Após 10 verificações, o app ainda não foi carregado no DOM.</p>
+                        </div>
+                    `;
+                    clearInterval(checker);
+                }
+            } catch (e) {
+                // Ignore cross-origin errors
+                if (checkCount >= 10) {
+                    clearInterval(checker);
+                }
+            }
+        }, 1000);
+        
+        console.log('✅ Diagnóstico iniciado');
+    </script>
+</body>
+</html>
