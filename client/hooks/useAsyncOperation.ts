@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 
 // Types for async operation states
 interface AsyncState<T> {
@@ -43,10 +42,26 @@ interface AsyncOperationReturn<T> extends AsyncState<T> {
   setData: (data: T | null) => void;
   setError: (error: Error | string | null) => void;
 
-  // Component functions
-  LoadingComponent: () => JSX.Element;
-  ErrorComponent: () => JSX.Element;
-  EmptyComponent: () => JSX.Element;
+  // Component configurations (not JSX components)
+  loadingConfig: {
+    type: string;
+    title: string;
+    showTitle: boolean;
+  };
+  errorConfig: {
+    type: string;
+    error: Error | string | null;
+    onRetry?: () => void;
+    retryLabel: string;
+    showDetails: boolean;
+  };
+  emptyConfig: {
+    type: string;
+    title?: string;
+    description?: string;
+    actionLabel?: string;
+    onAction?: () => void;
+  };
 
   // State checkers
   shouldShowLoading: () => boolean;
@@ -66,9 +81,9 @@ interface AsyncOperationReturn<T> extends AsyncState<T> {
  *     isLoading,
  *     error,
  *     execute,
- *     LoadingComponent,
- *     ErrorComponent,
- *     EmptyComponent,
+ *     loadingConfig,
+ *     errorConfig,
+ *     emptyConfig,
  *     shouldShowContent
  *   } = useAsyncOperation<Process[]>({
  *     loadingType: "list",
@@ -81,9 +96,9 @@ interface AsyncOperationReturn<T> extends AsyncState<T> {
  *     execute(() => fetchProcesses());
  *   }, []);
  * 
- *   if (isLoading) return <LoadingComponent />;
- *   if (error) return <ErrorComponent />;
- *   if (!shouldShowContent()) return <EmptyComponent />;
+ *   if (isLoading) return <LoadingState {...loadingConfig} />;
+ *   if (error) return <ErrorState {...errorConfig} />;
+ *   if (!shouldShowContent()) return <EmptyState {...emptyConfig} />;
  * 
  *   return (
  *     <div>
@@ -192,40 +207,28 @@ export function useAsyncOperation<T = any>(
     }));
   }, []);
 
-  // Component functions
-  const LoadingComponent = useCallback(() => {
-    return (
-      <LoadingState
-        type={loadingType}
-        title="Carregando..."
-        showTitle={loadingType === "spinner"}
-      />
-    );
-  }, [loadingType]);
+  // Component configurations (not JSX)
+  const loadingConfig = {
+    type: loadingType,
+    title: "Carregando...",
+    showTitle: loadingType === "spinner",
+  };
 
-  const ErrorComponent = useCallback(() => {
-    return (
-      <ErrorState
-        type={errorType}
-        error={state.error}
-        onRetry={retryable ? retry : undefined}
-        retryLabel="Tentar Novamente"
-        showDetails={true}
-      />
-    );
-  }, [errorType, state.error, retryable, retry]);
+  const errorConfig = {
+    type: errorType,
+    error: state.error,
+    onRetry: retryable ? retry : undefined,
+    retryLabel: "Tentar Novamente",
+    showDetails: true,
+  };
 
-  const EmptyComponent = useCallback(() => {
-    return (
-      <EmptyState
-        type={emptyType}
-        title={emptyTitle}
-        description={emptyMessage}
-        actionLabel={emptyActionLabel}
-        onAction={onEmptyAction}
-      />
-    );
-  }, [emptyType, emptyTitle, emptyMessage, emptyActionLabel, onEmptyAction]);
+  const emptyConfig = {
+    type: emptyType,
+    title: emptyTitle,
+    description: emptyMessage,
+    actionLabel: emptyActionLabel,
+    onAction: onEmptyAction,
+  };
 
   // State checkers
   const shouldShowLoading = useCallback(() => state.isLoading, [state.isLoading]);
@@ -257,10 +260,10 @@ export function useAsyncOperation<T = any>(
     setData,
     setError,
 
-    // Components
-    LoadingComponent,
-    ErrorComponent,
-    EmptyComponent,
+    // Component configurations
+    loadingConfig,
+    errorConfig,
+    emptyConfig,
 
     // State checkers
     shouldShowLoading,
