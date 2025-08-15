@@ -453,7 +453,10 @@ const DocumentosC6 = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => viewDocument(doc)}
+                          onClick={() => {
+                            setSelectedDocument(doc);
+                            setIsViewerOpen(true);
+                          }}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -496,89 +499,7 @@ const DocumentosC6 = () => {
 
         {/* Peças Tab */}
         <TabsContent value="pecas">
-          <Card>
-            <CardHeader>
-              <CardTitle>Peças Processuais - IA Generated</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingPeticoes ? (
-                <div className="grid gap-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse flex items-center space-x-4 p-4 border rounded-lg"
-                    >
-                      <div className="h-12 w-12 bg-gray-200 rounded"></div>
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : peticoes.length > 0 ? (
-                <div className="grid gap-4">
-                  {peticoes.map((peticao) => (
-                    <div
-                      key={peticao.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <Gavel className="h-8 w-8 text-purple-600" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium">
-                              {peticao.tipo || "Petição"}
-                            </h3>
-                            {peticao.numero_cnj && (
-                              <Badge variant="outline">{peticao.numero_cnj}</Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600 mb-1 line-clamp-2">
-                            {peticao.conteudo?.substring(0, 150)}...
-                          </p>
-                          <div className="text-xs text-gray-500">
-                            <span>{formatDate(peticao.created_at)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            // Open content in modal
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            // Download as PDF
-                          }}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Gavel className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-600 mb-2">
-                    Nenhuma peça processual encontrada
-                  </h3>
-                  <p className="text-gray-500">
-                    As peças geradas por IA aparecerão aqui
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <PecasAIManager searchTerm={searchTerm} />
         </TabsContent>
       </Tabs>
 
