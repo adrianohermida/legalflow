@@ -486,9 +486,9 @@ function useAsyncOperation() {
     data,
     isLoading,
     error,
-    LoadingComponent: () => <LoadingState />,
-    ErrorComponent: () => <ErrorState onRetry={refetch} />,
-    EmptyComponent: () => <EmptyState />
+    loadingConfig: { type: "list", title: "Carregando..." },
+    errorConfig: { type: "generic", error, onRetry: retry },
+    emptyConfig: { type: "processos", actionLabel: "Criar" }
   };
 }
 
@@ -499,9 +499,9 @@ function ProcessList() {
     isLoading,
     error,
     execute,
-    LoadingComponent,
-    ErrorComponent,
-    EmptyComponent,
+    loadingConfig,
+    errorConfig,
+    emptyConfig,
     shouldShowContent
   } = useAsyncList("processos");
 
@@ -509,13 +509,13 @@ function ProcessList() {
     execute(() => fetchProcesses());
   }, []);
 
-  if (isLoading) return <LoadingComponent />;
-  if (error) return <ErrorComponent />;
-  if (!shouldShowContent()) return <EmptyComponent />;
+  if (isLoading) return <LoadingState {...loadingConfig} />;
+  if (error) return <ErrorState {...errorConfig} />;
+  if (!shouldShowContent()) return <EmptyState {...emptyConfig} />;
 
   return (
     <div>
-      {processes?.map(process => 
+      {processes?.map(process =>
         <ProcessCard key={process.id} process={process} />
       )}
     </div>
