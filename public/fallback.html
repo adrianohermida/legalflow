@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalFlow Software Jurídico Inteligente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .debug-info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">LegalFlow</div>
+        <div class="subtitle">Software Jurídico Inteligente</div>
+        
+        <div class="loading">
+            <div class="spinner"></div>
+            <span>Carregando aplicação...</span>
+        </div>
+        
+        <div class="status" id="status">
+            🔄 Iniciando sistema...
+        </div>
+        
+        <button class="btn" onclick="location.reload()">🔄 Recarregar</button>
+        <button class="btn" onclick="testConnection()">🔧 Testar Conexão</button>
+        <button class="btn" onclick="window.location.href='/test'">🏠 Página de Teste</button>
+        
+        <div class="debug-info">
+            <strong>Debug Info:</strong><br>
+            Timestamp: <span id="timestamp"></span><br>
+            User Agent: <span id="userAgent"></span><br>
+            Environment: Builder.io + Fly.dev
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+        document.getElementById('userAgent').textContent = navigator.userAgent.slice(0, 50) + '...';
+        
+        // Test connection
+        async function testConnection() {
+            const status = document.getElementById('status');
+            status.innerHTML = '🔄 Testando conexão...';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.success) {
+                    status.innerHTML = '✅ Conexão OK - API funcionando';
+                    
+                    // Try to redirect to main app after successful test
+                    setTimeout(() => {
+                        status.innerHTML = '🔄 Redirecionando para aplicação...';
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    status.innerHTML = '❌ Erro na API';
+                }
+            } catch (error) {
+                status.innerHTML = '❌ Erro de conexão: ' + error.message;
+            }
+        }
+        
+        // Auto-test connection on load
+        setTimeout(testConnection, 2000);
+        
+        // Try to load the main React app
+        setTimeout(() => {
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = '/client/App.tsx';
+            script.onload = () => {
+                document.getElementById('status').innerHTML = '✅ React carregado!';
+            };
+            script.onerror = () => {
+                document.getElementById('status').innerHTML = '❌ Erro ao carregar React';
+            };
+            document.head.appendChild(script);
+        }, 1000);
+    </script>
+</body>
+</html>
