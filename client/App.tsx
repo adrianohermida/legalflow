@@ -109,13 +109,17 @@ function DemoProtectedRoute({
   const { user, isLoading, logout } = useDemoAuth();
   const [showOABModal, setShowOABModal] = useState(false);
 
+  // Allow direct access to dev pages for debugging
+  const currentPath = window.location.pathname;
+  const isDevPage = currentPath.includes('dev-auditoria') || currentPath.includes('dev/auditoria');
+
   useEffect(() => {
     if (user && !user.oab && userType === "advogado") {
       setShowOABModal(true);
     }
   }, [user, userType]);
 
-  if (isLoading) {
+  if (isLoading && !isDevPage) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -126,7 +130,15 @@ function DemoProtectedRoute({
     );
   }
 
-  if (!user) {
+  // For dev pages without user, create a mock user
+  const effectiveUser = user || (isDevPage ? {
+    id: 'debug-user',
+    email: 'debug@test.com',
+    name: 'Debug User',
+    oab: '123456'
+  } : null);
+
+  if (!effectiveUser) {
     return <Navigate to="/login" replace />;
   }
 
