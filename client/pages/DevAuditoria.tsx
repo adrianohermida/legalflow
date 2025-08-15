@@ -1095,7 +1095,7 @@ const DevAuditoria: React.FC = () => {
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
-            Auditoria
+            Painel de Auditoria
           </TabsTrigger>
           <TabsTrigger value="testing" className="flex items-center gap-2">
             <TestTube className="w-4 h-4" />
@@ -1111,7 +1111,7 @@ const DevAuditoria: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="config" className="flex items-center gap-2">
             <Cog className="w-4 h-4" />
-            Config
+            Configurações
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="w-4 h-4" />
@@ -1119,11 +1119,11 @@ const DevAuditoria: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="sf5" className="flex items-center gap-2">
             <Target className="w-4 h-4" />
-            SF-5
+            Jornada
           </TabsTrigger>
           <TabsTrigger value="sf6" className="flex items-center gap-2">
             <ArrowRight className="w-4 h-4" />
-            SF-6
+            Tarefas e Tickets
           </TabsTrigger>
         </TabsList>
 
@@ -1330,7 +1330,7 @@ const DevAuditoria: React.FC = () => {
                       <SelectItem value="feature">
                         Nova Funcionalidade
                       </SelectItem>
-                      <SelectItem value="optimization">Otimização</SelectItem>
+                      <SelectItem value="optimization">Otimizaç��o</SelectItem>
                       <SelectItem value="refactor">Refatoração</SelectItem>
                     </SelectContent>
                   </Select>
