@@ -458,14 +458,24 @@ export default function InboxLegalC4() {
     setShowCreateStageDialog(true);
   };
 
-  const submitVinculo = () => {
+  const submitVinculo = async () => {
     if (!selectedItem || !vinculoCnj.trim()) return;
 
-    const cleanCnj = vinculoCnj.replace(/\D/g, "");
-    if (cleanCnj.length !== 20) {
+    if (!validateCNJ(vinculoCnj)) {
       toast({
         title: "CNJ inválido",
-        description: "CNJ deve ter 20 dígitos",
+        description: "CNJ deve ter 20 dígitos no formato correto",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if process exists
+    const processExists = await checkProcessExists(vinculoCnj);
+    if (!processExists) {
+      toast({
+        title: "Processo não encontrado",
+        description: "O CNJ informado não foi encontrado na base de processos",
         variant: "destructive",
       });
       return;
