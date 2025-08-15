@@ -57,6 +57,19 @@ export function createServer() {
     }, "Sistema funcionando corretamente");
   });
 
+  // Debug page
+  app.get("/debug", (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+    try {
+      const debugHtml = fs.readFileSync(path.join(process.cwd(), 'debug-app.html'), 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(debugHtml);
+    } catch (error) {
+      res.error("Debug page not found", 404);
+    }
+  });
+
   // Legacy routes (maintain backward compatibility)
   app.get("/api/ping", (req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
