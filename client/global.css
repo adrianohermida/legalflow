@@ -48,6 +48,24 @@
   --primary: var(--brand-900);
   --primary-hover: var(--brand-700);
   --primary-light: var(--brand-100);
+
+  /* Mobile-First Responsive Variables */
+  --container-xs: 100%;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  /* Responsive Spacing Scale */
+  --spacing-mobile: 1rem;
+  --spacing-tablet: 1.5rem;
+  --spacing-desktop: 2rem;
+
+  /* Responsive Typography Scale */
+  --text-scale-mobile: 0.875;
+  --text-scale-tablet: 1;
+  --text-scale-desktop: 1.125;
   --secondary: var(--mono-gray-600);
   --muted: var(--mono-gray-500);
   --surface: var(--mono-white);
