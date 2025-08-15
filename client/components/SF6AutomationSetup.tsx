@@ -451,7 +451,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
             </ul>
             <p className="mt-2">
               <strong>Arquivo para instalar:</strong>{" "}
-              <code>SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code>
+              <code>SF6_SUPABASE_RPC_FIXED.sql</code>
             </p>
           </div>
         </CardContent>
@@ -464,7 +464,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
           description="Para utilizar o Sistema de Bridge entre Tarefas e Tickets, você deve instalar primeiro o schema SF6 no seu banco Supabase."
           files={[
             {
-              filename: "SF6_SUPABASE_COMPATIBLE_SCHEMA.sql",
+              filename: "SF6_SUPABASE_RPC_FIXED.sql",
               content: `-- SF-6: Activities ↔ Tickets Bridge - Supabase Compatible Schema
 --
 -- This version works with Supabase's schema restrictions by:
