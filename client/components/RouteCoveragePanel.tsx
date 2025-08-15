@@ -345,6 +345,24 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
             Reset
           </Button>
           <Button
+            variant="outline"
+            onClick={runRouteDiagnostics}
+            disabled={isRunningDiagnostics || isRunningTests}
+            className="min-w-[140px]"
+          >
+            {isRunningDiagnostics ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Diagnosticando...
+              </>
+            ) : (
+              <>
+                <Settings className="mr-2 h-4 w-4" />
+                Diagnóstico
+              </>
+            )}
+          </Button>
+          <Button
             onClick={runAllTests}
             disabled={isRunningTests}
             className="min-w-[140px]"
@@ -362,6 +380,21 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
               </>
             )}
           </Button>
+
+          {healthStats && healthStats.autoFixableIssues > 0 && (
+            <Button
+              onClick={applyAutomaticFixes}
+              disabled={isApplyingFixes}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isApplyingFixes ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Zap className="mr-2 h-4 w-4" />
+              )}
+              Auto-Fix ({healthStats.autoFixableIssues})
+            </Button>
+          )}
         </div>
       </div>
 
