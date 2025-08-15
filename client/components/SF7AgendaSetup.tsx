@@ -330,6 +330,15 @@ export function SF7AgendaSetup() {
                 )}
                 Testar Automação
               </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setShowInstallation(!showInstallation)}
+                className="w-full"
+              >
+                <Database className="w-4 h-4 mr-2" />
+                {showInstallation ? "Ocultar" : "Baixar"} Schema
+              </Button>
             </CardContent>
           </Card>
         </div>
