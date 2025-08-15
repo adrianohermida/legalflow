@@ -181,9 +181,9 @@ function ClientTableExample() {
     data: clients,
     isLoading,
     error,
-    LoadingComponent,
-    ErrorComponent,
-    EmptyComponent,
+    loadingConfig,
+    errorConfig,
+    emptyConfig,
     shouldShowContent,
   } = useAsyncTable<Client[]>("clientes");
 
@@ -193,9 +193,9 @@ function ClientTableExample() {
     execute(fetchClients);
   }, []);
 
-  if (isLoading) return <LoadingComponent />;
-  if (error) return <ErrorComponent />;
-  if (!shouldShowContent()) return <EmptyComponent />;
+  if (isLoading) return <LoadingState {...loadingConfig} />;
+  if (error) return <ErrorState {...errorConfig} />;
+  if (!shouldShowContent()) return <EmptyState {...emptyConfig} />;
 
   return (
     <CardContainer>
