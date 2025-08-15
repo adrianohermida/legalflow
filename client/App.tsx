@@ -250,16 +250,9 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      {/* Consolidated process routes */}
       <Route
         path="/processos"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <Processos />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/processos-v2"
         element={
           <DemoProtectedRoute userType="advogado">
             <ProcessosV2 />
@@ -270,23 +263,23 @@ function DemoAppRoutes() {
         path="/processos/:numero_cnj"
         element={
           <DemoProtectedRoute userType="advogado">
-            <ProcessoDetail />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/processos-v2/:numero_cnj"
-        element={
-          <DemoProtectedRoute userType="advogado">
             <ProcessoDetailV2 />
           </DemoProtectedRoute>
         }
       />
       <Route
-        path="/processos-overview/:numero_cnj"
+        path="/processos/:numero_cnj/overview"
         element={
           <DemoProtectedRoute userType="advogado">
             <ProcessoOverviewV3 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/processos/new"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <ProcessoDetailV2 />
           </DemoProtectedRoute>
         }
       />
