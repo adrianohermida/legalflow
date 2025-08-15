@@ -17,15 +17,6 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -35,10 +26,8 @@ import {
 import {
   Search,
   Plus,
-  Filter,
   Users,
   Phone,
-  FileText,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -46,10 +35,13 @@ import {
   Edit,
   Eye,
   FolderPlus,
+  ExternalLink,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
+import { ClienteFormModal } from "../components/ClienteFormModal";
+import { cpfUtils, cnpjUtils } from "../lib/external-apis";
 
 interface Cliente {
   cpfcnpj: string;
@@ -64,6 +56,16 @@ interface ClienteFormData {
   cpfcnpj: string;
   nome: string;
   whatsapp: string;
+  email?: string;
+  endereco?: {
+    logradouro: string;
+    numero: string;
+    complemento: string;
+    bairro: string;
+    cidade: string;
+    uf: string;
+    cep: string;
+  };
 }
 
 export function Clientes() {
@@ -77,7 +79,7 @@ export function Clientes() {
   const queryClient = useQueryClient();
   const itemsPerPage = 20;
 
-  // P2.1 - Buscar clientes com count de processos
+  // Enhanced query with process count binding
   const {
     data: clientesData = [],
     isLoading,
@@ -102,7 +104,7 @@ export function Clientes() {
         )
         .order("created_at", { ascending: false });
 
-      // Aplicar filtros
+      // Apply search filters for CPF/name
       if (searchTerm) {
         query = query.or(
           `cpfcnpj.ilike.%${searchTerm}%,nome.ilike.%${searchTerm}%`,
@@ -112,13 +114,13 @@ export function Clientes() {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Processar count de processos e aplicar filtro
+      // Process count and apply filter
       const processedData = data.map((cliente: any) => ({
         ...cliente,
         processo_count: cliente.clientes_processos?.length || 0,
       }));
 
-      // Filtrar por processos
+      // Filter by process count
       let filteredData = processedData;
       if (filterProcessos === "com-processos") {
         filteredData = processedData.filter((c) => c.processo_count > 0);
@@ -126,7 +128,7 @@ export function Clientes() {
         filteredData = processedData.filter((c) => c.processo_count === 0);
       }
 
-      // Aplicar paginação
+      // Apply pagination (20/page as specified)
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
 
@@ -139,24 +141,32 @@ export function Clientes() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // P2.1 - Mutation para criar/editar cliente
+  // Enhanced mutation for create/update
   const clienteMutation = useMutation({
     mutationFn: async (clienteData: ClienteFormData) => {
+      // Only save core cliente data to public.clientes
+      const coreData = {
+        cpfcnpj: clienteData.cpfcnpj,
+        nome: clienteData.nome,
+        whatsapp: clienteData.whatsapp,
+      };
+
       const { data, error } = editingCliente
         ? await supabase
             .from("clientes")
-            .update(clienteData)
+            .update(coreData)
             .eq("cpfcnpj", editingCliente.cpfcnpj)
             .select()
-        : await supabase.from("clientes").insert([clienteData]).select();
+        : await supabase.from("clientes").insert([coreData]).select();
 
       if (error) throw error;
-      return data;
+      return { data, formData: clienteData };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["clientes"] });
       setIsDialogOpen(false);
       setEditingCliente(null);
+      
       toast({
         title: editingCliente ? "Cliente atualizado" : "Cliente criado",
         description: editingCliente
@@ -173,21 +183,12 @@ export function Clientes() {
     },
   });
 
-  const handleSubmitCliente = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-
-    const clienteData: ClienteFormData = {
-      cpfcnpj: formData.get("cpfcnpj") as string,
-      nome: formData.get("nome") as string,
-      whatsapp: formData.get("whatsapp") as string,
-    };
-
+  const handleSubmitCliente = (clienteData: ClienteFormData) => {
     clienteMutation.mutate(clienteData);
   };
 
   const handleCreateProcess = (cliente: Cliente) => {
-    // P2.1 - CTA "Criar processo" pré-preenche cpfcnpj
+    // CTA "Criar processo" pre-fills CPF/CNPJ as specified
     const params = new URLSearchParams({
       cliente_cpfcnpj: cliente.cpfcnpj,
       cliente_nome: cliente.nome || "",
@@ -195,15 +196,17 @@ export function Clientes() {
     window.location.href = `/processos/novo?${params.toString()}`;
   };
 
+  const handleOpenClienteDetail = (cliente: Cliente) => {
+    // Navigate to client detail/profile page
+    window.location.href = `/crm/contatos/${cliente.cpfcnpj}`;
+  };
+
   const formatCpfCnpj = (cpfcnpj: string) => {
     const clean = cpfcnpj.replace(/\D/g, "");
     if (clean.length === 11) {
-      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      return cpfUtils.format(cpfcnpj);
     } else if (clean.length === 14) {
-      return clean.replace(
-        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-        "$1.$2.$3/$4-$5",
-      );
+      return cnpjUtils.format(cpfcnpj);
     }
     return cpfcnpj;
   };
@@ -217,6 +220,11 @@ export function Clientes() {
       return clean.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
     }
     return whatsapp;
+  };
+
+  const getDocumentType = (cpfcnpj: string) => {
+    const clean = cpfcnpj.replace(/\D/g, "");
+    return clean.length === 11 ? "CPF" : "CNPJ";
   };
 
   if (error) {
@@ -256,82 +264,19 @@ export function Clientes() {
             Base de clientes e relacionamento
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gray-800 text-white hover:bg-gray-900">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Cliente
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleSubmitCliente}>
-              <DialogHeader>
-                <DialogTitle>
-                  {editingCliente ? "Editar Cliente" : "Novo Cliente"}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingCliente
-                    ? "Atualize as informações do cliente"
-                    : "Preencha os dados para cadastrar um novo cliente"}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    CPF/CNPJ
-                  </label>
-                  <Input
-                    name="cpfcnpj"
-                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                    defaultValue={editingCliente?.cpfcnpj}
-                    disabled={!!editingCliente}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Nome</label>
-                  <Input
-                    name="nome"
-                    placeholder="Nome completo ou razão social"
-                    defaultValue={editingCliente?.nome || ""}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    WhatsApp
-                  </label>
-                  <Input
-                    name="whatsapp"
-                    placeholder="(00) 00000-0000"
-                    defaultValue={editingCliente?.whatsapp || ""}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setIsDialogOpen(false);
-                    setEditingCliente(null);
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={clienteMutation.isPending}>
-                  {clienteMutation.isPending && (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  )}
-                  {editingCliente ? "Atualizar" : "Criar"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button
+          onClick={() => {
+            setEditingCliente(null);
+            setIsDialogOpen(true);
+          }}
+          className="bg-gray-800 text-white hover:bg-gray-900"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Cliente
+        </Button>
       </div>
 
-      {/* P2.1 - Filtros conforme especificação */}
+      {/* Enhanced search and filters */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -367,7 +312,7 @@ export function Clientes() {
         </CardContent>
       </Card>
 
-      {/* P2.1 - Tabela conforme especificação */}
+      {/* Enhanced table with specified columns */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">
@@ -377,10 +322,7 @@ export function Clientes() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2
-                className="w-8 h-8 animate-spin"
-                className="text-gray-800"
-              />
+              <Loader2 className="w-8 h-8 animate-spin text-gray-800" />
               <span className="ml-2 text-neutral-600">
                 Carregando clientes...
               </span>
@@ -415,8 +357,15 @@ export function Clientes() {
                       key={cliente.cpfcnpj}
                       className="hover:bg-neutral-50"
                     >
-                      <TableCell className="font-mono text-sm">
-                        {formatCpfCnpj(cliente.cpfcnpj)}
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-mono text-sm">
+                            {formatCpfCnpj(cliente.cpfcnpj)}
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {getDocumentType(cliente.cpfcnpj)}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">
@@ -427,13 +376,23 @@ export function Clientes() {
                         <div className="flex items-center gap-2">
                           {cliente.whatsapp ? (
                             <>
-                              <Phone
-                                className="w-4 h-4"
-                                className="text-gray-700"
-                              />
+                              <Phone className="w-4 h-4 text-gray-700" />
                               <span className="text-sm">
                                 {formatWhatsApp(cliente.whatsapp)}
                               </span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  window.open(
+                                    `https://wa.me/55${cliente.whatsapp?.replace(/\D/g, "")}`,
+                                    "_blank"
+                                  )
+                                }
+                                className="p-1 h-auto"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                              </Button>
                             </>
                           ) : (
                             <span className="text-neutral-400 text-sm">-</span>
@@ -463,10 +422,8 @@ export function Clientes() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              setEditingCliente(cliente);
-                              setIsDialogOpen(true);
-                            }}
+                            onClick={() => handleOpenClienteDetail(cliente)}
+                            title="Ver detalhes do cliente"
                           >
                             <Eye className="w-4 h-4 mr-1" />
                             Abrir
@@ -476,6 +433,7 @@ export function Clientes() {
                             size="sm"
                             onClick={() => handleCreateProcess(cliente)}
                             className="text-gray-800"
+                            title="Criar novo processo para este cliente"
                           >
                             <FolderPlus className="w-4 h-4 mr-1" />
                             Criar Processo
@@ -487,6 +445,7 @@ export function Clientes() {
                               setEditingCliente(cliente);
                               setIsDialogOpen(true);
                             }}
+                            title="Editar informações do cliente"
                           >
                             <Edit className="w-4 h-4 mr-1" />
                             Editar
@@ -502,7 +461,7 @@ export function Clientes() {
         </CardContent>
       </Card>
 
-      {/* P2.1 - Paginação 20/pg */}
+      {/* Enhanced pagination (20/page as specified) */}
       {clientesData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
@@ -535,6 +494,18 @@ export function Clientes() {
           </div>
         </div>
       )}
+
+      {/* Enhanced modal with DirectData and ViaCEP integration */}
+      <ClienteFormModal
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setEditingCliente(null);
+        }}
+        onSubmit={handleSubmitCliente}
+        editingCliente={editingCliente}
+        isLoading={clienteMutation.isPending}
+      />
     </div>
   );
 }
