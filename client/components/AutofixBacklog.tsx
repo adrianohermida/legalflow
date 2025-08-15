@@ -767,12 +767,12 @@ const CreateItemDialog = ({
             
             <div>
               <Label htmlFor="story_points">Story Points</Label>
-              <Select value={formData.story_points} onValueChange={(value) => setFormData(prev => ({ ...prev, story_points: value }))}>
+              <Select value={formData.story_points} onValueChange={(value) => setFormData(prev => ({ ...prev, story_points: value === 'none' ? '' : value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Não definido</SelectItem>
+                  <SelectItem value="none">Não definido</SelectItem>
                   <SelectItem value="1">1</SelectItem>
                   <SelectItem value="2">2</SelectItem>
                   <SelectItem value="3">3</SelectItem>
