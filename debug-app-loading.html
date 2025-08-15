@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug LegalFlow Loading</title>
+    <style>
+      body { font-family: system-ui; padding: 20px; background: #f5f5f5; }
+      .status { background: white; padding: 20px; border-radius: 8px; margin: 10px 0; }
+      .error { background: #fee; border: 1px solid #fcc; }
+      .success { background: #efe; border: 1px solid #cfc; }
+      .info { background: #e3f2fd; border: 1px solid #90caf9; }
+      pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Debug LegalFlow App Loading</h1>
+    
+    <div id="status-container">
+      <div class="status info">
+        <h3>📋 Checking App Status...</h3>
+        <div id="loading-status">Verificando carregamento do aplicativo...</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <h3>🔗 Links de Teste:</h3>
+      <p><a href="/" target="_blank">🏠 App Principal</a></p>
+      <p><a href="/client/App.tsx" target="_blank">📄 App.tsx direto</a></p>
+    </div>
+
+    <div class="status">
+      <h3>📝 Console Logs:</h3>
+      <pre id="console-logs"></pre>
+    </div>
+
+    <div class="status">
+      <h3>🛠️ Debug Information:</h3>
+      <pre id="debug-info"></pre>
+    </div>
+
+    <script>
+      const statusContainer = document.getElementById('status-container');
+      const loadingStatus = document.getElementById('loading-status');
+      const consoleLogs = document.getElementById('console-logs');
+      const debugInfo = document.getElementById('debug-info');
+      
+      // Capturar console logs
+      const originalLog = console.log;
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
+      let logMessages = [];
+      
+      function captureLog(type, ...args) {
+        const message = `[${type.toUpperCase()}] ${args.join(' ')}`;
+        logMessages.push(message);
+        consoleLogs.textContent = logMessages.join('\n');
+        
+        if (type === 'log') originalLog(...args);
+        if (type === 'error') originalError(...args);
+        if (type === 'warn') originalWarn(...args);
+      }
+      
+      console.log = (...args) => captureLog('log', ...args);
+      console.error = (...args) => captureLog('error', ...args);
+      console.warn = (...args) => captureLog('warn', ...args);
+      
+      console.log('🚀 Debug mode started');
+      
+      // Verificar se conseguimos carregar o module
+      async function debugAppLoading() {
+        try {
+          console.log('📍 Tentando carregar /client/App.tsx...');
+          
+          // Verificar se o arquivo existe
+          const response = await fetch('/client/App.tsx');
+          console.log(`📄 App.tsx status: ${response.status}`);
+          
+          if (response.ok) {
+            const content = await response.text();
+            console.log(`📏 App.tsx size: ${content.length} characters`);
+            
+            // Tentar importar como module
+            try {
+              const module = await import('/client/App.tsx');
+              console.log('✅ Module imported successfully:', Object.keys(module));
+              
+              loadingStatus.innerHTML = `
+                <div class="success">✅ App.tsx carregado com sucesso!</div>
+                <div>📏 Tamanho: ${content.length} caracteres</div>
+                <div>📦 Exports: ${Object.keys(module).join(', ')}</div>
+              `;
+              
+            } catch (importError) {
+              console.error('❌ Module import failed:', importError);
+              loadingStatus.innerHTML = `
+                <div class="error">❌ Erro ao importar module:</div>
+                <pre>${importError.message}</pre>
+              `;
+            }
+            
+          } else {
+            console.error(`❌ Failed to fetch App.tsx: ${response.status}`);
+            loadingStatus.innerHTML = `
+              <div class="error">❌ Arquivo App.tsx não encontrado (${response.status})</div>
+            `;
+          }
+          
+        } catch (error) {
+          console.error('❌ Debug error:', error);
+          loadingStatus.innerHTML = `
+            <div class="error">❌ Erro geral: ${error.message}</div>
+          `;
+        }
+        
+        // Debug info
+        debugInfo.textContent = JSON.stringify({
+          location: window.location.href,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          viteHMR: !!window.__vite_plugin_react_preamble_installed__
+        }, null, 2);
+      }
+      
+      // Executar debug
+      debugAppLoading();
+      
+      // Verificar se DOM mudou (sinal de que app carregou)
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes.length > 0) {
+            console.log('🔄 DOM changed, checking for React app...');
+            const root = document.getElementById('root');
+            if (root && root.children.length > 0) {
+              console.log('✅ React app seems to have loaded!');
+            }
+          }
+        });
+      });
+      
+      // Observar mudanças no root da página principal
+      setTimeout(() => {
+        try {
+          const mainWindow = window.parent || window;
+          const mainRoot = mainWindow.document.getElementById('root');
+          if (mainRoot) {
+            observer.observe(mainRoot, { childList: true, subtree: true });
+            console.log('👀 Watching main app root for changes...');
+          }
+        } catch (e) {
+          console.log('ℹ️ Cannot watch parent window (cross-origin)');
+        }
+      }, 1000);
+      
+    </script>
+  </body>
+</html>
