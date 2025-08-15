@@ -1218,22 +1218,32 @@ export default function App() {
   );
 }
 
+// EMERGENCY DEBUG MODE - Temporarily replace App with debug component
+import EmergencyDebug from "./components/EmergencyDebug";
+
 const container = document.getElementById("root");
 if (container) {
-  // Check if root already exists to prevent React warning
+  // Check if we're seeing the "MyComponent" issue
+  const bodyText = document.body.textContent || '';
+  const hasCodeRendering = bodyText.includes('export default function') || bodyText.includes('MyComponent');
+
+  console.log('🔍 Emergency check - Code rendering detected:', hasCodeRendering);
+
   if (!(container as any)._reactRoot) {
     const root = createRoot(container);
     (container as any)._reactRoot = root;
+
+    // Render debug component instead of main app
     root.render(
       <AppErrorBoundary>
-        <App />
+        {hasCodeRendering ? <EmergencyDebug /> : <App />}
       </AppErrorBoundary>,
     );
   } else {
     // Re-render on existing root
     (container as any)._reactRoot.render(
       <AppErrorBoundary>
-        <App />
+        {hasCodeRendering ? <EmergencyDebug /> : <App />}
       </AppErrorBoundary>,
     );
   }
