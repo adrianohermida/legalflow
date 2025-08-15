@@ -10,18 +10,30 @@ export const MONOCHROMATIC_THEME = {
     black: "#000000",
     white: "#ffffff",
 
-    // Escala de cinza principal
+    // Escala de cinza expandida para melhor visibilidade
     gray: {
+      25: "#fcfcfc", // Branco quase absoluto
       50: "#f9fafb", // Quase branco
+      75: "#f6f7f8", // Branco levemente acinzentado
       100: "#f3f4f6", // Branco acinzentado
+      150: "#eef0f2", // Cinza ultra claro
       200: "#e5e7eb", // Cinza muito claro
+      250: "#dde0e4", // Cinza muito claro médio
       300: "#d1d5db", // Cinza claro
+      350: "#c8cdd3", // Cinza claro médio
       400: "#9ca3af", // Cinza médio-claro
+      450: "#8a9199", // Cinza médio-claro escuro
       500: "#6b7280", // Cinza neutro
+      550: "#5d646d", // Cinza neutro escuro
       600: "#4b5563", // Cinza médio
+      650: "#434954", // Cinza médio escuro
       700: "#374151", // Cinza escuro
+      750: "#2f3944", // Cinza escuro médio
       800: "#1f2937", // Cinza muito escuro
+      850: "#1a202c", // Cinza muito escuro médio
       900: "#111827", // Quase preto
+      925: "#0d1117", // Quase preto escuro
+      950: "#060a0f", // Preto quase absoluto
     },
 
     // Sistema funcional monocromático
