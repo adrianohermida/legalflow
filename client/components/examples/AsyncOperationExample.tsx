@@ -298,8 +298,8 @@ function FormExample() {
           />
         </div>
 
-        {error && <ErrorComponent />}
-        
+        {error && <ErrorState {...errorConfig} />}
+
         {isSuccess && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-md">
             <p className="text-green-800">Dados salvos com sucesso!</p>
@@ -328,8 +328,8 @@ function ManualControlExample() {
     setError,
     execute,
     reset,
-    LoadingComponent,
-    ErrorComponent,
+    loadingConfig,
+    errorConfig,
   } = useAsyncOperation<string>({
     initialData: "Estado inicial",
   });
@@ -343,7 +343,7 @@ function ManualControlExample() {
           <strong>Estado atual:</strong> {isLoading ? "Carregando..." : data}
         </div>
 
-        {error && <ErrorComponent />}
+        {error && <ErrorState {...errorConfig} />}
 
         <div className="flex flex-wrap gap-2">
           <Button
@@ -380,7 +380,7 @@ function ManualControlExample() {
           </Button>
         </div>
 
-        {isLoading && <LoadingComponent />}
+        {isLoading && <LoadingState {...loadingConfig} />}
       </Stack>
     </CardContainer>
   );
