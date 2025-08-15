@@ -235,6 +235,7 @@ const DealsKanban = () => {
   const handleMoveDeal = async (dealId: string, newStageId: number) => {
     try {
       const newStage = stages.find((s) => s.id === newStageId);
+      const deal = deals?.find((d) => d.id === dealId);
 
       const { error } = await lf
         .from("deals")
@@ -247,10 +248,27 @@ const DealsKanban = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Deal movido",
-        description: `Deal movido para ${newStage?.name}.`,
-      });
+      // Automação: ao mover para estágio de "ganho", oferece criar checkout
+      if (newStage?.is_won && deal) {
+        toast({
+          title: "Deal fechado com sucesso! 🎉",
+          description: `${deal.title} foi movido para ${newStage.name}`,
+          action: (
+            <Button
+              size="sm"
+              onClick={() => handleCreateCheckout(deal)}
+              variant="default"
+            >
+              Criar Checkout
+            </Button>
+          ),
+        });
+      } else {
+        toast({
+          title: "Deal movido",
+          description: `Deal movido para ${newStage?.name}.`,
+        });
+      }
 
       refetch();
     } catch (error) {
@@ -261,6 +279,15 @@ const DealsKanban = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Criar checkout Stripe para deal fechado
+  const handleCreateCheckout = (deal: Deal) => {
+    // Integração com Stripe/checkout - implementação futura
+    toast({
+      title: "Checkout em desenvolvimento",
+      description: "Feature de checkout será implementada na próxima versão",
+    });
   };
 
   // Drag & Drop handlers
