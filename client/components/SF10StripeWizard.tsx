@@ -264,25 +264,23 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_payment_intents")
-        .select(
-          `
-          *,
-          customer:customer_id(email, name)
-        `,
-        )
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+          console.log("Tabela stripe_payment_intents não existe. Execute o setup SF-10 primeiro.");
+          setPayments([]);
+          return;
+        }
+        throw error;
+      }
 
-      const formatted = (data || []).map((payment) => ({
-        ...payment,
-        customer_email: payment.customer?.email || "",
-      }));
-
-      setPayments(formatted);
+      setPayments(data || []);
     } catch (error) {
       console.error("Error loading payments:", error instanceof Error ? error.message : String(error));
+      setPayments([]);
     }
   };
 
