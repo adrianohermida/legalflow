@@ -196,7 +196,7 @@ LIMIT 5;
 
 1. Execute todo este script no Supabase SQL Editor
 2. Verifique se as tabelas foram criadas executando a seção de verificação
-3. No sistema, acesse /autofix-testing e execute os testes
+3. No sistema, acesse /dev-auditoria e execute os testes
 4. Teste a funcionalidade de importação de Git
 5. Teste prompts do Builder.io
 
