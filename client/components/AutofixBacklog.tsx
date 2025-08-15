@@ -568,30 +568,30 @@ export default function AutofixBacklog() {
             />
           </div>
           
-          <Select 
-            value={filter.status} 
-            onValueChange={(value) => setFilter(prev => ({ ...prev, status: value }))}
+          <Select
+            value={filter.status}
+            onValueChange={(value) => setFilter(prev => ({ ...prev, status: value === 'all' ? '' : value }))}
           >
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
               {Object.entries(statusConfig).map(([status, config]) => (
                 <SelectItem key={status} value={status}>{config.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          
-          <Select 
-            value={filter.priority} 
-            onValueChange={(value) => setFilter(prev => ({ ...prev, priority: value }))}
+
+          <Select
+            value={filter.priority}
+            onValueChange={(value) => setFilter(prev => ({ ...prev, priority: value === 'all' ? '' : value }))}
           >
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas</SelectItem>
+              <SelectItem value="all">Todas</SelectItem>
               {Object.entries(priorityConfig).map(([priority, config]) => (
                 <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
               ))}
