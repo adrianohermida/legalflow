@@ -218,9 +218,32 @@ COMMENT ON FUNCTION legalflow.compute_next_action(uuid) IS 'Computa automaticame
 COMMENT ON FUNCTION legalflow.trigger_stage_refresh() IS 'Trigger que atualiza automaticamente a próxima ação quando o status de uma etapa muda';
 COMMENT ON FUNCTION legalflow.create_journey_with_stages(bigint, text, text) IS 'Cria uma nova jornada com todas as etapas baseadas no template';
 
+-- Validação e correção de dados para garantir integridade
+-- Verificar se todas as etapas têm stage_types.code válido
+DO $$
+DECLARE
+  v_missing_count integer;
+BEGIN
+  -- Contar quantas etapas não têm stage_type_id válido
+  SELECT COUNT(*) INTO v_missing_count
+  FROM legalflow.journey_template_stages jts
+  LEFT JOIN legalflow.stage_types st ON jts.stage_type_id = st.id
+  WHERE st.code IS NULL;
+
+  IF v_missing_count > 0 THEN
+    RAISE NOTICE 'Encontradas % etapas sem stage_type válido. Corrigindo...', v_missing_count;
+
+    -- Atualizar etapas sem stage_type para usar um tipo padrão
+    UPDATE legalflow.journey_template_stages
+    SET stage_type_id = (SELECT id FROM legalflow.stage_types WHERE code = 'case_monitoring' LIMIT 1)
+    WHERE stage_type_id IS NULL
+       OR stage_type_id NOT IN (SELECT id FROM legalflow.stage_types);
+  END IF;
+END $$;
+
 -- Dados de exemplo para testar
 -- Inserir template de exemplo se não existir
-INSERT INTO legalflow.journey_templates (name, area, description, active) 
+INSERT INTO legalflow.journey_templates (name, area, description, active)
 VALUES ('Jornada Processual Padrão', 'Cível', 'Jornada padrão para processos cíveis', true)
 ON CONFLICT DO NOTHING;
 
