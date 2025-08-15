@@ -122,10 +122,8 @@ export function createServer() {
 
   // Serve fallback page when React app doesn't load
   app.get("/fallback", (req, res) => {
-    const fs = require('fs');
-    const path = require('path');
     try {
-      const fallbackHtml = fs.readFileSync(path.join(process.cwd(), 'public/fallback.html'), 'utf8');
+      const fallbackHtml = readFileSync(join(process.cwd(), 'public/fallback.html'), 'utf8');
       res.set('Content-Type', 'text/html');
       res.send(fallbackHtml);
     } catch (error) {
