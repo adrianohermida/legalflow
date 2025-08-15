@@ -22,6 +22,7 @@ import { implAudit, implAutofix } from "../lib/audit-rpcs";
 import { AutofixHistoryPanel } from "../components/AutofixHistoryPanel";
 import { autofixHistory, BuilderPromptRequest } from "../lib/autofix-history";
 import AutofixBacklog from "../components/AutofixBacklog";
+import { useAuditBacklogIntegration } from "../lib/audit-backlog-integration";
 import RouteCoveragePanel from "../components/RouteCoveragePanel";
 import {
   Tabs,
