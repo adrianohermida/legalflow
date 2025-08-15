@@ -323,7 +323,7 @@ export function DocumentViewerC6({
               size="sm"
               onClick={printDocument}
             >
-              <Print className="h-4 w-4" />
+              <Printer className="h-4 w-4" />
             </Button>
             {signedUrl && (
               <Button
