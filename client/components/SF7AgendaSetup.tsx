@@ -22,6 +22,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { createEventFromStage, useSF7StageIntegration } from "../lib/sf7-stage-integration";
+import { GenericSQLDownloader } from "./GenericSQLDownloader";
 
 export function SF7AgendaSetup() {
   const [isTestingSchema, setIsTestingSchema] = useState(false);
