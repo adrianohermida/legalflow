@@ -112,6 +112,8 @@ export function Activities() {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterPriority, setFilterPriority] = useState("todos");
   const [filterAssigned, setFilterAssigned] = useState("todos");
+  const [filterDueDate, setFilterDueDate] = useState("todos");
+  const [filterCliente, setFilterCliente] = useState("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -120,6 +122,7 @@ export function Activities() {
   );
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
