@@ -1540,46 +1540,13 @@ const DevAuditoria: React.FC = () => {
           <AutofixHistoryPanel />
         </TabsContent>
 
-        {/* SF-5 Journey Card Test Tab */}
-        <TabsContent value="sf5">
-          <SF5JourneyCardTest />
-        </TabsContent>
-
-        {/* SF-6 Activities ↔ Tickets Bridge Setup Tab */}
-        <TabsContent value="sf6">
-          <SF6AutomationSetup />
-        </TabsContent>
-
-        {/* SF-2 Processos Chat Multi-thread Setup Tab */}
-        <TabsContent value="sf2">
-          <SF2ProcessosSetup />
-        </TabsContent>
-
-        {/* SF-7 Agenda (TZ America/Sao_Paulo) Setup Tab */}
-        <TabsContent value="sf7">
-          <SF7AgendaSetup />
-        </TabsContent>
-
-        {/* SF-8 Documentos & Flipbook Setup Tab */}
-        <TabsContent value="sf8">
-          <SF8DocumentosSetup />
-        </TabsContent>
-
-        {/* SF9 Tab */}
-        <TabsContent value="sf9">
-          <SF9ApiConsole />
-        </TabsContent>
-
-        {/* SF10 Tab */}
-        <TabsContent value="sf10">
-          <SF10StripeWizard />
-        </TabsContent>
-
-        {/* Schema Diagnostics Tab */}
+        {/* Diagnostics Category */}
         <TabsContent value="diagnostics">
           <div className="space-y-6">
-            <SchemaVerificationHelper />
-            <SchemaDiagnostics />
+            <div className="grid gap-6">
+              <SchemaDiagnostics />
+              <SchemaVerificationHelper />
+            </div>
           </div>
         </TabsContent>
       </Tabs>
