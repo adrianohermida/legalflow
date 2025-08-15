@@ -74,6 +74,7 @@ import {
   formatDateTime,
 } from "../lib/utils";
 import ProcessoChatSimple from "../components/ProcessoChatSimple";
+import { ProcessChatMultithread } from "../components/ProcessChatMultithread";
 
 interface ProcessoData {
   numero_cnj: string;
