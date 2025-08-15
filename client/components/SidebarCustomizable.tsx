@@ -131,6 +131,15 @@ const defaultAdvogadoItems: SidebarItem[] = [
     isDefault: true,
   },
   {
+    id: "deals",
+    title: "Deals",
+    href: "/deals",
+    icon: Target,
+    description: "Gestão de oportunidades",
+    isVisible: true,
+    isDefault: true,
+  },
+  {
     id: "relatorios",
     title: "Relatórios",
     href: "/relatorios",
