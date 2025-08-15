@@ -331,6 +331,11 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
             <strong>Tarefas e Tickets:</strong> Bridge automático que cria
             tarefas quando etapas do tipo "task" são concluídas na jornada.
           </p>
+          <p className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+            <strong>⚠️ Instalação necessária:</strong> Execute o arquivo
+            <code className="bg-yellow-100 px-1 rounded">SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code>
+            no seu Supabase SQL Editor primeiro.
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
