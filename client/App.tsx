@@ -357,6 +357,14 @@ function DemoAppRoutes() {
         path="/agenda"
         element={
           <DemoProtectedRoute userType="advogado">
+            <AgendaC5 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/agenda-basic"
+        element={
+          <DemoProtectedRoute userType="advogado">
             <Agenda />
           </DemoProtectedRoute>
         }
