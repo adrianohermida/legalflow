@@ -4,6 +4,8 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 // Import middleware
 import { standardizeResponse, errorHandler, notFound } from "./middleware/response";
