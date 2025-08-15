@@ -47,6 +47,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
+import { useRouteDiagnostics } from "../lib/route-diagnostics-autofix";
 import {
   routeCoverageSystem,
   RouteTest,
