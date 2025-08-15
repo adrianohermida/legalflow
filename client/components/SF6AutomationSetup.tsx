@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { SF6BridgeManager } from "./SF6BridgeManager";
+import { SF6RoundTripTest } from "./SF6RoundTripTest";
 
 interface AutomationResult {
   success: boolean;
