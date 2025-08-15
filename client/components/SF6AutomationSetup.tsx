@@ -276,8 +276,8 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
     onSuccess: (result) => {
       setSetupResult(result);
       toast({
-        title: "SF-6 Automation instalada",
-        description: `${result.created_count} activities criadas automaticamente`,
+        title: "SF-6 Instalação verificada",
+        description: `${result.created_count || 0} activities processadas com sucesso`,
       });
     },
     onError: (error: any) => {
