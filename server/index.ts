@@ -87,6 +87,17 @@ export function createServer() {
     }
   });
 
+  // Basic test page
+  app.get("/basic", (req, res) => {
+    try {
+      const basicHtml = readFileSync(join(process.cwd(), 'test-basic.html'), 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(basicHtml);
+    } catch (error) {
+      res.error("Basic test page not found", 404);
+    }
+  });
+
   // Simple test page
   app.get("/test", (req, res) => {
     res.set('Content-Type', 'text/html');
