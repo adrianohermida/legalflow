@@ -645,6 +645,10 @@ const AutofixTesting: React.FC = () => {
           <TabsTrigger value="setup">Manual Setup</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="backlog" className="space-y-4">
+          <AutofixBacklog />
+        </TabsContent>
+
         <TabsContent value="routes" className="space-y-4">
           <RouteCoveragePanel />
         </TabsContent>
