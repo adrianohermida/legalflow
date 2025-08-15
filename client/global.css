@@ -108,10 +108,9 @@
   --fuchsia-500: var(--mono-gray-600);
   --rose-500: var(--mono-gray-600);
 
-  /* Accessibility monocromático */
-  --focus-ring: 2px solid var(--mono-gray-700);
+  /* Accessibility com marca */
   --focus-offset: 2px;
-  --focus-shadow: 0 0 0 2px var(--mono-gray-300);
+  --focus-shadow: 0 0 0 2px var(--brand-100);
 
   /* Base monocrom��tica */
   color: var(--mono-gray-900);
