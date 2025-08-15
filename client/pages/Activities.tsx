@@ -186,6 +186,28 @@ export function Activities() {
         }
       }
 
+      // SF-6: Filtro de data de vencimento
+      if (filterDueDate !== "todos") {
+        const now = new Date();
+        if (filterDueDate === "vencidas") {
+          query = query.lt("due_at", now.toISOString());
+        } else if (filterDueDate === "hoje") {
+          const endOfDay = new Date(now);
+          endOfDay.setHours(23, 59, 59, 999);
+          query = query.gte("due_at", now.toISOString()).lte("due_at", endOfDay.toISOString());
+        } else if (filterDueDate === "esta-semana") {
+          const endOfWeek = new Date(now);
+          endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
+          endOfWeek.setHours(23, 59, 59, 999);
+          query = query.gte("due_at", now.toISOString()).lte("due_at", endOfWeek.toISOString());
+        }
+      }
+
+      // SF-6: Filtro de cliente
+      if (filterCliente !== "todos") {
+        query = query.eq("cliente_cpfcnpj", filterCliente);
+      }
+
       const startIndex = (currentPage - 1) * itemsPerPage;
       const { data, error, count } = await query.range(
         startIndex,
