@@ -1553,6 +1553,11 @@ const DevAuditoria: React.FC = () => {
         <TabsContent value="sf2">
           <SF2ProcessosSetup />
         </TabsContent>
+
+        {/* SF-7 Agenda (TZ America/Sao_Paulo) Setup Tab */}
+        <TabsContent value="sf7">
+          <SF7AgendaSetup />
+        </TabsContent>
       </Tabs>
     </div>
   );
