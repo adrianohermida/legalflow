@@ -1,48 +1,5 @@
-import React, { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { Badge } from "../components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import {
-  Calendar,
-  Clock,
-  Plus,
-  MapPin,
-  Users,
-  Building,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  AlertTriangle,
-  Edit,
-  Trash2,
-  ExternalLink,
-} from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { lf } from "../lib/supabase";
-import { useToast } from "../hooks/use-toast";
+import React from "react";
+import { SF7AgendaEnhanced } from "../components/SF7AgendaEnhanced";
 
 interface EventoAgenda {
   id: string;
