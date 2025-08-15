@@ -78,13 +78,22 @@ export default function ProcessoCapa({ numeroCnj }: ProcessoCapaProps) {
   const { data: partes = [] } = useQuery({
     queryKey: ['partes', numeroCnj],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('partes_processo')
-        .select('*')
-        .eq('numero_cnj', numeroCnj);
-      
-      if (error) throw error;
-      return data || [];
+      try {
+        // Try legalflow schema first
+        const { data, error } = await supabase
+          .from('partes_processo')
+          .select('*')
+          .eq('numero_cnj', numeroCnj);
+
+        if (error) {
+          console.warn('Error fetching partes_processo:', error);
+          return [];
+        }
+        return data || [];
+      } catch (error) {
+        console.warn('Failed to fetch partes:', error);
+        return [];
+      }
     },
     enabled: printOptions.includePartes
   });
