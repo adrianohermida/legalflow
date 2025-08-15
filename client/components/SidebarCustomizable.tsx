@@ -113,7 +113,7 @@ const defaultAdvogadoItems: SidebarItem[] = [
   {
     id: "inbox-legal",
     title: "Inbox Legal",
-    href: "/inbox-v2",
+    href: "/inbox",
     icon: Inbox,
     description: "Triagem de publicações",
     isVisible: true,
