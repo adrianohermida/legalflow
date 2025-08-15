@@ -25,7 +25,7 @@ import {
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
-import { supabase } from '../lib/supabase';
+import { supabase, lf } from '../lib/supabase';
 import { formatCNJ, formatDate } from '../lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
