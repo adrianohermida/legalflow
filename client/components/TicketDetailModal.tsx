@@ -48,6 +48,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate } from "../lib/utils";
+import { getSLAStatus } from "../lib/sla-utils";
 
 interface Ticket {
   id: string;
