@@ -282,7 +282,7 @@ export function SF6BridgeManager() {
               {syncStatusesMutation.isPending && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              <Sync className="w-4 h-4 mr-2" />
+              <RefreshCw className="w-4 h-4 mr-2" />
               Sync Statuses
             </Button>
 
