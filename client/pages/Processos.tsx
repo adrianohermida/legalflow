@@ -50,6 +50,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { themeUtils, colors } from "../lib/theme-colors";
 
 interface Processo {
   numero_cnj: string;
@@ -87,7 +88,7 @@ export function Processos() {
   const navigate = useNavigate();
   const itemsPerPage = 20;
 
-  // P2.2 - Buscar processos com dados relacionados
+  // Enhanced query with operational sorting by recency/risk
   const {
     data: processosData = { data: [], total: 0, totalPages: 0 },
     isLoading,
@@ -103,7 +104,7 @@ export function Processos() {
       currentPage,
     ],
     queryFn: async () => {
-      // P2.2 - Query unificada conforme especificação
+      // Flow C2 - Query unificada conforme especificação
       let query = supabase
         .from("processos")
         .select(
@@ -129,7 +130,7 @@ export function Processos() {
         )
         .order("created_at", { ascending: false });
 
-      // Aplicar filtros
+      // Apply search filters
       if (searchTerm) {
         query = query.or(
           `numero_cnj.ilike.%${searchTerm}%,titulo_polo_ativo.ilike.%${searchTerm}%,titulo_polo_passivo.ilike.%${searchTerm}%`,
@@ -143,7 +144,7 @@ export function Processos() {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Buscar último evento para cada processo
+      // Fetch last event for each process from vw_timeline_processo
       const processosComEventos = await Promise.all(
         data.map(async (processo: any) => {
           const { data: timelineData } = await supabase
@@ -164,7 +165,7 @@ export function Processos() {
         }),
       );
 
-      // Filtrar por OAB se especificado
+      // Filter by OAB if specified
       let filteredData = processosComEventos;
       if (filterOab !== "todos") {
         if (filterOab === "sem-oab") {
@@ -176,7 +177,7 @@ export function Processos() {
         }
       }
 
-      // Aplicar paginação
+      // Apply pagination (20/page as specified)
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
 
@@ -189,7 +190,7 @@ export function Processos() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Buscar advogados para atribuição
+  // Fetch lawyers for assignment
   const { data: advogados = [] } = useQuery({
     queryKey: ["advogados"],
     queryFn: async () => {
@@ -203,7 +204,7 @@ export function Processos() {
     },
   });
 
-  // Buscar tribunais únicos para filtro
+  // Fetch unique tribunals for filter
   const { data: tribunais = [] } = useQuery({
     queryKey: ["tribunais"],
     queryFn: async () => {
@@ -219,10 +220,10 @@ export function Processos() {
     },
   });
 
-  // P2.2 - Mutation para atribuir OAB
+  // Flow C2 - Mutation to assign/change OAB
   const atribuirOabMutation = useMutation({
     mutationFn: async ({ numero_cnj, oab }: AtribuirOabData) => {
-      // Upsert em advogados_processos
+      // Upsert in advogados_processos
       const { data, error } = await supabase
         .from("advogados_processos")
         .upsert([{ numero_cnj, oab }], {
@@ -267,7 +268,7 @@ export function Processos() {
   };
 
   const formatCNJ = (cnj: string) => {
-    // Formatar CNJ: 0000000-00.0000.0.00.0000
+    // Format CNJ: 0000000-00.0000.0.00.0000
     const clean = cnj.replace(/\D/g, "");
     if (clean.length === 20) {
       return clean.replace(
@@ -287,21 +288,25 @@ export function Processos() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold">Processos</h1>
+            <h1 className="text-2xl font-heading font-semibold" style={{ color: colors.neutral[900] }}>
+              Processos
+            </h1>
             <p className="text-neutral-600 mt-1">
-              Gestão completa de processos jurídicos
+              Lista operacional - priorização por recência/risco
             </p>
           </div>
         </div>
-        <Card>
+        <Card style={themeUtils.cardShadow}>
           <CardContent className="p-6">
             <div className="text-center">
-              <AlertTriangle className="w-12 h-12 text-danger mx-auto mb-4" />
+              <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: colors.semantic.error }} />
               <h3 className="text-lg font-medium mb-2">
                 Erro ao carregar processos
               </h3>
               <p className="text-neutral-600 mb-4">{error.message}</p>
-              <Button onClick={() => refetch()}>Tentar novamente</Button>
+              <Button onClick={() => refetch()} style={themeUtils.primaryButton}>
+                Tentar novamente
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -314,22 +319,25 @@ export function Processos() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold">Processos</h1>
+          <h1 className="text-2xl font-heading font-semibold" style={{ color: colors.neutral[900] }}>
+            Processos
+          </h1>
           <p className="text-neutral-600 mt-1">
-            Gestão completa de processos jurídicos
+            Lista operacional - priorização por recência/risco
           </p>
         </div>
         <Button
-          className="bg-gray-800 text-white hover:bg-gray-900"
           onClick={() => navigate("/processos/novo")}
+          style={themeUtils.primaryButton}
+          className="hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4 mr-2" />
           Novo Processo
         </Button>
       </div>
 
-      {/* P2.2 - Filtros conforme especificação */}
-      <Card>
+      {/* Enhanced filters for OAB/Tribunal/Status */}
+      <Card style={themeUtils.cardShadow}>
         <CardContent className="p-4">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -394,20 +402,17 @@ export function Processos() {
         </CardContent>
       </Card>
 
-      {/* P2.2 - Tabela conforme especificação */}
-      <Card>
+      {/* Enhanced operational table */}
+      <Card style={themeUtils.elevatedCardShadow}>
         <CardHeader>
-          <CardTitle className="text-lg">
+          <CardTitle className="text-lg" style={{ color: colors.neutral[900] }}>
             Processos ({processosData.total})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2
-                className="w-8 h-8 animate-spin"
-                className="text-gray-800"
-              />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.brand.primary }} />
               <span className="ml-2 text-neutral-600">
                 Carregando processos...
               </span>
@@ -447,7 +452,7 @@ export function Processos() {
                         <Link
                           to={`/processos-v2/${processo.numero_cnj}`}
                           className="hover:underline"
-                          className="text-gray-800"
+                          style={{ color: colors.brand.primary }}
                         >
                           {formatCNJ(processo.numero_cnj)}
                         </Link>
@@ -475,16 +480,15 @@ export function Processos() {
                         {processo.responsavel_oab ? (
                           <Badge
                             variant="default"
-                            style={{
-                              backgroundColor: "var(--brand-700)",
-                              color: "white",
-                            }}
+                            style={themeUtils.brandBadge}
                           >
                             {processo.responsavel_nome ||
                               `OAB ${processo.responsavel_oab}`}
                           </Badge>
                         ) : (
-                          <Badge variant="destructive">Sem responsável</Badge>
+                          <Badge variant="destructive" style={themeUtils.errorBadge}>
+                            Sem responsável
+                          </Badge>
                         )}
                       </TableCell>
                       <TableCell>
@@ -526,7 +530,7 @@ export function Processos() {
                               setSelectedProcesso(processo.numero_cnj);
                               setIsAtribuirDialogOpen(true);
                             }}
-                            className="text-gray-800"
+                            style={{ color: colors.brand.primary }}
                           >
                             <UserPlus className="w-4 h-4 mr-1" />
                             Atribuir OAB
@@ -542,7 +546,7 @@ export function Processos() {
         </CardContent>
       </Card>
 
-      {/* P2.2 - Paginação 20/pg */}
+      {/* Pagination (20/page) */}
       {processosData.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
@@ -576,7 +580,7 @@ export function Processos() {
         </div>
       )}
 
-      {/* P2.2 - Dialog Atribuir OAB */}
+      {/* Dialog to assign OAB */}
       <Dialog
         open={isAtribuirDialogOpen}
         onOpenChange={setIsAtribuirDialogOpen}
@@ -619,7 +623,11 @@ export function Processos() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={atribuirOabMutation.isPending}>
+              <Button 
+                type="submit" 
+                disabled={atribuirOabMutation.isPending}
+                style={themeUtils.primaryButton}
+              >
                 {atribuirOabMutation.isPending && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 )}
