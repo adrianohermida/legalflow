@@ -105,22 +105,7 @@ import {
   type ProcessoCompleto,
 } from "../lib/processo-overview-utils";
 
-interface ProcessoData {
-  numero_cnj: string;
-  tribunal_sigla: string;
-  titulo_polo_ativo: string;
-  titulo_polo_passivo: string;
-  data: any; // Advise/Escavador data
-  created_at: string;
-  cliente?: {
-    nome: string;
-    cpfcnpj: string;
-  };
-  responsavel?: {
-    nome: string;
-    oab: number;
-  };
-}
+// Using ProcessoCompleto from utils
 
 interface TimelineEvent {
   numero_cnj: string;
