@@ -1158,8 +1158,9 @@ const DevAuditoria: React.FC = () => {
         {/* System Tab with nested tabs */}
         <TabsContent value="system" className="space-y-4">
           <Tabs defaultValue="audit" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="audit">Auditoria</TabsTrigger>
+              <TabsTrigger value="flow-a0">Flow A0</TabsTrigger>
               <TabsTrigger value="testing">Testes</TabsTrigger>
               <TabsTrigger value="backlog">Backlog</TabsTrigger>
               <TabsTrigger value="routes">Rotas</TabsTrigger>
