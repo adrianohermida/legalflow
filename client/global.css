@@ -54,7 +54,7 @@
   --on-surface: var(--mono-gray-900);
   --disabled: var(--mono-gray-300);
 
-  /* Estados semânticos com cores */
+  /* Estados sem��nticos com cores */
   --success: #16a34a; /* Verde para sucessos */
   --warning: #f59e0b; /* Amarelo para avisos */
   --error: #ef4444; /* Vermelho para erros */
@@ -181,7 +181,7 @@ body {
   background: var(--surface);
   color: var(--on-surface);
   font-family: Inter, "Open Sans", system-ui, sans-serif;
-  line-height: 1.6; /* F1.0 specification */
+  line-height: 1.7; /* Confortável para leitura */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -194,7 +194,7 @@ h4,
 h5,
 h6 {
   font-family: Montserrat, Inter, sans-serif;
-  line-height: 1.6; /* F1.0 specification */
+  line-height: 1.4; /* Confortável para títulos */
   font-weight: 600;
 }
 
