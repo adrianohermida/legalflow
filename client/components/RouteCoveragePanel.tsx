@@ -997,6 +997,202 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="diagnostics" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Diagnóstico Avançado de Rotas
+                  </CardTitle>
+                  <CardDescription>
+                    Sistema automático de detecção e correção de problemas
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={runRouteDiagnostics}
+                    disabled={isRunningDiagnostics}
+                    variant="outline"
+                  >
+                    {isRunningDiagnostics ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Play className="h-4 w-4 mr-2" />
+                    )}
+                    {isRunningDiagnostics ? "Diagnosticando..." : "Executar Diagnóstico"}
+                  </Button>
+
+                  {diagnosticsResults.length > 0 && (
+                    <Button
+                      onClick={applyAutomaticFixes}
+                      disabled={isApplyingFixes || diagnosticsResults.filter(d => d.autoFixable).length === 0}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      {isApplyingFixes ? (
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Zap className="h-4 w-4 mr-2" />
+                      )}
+                      {isApplyingFixes ? "Aplicando..." : "Auto-Corrigir"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Health Stats */}
+              {healthStats && (
+                <div className="grid grid-cols-5 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {healthStats.totalRoutes}
+                    </div>
+                    <p className="text-sm text-gray-600">Total de Rotas</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {healthStats.healthyRoutes}
+                    </div>
+                    <p className="text-sm text-gray-600">Saudáveis</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">
+                      {healthStats.issuesFound}
+                    </div>
+                    <p className="text-sm text-gray-600">Problemas</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {healthStats.autoFixableIssues}
+                    </div>
+                    <p className="text-sm text-gray-600">Auto-corrigíveis</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {healthStats.healthPercentage}%
+                    </div>
+                    <p className="text-sm text-gray-600">Saúde Geral</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Diagnostics Results */}
+              {diagnosticsResults.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Problemas Identificados</h3>
+                    <Badge variant="outline" className="text-sm">
+                      {diagnosticsResults.length} issues
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3">
+                    {diagnosticsResults.map((issue, index) => (
+                      <div
+                        key={index}
+                        className={`p-4 border rounded-lg ${
+                          issue.severity === 'critical'
+                            ? 'border-red-200 bg-red-50'
+                            : issue.severity === 'high'
+                            ? 'border-orange-200 bg-orange-50'
+                            : issue.severity === 'medium'
+                            ? 'border-yellow-200 bg-yellow-50'
+                            : 'border-blue-200 bg-blue-50'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge
+                                variant="outline"
+                                className={
+                                  issue.severity === 'critical'
+                                    ? 'border-red-500 text-red-700'
+                                    : issue.severity === 'high'
+                                    ? 'border-orange-500 text-orange-700'
+                                    : issue.severity === 'medium'
+                                    ? 'border-yellow-500 text-yellow-700'
+                                    : 'border-blue-500 text-blue-700'
+                                }
+                              >
+                                {issue.severity}
+                              </Badge>
+                              <Badge variant="outline">
+                                {issue.issueType.replace('_', ' ')}
+                              </Badge>
+                              <Badge variant="outline" className="capitalize">
+                                {issue.route.category}
+                              </Badge>
+                              {issue.autoFixable && (
+                                <Badge className="bg-green-100 text-green-700 border-green-300">
+                                  <Zap className="w-3 h-3 mr-1" />
+                                  Auto-fixável
+                                </Badge>
+                              )}
+                            </div>
+                            <h4 className="font-medium text-gray-900 mb-1">
+                              {issue.route.path} - {issue.route.name}
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {issue.description}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              💡 {issue.suggestedFix}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-2 ml-4">
+                            <div className="text-right text-xs text-gray-500">
+                              <div>~{issue.estimatedTime}min</div>
+                            </div>
+                            {!issue.autoFixable && (
+                              <Badge variant="outline" className="text-xs">
+                                Manual
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-blue-900">Resumo do Diagnóstico</h4>
+                        <p className="text-sm text-blue-700">
+                          {diagnosticsResults.filter(d => d.autoFixable).length} problemas podem ser corrigidos automaticamente.
+                          Tempo estimado: ~{diagnosticsResults.reduce((sum, d) => sum + d.estimatedTime, 0)} minutos.
+                        </p>
+                      </div>
+                      {diagnosticsResults.filter(d => d.autoFixable).length > 0 && (
+                        <Button
+                          onClick={applyAutomaticFixes}
+                          disabled={isApplyingFixes}
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          <Zap className="h-4 w-4 mr-2" />
+                          Corrigir Automaticamente
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {diagnosticsResults.length === 0 && !isRunningDiagnostics && (
+                <div className="text-center py-8 text-gray-500">
+                  <Settings className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p>Execute o diagnóstico para identificar problemas nas rotas</p>
+                  <p className="text-sm">O sistema analisará deeplinks, componentes, autenticação e performance</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
