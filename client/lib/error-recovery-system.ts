@@ -12,7 +12,7 @@ export interface RecoveryStrategy {
 
 export interface SystemHealth {
   component: string;
-  status: 'healthy' | 'degraded' | 'failed';
+  status: "healthy" | "degraded" | "failed";
   message: string;
   recoveryOptions: string[];
   lastChecked: string;
@@ -28,22 +28,29 @@ export class ErrorRecoverySystem {
 
   private initializeRecoveryStrategies() {
     // Database Recovery Strategies
-    this.recoveryStrategies.set('database_connection', {
-      name: 'Database Connection Recovery',
-      description: 'Attempts to restore database connectivity',
+    this.recoveryStrategies.set("database_connection", {
+      name: "Database Connection Recovery",
+      description: "Attempts to restore database connectivity",
       execute: async () => {
         try {
-          const { supabase } = await import('./supabase');
-          const { error } = await supabase.from('autofix_history').select('id').limit(1);
-          
-          if (error && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+          const { supabase } = await import("./supabase");
+          const { error } = await supabase
+            .from("autofix_history")
+            .select("id")
+            .limit(1);
+
+          if (
+            error &&
+            !error.message.includes("relation") &&
+            !error.message.includes("does not exist")
+          ) {
             throw error;
           }
-          
+
           return {
             success: true,
-            message: '✅ Database connection restored successfully',
-            data: { connection_status: 'active' }
+            message: "✅ Database connection restored successfully",
+            data: { connection_status: "active" },
           };
         } catch (error) {
           return {
@@ -53,8 +60,8 @@ export class ErrorRecoverySystem {
         }
       },
       fallback: {
-        name: 'Database Mock Mode',
-        description: 'Uses in-memory storage as database fallback',
+        name: "Database Mock Mode",
+        description: "Uses in-memory storage as database fallback",
         execute: async () => {
           // Initialize mock storage
           if (!globalThis.mockDatabase) {
@@ -63,31 +70,31 @@ export class ErrorRecoverySystem {
               nextId: 1,
             };
           }
-          
+
           return {
             success: true,
-            message: '✅ Mock database initialized successfully',
-            data: { mode: 'mock', storage: 'in-memory' }
+            message: "✅ Mock database initialized successfully",
+            data: { mode: "mock", storage: "in-memory" },
           };
-        }
-      }
+        },
+      },
     });
 
     // API Recovery Strategies
-    this.recoveryStrategies.set('builder_api', {
-      name: 'Builder.io API Recovery',
-      description: 'Attempts to restore Builder.io API connectivity',
+    this.recoveryStrategies.set("builder_api", {
+      name: "Builder.io API Recovery",
+      description: "Attempts to restore Builder.io API connectivity",
       execute: async () => {
         try {
-          const { improvedBuilderAPI } = await import('./builder-api-improved');
+          const { improvedBuilderAPI } = await import("./builder-api-improved");
           const status = await improvedBuilderAPI.performHealthCheck();
-          
+
           return {
             success: status.credentials_valid || status.fallback_available,
-            message: status.credentials_valid 
-              ? '✅ Builder.io API credentials validated'
-              : '✅ Builder.io fallback system ready',
-            data: status
+            message: status.credentials_valid
+              ? "✅ Builder.io API credentials validated"
+              : "✅ Builder.io fallback system ready",
+            data: status,
           };
         } catch (error) {
           return {
@@ -97,31 +104,33 @@ export class ErrorRecoverySystem {
         }
       },
       fallback: {
-        name: 'API Mock Mode',
-        description: 'Uses mock API responses for full functionality',
+        name: "API Mock Mode",
+        description: "Uses mock API responses for full functionality",
         execute: async () => {
           return {
             success: true,
-            message: '✅ Mock API system fully operational',
-            data: { mode: 'mock', functionality: 'complete' }
+            message: "✅ Mock API system fully operational",
+            data: { mode: "mock", functionality: "complete" },
           };
-        }
-      }
+        },
+      },
     });
 
     // Network Recovery Strategies
-    this.recoveryStrategies.set('network_connectivity', {
-      name: 'Network Connectivity Recovery',
-      description: 'Attempts to verify and restore network connectivity',
+    this.recoveryStrategies.set("network_connectivity", {
+      name: "Network Connectivity Recovery",
+      description: "Attempts to verify and restore network connectivity",
       execute: async () => {
         try {
           // Test basic connectivity
-          const response = await fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-          
+          const response = await fetch(
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+          );
+
           return {
             success: true,
-            message: '✅ Network connectivity confirmed',
-            data: { status: 'connected', type: 'verified' }
+            message: "✅ Network connectivity confirmed",
+            data: { status: "connected", type: "verified" },
           };
         } catch (error) {
           return {
@@ -131,43 +140,43 @@ export class ErrorRecoverySystem {
         }
       },
       fallback: {
-        name: 'Offline Mode',
-        description: 'Switches to offline-capable mode',
+        name: "Offline Mode",
+        description: "Switches to offline-capable mode",
         execute: async () => {
           return {
             success: true,
-            message: '✅ Offline mode activated - cached data available',
-            data: { mode: 'offline', capabilities: 'read-only' }
+            message: "✅ Offline mode activated - cached data available",
+            data: { mode: "offline", capabilities: "read-only" },
           };
-        }
-      }
+        },
+      },
     });
   }
 
   async checkSystemHealth(): Promise<SystemHealth[]> {
     const components = [
-      'database_connection',
-      'builder_api',
-      'network_connectivity',
-      'browser_apis',
-      'environment_variables'
+      "database_connection",
+      "builder_api",
+      "network_connectivity",
+      "browser_apis",
+      "environment_variables",
     ];
 
     const healthChecks = await Promise.allSettled(
-      components.map(component => this.checkComponentHealth(component))
+      components.map((component) => this.checkComponentHealth(component)),
     );
 
     const results: SystemHealth[] = [];
-    
+
     healthChecks.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
+      if (result.status === "fulfilled") {
         results.push(result.value);
       } else {
         results.push({
           component: components[index],
-          status: 'failed',
+          status: "failed",
           message: `Health check failed: ${result.reason}`,
-          recoveryOptions: ['retry_health_check', 'enable_fallback'],
+          recoveryOptions: ["retry_health_check", "enable_fallback"],
           lastChecked: new Date().toISOString(),
         });
       }
@@ -178,29 +187,29 @@ export class ErrorRecoverySystem {
 
   private async checkComponentHealth(component: string): Promise<SystemHealth> {
     const now = new Date().toISOString();
-    
+
     try {
       switch (component) {
-        case 'database_connection':
+        case "database_connection":
           return await this.checkDatabaseHealth();
-          
-        case 'builder_api':
+
+        case "builder_api":
           return await this.checkBuilderAPIHealth();
-          
-        case 'network_connectivity':
+
+        case "network_connectivity":
           return await this.checkNetworkHealth();
-          
-        case 'browser_apis':
+
+        case "browser_apis":
           return this.checkBrowserAPIsHealth();
-          
-        case 'environment_variables':
+
+        case "environment_variables":
           return this.checkEnvironmentVariablesHealth();
-          
+
         default:
           return {
             component,
-            status: 'failed',
-            message: 'Unknown component',
+            status: "failed",
+            message: "Unknown component",
             recoveryOptions: [],
             lastChecked: now,
           };
@@ -208,9 +217,9 @@ export class ErrorRecoverySystem {
     } catch (error) {
       return {
         component,
-        status: 'failed',
+        status: "failed",
         message: `Health check error: ${error instanceof Error ? error.message : String(error)}`,
-        recoveryOptions: ['retry_health_check'],
+        recoveryOptions: ["retry_health_check"],
         lastChecked: now,
       };
     }
@@ -218,32 +227,43 @@ export class ErrorRecoverySystem {
 
   private async checkDatabaseHealth(): Promise<SystemHealth> {
     try {
-      const { supabase } = await import('./supabase');
-      const { error } = await supabase.from('autofix_history').select('id').limit(1);
-      
-      if (error && !error.message.includes('relation') && !error.message.includes('does not exist')) {
+      const { supabase } = await import("./supabase");
+      const { error } = await supabase
+        .from("autofix_history")
+        .select("id")
+        .limit(1);
+
+      if (
+        error &&
+        !error.message.includes("relation") &&
+        !error.message.includes("does not exist")
+      ) {
         return {
-          component: 'database_connection',
-          status: 'degraded',
-          message: '⚠️ Database has access limitations',
-          recoveryOptions: ['retry_connection', 'check_rls_policies', 'use_mock_database'],
+          component: "database_connection",
+          status: "degraded",
+          message: "⚠️ Database has access limitations",
+          recoveryOptions: [
+            "retry_connection",
+            "check_rls_policies",
+            "use_mock_database",
+          ],
           lastChecked: new Date().toISOString(),
         };
       }
-      
+
       return {
-        component: 'database_connection',
-        status: 'healthy',
-        message: '✅ Database connection working',
+        component: "database_connection",
+        status: "healthy",
+        message: "✅ Database connection working",
         recoveryOptions: [],
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        component: 'database_connection',
-        status: 'failed',
+        component: "database_connection",
+        status: "failed",
         message: `Database connection failed: ${error instanceof Error ? error.message : String(error)}`,
-        recoveryOptions: ['retry_connection', 'use_mock_database'],
+        recoveryOptions: ["retry_connection", "use_mock_database"],
         lastChecked: new Date().toISOString(),
       };
     }
@@ -251,40 +271,40 @@ export class ErrorRecoverySystem {
 
   private async checkBuilderAPIHealth(): Promise<SystemHealth> {
     try {
-      const { improvedBuilderAPI } = await import('./builder-api-improved');
+      const { improvedBuilderAPI } = await import("./builder-api-improved");
       const healthCheck = await improvedBuilderAPI.performHealthCheck();
-      
+
       if (healthCheck.credentials_valid && healthCheck.endpoint_reachable) {
         return {
-          component: 'builder_api',
-          status: 'healthy',
-          message: '✅ Builder.io API fully functional',
+          component: "builder_api",
+          status: "healthy",
+          message: "✅ Builder.io API fully functional",
           recoveryOptions: [],
           lastChecked: new Date().toISOString(),
         };
       } else if (healthCheck.fallback_available) {
         return {
-          component: 'builder_api',
-          status: 'degraded',
-          message: '⚠️ Builder.io API using fallback mode',
-          recoveryOptions: ['check_credentials', 'verify_network'],
+          component: "builder_api",
+          status: "degraded",
+          message: "⚠️ Builder.io API using fallback mode",
+          recoveryOptions: ["check_credentials", "verify_network"],
           lastChecked: new Date().toISOString(),
         };
       } else {
         return {
-          component: 'builder_api',
-          status: 'failed',
-          message: '❌ Builder.io API unavailable',
-          recoveryOptions: ['configure_credentials', 'enable_mock_mode'],
+          component: "builder_api",
+          status: "failed",
+          message: "❌ Builder.io API unavailable",
+          recoveryOptions: ["configure_credentials", "enable_mock_mode"],
           lastChecked: new Date().toISOString(),
         };
       }
     } catch (error) {
       return {
-        component: 'builder_api',
-        status: 'degraded',
-        message: '⚠️ API check failed, fallback available',
-        recoveryOptions: ['enable_mock_mode'],
+        component: "builder_api",
+        status: "degraded",
+        message: "⚠️ API check failed, fallback available",
+        recoveryOptions: ["enable_mock_mode"],
         lastChecked: new Date().toISOString(),
       };
     }
@@ -300,22 +320,27 @@ export class ErrorRecoverySystem {
         setTimeout(() => resolve(false), 2000);
       });
 
-      testImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      testImage.src =
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       const hasConnectivity = await connectivityTest;
-      
+
       return {
-        component: 'network_connectivity',
-        status: hasConnectivity ? 'healthy' : 'degraded',
-        message: hasConnectivity ? '✅ Network connectivity confirmed' : '⚠️ Limited connectivity detected',
-        recoveryOptions: hasConnectivity ? [] : ['retry_connection', 'enable_offline_mode'],
+        component: "network_connectivity",
+        status: hasConnectivity ? "healthy" : "degraded",
+        message: hasConnectivity
+          ? "✅ Network connectivity confirmed"
+          : "⚠️ Limited connectivity detected",
+        recoveryOptions: hasConnectivity
+          ? []
+          : ["retry_connection", "enable_offline_mode"],
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        component: 'network_connectivity',
-        status: 'degraded',
-        message: '⚠️ Network status unknown, assuming limited connectivity',
-        recoveryOptions: ['enable_offline_mode'],
+        component: "network_connectivity",
+        status: "degraded",
+        message: "⚠️ Network status unknown, assuming limited connectivity",
+        recoveryOptions: ["enable_offline_mode"],
         lastChecked: new Date().toISOString(),
       };
     }
@@ -323,10 +348,12 @@ export class ErrorRecoverySystem {
 
   private checkBrowserAPIsHealth(): SystemHealth {
     const apis = {
-      fetch: typeof fetch !== 'undefined',
-      crypto: typeof crypto !== 'undefined' && typeof crypto.randomUUID !== 'undefined',
-      localStorage: typeof localStorage !== 'undefined',
-      indexedDB: typeof indexedDB !== 'undefined',
+      fetch: typeof fetch !== "undefined",
+      crypto:
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID !== "undefined",
+      localStorage: typeof localStorage !== "undefined",
+      indexedDB: typeof indexedDB !== "undefined",
     };
 
     const working = Object.values(apis).filter(Boolean).length;
@@ -334,37 +361,55 @@ export class ErrorRecoverySystem {
     const percentage = (working / total) * 100;
 
     return {
-      component: 'browser_apis',
-      status: percentage === 100 ? 'healthy' : percentage >= 75 ? 'degraded' : 'failed',
+      component: "browser_apis",
+      status:
+        percentage === 100
+          ? "healthy"
+          : percentage >= 75
+            ? "degraded"
+            : "failed",
       message: `${working}/${total} browser APIs available (${Math.round(percentage)}%)`,
-      recoveryOptions: percentage < 100 ? ['update_browser', 'enable_compatibility_mode'] : [],
+      recoveryOptions:
+        percentage < 100 ? ["update_browser", "enable_compatibility_mode"] : [],
       lastChecked: new Date().toISOString(),
     };
   }
 
   private checkEnvironmentVariablesHealth(): SystemHealth {
     const requiredVars = [
-      'VITE_SUPABASE_URL',
-      'VITE_SUPABASE_ANON_KEY',
-      'VITE_BUILDER_IO_PUBLIC_KEY',
-      'VITE_BUILDER_IO_PRIVATE_KEY'
+      "VITE_SUPABASE_URL",
+      "VITE_SUPABASE_ANON_KEY",
+      "VITE_BUILDER_IO_PUBLIC_KEY",
+      "VITE_BUILDER_IO_PRIVATE_KEY",
     ];
 
-    const configured = requiredVars.filter(varName => import.meta.env[varName]).length;
+    const configured = requiredVars.filter(
+      (varName) => import.meta.env[varName],
+    ).length;
     const percentage = (configured / requiredVars.length) * 100;
 
     return {
-      component: 'environment_variables',
-      status: percentage === 100 ? 'healthy' : percentage >= 50 ? 'degraded' : 'failed',
+      component: "environment_variables",
+      status:
+        percentage === 100
+          ? "healthy"
+          : percentage >= 50
+            ? "degraded"
+            : "failed",
       message: `${configured}/${requiredVars.length} environment variables configured (${Math.round(percentage)}%)`,
-      recoveryOptions: percentage < 100 ? ['configure_missing_vars', 'use_default_values'] : [],
+      recoveryOptions:
+        percentage < 100
+          ? ["configure_missing_vars", "use_default_values"]
+          : [],
       lastChecked: new Date().toISOString(),
     };
   }
 
-  async performRecovery(component: string): Promise<{ success: boolean; message: string; usedFallback: boolean }> {
+  async performRecovery(
+    component: string,
+  ): Promise<{ success: boolean; message: string; usedFallback: boolean }> {
     console.log(`🔧 Attempting recovery for component: ${component}`);
-    
+
     const strategy = this.recoveryStrategies.get(component);
     if (!strategy) {
       return {
@@ -377,7 +422,7 @@ export class ErrorRecoverySystem {
     try {
       // Try primary recovery strategy
       const result = await strategy.execute();
-      
+
       if (result.success) {
         console.log(`✅ Primary recovery successful for ${component}`);
         return {
@@ -391,7 +436,7 @@ export class ErrorRecoverySystem {
       if (strategy.fallback) {
         console.log(`🔄 Trying fallback recovery for ${component}`);
         const fallbackResult = await strategy.fallback.execute();
-        
+
         return {
           success: fallbackResult.success,
           message: fallbackResult.message,
@@ -404,10 +449,9 @@ export class ErrorRecoverySystem {
         message: result.message,
         usedFallback: false,
       };
-
     } catch (error) {
       console.error(`❌ Recovery failed for ${component}:`, error);
-      
+
       // Try fallback even if primary throws
       if (strategy.fallback) {
         try {
@@ -440,10 +484,10 @@ export class ErrorRecoverySystem {
     overallSuccess: boolean;
   }> {
     console.log("🏥 Performing full system recovery...");
-    
+
     const components = Array.from(this.recoveryStrategies.keys());
     const results = await Promise.allSettled(
-      components.map(component => this.performRecovery(component))
+      components.map((component) => this.performRecovery(component)),
     );
 
     const recoveredComponents: string[] = [];
@@ -451,17 +495,20 @@ export class ErrorRecoverySystem {
 
     results.forEach((result, index) => {
       const component = components[index];
-      
-      if (result.status === 'fulfilled' && result.value.success) {
+
+      if (result.status === "fulfilled" && result.value.success) {
         recoveredComponents.push(component);
       } else {
         failedComponents.push(component);
       }
     });
 
-    const overallSuccess = recoveredComponents.length >= components.length * 0.8; // 80% recovery rate
+    const overallSuccess =
+      recoveredComponents.length >= components.length * 0.8; // 80% recovery rate
 
-    console.log(`🎯 Recovery complete: ${recoveredComponents.length}/${components.length} components recovered`);
+    console.log(
+      `🎯 Recovery complete: ${recoveredComponents.length}/${components.length} components recovered`,
+    );
 
     return {
       recoveredComponents,
@@ -477,7 +524,7 @@ export class ErrorRecoverySystem {
     componentCount: { healthy: number; degraded: number; failed: number };
   } {
     const healthData = Array.from(this.healthCache.values());
-    
+
     if (healthData.length === 0) {
       return {
         healthy: false,
@@ -487,9 +534,9 @@ export class ErrorRecoverySystem {
       };
     }
 
-    const healthy = healthData.filter(h => h.status === 'healthy').length;
-    const degraded = healthData.filter(h => h.status === 'degraded').length;
-    const failed = healthData.filter(h => h.status === 'failed').length;
+    const healthy = healthData.filter((h) => h.status === "healthy").length;
+    const degraded = healthData.filter((h) => h.status === "degraded").length;
+    const failed = healthData.filter((h) => h.status === "failed").length;
 
     const totalHealthy = healthy + degraded; // Degraded components still work
     const isHealthy = totalHealthy >= healthData.length * 0.8;

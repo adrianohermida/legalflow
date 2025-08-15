@@ -82,7 +82,7 @@ import { useToast } from "../hooks/use-toast";
 import { formatDate, formatCNJ } from "../lib/utils";
 import { useInboxRealtimeUpdates } from "../hooks/useRealtimeUpdates";
 import CreateStageDialog from "../components/CreateStageDialog";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 interface PublicacaoUnificada {
   source: "publicacoes" | "movimentacoes";
@@ -137,14 +137,17 @@ export default function InboxLegalV2Enhanced() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">("publicacoes");
+  const [activeTab, setActiveTab] = useState<"publicacoes" | "movimentacoes">(
+    "publicacoes",
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isVincularDialogOpen, setIsVincularDialogOpen] = useState(false);
   const [isNotificarDialogOpen, setIsNotificarDialogOpen] = useState(false);
-  const [isCriarProcessoDialogOpen, setIsCriarProcessoDialogOpen] = useState(false);
+  const [isCriarProcessoDialogOpen, setIsCriarProcessoDialogOpen] =
+    useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [periodoFilter, setPeriodoFilter] = useState("all");
   const [tribunalFilter, setTribunalFilter] = useState("all");
@@ -199,7 +202,7 @@ export default function InboxLegalV2Enhanced() {
       // Aplicar filtros
       if (searchTerm) {
         query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,payload->>resumo.ilike.%${searchTerm}%,payload->>texto.ilike.%${searchTerm}%,payload->>conteudo.ilike.%${searchTerm}%`
+          `numero_cnj.ilike.%${searchTerm}%,payload->>resumo.ilike.%${searchTerm}%,payload->>texto.ilike.%${searchTerm}%,payload->>conteudo.ilike.%${searchTerm}%`,
         );
       }
 
@@ -231,7 +234,7 @@ export default function InboxLegalV2Enhanced() {
       const startIndex = (currentPage - 1) * itemsPerPage;
       const { data, error, count } = await query.range(
         startIndex,
-        startIndex + itemsPerPage - 1
+        startIndex + itemsPerPage - 1,
       );
 
       if (error) throw error;
@@ -271,7 +274,7 @@ export default function InboxLegalV2Enhanced() {
       // Aplicar filtros
       if (searchTerm) {
         query = query.or(
-          `numero_cnj.ilike.%${searchTerm}%,conteudo_resumo.ilike.%${searchTerm}%,tribunal_origem.ilike.%${searchTerm}%`
+          `numero_cnj.ilike.%${searchTerm}%,conteudo_resumo.ilike.%${searchTerm}%,tribunal_origem.ilike.%${searchTerm}%`,
         );
       }
 
@@ -307,7 +310,7 @@ export default function InboxLegalV2Enhanced() {
       const startIndex = (currentPage - 1) * itemsPerPage;
       const { data, error, count } = await query.range(
         startIndex,
-        startIndex + itemsPerPage - 1
+        startIndex + itemsPerPage - 1,
       );
 
       if (error) throw error;
@@ -326,9 +329,12 @@ export default function InboxLegalV2Enhanced() {
   const { data: processosParaVincular = [] } = useQuery({
     queryKey: ["processos-search", processoSearchTerm],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_processos_with_parts", {
-        p_search_term: processoSearchTerm || null,
-      });
+      const { data, error } = await supabase.rpc(
+        "search_processos_with_parts",
+        {
+          p_search_term: processoSearchTerm || null,
+        },
+      );
 
       if (error) throw error;
       return data as ProcessoForSearch[];
@@ -338,7 +344,13 @@ export default function InboxLegalV2Enhanced() {
 
   // Mutation para marcar como lido
   const markAsReadMutation = useMutation({
-    mutationFn: async ({ sourceTable, sourceId }: { sourceTable: string; sourceId: number }) => {
+    mutationFn: async ({
+      sourceTable,
+      sourceId,
+    }: {
+      sourceTable: string;
+      sourceId: number;
+    }) => {
       const { data, error } = await supabase.rpc("mark_inbox_item_as_read", {
         p_source_table: sourceTable,
         p_source_id: sourceId,
@@ -347,7 +359,9 @@ export default function InboxLegalV2Enhanced() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+      queryClient.invalidateQueries({
+        queryKey: ["publicacoes-unificadas-enhanced"],
+      });
       queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
       queryClient.invalidateQueries({ queryKey: ["inbox-read-stats"] });
     },
@@ -355,14 +369,14 @@ export default function InboxLegalV2Enhanced() {
 
   // Mutation para marcar como tratado
   const markAsTreatedMutation = useMutation({
-    mutationFn: async ({ 
-      sourceTable, 
-      sourceId, 
-      notes 
-    }: { 
-      sourceTable: string; 
-      sourceId: number; 
-      notes?: string 
+    mutationFn: async ({
+      sourceTable,
+      sourceId,
+      notes,
+    }: {
+      sourceTable: string;
+      sourceId: number;
+      notes?: string;
     }) => {
       const { data, error } = await supabase.rpc("mark_inbox_item_as_treated", {
         p_source_table: sourceTable,
@@ -373,7 +387,9 @@ export default function InboxLegalV2Enhanced() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+      queryClient.invalidateQueries({
+        queryKey: ["publicacoes-unificadas-enhanced"],
+      });
       queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
       queryClient.invalidateQueries({ queryKey: ["inbox-read-stats"] });
       toast({
@@ -404,7 +420,9 @@ export default function InboxLegalV2Enhanced() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
+      queryClient.invalidateQueries({
+        queryKey: ["publicacoes-unificadas-enhanced"],
+      });
       queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
       setIsVincularDialogOpen(false);
       setSelectedItem(null);
@@ -426,16 +444,22 @@ export default function InboxLegalV2Enhanced() {
   // Auto-detectar CNJ quando selecionar item
   useEffect(() => {
     if (selectedItem) {
-      const content = activeTab === "publicacoes" 
-        ? selectedItem.payload?.conteudo || selectedItem.payload?.texto || selectedItem.payload?.resumo || ""
-        : selectedItem.conteudo_resumo || "";
-      
+      const content =
+        activeTab === "publicacoes"
+          ? selectedItem.payload?.conteudo ||
+            selectedItem.payload?.texto ||
+            selectedItem.payload?.resumo ||
+            ""
+          : selectedItem.conteudo_resumo || "";
+
       const cnjRegex = /\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}/g;
       const matches = content.match(cnjRegex);
       if (matches && matches[0]) {
         setCnjDetectado(matches[0]);
         // Auto-selecionar processo se encontrar CNJ correspondente
-        const processoCorrespondente = processosParaVincular.find(p => p.numero_cnj === matches[0]);
+        const processoCorrespondente = processosParaVincular.find(
+          (p) => p.numero_cnj === matches[0],
+        );
         if (processoCorrespondente) {
           setSelectedProcesso(matches[0]);
         }
@@ -446,50 +470,64 @@ export default function InboxLegalV2Enhanced() {
   }, [selectedItem, processosParaVincular]);
 
   // Filtrar estatísticas por tab ativo
-  const currentStats = readStats.find(stat => 
-    (activeTab === "publicacoes" && stat.table_name === "publicacoes") ||
-    (activeTab === "movimentacoes" && stat.table_name === "movimentacoes")
+  const currentStats = readStats.find(
+    (stat) =>
+      (activeTab === "publicacoes" && stat.table_name === "publicacoes") ||
+      (activeTab === "movimentacoes" && stat.table_name === "movimentacoes"),
   );
 
   const unreadCount = currentStats?.unread_items || 0;
 
   // Função para exportar dados
   const handleExport = () => {
-    const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
-    
+    const currentData =
+      activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+
     const dataToExport = currentData.data.map((item: any) => {
       if (activeTab === "publicacoes") {
         return {
-          'Data': formatDate(item.occured_at),
-          'Origem': item.payload?.diario || item.payload?.origem || item.source,
-          'Resumo': item.payload?.resumo || item.payload?.texto || item.payload?.conteudo || "Sem resumo",
-          'Processo CNJ': item.numero_cnj || "Não vinculado",
-          'Status Leitura': item.is_read ? "Lida" : "Não lida",
-          'Status Tratamento': item.is_treated ? "Tratada" : "Não tratada",
-          'Data Leitura': item.read_at ? formatDate(item.read_at) : "-",
-          'Data Tratamento': item.treated_at ? formatDate(item.treated_at) : "-",
+          Data: formatDate(item.occured_at),
+          Origem: item.payload?.diario || item.payload?.origem || item.source,
+          Resumo:
+            item.payload?.resumo ||
+            item.payload?.texto ||
+            item.payload?.conteudo ||
+            "Sem resumo",
+          "Processo CNJ": item.numero_cnj || "Não vinculado",
+          "Status Leitura": item.is_read ? "Lida" : "Não lida",
+          "Status Tratamento": item.is_treated ? "Tratada" : "Não tratada",
+          "Data Leitura": item.read_at ? formatDate(item.read_at) : "-",
+          "Data Tratamento": item.treated_at
+            ? formatDate(item.treated_at)
+            : "-",
         };
       } else {
         return {
-          'Data': formatDate(item.data_evento),
-          'Tribunal': item.tribunal_origem,
-          'Tipo': item.tipo_movimentacao,
-          'Grau': item.grau_instancia,
-          'Conteúdo': item.conteudo_resumo,
-          'Processo CNJ': item.numero_cnj || "Não vinculado",
-          'Status Leitura': item.is_read ? "Lida" : "Não lida",
-          'Status Tratamento': item.is_treated ? "Tratada" : "Não tratada",
-          'Data Leitura': item.read_at ? formatDate(item.read_at) : "-",
-          'Data Tratamento': item.treated_at ? formatDate(item.treated_at) : "-",
+          Data: formatDate(item.data_evento),
+          Tribunal: item.tribunal_origem,
+          Tipo: item.tipo_movimentacao,
+          Grau: item.grau_instancia,
+          Conteúdo: item.conteudo_resumo,
+          "Processo CNJ": item.numero_cnj || "Não vinculado",
+          "Status Leitura": item.is_read ? "Lida" : "Não lida",
+          "Status Tratamento": item.is_treated ? "Tratada" : "Não tratada",
+          "Data Leitura": item.read_at ? formatDate(item.read_at) : "-",
+          "Data Tratamento": item.treated_at
+            ? formatDate(item.treated_at)
+            : "-",
         };
       }
     });
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, activeTab === "publicacoes" ? "Publicações" : "Movimentações");
-    
-    const fileName = `inbox_legal_${activeTab}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.utils.book_append_sheet(
+      wb,
+      ws,
+      activeTab === "publicacoes" ? "Publicações" : "Movimentações",
+    );
+
+    const fileName = `inbox_legal_${activeTab}_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
 
     toast({
@@ -500,41 +538,47 @@ export default function InboxLegalV2Enhanced() {
 
   const handleVincular = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!selectedItem || !selectedProcesso) return;
 
-    const tableName = activeTab === "publicacoes" 
-      ? (selectedItem.source === "publicacoes" ? "publicacoes" : "movimentacoes")
-      : "movimentacoes";
-    const itemId = activeTab === "publicacoes" 
-      ? (selectedItem.source ? selectedItem.uid : selectedItem.id)
-      : selectedItem.id;
+    const tableName =
+      activeTab === "publicacoes"
+        ? selectedItem.source === "publicacoes"
+          ? "publicacoes"
+          : "movimentacoes"
+        : "movimentacoes";
+    const itemId =
+      activeTab === "publicacoes"
+        ? selectedItem.source
+          ? selectedItem.uid
+          : selectedItem.id
+        : selectedItem.id;
 
-    vincularMutation.mutate({ 
-      itemId, 
-      tableName, 
-      numero_cnj: selectedProcesso 
+    vincularMutation.mutate({
+      itemId,
+      tableName,
+      numero_cnj: selectedProcesso,
     });
   };
 
   const handleMarkAsRead = (item: any) => {
-    const sourceTable = activeTab === "publicacoes" 
-      ? (item.source || "publicacoes")
-      : "movimentacoes";
-    const sourceId = activeTab === "publicacoes" 
-      ? (item.uid || item.id)
-      : item.id;
+    const sourceTable =
+      activeTab === "publicacoes"
+        ? item.source || "publicacoes"
+        : "movimentacoes";
+    const sourceId =
+      activeTab === "publicacoes" ? item.uid || item.id : item.id;
 
     markAsReadMutation.mutate({ sourceTable, sourceId });
   };
 
   const handleMarkAsTreated = (item: any) => {
-    const sourceTable = activeTab === "publicacoes" 
-      ? (item.source || "publicacoes")
-      : "movimentacoes";
-    const sourceId = activeTab === "publicacoes" 
-      ? (item.uid || item.id)
-      : item.id;
+    const sourceTable =
+      activeTab === "publicacoes"
+        ? item.source || "publicacoes"
+        : "movimentacoes";
+    const sourceId =
+      activeTab === "publicacoes" ? item.uid || item.id : item.id;
 
     markAsTreatedMutation.mutate({ sourceTable, sourceId });
   };
@@ -548,14 +592,22 @@ export default function InboxLegalV2Enhanced() {
 
   const getResumo = (item: any) => {
     if (activeTab === "publicacoes") {
-      return item.payload?.resumo || item.payload?.texto || item.payload?.conteudo || "Sem resumo";
+      return (
+        item.payload?.resumo ||
+        item.payload?.texto ||
+        item.payload?.conteudo ||
+        "Sem resumo"
+      );
     }
     return item.conteudo_resumo || "Sem resumo";
   };
 
-  const currentData = activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
-  const currentLoading = activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
-  const currentError = activeTab === "publicacoes" ? publicacoesError : movimentacoesError;
+  const currentData =
+    activeTab === "publicacoes" ? publicacoesData : movimentacoesData;
+  const currentLoading =
+    activeTab === "publicacoes" ? publicacoesLoading : movimentacoesLoading;
+  const currentError =
+    activeTab === "publicacoes" ? publicacoesError : movimentacoesError;
 
   return (
     <div className="p-6 space-y-6">
@@ -579,8 +631,12 @@ export default function InboxLegalV2Enhanced() {
           <Button
             variant="outline"
             onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ["publicacoes-unificadas-enhanced"] });
-              queryClient.invalidateQueries({ queryKey: ["movimentacoes-enhanced"] });
+              queryClient.invalidateQueries({
+                queryKey: ["publicacoes-unificadas-enhanced"],
+              });
+              queryClient.invalidateQueries({
+                queryKey: ["movimentacoes-enhanced"],
+              });
               queryClient.invalidateQueries({ queryKey: ["inbox-read-stats"] });
             }}
           >
@@ -596,19 +652,27 @@ export default function InboxLegalV2Enhanced() {
           <CardContent className="pt-6">
             <div className="grid grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-neutral-900">{currentStats.total_items}</div>
+                <div className="text-2xl font-bold text-neutral-900">
+                  {currentStats.total_items}
+                </div>
                 <div className="text-sm text-neutral-600">Total</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{currentStats.unread_items}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {currentStats.unread_items}
+                </div>
                 <div className="text-sm text-neutral-600">Não lidas</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{currentStats.read_items}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {currentStats.read_items}
+                </div>
                 <div className="text-sm text-neutral-600">Lidas</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{currentStats.treated_items}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {currentStats.treated_items}
+                </div>
                 <div className="text-sm text-neutral-600">Tratadas</div>
               </div>
             </div>
@@ -738,18 +802,31 @@ export default function InboxLegalV2Enhanced() {
           <TabsTrigger value="publicacoes" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Publicações ({publicacoesData.total})
-            {readStats.find(s => s.table_name === "publicacoes")?.unread_items > 0 && (
+            {readStats.find((s) => s.table_name === "publicacoes")
+              ?.unread_items > 0 && (
               <Badge variant="destructive" className="ml-1 text-xs">
-                {readStats.find(s => s.table_name === "publicacoes")?.unread_items} não lidas
+                {
+                  readStats.find((s) => s.table_name === "publicacoes")
+                    ?.unread_items
+                }{" "}
+                não lidas
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
+          <TabsTrigger
+            value="movimentacoes"
+            className="flex items-center gap-2"
+          >
             <Activity className="w-4 h-4" />
             Movimentações ({movimentacoesData.total})
-            {readStats.find(s => s.table_name === "movimentacoes")?.unread_items > 0 && (
+            {readStats.find((s) => s.table_name === "movimentacoes")
+              ?.unread_items > 0 && (
               <Badge variant="destructive" className="ml-1 text-xs">
-                {readStats.find(s => s.table_name === "movimentacoes")?.unread_items} não lidas
+                {
+                  readStats.find((s) => s.table_name === "movimentacoes")
+                    ?.unread_items
+                }{" "}
+                não lidas
               </Badge>
             )}
           </TabsTrigger>
@@ -766,7 +843,9 @@ export default function InboxLegalV2Enhanced() {
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                  <span className="ml-2 text-neutral-600">Carregando publicações...</span>
+                  <span className="ml-2 text-neutral-600">
+                    Carregando publicações...
+                  </span>
                 </div>
               ) : (
                 <Table>
@@ -794,7 +873,7 @@ export default function InboxLegalV2Enhanced() {
                       currentData.data?.map((item: PublicacaoUnificada) => (
                         <TableRow
                           key={`${item.source}-${item.uid}`}
-                          className={`hover:bg-neutral-50 ${!item.is_read ? 'bg-blue-50' : ''}`}
+                          className={`hover:bg-neutral-50 ${!item.is_read ? "bg-blue-50" : ""}`}
                         >
                           <TableCell>
                             <div className="flex flex-col gap-1">
@@ -811,7 +890,9 @@ export default function InboxLegalV2Enhanced() {
                               {item.is_treated && (
                                 <div className="flex items-center gap-1">
                                   <Flag className="w-4 h-4 text-blue-600" />
-                                  <span className="text-xs text-blue-600">Tratada</span>
+                                  <span className="text-xs text-blue-600">
+                                    Tratada
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -819,7 +900,9 @@ export default function InboxLegalV2Enhanced() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">{formatDate(item.occured_at)}</span>
+                              <span className="text-sm">
+                                {formatDate(item.occured_at)}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -856,13 +939,17 @@ export default function InboxLegalV2Enhanced() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 {!item.is_read && (
-                                  <DropdownMenuItem onClick={() => handleMarkAsRead(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleMarkAsRead(item)}
+                                  >
                                     <Eye className="w-4 h-4 mr-2" />
                                     Marcar como lida
                                   </DropdownMenuItem>
                                 )}
                                 {!item.is_treated && (
-                                  <DropdownMenuItem onClick={() => handleMarkAsTreated(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleMarkAsTreated(item)}
+                                  >
                                     <Check className="w-4 h-4 mr-2" />
                                     Marcar como tratada
                                   </DropdownMenuItem>
@@ -884,11 +971,14 @@ export default function InboxLegalV2Enhanced() {
                                   onSuccess={() => {
                                     toast({
                                       title: "Etapa criada",
-                                      description: "Etapa de jornada criada a partir da publicação.",
+                                      description:
+                                        "Etapa de jornada criada a partir da publicação.",
                                     });
                                   }}
                                   trigger={
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <DropdownMenuItem
+                                      onSelect={(e) => e.preventDefault()}
+                                    >
                                       <Target className="w-4 h-4 mr-2" />
                                       Criar etapa
                                     </DropdownMenuItem>
@@ -896,7 +986,9 @@ export default function InboxLegalV2Enhanced() {
                                 />
                                 {item.payload?.url && (
                                   <DropdownMenuItem
-                                    onClick={() => window.open(item.payload.url, "_blank")}
+                                    onClick={() =>
+                                      window.open(item.payload.url, "_blank")
+                                    }
                                   >
                                     <ExternalLink className="w-4 h-4 mr-2" />
                                     Abrir original
@@ -918,15 +1010,15 @@ export default function InboxLegalV2Enhanced() {
         <TabsContent value="movimentacoes">
           <Card>
             <CardHeader>
-              <CardTitle>
-                Movimentações ({movimentacoesData.total})
-              </CardTitle>
+              <CardTitle>Movimentações ({movimentacoesData.total})</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {currentLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                  <span className="ml-2 text-neutral-600">Carregando movimentações...</span>
+                  <span className="ml-2 text-neutral-600">
+                    Carregando movimentações...
+                  </span>
                 </div>
               ) : (
                 <Table>
@@ -955,7 +1047,7 @@ export default function InboxLegalV2Enhanced() {
                       currentData.data?.map((item: MovimentacaoEnhanced) => (
                         <TableRow
                           key={item.id}
-                          className={`hover:bg-neutral-50 ${!item.is_read ? 'bg-blue-50' : ''}`}
+                          className={`hover:bg-neutral-50 ${!item.is_read ? "bg-blue-50" : ""}`}
                         >
                           <TableCell>
                             <div className="flex flex-col gap-1">
@@ -972,7 +1064,9 @@ export default function InboxLegalV2Enhanced() {
                               {item.is_treated && (
                                 <div className="flex items-center gap-1">
                                   <Flag className="w-4 h-4 text-blue-600" />
-                                  <span className="text-xs text-blue-600">Tratada</span>
+                                  <span className="text-xs text-blue-600">
+                                    Tratada
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -980,21 +1074,31 @@ export default function InboxLegalV2Enhanced() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-neutral-400" />
-                              <span className="text-sm">{formatDate(item.data_evento)}</span>
+                              <span className="text-sm">
+                                {formatDate(item.data_evento)}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Building className="w-4 h-4 text-neutral-400" />
                               <div>
-                                <div className="text-sm font-medium">{item.tribunal_origem}</div>
-                                <div className="text-xs text-neutral-500">{item.grau_instancia}</div>
+                                <div className="text-sm font-medium">
+                                  {item.tribunal_origem}
+                                </div>
+                                <div className="text-xs text-neutral-500">
+                                  {item.grau_instancia}
+                                </div>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge 
-                              variant={item.tipo_movimentacao === 'PUBLICAÇÃO' ? 'default' : 'secondary'}
+                            <Badge
+                              variant={
+                                item.tipo_movimentacao === "PUBLICAÇÃO"
+                                  ? "default"
+                                  : "secondary"
+                              }
                               className="text-xs"
                             >
                               {item.tipo_movimentacao}
@@ -1025,13 +1129,17 @@ export default function InboxLegalV2Enhanced() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 {!item.is_read && (
-                                  <DropdownMenuItem onClick={() => handleMarkAsRead(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleMarkAsRead(item)}
+                                  >
                                     <Eye className="w-4 h-4 mr-2" />
                                     Marcar como lida
                                   </DropdownMenuItem>
                                 )}
                                 {!item.is_treated && (
-                                  <DropdownMenuItem onClick={() => handleMarkAsTreated(item)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleMarkAsTreated(item)}
+                                  >
                                     <Check className="w-4 h-4 mr-2" />
                                     Marcar como tratada
                                   </DropdownMenuItem>
@@ -1053,11 +1161,14 @@ export default function InboxLegalV2Enhanced() {
                                   onSuccess={() => {
                                     toast({
                                       title: "Etapa criada",
-                                      description: "Etapa de jornada criada a partir da movimentação.",
+                                      description:
+                                        "Etapa de jornada criada a partir da movimentação.",
                                     });
                                   }}
                                   trigger={
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <DropdownMenuItem
+                                      onSelect={(e) => e.preventDefault()}
+                                    >
                                       <Target className="w-4 h-4 mr-2" />
                                       Criar etapa
                                     </DropdownMenuItem>
@@ -1112,13 +1223,17 @@ export default function InboxLegalV2Enhanced() {
       )}
 
       {/* Dialog Vincular Processo */}
-      <Dialog open={isVincularDialogOpen} onOpenChange={setIsVincularDialogOpen}>
+      <Dialog
+        open={isVincularDialogOpen}
+        onOpenChange={setIsVincularDialogOpen}
+      >
         <DialogContent className="max-w-2xl">
           <form onSubmit={handleVincular}>
             <DialogHeader>
               <DialogTitle>Vincular ao Processo</DialogTitle>
               <DialogDescription>
-                Selecione o processo para vincular este item. Busque por CNJ ou nome das partes.
+                Selecione o processo para vincular este item. Busque por CNJ ou
+                nome das partes.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
@@ -1155,8 +1270,8 @@ export default function InboxLegalV2Enhanced() {
                 <Label className="text-sm font-medium mb-2 block">
                   Processo para vincular
                 </Label>
-                <Select 
-                  value={selectedProcesso} 
+                <Select
+                  value={selectedProcesso}
                   onValueChange={setSelectedProcesso}
                   required
                 >
@@ -1165,7 +1280,10 @@ export default function InboxLegalV2Enhanced() {
                   </SelectTrigger>
                   <SelectContent className="max-h-64">
                     {processosParaVincular.map((processo) => (
-                      <SelectItem key={processo.numero_cnj} value={processo.numero_cnj}>
+                      <SelectItem
+                        key={processo.numero_cnj}
+                        value={processo.numero_cnj}
+                      >
                         <div className="flex flex-col">
                           <div className="font-medium">
                             {formatCNJ(processo.numero_cnj)}
@@ -1195,10 +1313,11 @@ export default function InboxLegalV2Enhanced() {
                   <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
                     <span>Tipo: {activeTab}</span>
                     <span>
-                      Data: {formatDate(
-                        activeTab === "publicacoes" 
-                          ? selectedItem.occured_at 
-                          : selectedItem.data_evento
+                      Data:{" "}
+                      {formatDate(
+                        activeTab === "publicacoes"
+                          ? selectedItem.occured_at
+                          : selectedItem.data_evento,
                       )}
                     </span>
                   </div>
@@ -1218,8 +1337,8 @@ export default function InboxLegalV2Enhanced() {
               >
                 Cancelar
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={vincularMutation.isPending || !selectedProcesso}
               >
                 {vincularMutation.isPending && (

@@ -575,9 +575,11 @@ export default function ProcessoDetailV2() {
 
                           // Lógica para "e outros"
                           const formatPolo = (polo: string) => {
-                            if (!polo) return '';
-                            if (polo.includes(',') || polo.includes(' e ')) {
-                              const primeiraParte = polo.split(/[,e]/)[0].trim();
+                            if (!polo) return "";
+                            if (polo.includes(",") || polo.includes(" e ")) {
+                              const primeiraParte = polo
+                                .split(/[,e]/)[0]
+                                .trim();
                               return `${primeiraParte} e outros`;
                             }
                             return polo;
@@ -591,7 +593,7 @@ export default function ProcessoDetailV2() {
                           } else if (poloAtivoFormatted) {
                             return `(${poloAtivoFormatted})`;
                           }
-                          return '';
+                          return "";
                         })()}
                       </div>
                     )}
@@ -599,7 +601,11 @@ export default function ProcessoDetailV2() {
 
                   {processo && (
                     <div className="flex items-center gap-2 mt-2">
-                      <ProcessoTags numeroCnj={numero_cnj} size="sm" maxVisible={3} />
+                      <ProcessoTags
+                        numeroCnj={numero_cnj}
+                        size="sm"
+                        maxVisible={3}
+                      />
                     </div>
                   )}
                 </div>
@@ -961,7 +967,9 @@ export default function ProcessoDetailV2() {
                   <CardTitle className="flex items-center gap-2">
                     <Clock className="w-5 h-5 text-blue-600" />
                     Timeline Unificada
-                    <Badge className="bg-green-100 text-green-800 text-xs">SF-3</Badge>
+                    <Badge className="bg-green-100 text-green-800 text-xs">
+                      SF-3
+                    </Badge>
                   </CardTitle>
                   <div className="text-sm text-gray-600">
                     Eventos recentes e histórico completo

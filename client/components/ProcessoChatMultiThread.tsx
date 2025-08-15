@@ -48,7 +48,13 @@ import {
 } from "./ui/dropdown-menu";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { supabase, lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate } from "../lib/utils";
@@ -92,37 +98,40 @@ interface QuickAction {
 
 const QUICK_ACTIONS: QuickAction[] = [
   {
-    id: 'criar_tarefa',
-    label: 'Criar Tarefa',
+    id: "criar_tarefa",
+    label: "Criar Tarefa",
     icon: <Target className="w-4 h-4" />,
-    action: 'CREATE_TASK',
-    description: 'Criar nova tarefa relacionada ao processo',
-    template: 'Criar uma nova tarefa para: [DESCRIÇÃO]. Prazo: [DATA]. Responsável: [PESSOA].'
+    action: "CREATE_TASK",
+    description: "Criar nova tarefa relacionada ao processo",
+    template:
+      "Criar uma nova tarefa para: [DESCRIÇÃO]. Prazo: [DATA]. Responsável: [PESSOA].",
   },
   {
-    id: 'vincular_ticket',
-    label: 'Vincular Ticket',
+    id: "vincular_ticket",
+    label: "Vincular Ticket",
     icon: <Link2 className="w-4 h-4" />,
-    action: 'LINK_TICKET',
-    description: 'Vincular ticket existente ou criar novo',
-    template: 'Vincular ticket #[NÚMERO] ou criar novo ticket sobre: [ASSUNTO].'
+    action: "LINK_TICKET",
+    description: "Vincular ticket existente ou criar novo",
+    template:
+      "Vincular ticket #[NÚMERO] ou criar novo ticket sobre: [ASSUNTO].",
   },
   {
-    id: 'solicitar_documento',
-    label: 'Solicitar Documento',
+    id: "solicitar_documento",
+    label: "Solicitar Documento",
     icon: <FileText className="w-4 h-4" />,
-    action: 'REQUEST_DOCUMENT',
-    description: 'Solicitar documento específico',
-    template: 'Solicitar documento: [TIPO]. Justificativa: [MOTIVO]. Prazo: [DATA].'
+    action: "REQUEST_DOCUMENT",
+    description: "Solicitar documento específico",
+    template:
+      "Solicitar documento: [TIPO]. Justificativa: [MOTIVO]. Prazo: [DATA].",
   },
   {
-    id: 'concluir_etapa',
-    label: 'Concluir Etapa',
+    id: "concluir_etapa",
+    label: "Concluir Etapa",
     icon: <CheckCircle className="w-4 h-4" />,
-    action: 'COMPLETE_STEP',
-    description: 'Marcar etapa processual como concluída',
-    template: 'Concluir etapa: [NOME DA ETAPA]. Observações: [DETALHES].'
-  }
+    action: "COMPLETE_STEP",
+    description: "Marcar etapa processual como concluída",
+    template: "Concluir etapa: [NOME DA ETAPA]. Observações: [DETALHES].",
+  },
 ];
 
 export default function ProcessoChatMultiThread({
@@ -146,9 +155,9 @@ export default function ProcessoChatMultiThread({
 
   // State for new thread creation
   const [newThreadData, setNewThreadData] = useState({
-    titulo: '',
-    canal: 'analise',
-    tipo: 'geral'
+    titulo: "",
+    canal: "analise",
+    tipo: "geral",
   });
 
   // Query threads do processo
@@ -193,13 +202,38 @@ export default function ProcessoChatMultiThread({
   const { data: contextoProcesso } = useQuery({
     queryKey: ["contexto-processo", numero_cnj],
     queryFn: async () => {
-      const [processo, movimentacoes, publicacoes, tarefas, eventos] = await Promise.all([
-        supabase.from("processos").select("*").eq("numero_cnj", numero_cnj).single(),
-        supabase.from("movimentacoes").select("*").eq("numero_cnj", numero_cnj).order("data_movimentacao", { ascending: false }).limit(5),
-        supabase.from("vw_publicacoes_unificadas").select("*").eq("numero_cnj", numero_cnj).order("occured_at", { ascending: false }).limit(5),
-        lf.from("activities").select("*").eq("numero_cnj", numero_cnj).in("status", ["pending", "in_progress"]).limit(10),
-        lf.from("eventos_agenda").select("*").eq("numero_cnj", numero_cnj).gte("scheduled_at", new Date().toISOString()).limit(5)
-      ]);
+      const [processo, movimentacoes, publicacoes, tarefas, eventos] =
+        await Promise.all([
+          supabase
+            .from("processos")
+            .select("*")
+            .eq("numero_cnj", numero_cnj)
+            .single(),
+          supabase
+            .from("movimentacoes")
+            .select("*")
+            .eq("numero_cnj", numero_cnj)
+            .order("data_movimentacao", { ascending: false })
+            .limit(5),
+          supabase
+            .from("vw_publicacoes_unificadas")
+            .select("*")
+            .eq("numero_cnj", numero_cnj)
+            .order("occured_at", { ascending: false })
+            .limit(5),
+          lf
+            .from("activities")
+            .select("*")
+            .eq("numero_cnj", numero_cnj)
+            .in("status", ["pending", "in_progress"])
+            .limit(10),
+          lf
+            .from("eventos_agenda")
+            .select("*")
+            .eq("numero_cnj", numero_cnj)
+            .gte("scheduled_at", new Date().toISOString())
+            .limit(5),
+        ]);
 
       return {
         processo: processo.data,
@@ -214,7 +248,15 @@ export default function ProcessoChatMultiThread({
 
   // Mutation para criar nova thread
   const criarThreadMutation = useMutation({
-    mutationFn: async ({ titulo, canal, tipo }: { titulo: string; canal: string; tipo: string }) => {
+    mutationFn: async ({
+      titulo,
+      canal,
+      tipo,
+    }: {
+      titulo: string;
+      canal: string;
+      tipo: string;
+    }) => {
       const { data, error } = await supabase
         .from("thread_links")
         .insert({
@@ -239,7 +281,7 @@ export default function ProcessoChatMultiThread({
       refetchThreads();
       setActiveThreadId(novoThread.id);
       setIsNovaConversaOpen(false);
-      setNewThreadData({ titulo: '', canal: 'analise', tipo: 'geral' });
+      setNewThreadData({ titulo: "", canal: "analise", tipo: "geral" });
       toast({
         title: "Nova conversa criada",
         description: `Thread "${novoThread.properties.titulo}" criada com sucesso`,
@@ -291,17 +333,27 @@ export default function ProcessoChatMultiThread({
         .eq("id", thread_id);
 
       // Simular resposta da IA baseada no contexto
-      let respostaIA = "Entendi sua mensagem. Como posso ajudar com este processo?";
-      
+      let respostaIA =
+        "Entendi sua mensagem. Como posso ajudar com este processo?";
+
       // Análise básica do conteúdo para gerar resposta mais inteligente
       const contentLower = content.toLowerCase();
-      if (contentLower.includes('tarefa') || contentLower.includes('criar')) {
+      if (contentLower.includes("tarefa") || contentLower.includes("criar")) {
         respostaIA = `Vou ajudar você a criar uma tarefa para o processo ${numero_cnj}. Posso executar esta ação através dos AdvogaAI Tools. Confirma a criação da tarefa?`;
-      } else if (contentLower.includes('documento') || contentLower.includes('solicitar')) {
+      } else if (
+        contentLower.includes("documento") ||
+        contentLower.includes("solicitar")
+      ) {
         respostaIA = `Entendo que você precisa solicitar um documento. Posso ajudar a formalizar esta solicitação e criar os registros necessários no sistema.`;
-      } else if (contentLower.includes('prazo') || contentLower.includes('data')) {
+      } else if (
+        contentLower.includes("prazo") ||
+        contentLower.includes("data")
+      ) {
         respostaIA = `Vou verificar os prazos relacionados a este processo. Com base nas últimas movimentações, posso calcular os próximos vencimentos importantes.`;
-      } else if (contentLower.includes('análise') || contentLower.includes('analisar')) {
+      } else if (
+        contentLower.includes("análise") ||
+        contentLower.includes("analisar")
+      ) {
         respostaIA = `Posso realizar uma análise detalhada do processo usando os AdvogaAI Tools. Que tipo de análise você gostaria: timeline, riscos, estratégia ou precedentes?`;
       }
 
@@ -344,68 +396,90 @@ export default function ProcessoChatMultiThread({
 
   // Mutation para executar quick actions
   const executeQuickActionMutation = useMutation({
-    mutationFn: async ({ action, content, thread_id }: { action: string; content: string; thread_id: string }) => {
+    mutationFn: async ({
+      action,
+      content,
+      thread_id,
+    }: {
+      action: string;
+      content: string;
+      thread_id: string;
+    }) => {
       setIsExecutingQuickAction(true);
-      
+
       let result = null;
-      
+
       switch (action) {
-        case 'CREATE_TASK':
-          result = await lf.from("activities").insert({
-            numero_cnj,
-            title: `Tarefa criada via chat`,
-            description: content,
-            status: "pending",
-            due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 dias
-            metadata: {
-              created_via: "chat",
-              thread_id,
-              quick_action: true,
-            },
-          }).select().single();
+        case "CREATE_TASK":
+          result = await lf
+            .from("activities")
+            .insert({
+              numero_cnj,
+              title: `Tarefa criada via chat`,
+              description: content,
+              status: "pending",
+              due_at: new Date(
+                Date.now() + 7 * 24 * 60 * 60 * 1000,
+              ).toISOString(), // 7 dias
+              metadata: {
+                created_via: "chat",
+                thread_id,
+                quick_action: true,
+              },
+            })
+            .select()
+            .single();
           break;
-          
-        case 'LINK_TICKET':
+
+        case "LINK_TICKET":
           // Simulação de criação/vinculação de ticket
           result = await lf.from("ticket_threads").insert({
             thread_link_id: thread_id,
             created_at: new Date().toISOString(),
           });
           break;
-          
-        case 'REQUEST_DOCUMENT':
-          result = await lf.from("activities").insert({
-            numero_cnj,
-            title: `Solicitação de documento`,
-            description: content,
-            status: "pending",
-            activity_type: "document_request",
-            metadata: {
-              created_via: "chat",
-              thread_id,
-              quick_action: true,
-              document_request: true,
-            },
-          }).select().single();
+
+        case "REQUEST_DOCUMENT":
+          result = await lf
+            .from("activities")
+            .insert({
+              numero_cnj,
+              title: `Solicitação de documento`,
+              description: content,
+              status: "pending",
+              activity_type: "document_request",
+              metadata: {
+                created_via: "chat",
+                thread_id,
+                quick_action: true,
+                document_request: true,
+              },
+            })
+            .select()
+            .single();
           break;
-          
-        case 'COMPLETE_STEP':
-          result = await lf.from("activities").insert({
-            numero_cnj,
-            title: `Etapa concluída`,
-            description: content,
-            status: "completed",
-            completed_at: new Date().toISOString(),
-            metadata: {
-              created_via: "chat",
-              thread_id,
-              quick_action: true,
-              step_completion: true,
-            },
-          }).select().single();
+
+        case "COMPLETE_STEP":
+          result = await lf
+            .from("activities")
+            .insert({
+              numero_cnj,
+              title: `Etapa concluída`,
+              description: content,
+              status: "completed",
+              completed_at: new Date().toISOString(),
+              metadata: {
+                created_via: "chat",
+                thread_id,
+                quick_action: true,
+                step_completion: true,
+              },
+            })
+            .select()
+            .single();
           break;
       }
-      
+
       // Registrar a ação executada como mensagem do sistema
       await supabase.from("ai_messages").insert({
         thread_link_id: thread_id,
@@ -417,22 +491,24 @@ export default function ProcessoChatMultiThread({
           timestamp: new Date().toISOString(),
         },
       });
-      
+
       return result;
     },
     onSuccess: (result, variables) => {
       setIsExecutingQuickAction(false);
       refetchMessages();
-      
+
       const actionLabels = {
-        'CREATE_TASK': 'Tarefa criada',
-        'LINK_TICKET': 'Ticket vinculado',
-        'REQUEST_DOCUMENT': 'Documento solicitado',
-        'COMPLETE_STEP': 'Etapa concluída',
+        CREATE_TASK: "Tarefa criada",
+        LINK_TICKET: "Ticket vinculado",
+        REQUEST_DOCUMENT: "Documento solicitado",
+        COMPLETE_STEP: "Etapa concluída",
       };
-      
+
       toast({
-        title: actionLabels[variables.action as keyof typeof actionLabels] || "Ação executada",
+        title:
+          actionLabels[variables.action as keyof typeof actionLabels] ||
+          "Ação executada",
         description: "Quick action executada com sucesso via AdvogaAI Tools",
       });
     },
@@ -465,7 +541,7 @@ export default function ProcessoChatMultiThread({
     enviarMensagemMutation.mutate({
       content: newMessage.trim(),
       thread_id: activeThreadId,
-      attachments: selectedFiles.map(file => ({
+      attachments: selectedFiles.map((file) => ({
         name: file.name,
         size: file.size,
         type: file.type,
@@ -480,7 +556,7 @@ export default function ProcessoChatMultiThread({
 
   const handleExecuteQuickAction = (actionId: string) => {
     if (!activeThreadId || !newMessage.trim()) return;
-    
+
     executeQuickActionMutation.mutate({
       action: actionId,
       content: newMessage.trim(),
@@ -490,11 +566,11 @@ export default function ProcessoChatMultiThread({
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setSelectedFiles(prev => [...prev, ...files]);
+    setSelectedFiles((prev) => [...prev, ...files]);
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -505,11 +581,13 @@ export default function ProcessoChatMultiThread({
   };
 
   const getThreadTitle = (thread: ThreadLink) => {
-    return thread.properties?.titulo || `Conversa ${formatDate(thread.created_at)}`;
+    return (
+      thread.properties?.titulo || `Conversa ${formatDate(thread.created_at)}`
+    );
   };
 
   const getThreadChannel = (thread: ThreadLink) => {
-    return thread.properties?.canal || thread.context_type || 'geral';
+    return thread.properties?.canal || thread.context_type || "geral";
   };
 
   const getLastMessage = (thread: ThreadLink) => {
@@ -557,7 +635,10 @@ export default function ProcessoChatMultiThread({
             {message.attachments && message.attachments.length > 0 && (
               <div className="mt-2 pt-2 border-t border-opacity-20 border-white">
                 {message.attachments.map((attachment, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs opacity-80">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 text-xs opacity-80"
+                  >
                     <Paperclip className="w-3 h-3" />
                     {attachment.name}
                   </div>
@@ -585,7 +666,9 @@ export default function ProcessoChatMultiThread({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-y-0 right-0 w-[500px] bg-white border-l border-neutral-200 shadow-xl z-50 flex flex-col ${className}`}>
+    <div
+      className={`fixed inset-y-0 right-0 w-[500px] bg-white border-l border-neutral-200 shadow-xl z-50 flex flex-col ${className}`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-neutral-200 bg-neutral-50">
         <div>
@@ -594,7 +677,8 @@ export default function ProcessoChatMultiThread({
             Chat Multi-thread
           </h3>
           <p className="text-sm text-neutral-600">
-            {numero_cnj} • {threads.length} thread{threads.length !== 1 ? 's' : ''}
+            {numero_cnj} • {threads.length} thread
+            {threads.length !== 1 ? "s" : ""}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={onClose}>
@@ -619,7 +703,10 @@ export default function ProcessoChatMultiThread({
                 {getThreadTitle(thread)}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline" className={`text-xs ${activeThreadId === thread.id ? 'border-white/30 text-white/80' : ''}`}>
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${activeThreadId === thread.id ? "border-white/30 text-white/80" : ""}`}
+                >
                   <Hash className="w-3 h-3 mr-1" />
                   {getThreadChannel(thread)}
                 </Badge>
@@ -700,10 +787,16 @@ export default function ProcessoChatMultiThread({
         <div className="px-4 py-2 bg-blue-50 border-t border-blue-200">
           <div className="flex flex-wrap gap-2">
             {selectedFiles.map((file, index) => (
-              <div key={index} className="flex items-center gap-1 bg-white rounded px-2 py-1 text-sm">
+              <div
+                key={index}
+                className="flex items-center gap-1 bg-white rounded px-2 py-1 text-sm"
+              >
                 <Paperclip className="w-3 h-3" />
                 <span className="truncate max-w-[100px]">{file.name}</span>
-                <button onClick={() => removeFile(index)} className="text-red-500 hover:text-red-700">
+                <button
+                  onClick={() => removeFile(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
                   <X className="w-3 h-3" />
                 </button>
               </div>
@@ -742,10 +835,12 @@ export default function ProcessoChatMultiThread({
               >
                 <Paperclip className="w-4 h-4" />
               </Button>
-              
+
               <Button
                 onClick={handleEnviarMensagem}
-                disabled={!newMessage.trim() || isSending || isExecutingQuickAction}
+                disabled={
+                  !newMessage.trim() || isSending || isExecutingQuickAction
+                }
                 size="sm"
               >
                 {isSending ? (
@@ -757,8 +852,8 @@ export default function ProcessoChatMultiThread({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     disabled={!newMessage.trim() || isExecutingQuickAction}
                   >
@@ -820,16 +915,23 @@ export default function ProcessoChatMultiThread({
               <Label htmlFor="titulo">Título do Thread</Label>
               <Input
                 value={newThreadData.titulo}
-                onChange={(e) => setNewThreadData(prev => ({ ...prev, titulo: e.target.value }))}
+                onChange={(e) =>
+                  setNewThreadData((prev) => ({
+                    ...prev,
+                    titulo: e.target.value,
+                  }))
+                }
                 placeholder="Ex: Análise de recursos, Preparação audiência..."
                 required
               />
             </div>
             <div>
               <Label htmlFor="canal">Canal</Label>
-              <Select 
-                value={newThreadData.canal} 
-                onValueChange={(value) => setNewThreadData(prev => ({ ...prev, canal: value }))}
+              <Select
+                value={newThreadData.canal}
+                onValueChange={(value) =>
+                  setNewThreadData((prev) => ({ ...prev, canal: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -846,19 +948,31 @@ export default function ProcessoChatMultiThread({
             </div>
             <div>
               <Label htmlFor="tipo">Tipo de Contexto</Label>
-              <Select 
-                value={newThreadData.tipo} 
-                onValueChange={(value) => setNewThreadData(prev => ({ ...prev, tipo: value }))}
+              <Select
+                value={newThreadData.tipo}
+                onValueChange={(value) =>
+                  setNewThreadData((prev) => ({ ...prev, tipo: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="analise_juridica">Análise Jurídica</SelectItem>
-                  <SelectItem value="estrategia_processual">Estratégia Processual</SelectItem>
-                  <SelectItem value="documentos_peticoes">Documentos e Petições</SelectItem>
-                  <SelectItem value="prazos_agendamentos">Prazos e Agendamentos</SelectItem>
-                  <SelectItem value="colaboracao_equipe">Colaboração de Equipe</SelectItem>
+                  <SelectItem value="analise_juridica">
+                    Análise Jurídica
+                  </SelectItem>
+                  <SelectItem value="estrategia_processual">
+                    Estratégia Processual
+                  </SelectItem>
+                  <SelectItem value="documentos_peticoes">
+                    Documentos e Petições
+                  </SelectItem>
+                  <SelectItem value="prazos_agendamentos">
+                    Prazos e Agendamentos
+                  </SelectItem>
+                  <SelectItem value="colaboracao_equipe">
+                    Colaboração de Equipe
+                  </SelectItem>
                   <SelectItem value="geral">Conversa Geral</SelectItem>
                 </SelectContent>
               </Select>
@@ -871,9 +985,11 @@ export default function ProcessoChatMultiThread({
             >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={() => criarThreadMutation.mutate(newThreadData)}
-              disabled={criarThreadMutation.isPending || !newThreadData.titulo.trim()}
+              disabled={
+                criarThreadMutation.isPending || !newThreadData.titulo.trim()
+              }
             >
               {criarThreadMutation.isPending && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

@@ -7,12 +7,14 @@ Foi desenvolvido um sistema completo de autofix com histórico de modificações
 ### ✅ Funcionalidades Implementadas
 
 1. **Sistema de Histórico Completo**
+
    - Rastreamento de todas as modificações do sistema
    - Histórico de commits Git importados automaticamente
    - Registro de execuções de autofix
    - Histórico de prompts executados via Builder.io
 
 2. **Integração Builder.io**
+
    - Interface para envio de prompts via API
    - Registro de resultados e modificações
    - Categorização de prompts (bug_fix, feature, improvement, refactor)
@@ -34,6 +36,7 @@ AUTOFIX_DATABASE_SETUP.sql
 ```
 
 O script cria:
+
 - `autofix_history` - Tabela principal de histórico
 - `builder_prompts` - Tabela de prompts Builder.io
 - Índices para performance
@@ -46,8 +49,8 @@ Após executar o script, verifique:
 
 ```sql
 -- Verificar tabelas criadas
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
   AND table_name IN ('autofix_history', 'builder_prompts');
 
 -- Verificar dados de exemplo
@@ -139,11 +142,13 @@ private async callBuilderAPI(request: BuilderPromptRequest, promptId: string) {
 ### Para Integração Real
 
 1. **Obter credenciais Builder.io**:
+
    - API Key
    - Endpoint URL
    - Configurar authentication
 
 2. **Substituir implementação mock**:
+
    ```typescript
    private async callBuilderAPI(request: BuilderPromptRequest, promptId: string) {
      const response = await fetch('https://builder.io/api/v1/prompts', {
@@ -159,7 +164,7 @@ private async callBuilderAPI(request: BuilderPromptRequest, promptId: string) {
          category: request.category
        })
      });
-     
+
      return await response.json();
    }
    ```
@@ -183,11 +188,13 @@ O sistema fornece:
 ## 🔄 Automações Implementadas
 
 1. **Registro Automático**:
+
    - Toda execução de autofix é registrada
    - Auditorias são logged automaticamente
    - Prompts Builder.io são rastreados
 
 2. **Limpeza Automática**:
+
    - Função SQL mantém últimas 1000 entradas
    - Pode ser executada periodicamente
 
@@ -217,7 +224,7 @@ O sistema fornece:
 ## 🎯 Como Testar
 
 1. Execute o setup do banco de dados
-2. Acesse `/dev/auditoria` 
+2. Acesse `/dev/auditoria`
 3. Teste a aba "Histórico"
 4. Execute um prompt Builder.io (mock)
 5. Importe histórico Git

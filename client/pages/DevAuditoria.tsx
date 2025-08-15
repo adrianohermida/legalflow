@@ -23,9 +23,20 @@ import { AutofixHistoryPanel } from "../components/AutofixHistoryPanel";
 import { autofixHistory, BuilderPromptRequest } from "../lib/autofix-history";
 import AutofixBacklog from "../components/AutofixBacklog";
 import RouteCoveragePanel from "../components/RouteCoveragePanel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Textarea } from "../components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import {
@@ -56,8 +67,17 @@ import {
   History,
   List,
 } from "lucide-react";
-import { createAutofixTables, insertSampleData, validateDatabaseSetup, getSetupInstructions, checkTablesExist } from "../lib/supabase-setup-helper";
-import { quickDiagnostic, autofixDiagnostics } from "../lib/autofix-diagnostics";
+import {
+  createAutofixTables,
+  insertSampleData,
+  validateDatabaseSetup,
+  getSetupInstructions,
+  checkTablesExist,
+} from "../lib/supabase-setup-helper";
+import {
+  quickDiagnostic,
+  autofixDiagnostics,
+} from "../lib/autofix-diagnostics";
 import { quickBuilderAPIDiagnostic } from "../lib/builder-api-diagnostics";
 import SQLFileDownloader from "../components/SQLFileDownloader";
 
@@ -99,7 +119,9 @@ const DevAuditoria: React.FC = () => {
   const [isRunningAudit, setIsRunningAudit] = useState(false);
   const [auditProgress, setAuditProgress] = useState(0);
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"audit" | "testing" | "backlog" | "routes" | "config" | "history">("audit");
+  const [activeTab, setActiveTab] = useState<
+    "audit" | "testing" | "backlog" | "routes" | "config" | "history"
+  >("audit");
   const [isRunningAutofix, setIsRunningAutofix] = useState(false);
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -170,7 +192,7 @@ const DevAuditoria: React.FC = () => {
       ...result,
       timestamp: new Date().toISOString(),
     };
-    setTestResults(prev => [newResult, ...prev]);
+    setTestResults((prev) => [newResult, ...prev]);
   };
 
   const initializeTests = async () => {
@@ -180,10 +202,14 @@ const DevAuditoria: React.FC = () => {
 
     addTestResult({
       name: "Credentials Check",
-      status: credStatus.public_key_configured && credStatus.private_key_configured ? "success" : "warning",
-      message: credStatus.public_key_configured && credStatus.private_key_configured
-        ? "✅ Credenciais Builder.io configuradas corretamente"
-        : "⚠️ Algumas credenciais de API estão faltando",
+      status:
+        credStatus.public_key_configured && credStatus.private_key_configured
+          ? "success"
+          : "warning",
+      message:
+        credStatus.public_key_configured && credStatus.private_key_configured
+          ? "✅ Credenciais Builder.io configuradas corretamente"
+          : "⚠️ Algumas credenciais de API estão faltando",
       details: credStatus,
     });
 
@@ -194,7 +220,9 @@ const DevAuditoria: React.FC = () => {
         success: tablesStatus.both_exist,
         details: {
           tables_exist: tablesStatus.both_exist,
-          tables_found: tablesStatus.both_exist ? ["autofix_history", "builder_prompts"] : [],
+          tables_found: tablesStatus.both_exist
+            ? ["autofix_history", "builder_prompts"]
+            : [],
         },
       };
       setDatabaseSetup(dbSetupStatus);
@@ -221,8 +249,18 @@ const DevAuditoria: React.FC = () => {
         icon: <Database className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "seed-data", name: "Dados Semente", description: "Verifica se a API Library tem dados", status: "pending" },
-          { id: "endpoints", name: "Endpoints", description: "Verifica se endpoints estão funcionando", status: "pending" },
+          {
+            id: "seed-data",
+            name: "Dados Semente",
+            description: "Verifica se a API Library tem dados",
+            status: "pending",
+          },
+          {
+            id: "endpoints",
+            name: "Endpoints",
+            description: "Verifica se endpoints estão funcionando",
+            status: "pending",
+          },
         ],
       },
       {
@@ -232,8 +270,18 @@ const DevAuditoria: React.FC = () => {
         icon: <Route className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "triggers", name: "Triggers", description: "Verifica se triggers estão instalados", status: "pending" },
-          { id: "next-action", name: "Next Action", description: "Verifica função compute_next_action", status: "pending" },
+          {
+            id: "triggers",
+            name: "Triggers",
+            description: "Verifica se triggers estão instalados",
+            status: "pending",
+          },
+          {
+            id: "next-action",
+            name: "Next Action",
+            description: "Verifica função compute_next_action",
+            status: "pending",
+          },
         ],
       },
       {
@@ -243,8 +291,18 @@ const DevAuditoria: React.FC = () => {
         icon: <Inbox className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "views", name: "Views", description: "Verifica views de publicações", status: "pending" },
-          { id: "filters", name: "Filtros", description: "Verifica funcionamento dos filtros", status: "pending" },
+          {
+            id: "views",
+            name: "Views",
+            description: "Verifica views de publicações",
+            status: "pending",
+          },
+          {
+            id: "filters",
+            name: "Filtros",
+            description: "Verifica funcionamento dos filtros",
+            status: "pending",
+          },
         ],
       },
       {
@@ -254,8 +312,18 @@ const DevAuditoria: React.FC = () => {
         icon: <FileText className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "timeline", name: "Timeline", description: "Verifica timeline de processos", status: "pending" },
-          { id: "cnj-validation", name: "Validação CNJ", description: "Verifica validação de CNJ", status: "pending" },
+          {
+            id: "timeline",
+            name: "Timeline",
+            description: "Verifica timeline de processos",
+            status: "pending",
+          },
+          {
+            id: "cnj-validation",
+            name: "Validação CNJ",
+            description: "Verifica validação de CNJ",
+            status: "pending",
+          },
         ],
       },
       {
@@ -265,8 +333,18 @@ const DevAuditoria: React.FC = () => {
         icon: <CreditCard className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "webhooks", name: "Webhooks", description: "Verifica webhooks do Stripe", status: "pending" },
-          { id: "plans", name: "Planos", description: "Verifica planos de pagamento", status: "pending" },
+          {
+            id: "webhooks",
+            name: "Webhooks",
+            description: "Verifica webhooks do Stripe",
+            status: "pending",
+          },
+          {
+            id: "plans",
+            name: "Planos",
+            description: "Verifica planos de pagamento",
+            status: "pending",
+          },
         ],
       },
       {
@@ -276,8 +354,18 @@ const DevAuditoria: React.FC = () => {
         icon: <Users className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "contacts", name: "Contatos", description: "Verifica sistema de contatos", status: "pending" },
-          { id: "deals", name: "Negócios", description: "Verifica kanban de negócios", status: "pending" },
+          {
+            id: "contacts",
+            name: "Contatos",
+            description: "Verifica sistema de contatos",
+            status: "pending",
+          },
+          {
+            id: "deals",
+            name: "Negócios",
+            description: "Verifica kanban de negócios",
+            status: "pending",
+          },
         ],
       },
       {
@@ -287,8 +375,18 @@ const DevAuditoria: React.FC = () => {
         icon: <Shield className="w-4 h-4" />,
         status: "pending",
         checks: [
-          { id: "policies", name: "Políticas", description: "Verifica políticas RLS", status: "pending" },
-          { id: "user-types", name: "Tipos de Usuário", description: "Verifica função get_user_type", status: "pending" },
+          {
+            id: "policies",
+            name: "Políticas",
+            description: "Verifica políticas RLS",
+            status: "pending",
+          },
+          {
+            id: "user-types",
+            name: "Tipos de Usuário",
+            description: "Verifica função get_user_type",
+            status: "pending",
+          },
         ],
       },
     ];
@@ -308,7 +406,7 @@ const DevAuditoria: React.FC = () => {
 
       for (const module of modules) {
         console.log(`🔍 Auditando módulo: ${module.name}`);
-        
+
         // Simular progresso do módulo
         const moduleChecks = module.checks.length;
         let completedChecks = 0;
@@ -317,13 +415,16 @@ const DevAuditoria: React.FC = () => {
           module.checks.map(async (check) => {
             try {
               // Simular verificação específica
-              await new Promise(resolve => setTimeout(resolve, 500));
-              
+              await new Promise((resolve) => setTimeout(resolve, 500));
+
               const result = await runModuleCheck(module.id, check.id);
               completedChecks++;
-              
+
               // Atualizar progresso
-              const moduleProgress = (completedModules + (completedChecks / moduleChecks)) / totalModules * 100;
+              const moduleProgress =
+                ((completedModules + completedChecks / moduleChecks) /
+                  totalModules) *
+                100;
               setAuditProgress(moduleProgress);
 
               return {
@@ -338,41 +439,46 @@ const DevAuditoria: React.FC = () => {
                 details: `Erro: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
               };
             }
-          })
+          }),
         );
 
         // Determinar status do módulo
-        const moduleStatus = updatedChecks.every(c => c.status === "ok") ? "ok" :
-                           updatedChecks.some(c => c.status === "error") ? "error" : "pending";
+        const moduleStatus = updatedChecks.every((c) => c.status === "ok")
+          ? "ok"
+          : updatedChecks.some((c) => c.status === "error")
+            ? "error"
+            : "pending";
 
         // Atualizar módulo
-        setModules(prev => prev.map(m => 
-          m.id === module.id 
-            ? { 
-                ...m, 
-                status: moduleStatus, 
-                checks: updatedChecks,
-                lastChecked: new Date().toISOString()
-              }
-            : m
-        ));
+        setModules((prev) =>
+          prev.map((m) =>
+            m.id === module.id
+              ? {
+                  ...m,
+                  status: moduleStatus,
+                  checks: updatedChecks,
+                  lastChecked: new Date().toISOString(),
+                }
+              : m,
+          ),
+        );
 
         completedModules++;
         setAuditProgress((completedModules / totalModules) * 100);
       }
 
       console.log("✅ Auditoria completa finalizada!");
-      
+
       toast({
         title: "Auditoria concluída",
         description: "Todos os módulos foram verificados com sucesso.",
       });
-
     } catch (error) {
       console.error("❌ Erro durante auditoria:", error);
       toast({
         title: "Erro na auditoria",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -394,7 +500,7 @@ const DevAuditoria: React.FC = () => {
         const isOk = Math.random() > 0.3; // 70% chance de sucesso
         return {
           status: isOk ? "ok" : "error",
-          details: isOk ? "Verificação passou" : "Verificação falhou"
+          details: isOk ? "Verificação passou" : "Verificação falhou",
         };
     }
   };
@@ -410,12 +516,15 @@ const DevAuditoria: React.FC = () => {
 
       return {
         status: data && data.length > 0 ? "ok" : "error",
-        details: data && data.length > 0 ? "API Library contém dados" : "API Library está vazia"
+        details:
+          data && data.length > 0
+            ? "API Library contém dados"
+            : "API Library está vazia",
       };
     } catch (error) {
       return {
         status: "error",
-        details: `Erro ao verificar API Library: ${error instanceof Error ? error.message : "Erro desconhecido"}`
+        details: `Erro ao verificar API Library: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
       };
     }
   };
@@ -429,12 +538,14 @@ const DevAuditoria: React.FC = () => {
 
       return {
         status: error ? "error" : "ok",
-        details: error ? `Erro: ${error.message}` : "Triggers de jornada funcionando"
+        details: error
+          ? `Erro: ${error.message}`
+          : "Triggers de jornada funcionando",
       };
     } catch (error) {
       return {
         status: "error",
-        details: `Erro ao verificar triggers: ${error instanceof Error ? error.message : "Erro desconhecido"}`
+        details: `Erro ao verificar triggers: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
       };
     }
   };
@@ -448,36 +559,40 @@ const DevAuditoria: React.FC = () => {
 
       return {
         status: error ? "error" : "ok",
-        details: error ? `Erro: ${error.message}` : "Views do Inbox Legal funcionando"
+        details: error
+          ? `Erro: ${error.message}`
+          : "Views do Inbox Legal funcionando",
       };
     } catch (error) {
       return {
         status: "error",
-        details: `Erro ao verificar views: ${error instanceof Error ? error.message : "Erro desconhecido"}`
+        details: `Erro ao verificar views: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
       };
     }
   };
 
   const runAutofix = async (patchCode: string) => {
     setIsRunningAutofix(true);
-    
+
     try {
       console.log(`🔧 Executando autofix: ${patchCode}`);
-      
-      const patch = autofixPatches.find(p => p.code === patchCode);
+
+      const patch = autofixPatches.find((p) => p.code === patchCode);
       if (!patch) {
         throw new Error(`Patch ${patchCode} não encontrado`);
       }
 
       // Simular execução do autofix
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Atualizar status dos módulos afetados
-      setModules(prev => prev.map(m => 
-        patch.modules.includes(m.id) 
-          ? { ...m, status: "checking" as const }
-          : m
-      ));
+      setModules((prev) =>
+        prev.map((m) =>
+          patch.modules.includes(m.id)
+            ? { ...m, status: "checking" as const }
+            : m,
+        ),
+      );
 
       toast({
         title: "Autofix aplicado",
@@ -488,12 +603,12 @@ const DevAuditoria: React.FC = () => {
       setTimeout(() => {
         runAudit();
       }, 1000);
-
     } catch (error) {
       console.error("❌ Erro durante autofix:", error);
       toast({
         title: "Erro no autofix",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -510,11 +625,11 @@ const DevAuditoria: React.FC = () => {
 
       // Diagnostic tests
       const diagnosticTests = await autofixDiagnostics();
-      diagnosticTests.forEach(test => addTestResult(test));
+      diagnosticTests.forEach((test) => addTestResult(test));
 
       // Builder API tests
       const builderTests = await quickBuilderAPIDiagnostic();
-      builderTests.forEach(test => addTestResult(test));
+      builderTests.forEach((test) => addTestResult(test));
 
       // Custom prompt test
       if (testPrompt.prompt) {
@@ -525,12 +640,12 @@ const DevAuditoria: React.FC = () => {
         title: "Testes concluídos",
         description: "Todos os testes foram executados com sucesso.",
       });
-
     } catch (error) {
       console.error("❌ Erro durante testes:", error);
       toast({
         title: "Erro nos testes",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -552,7 +667,7 @@ const DevAuditoria: React.FC = () => {
       addTestResult({
         name: "Custom Builder Prompt",
         status: response.success ? "success" : "error",
-        message: response.success 
+        message: response.success
           ? "✅ Prompt enviado com sucesso para Builder.io"
           : `❌ Falha ao enviar prompt: ${response.error}`,
         details: response,
@@ -569,7 +684,7 @@ const DevAuditoria: React.FC = () => {
   const exportAuditResults = () => {
     const auditData = {
       timestamp: new Date().toISOString(),
-      modules: modules.map(m => ({
+      modules: modules.map((m) => ({
         id: m.id,
         name: m.name,
         status: m.status,
@@ -578,17 +693,19 @@ const DevAuditoria: React.FC = () => {
       })),
       summary: {
         total: modules.length,
-        ok: modules.filter(m => m.status === "ok").length,
-        error: modules.filter(m => m.status === "error").length,
-        pending: modules.filter(m => m.status === "pending").length,
-      }
+        ok: modules.filter((m) => m.status === "ok").length,
+        error: modules.filter((m) => m.status === "error").length,
+        pending: modules.filter((m) => m.status === "pending").length,
+      },
     };
 
-    const blob = new Blob([JSON.stringify(auditData, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(auditData, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `audit-results-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `audit-results-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -626,17 +743,22 @@ const DevAuditoria: React.FC = () => {
     }
   };
 
-  const overallStatus = modules.length > 0 
-    ? modules.every(m => m.status === "ok") ? "ok" 
-    : modules.some(m => m.status === "error") ? "error" 
-    : "pending"
-    : "pending";
+  const overallStatus =
+    modules.length > 0
+      ? modules.every((m) => m.status === "ok")
+        ? "ok"
+        : modules.some((m) => m.status === "error")
+          ? "error"
+          : "pending"
+      : "pending";
 
   const summaryStats = {
     total: modules.length,
-    ok: modules.filter(m => m.status === "ok").length,
-    error: modules.filter(m => m.status === "error").length,
-    pending: modules.filter(m => m.status === "pending" || m.status === "checking").length,
+    ok: modules.filter((m) => m.status === "ok").length,
+    error: modules.filter((m) => m.status === "error").length,
+    pending: modules.filter(
+      (m) => m.status === "pending" || m.status === "checking",
+    ).length,
   };
 
   return (
@@ -644,7 +766,9 @@ const DevAuditoria: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-heading font-semibold">Sistema de Auditoria & Autofix</h1>
+          <h1 className="text-2xl font-heading font-semibold">
+            Sistema de Auditoria & Autofix
+          </h1>
           <p className="text-neutral-600 mt-1">
             Diagnóstico completo, testes automatizados e correções do sistema
           </p>
@@ -686,37 +810,43 @@ const DevAuditoria: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <CheckCircle className="w-8 h-8 text-green-600" />
               <div>
-                <div className="text-2xl font-bold text-green-600">{summaryStats.ok}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {summaryStats.ok}
+                </div>
                 <div className="text-sm text-neutral-600">Aprovados</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-red-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <XCircle className="w-8 h-8 text-red-600" />
               <div>
-                <div className="text-2xl font-bold text-red-600">{summaryStats.error}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {summaryStats.error}
+                </div>
                 <div className="text-sm text-neutral-600">Com Erro</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-yellow-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-8 h-8 text-yellow-600" />
               <div>
-                <div className="text-2xl font-bold text-yellow-600">{summaryStats.pending}</div>
+                <div className="text-2xl font-bold text-yellow-600">
+                  {summaryStats.pending}
+                </div>
                 <div className="text-sm text-neutral-600">Pendentes</div>
               </div>
             </div>
@@ -729,8 +859,12 @@ const DevAuditoria: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Progresso da Auditoria</span>
-              <span className="text-sm text-neutral-600">{Math.round(auditProgress)}%</span>
+              <span className="text-sm font-medium">
+                Progresso da Auditoria
+              </span>
+              <span className="text-sm text-neutral-600">
+                {Math.round(auditProgress)}%
+              </span>
             </div>
             <Progress value={auditProgress} className="h-2" />
           </CardContent>
@@ -738,7 +872,10 @@ const DevAuditoria: React.FC = () => {
       )}
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+      >
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
@@ -786,7 +923,9 @@ const DevAuditoria: React.FC = () => {
                   >
                     <div>
                       <div className="font-medium">{patch.name}</div>
-                      <div className="text-sm text-neutral-600">{patch.description}</div>
+                      <div className="text-sm text-neutral-600">
+                        {patch.description}
+                      </div>
                     </div>
                   </DropdownMenuItem>
                 ))}
@@ -796,17 +935,23 @@ const DevAuditoria: React.FC = () => {
 
           <div className="grid gap-4">
             {modules.map((module) => (
-              <Card 
-                key={module.id} 
+              <Card
+                key={module.id}
                 className={`transition-all duration-200 cursor-pointer hover:shadow-md ${getStatusColor(module.status)}`}
-                onClick={() => setSelectedModule(selectedModule === module.id ? null : module.id)}
+                onClick={() =>
+                  setSelectedModule(
+                    selectedModule === module.id ? null : module.id,
+                  )
+                }
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {module.icon}
                       <div>
-                        <CardTitle className="text-base">{module.name}</CardTitle>
+                        <CardTitle className="text-base">
+                          {module.name}
+                        </CardTitle>
                         <CardDescription className="text-sm">
                           {module.description}
                         </CardDescription>
@@ -815,24 +960,37 @@ const DevAuditoria: React.FC = () => {
                     <div className="flex items-center gap-2">
                       {getStatusIcon(module.status)}
                       <Badge variant="outline">
-                        {module.status === "ok" ? "OK" :
-                         module.status === "error" ? "Erro" :
-                         module.status === "checking" ? "Verificando" : "Pendente"}
+                        {module.status === "ok"
+                          ? "OK"
+                          : module.status === "error"
+                            ? "Erro"
+                            : module.status === "checking"
+                              ? "Verificando"
+                              : "Pendente"}
                       </Badge>
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 {selectedModule === module.id && (
                   <CardContent className="pt-0">
                     <div className="space-y-2">
                       {module.checks.map((check) => (
-                        <div key={check.id} className="flex items-center justify-between p-2 rounded bg-white/50">
+                        <div
+                          key={check.id}
+                          className="flex items-center justify-between p-2 rounded bg-white/50"
+                        >
                           <div>
-                            <div className="font-medium text-sm">{check.name}</div>
-                            <div className="text-xs text-neutral-600">{check.description}</div>
+                            <div className="font-medium text-sm">
+                              {check.name}
+                            </div>
+                            <div className="text-xs text-neutral-600">
+                              {check.description}
+                            </div>
                             {check.details && (
-                              <div className="text-xs text-neutral-500 mt-1">{check.details}</div>
+                              <div className="text-xs text-neutral-500 mt-1">
+                                {check.details}
+                              </div>
                             )}
                           </div>
                           {getStatusIcon(check.status)}
@@ -841,7 +999,8 @@ const DevAuditoria: React.FC = () => {
                     </div>
                     {module.lastChecked && (
                       <div className="text-xs text-neutral-500 mt-3">
-                        Última verificação: {new Date(module.lastChecked).toLocaleString()}
+                        Última verificação:{" "}
+                        {new Date(module.lastChecked).toLocaleString()}
                       </div>
                     )}
                   </CardContent>
@@ -879,18 +1038,28 @@ const DevAuditoria: React.FC = () => {
                 <Textarea
                   id="prompt"
                   value={testPrompt.prompt}
-                  onChange={(e) => setTestPrompt(prev => ({ ...prev, prompt: e.target.value }))}
+                  onChange={(e) =>
+                    setTestPrompt((prev) => ({
+                      ...prev,
+                      prompt: e.target.value,
+                    }))
+                  }
                   placeholder="Descreva o que você quer que seja feito..."
                   rows={3}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="context">Contexto</Label>
                 <Input
                   id="context"
                   value={testPrompt.context}
-                  onChange={(e) => setTestPrompt(prev => ({ ...prev, context: e.target.value }))}
+                  onChange={(e) =>
+                    setTestPrompt((prev) => ({
+                      ...prev,
+                      context: e.target.value,
+                    }))
+                  }
                   placeholder="Contexto adicional para o prompt..."
                 />
               </div>
@@ -898,9 +1067,14 @@ const DevAuditoria: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="priority">Prioridade</Label>
-                  <Select 
-                    value={testPrompt.priority} 
-                    onValueChange={(value) => setTestPrompt(prev => ({ ...prev, priority: value as any }))}
+                  <Select
+                    value={testPrompt.priority}
+                    onValueChange={(value) =>
+                      setTestPrompt((prev) => ({
+                        ...prev,
+                        priority: value as any,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -915,16 +1089,23 @@ const DevAuditoria: React.FC = () => {
 
                 <div>
                   <Label htmlFor="category">Categoria</Label>
-                  <Select 
-                    value={testPrompt.category} 
-                    onValueChange={(value) => setTestPrompt(prev => ({ ...prev, category: value as any }))}
+                  <Select
+                    value={testPrompt.category}
+                    onValueChange={(value) =>
+                      setTestPrompt((prev) => ({
+                        ...prev,
+                        category: value as any,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="bug_fix">Correção de Bug</SelectItem>
-                      <SelectItem value="feature">Nova Funcionalidade</SelectItem>
+                      <SelectItem value="feature">
+                        Nova Funcionalidade
+                      </SelectItem>
                       <SelectItem value="optimization">Otimização</SelectItem>
                       <SelectItem value="refactor">Refatoração</SelectItem>
                     </SelectContent>
@@ -953,15 +1134,28 @@ const DevAuditoria: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {testResults.map((result, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 rounded-lg border">
-                      {result.status === "success" && <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />}
-                      {result.status === "error" && <XCircle className="w-5 h-5 text-red-600 mt-0.5" />}
-                      {result.status === "warning" && <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />}
-                      {result.status === "pending" && <RefreshCw className="w-5 h-5 text-blue-600 mt-0.5 animate-spin" />}
-                      
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 rounded-lg border"
+                    >
+                      {result.status === "success" && (
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                      )}
+                      {result.status === "error" && (
+                        <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                      )}
+                      {result.status === "warning" && (
+                        <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                      )}
+                      {result.status === "pending" && (
+                        <RefreshCw className="w-5 h-5 text-blue-600 mt-0.5 animate-spin" />
+                      )}
+
                       <div className="flex-1">
                         <div className="font-medium text-sm">{result.name}</div>
-                        <div className="text-sm text-neutral-600">{result.message}</div>
+                        <div className="text-sm text-neutral-600">
+                          {result.message}
+                        </div>
                         <div className="text-xs text-neutral-500">
                           {new Date(result.timestamp).toLocaleString()}
                         </div>
@@ -1001,7 +1195,9 @@ const DevAuditoria: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span>Chave Pública</span>
                       {credentials.public_key_configured ? (
-                        <Badge className="bg-green-100 text-green-800">Configurada</Badge>
+                        <Badge className="bg-green-100 text-green-800">
+                          Configurada
+                        </Badge>
                       ) : (
                         <Badge variant="destructive">Não configurada</Badge>
                       )}
@@ -1009,14 +1205,18 @@ const DevAuditoria: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span>Chave Privada</span>
                       {credentials.private_key_configured ? (
-                        <Badge className="bg-green-100 text-green-800">Configurada</Badge>
+                        <Badge className="bg-green-100 text-green-800">
+                          Configurada
+                        </Badge>
                       ) : (
                         <Badge variant="destructive">Não configurada</Badge>
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div className="text-neutral-500">Carregando status das credenciais...</div>
+                  <div className="text-neutral-500">
+                    Carregando status das credenciais...
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -1035,19 +1235,24 @@ const DevAuditoria: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span>Tabelas de Sistema</span>
                       {databaseSetup.success ? (
-                        <Badge className="bg-green-100 text-green-800">Configuradas</Badge>
+                        <Badge className="bg-green-100 text-green-800">
+                          Configuradas
+                        </Badge>
                       ) : (
                         <Badge variant="destructive">Não configuradas</Badge>
                       )}
                     </div>
                     {databaseSetup.details?.tables_found && (
                       <div className="text-sm text-neutral-600">
-                        Tabelas encontradas: {databaseSetup.details.tables_found.join(", ")}
+                        Tabelas encontradas:{" "}
+                        {databaseSetup.details.tables_found.join(", ")}
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-neutral-500">Carregando status do banco...</div>
+                  <div className="text-neutral-500">
+                    Carregando status do banco...
+                  </div>
                 )}
               </CardContent>
             </Card>

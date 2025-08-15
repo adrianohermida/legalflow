@@ -24,14 +24,16 @@ export async function checkTablesExist(): Promise<{
       .select("id")
       .limit(1);
 
-    // Test builder_prompts table  
+    // Test builder_prompts table
     const { error: promptsError } = await supabase
       .from("builder_prompts")
       .select("id")
       .limit(1);
 
-    const historyExists = !historyError || !historyError.message.includes("does not exist");
-    const promptsExists = !promptsError || !promptsError.message.includes("does not exist");
+    const historyExists =
+      !historyError || !historyError.message.includes("does not exist");
+    const promptsExists =
+      !promptsError || !promptsError.message.includes("does not exist");
 
     return {
       autofix_history: historyExists,
@@ -71,7 +73,9 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
 
     // Try admin setup first if service role key is available
     if (isAdminConfigured) {
-      console.log("🔧 Tentando criar tabelas com privilégios administrativos...");
+      console.log(
+        "🔧 Tentando criar tabelas com privilégios administrativos...",
+      );
 
       try {
         const adminResult = await createTablesWithAdmin();
@@ -120,7 +124,9 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
 
       if (insertError) {
         // Tables don't exist or we don't have permission
-        console.log("⚠️ Não foi possível criar dados nas tabelas automaticamente");
+        console.log(
+          "⚠️ Não foi possível criar dados nas tabelas automaticamente",
+        );
 
         return {
           success: false,
@@ -141,10 +147,7 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
       console.log("✅ Tabelas já existem e estão acessíveis");
 
       // Clean up test data
-      await supabase
-        .from("autofix_history")
-        .delete()
-        .eq("id", testData.id);
+      await supabase.from("autofix_history").delete().eq("id", testData.id);
 
       return {
         success: true,
@@ -155,13 +158,13 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
           sql_script_location: "AUTOFIX_DATABASE_SETUP.sql",
         },
       };
-
     } catch (setupError) {
       console.error("Erro durante setup automático:", setupError);
 
       return {
         success: false,
-        error: "Setup automático falhou. Use o SQL Editor do Supabase para executar o script.",
+        error:
+          "Setup automático falhou. Use o SQL Editor do Supabase para executar o script.",
         details: {
           tables_exist: false,
           tables_found: [],
@@ -171,7 +174,6 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
         },
       };
     }
-
   } catch (error) {
     return {
       success: false,
@@ -187,7 +189,11 @@ export async function createAutofixTables(): Promise<DatabaseSetupResult> {
   }
 }
 
-export async function insertSampleData(): Promise<{ success: boolean; error?: string; inserted_count?: number }> {
+export async function insertSampleData(): Promise<{
+  success: boolean;
+  error?: string;
+  inserted_count?: number;
+}> {
   try {
     console.log("📊 Inserindo dados de exemplo...");
 
@@ -216,11 +222,12 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
       {
         type: "git_import",
         module: "repository",
-        description: "Git commit: feat: Implement office modules reorganization",
+        description:
+          "Git commit: feat: Implement office modules reorganization",
         changes: [
           "Modified client/components/Sidebar.tsx",
           "Modified client/components/OfficeModulesWindow.tsx",
-          "Modified client/components/AppShell.tsx"
+          "Modified client/components/AppShell.tsx",
         ],
         success: true,
         context: {
@@ -228,32 +235,35 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
           files_modified: [
             "client/components/Sidebar.tsx",
             "client/components/OfficeModulesWindow.tsx",
-            "client/components/AppShell.tsx"
-          ]
+            "client/components/AppShell.tsx",
+          ],
         },
         metadata: {
           author: "Adriano Hermida Maia",
           commit_date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
           additions: 354,
-          deletions: 73
-        }
+          deletions: 73,
+        },
       },
       {
         type: "git_import",
         module: "repository",
-        description: "Git commit: fix: Resolve Label import error in InboxLegalV2",
+        description:
+          "Git commit: fix: Resolve Label import error in InboxLegalV2",
         changes: ["Modified client/pages/InboxLegalV2.tsx"],
         success: true,
         context: {
           git_commit: "def456ghi",
-          files_modified: ["client/pages/InboxLegalV2.tsx"]
+          files_modified: ["client/pages/InboxLegalV2.tsx"],
         },
         metadata: {
           author: "Adriano Hermida Maia",
-          commit_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          commit_date: new Date(
+            Date.now() - 2 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
           additions: 1,
-          deletions: 0
-        }
+          deletions: 0,
+        },
       },
       {
         type: "autofix",
@@ -262,16 +272,16 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
         changes: [
           "Melhorou logging de erros para mostrar mensagens detalhadas",
           "Adicionou verificação de tabelas do banco",
-          "Implementou fallback para tabelas ausentes"
+          "Implementou fallback para tabelas ausentes",
         ],
         success: true,
         context: {
-          patch_code: "error_logging_fix"
+          patch_code: "error_logging_fix",
         },
         metadata: {
           execution_time_ms: 1250,
-          affected_modules: ["autofix-history", "AutofixHistoryPanel"]
-        }
+          affected_modules: ["autofix-history", "AutofixHistoryPanel"],
+        },
       },
       {
         type: "builder_prompt",
@@ -280,7 +290,7 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
         changes: [
           "Configurou credenciais da API",
           "Validou conexão com Builder.io",
-          "Criou entrada de teste no histórico"
+          "Criou entrada de teste no histórico",
         ],
         success: true,
         context: {
@@ -290,9 +300,9 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
           prompt: "Validate autofix system setup",
           category: "improvement",
           priority: "medium",
-          api_keys_configured: true
-        }
-      }
+          api_keys_configured: true,
+        },
+      },
     ];
 
     const { error, data } = await supabase
@@ -311,7 +321,6 @@ export async function insertSampleData(): Promise<{ success: boolean; error?: st
       success: true,
       inserted_count: data?.length || sampleData.length,
     };
-
   } catch (error) {
     return {
       success: false,
@@ -335,7 +344,7 @@ export async function validateDatabaseSetup(): Promise<{
     console.log("🔍 Validando setup completo do banco de dados...");
 
     const tablesStatus = await checkTablesExist();
-    
+
     if (!tablesStatus.both_exist) {
       return {
         success: false,
@@ -389,7 +398,7 @@ export async function validateDatabaseSetup(): Promise<{
 
     return {
       success: allWorking,
-      message: allWorking 
+      message: allWorking
         ? "Sistema de banco de dados totalmente funcional"
         : "Problemas detectados no acesso ao banco de dados",
       details: {
@@ -400,7 +409,6 @@ export async function validateDatabaseSetup(): Promise<{
         total_records: totalRecords,
       },
     };
-
   } catch (error) {
     return {
       success: false,

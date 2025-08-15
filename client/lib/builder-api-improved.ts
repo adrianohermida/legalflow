@@ -17,8 +17,12 @@ export class ImprovedBuilderAPI {
   private healthStatus: APIHealthCheck | null = null;
 
   constructor() {
-    this.publicKey = import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY || "8e0d76d5073b4c34837809cac5eca825";
-    this.privateKey = import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY || "bpk-c334462169634b3f8157b6074848b012";
+    this.publicKey =
+      import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY ||
+      "8e0d76d5073b4c34837809cac5eca825";
+    this.privateKey =
+      import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY ||
+      "bpk-c334462169634b3f8157b6074848b012";
   }
 
   async performHealthCheck(): Promise<APIHealthCheck> {
@@ -35,23 +39,33 @@ export class ImprovedBuilderAPI {
     // Check credentials format
     health.credentials_valid = this.validateCredentials();
     if (!health.credentials_valid) {
-      health.recommendations.push("🔑 Configure valid Builder.io API credentials");
+      health.recommendations.push(
+        "🔑 Configure valid Builder.io API credentials",
+      );
     }
 
     // Check endpoint reachability (without triggering CORS preflight)
     health.endpoint_reachable = await this.checkEndpointReachability();
     if (!health.endpoint_reachable) {
-      health.recommendations.push("🌐 Builder.io endpoints appear unreachable from browser environment");
-      health.recommendations.push("✅ This is normal - fallback mock API will be used");
+      health.recommendations.push(
+        "🌐 Builder.io endpoints appear unreachable from browser environment",
+      );
+      health.recommendations.push(
+        "✅ This is normal - fallback mock API will be used",
+      );
     }
 
     // For browser environments, CORS is typically not available for external APIs
     health.cors_supported = false; // Assume false for external APIs in browser
-    health.recommendations.push("🔧 Using optimized fallback system for browser environment");
+    health.recommendations.push(
+      "🔧 Using optimized fallback system for browser environment",
+    );
 
     // Always available fallback
     health.fallback_available = true;
-    health.recommendations.push("🎭 Mock API provides full functionality when real API is unavailable");
+    health.recommendations.push(
+      "🎭 Mock API provides full functionality when real API is unavailable",
+    );
 
     this.healthStatus = health;
     return health;
@@ -62,7 +76,7 @@ export class ImprovedBuilderAPI {
       this.publicKey &&
       this.privateKey &&
       this.publicKey.length >= 20 &&
-      this.privateKey.startsWith('bpk-') &&
+      this.privateKey.startsWith("bpk-") &&
       this.privateKey.length >= 30
     );
   }
@@ -93,21 +107,34 @@ export class ImprovedBuilderAPI {
       });
 
       // Use a simple data URL test instead of external domain to avoid issues
-      imageTest.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      imageTest.src =
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
       // For the reachability test, we'll be conservative and assume not reachable
       // This ensures we rely on the fallback system which is more reliable
       const reachable = false; // Conservative approach
 
-      console.log(`🔍 Builder.io domain reachability: ${reachable ? 'reachable' : 'unreachable/blocked (using fallback)'}`);
+      console.log(
+        `🔍 Builder.io domain reachability: ${reachable ? "reachable" : "unreachable/blocked (using fallback)"}`,
+      );
       return reachable;
     } catch (error) {
-      console.log("🔍 Builder.io reachability check failed (expected in browser environment):", error);
+      console.log(
+        "🔍 Builder.io reachability check failed (expected in browser environment):",
+        error,
+      );
       return false;
     }
   }
 
-  async makeAPICall(request: any): Promise<{ success: boolean; data?: any; usedMock: boolean; reason?: string }> {
+  async makeAPICall(
+    request: any,
+  ): Promise<{
+    success: boolean;
+    data?: any;
+    usedMock: boolean;
+    reason?: string;
+  }> {
     try {
       if (!this.healthStatus) {
         await this.performHealthCheck();
@@ -134,29 +161,33 @@ export class ImprovedBuilderAPI {
         return this.useMockAPI(request, reason);
       } catch (apiError) {
         // Catch any errors from attemptRealAPICall
-        const reason = apiError instanceof Error ? apiError.message : String(apiError);
+        const reason =
+          apiError instanceof Error ? apiError.message : String(apiError);
         console.log(`🔄 API call threw error (${reason}), using mock fallback`);
         return this.useMockAPI(request, `API error: ${reason}`);
       }
     } catch (outerError) {
       // Ultimate fallback - should never happen but ensures no errors propagate
-      const reason = outerError instanceof Error ? outerError.message : String(outerError);
+      const reason =
+        outerError instanceof Error ? outerError.message : String(outerError);
       console.log(`🛡️ Ultimate fallback activated (${reason}), using mock`);
       return this.useMockAPI(request, `Ultimate fallback: ${reason}`);
     }
   }
 
-  private async attemptRealAPICall(request: any): Promise<{ success: boolean; data?: any; error?: string }> {
+  private async attemptRealAPICall(
+    request: any,
+  ): Promise<{ success: boolean; data?: any; error?: string }> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     try {
-      const response = await fetch('https://builder.io/api/v1/ai-code-gen', {
-        method: 'POST',
+      const response = await fetch("https://builder.io/api/v1/ai-code-gen", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${this.privateKey}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Authorization: `Bearer ${this.privateKey}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(request),
         signal: controller.signal,
@@ -176,21 +207,34 @@ export class ImprovedBuilderAPI {
       clearTimeout(timeoutId);
 
       // Don't throw, return failure result instead
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       console.log(`🔄 Builder.io API fetch failed: ${errorMessage}`);
 
       return {
         success: false,
-        error: errorMessage.includes('Failed to fetch') ? 'Network/CORS error' : errorMessage
+        error: errorMessage.includes("Failed to fetch")
+          ? "Network/CORS error"
+          : errorMessage,
       };
     }
   }
 
-  private async useMockAPI(request: any, reason: string): Promise<{ success: boolean; data: any; usedMock: boolean; reason: string }> {
+  private async useMockAPI(
+    request: any,
+    reason: string,
+  ): Promise<{
+    success: boolean;
+    data: any;
+    usedMock: boolean;
+    reason: string;
+  }> {
     console.log(`🎭 Using mock Builder.io API: ${reason}`);
 
     // Simulate realistic API delay
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+    await new Promise((resolve) =>
+      setTimeout(resolve, 500 + Math.random() * 1000),
+    );
 
     const mockData = {
       id: crypto.randomUUID(),
@@ -202,7 +246,7 @@ export class ImprovedBuilderAPI {
             timestamp: new Date().toISOString(),
             type: "builder_prompt",
             module: "mock_builder_integration",
-            description: `Mock Builder.io response: ${request.prompt || 'Test request'}`,
+            description: `Mock Builder.io response: ${request.prompt || "Test request"}`,
             changes: [
               "🎭 Mock: Applied AI-generated code improvements",
               "🎭 Mock: Enhanced system functionality",
@@ -214,9 +258,9 @@ export class ImprovedBuilderAPI {
               fallback_reason: reason,
               real_api_attempted: true,
             },
-          }
+          },
         ],
-        summary: `Mock API successfully processed request: ${request.category || 'improvement'}`,
+        summary: `Mock API successfully processed request: ${request.category || "improvement"}`,
       },
     };
 
@@ -241,8 +285,10 @@ export class ImprovedBuilderAPI {
       };
     }
 
-    const healthy = this.healthStatus.credentials_valid && this.healthStatus.fallback_available;
-    
+    const healthy =
+      this.healthStatus.credentials_valid &&
+      this.healthStatus.fallback_available;
+
     let message = "";
     if (healthy) {
       if (this.healthStatus.endpoint_reachable) {

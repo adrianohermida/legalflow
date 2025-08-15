@@ -3,6 +3,7 @@
 ## 🐛 Problemas Identificados e Resolvidos
 
 ### **Erro Original:**
+
 ```
 Failed to record modification: [object Object]
 Failed to fetch modification history: [object Object]
@@ -11,6 +12,7 @@ Failed to load stats: [object Object]
 ```
 
 ### **Causa Raiz:**
+
 1. **Logging inadequado**: Erros sendo mostrados como `[object Object]` ao invés de mensagens úteis
 2. **Tabelas ausentes**: As tabelas `autofix_history` e `builder_prompts` não existem no Supabase
 3. **Tratamento de erro insuficiente**: Sistema não detectava nem informava sobre tabelas ausentes
@@ -20,15 +22,19 @@ Failed to load stats: [object Object]
 ### 1. **Melhoramento do Logging de Erros**
 
 **Antes:**
+
 ```typescript
 console.error("Failed to record modification:", error);
 throw error;
 ```
 
 **Depois:**
+
 ```typescript
 console.error("Failed to record modification:", error.message || error);
-throw new Error(`Database error: ${error.message || error.code || "Unknown error"}`);
+throw new Error(
+  `Database error: ${error.message || error.code || "Unknown error"}`,
+);
 ```
 
 ### 2. **Detecção de Tabelas Ausentes**
@@ -79,11 +85,13 @@ Para usar o sistema de histórico, você precisa:
 ## 🔧 Arquivos Modificados
 
 ### `client/lib/autofix-history.ts`
+
 - ✅ Melhorado logging de erros
 - ✅ Mensagens de erro mais específicas
 - ✅ Tratamento adequado de exceptions
 
 ### `client/components/AutofixHistoryPanel.tsx`
+
 - ✅ Estado de verificação de tabelas (`tablesExist`)
 - ✅ Interface condicional baseada na existência das tabelas
 - ✅ Mensagens de erro user-friendly
@@ -91,6 +99,7 @@ Para usar o sistema de histórico, você precisa:
 - ✅ Loading states apropriados
 
 ### `client/lib/supabase-setup-helper.ts` (Novo)
+
 - ✅ Funções para criar tabelas via interface
 - ✅ Inserção de dados de exemplo
 - ✅ Verificação de sucesso do setup
@@ -98,17 +107,20 @@ Para usar o sistema de histórico, você precisa:
 ## 🎯 Estados da Interface
 
 ### **Estado 1: Verificando** (tablesExist === null)
+
 ```
 🔄 Verificando configuração do banco de dados...
 ```
 
 ### **Estado 2: Tabelas Não Existem** (tablesExist === false)
+
 ```
 ⚠️ Configuração Necessária
 [Interface de setup com instruções e botões]
 ```
 
 ### **Estado 3: Funcionando Normalmente** (tablesExist === true)
+
 ```
 📊 Estatísticas + Histórico completo
 [Interface normal do autofix]
@@ -126,16 +138,19 @@ Para usar o sistema de histórico, você precisa:
 ## 🧪 Como Testar
 
 1. **Teste com tabelas existentes:**
+
    - Execute o SQL setup
    - Acesse `/dev/auditoria` > aba "Histórico"
    - Deve mostrar interface normal
 
 2. **Teste com tabelas ausentes:**
+
    - Delete as tabelas no Supabase (opcional)
    - Acesse `/dev/auditoria` > aba "Histórico"
    - Deve mostrar interface de configuração
 
 3. **Teste setup automático:**
+
    - Com tabelas ausentes, clique "Setup Automático"
    - Deve criar tabelas e inserir dados de exemplo
 

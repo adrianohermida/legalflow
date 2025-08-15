@@ -273,16 +273,18 @@ ATENÇÃO: Este script remove TODOS os dados do autofix!
 Use apenas se quiser começar completamente do zero.
 */`;
 
-export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className }) => {
+export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({
+  className,
+}) => {
   const { toast } = useToast();
 
   const downloadSQL = () => {
     try {
-      const blob = new Blob([SQL_CONTENT], { type: 'text/sql' });
+      const blob = new Blob([SQL_CONTENT], { type: "text/sql" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'AUTOFIX_DATABASE_SETUP.sql';
+      link.download = "AUTOFIX_DATABASE_SETUP.sql";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -303,11 +305,11 @@ export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className 
 
   const downloadCleanupSQL = () => {
     try {
-      const blob = new Blob([CLEANUP_SQL_CONTENT], { type: 'text/sql' });
+      const blob = new Blob([CLEANUP_SQL_CONTENT], { type: "text/sql" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'AUTOFIX_CLEANUP.sql';
+      link.download = "AUTOFIX_CLEANUP.sql";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -344,7 +346,7 @@ export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className 
   };
 
   const openSupabase = () => {
-    window.open('https://supabase.com/dashboard/project/_/sql/new', '_blank');
+    window.open("https://supabase.com/dashboard/project/_/sql/new", "_blank");
   };
 
   return (
@@ -352,9 +354,12 @@ export const SQLFileDownloader: React.FC<SQLFileDownloaderProps> = ({ className 
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div>
-            <h4 className="font-semibold text-sm mb-2">📄 Script de Configuração SQL</h4>
+            <h4 className="font-semibold text-sm mb-2">
+              📄 Script de Configuração SQL
+            </h4>
             <p className="text-xs text-muted-foreground">
-              Execute este script no Supabase SQL Editor para criar as tabelas do autofix.
+              Execute este script no Supabase SQL Editor para criar as tabelas
+              do autofix.
             </p>
           </div>
 

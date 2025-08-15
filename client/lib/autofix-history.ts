@@ -48,22 +48,36 @@ export interface BuilderPromptResponse {
 }
 
 class AutofixHistoryManager {
-  private builderPublicKey = import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY || "8e0d76d5073b4c34837809cac5eca825";
-  private builderPrivateKey = import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY || "bpk-c334462169634b3f8157b6074848b012";
+  private builderPublicKey =
+    import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY ||
+    "8e0d76d5073b4c34837809cac5eca825";
+  private builderPrivateKey =
+    import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY ||
+    "bpk-c334462169634b3f8157b6074848b012";
 
   constructor() {
     // Debug environment variables on initialization
     console.log("🔧 AutofixHistoryManager initialized with:", {
-      publicKey: this.builderPublicKey ? `${this.builderPublicKey.substring(0, 8)}...` : "Not set",
-      privateKey: this.builderPrivateKey ? `${this.builderPrivateKey.substring(0, 8)}...` : "Not set",
+      publicKey: this.builderPublicKey
+        ? `${this.builderPublicKey.substring(0, 8)}...`
+        : "Not set",
+      privateKey: this.builderPrivateKey
+        ? `${this.builderPrivateKey.substring(0, 8)}...`
+        : "Not set",
       envVars: {
-        VITE_BUILDER_IO_PUBLIC_KEY: import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY ? "Set" : "Not set",
-        VITE_BUILDER_IO_PRIVATE_KEY: import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY ? "Set" : "Not set",
-      }
+        VITE_BUILDER_IO_PUBLIC_KEY: import.meta.env.VITE_BUILDER_IO_PUBLIC_KEY
+          ? "Set"
+          : "Not set",
+        VITE_BUILDER_IO_PRIVATE_KEY: import.meta.env.VITE_BUILDER_IO_PRIVATE_KEY
+          ? "Set"
+          : "Not set",
+      },
     });
   }
 
-  async recordModification(entry: Omit<ModificationEntry, "id" | "timestamp">): Promise<string> {
+  async recordModification(
+    entry: Omit<ModificationEntry, "id" | "timestamp">,
+  ): Promise<string> {
     try {
       const modificationEntry: ModificationEntry = {
         id: crypto.randomUUID(),
@@ -74,7 +88,7 @@ class AutofixHistoryManager {
       console.log("Recording modification:", {
         type: modificationEntry.type,
         module: modificationEntry.module,
-        description: modificationEntry.description
+        description: modificationEntry.description,
       });
 
       const { error, data } = await supabase
@@ -89,29 +103,43 @@ class AutofixHistoryManager {
           code: error.code,
           details: error.details,
           hint: error.hint,
-          full_error: error
+          full_error: error,
         };
 
-        console.error("Failed to record modification - Detailed error:", errorDetails);
+        console.error(
+          "Failed to record modification - Detailed error:",
+          errorDetails,
+        );
 
         // Check if it's a table not found error
-        if (error.message && error.message.includes("relation") && error.message.includes("does not exist")) {
-          throw new Error("Database tables not found. Please run the setup SQL script in Supabase SQL Editor.");
+        if (
+          error.message &&
+          error.message.includes("relation") &&
+          error.message.includes("does not exist")
+        ) {
+          throw new Error(
+            "Database tables not found. Please run the setup SQL script in Supabase SQL Editor.",
+          );
         }
 
         // Check if it's a permission error
         if (error.message && error.message.includes("permission denied")) {
-          throw new Error("Database permission denied. Check RLS policies or user permissions.");
+          throw new Error(
+            "Database permission denied. Check RLS policies or user permissions.",
+          );
         }
 
         // Generic database error with detailed message
-        const errorMessage = error.message || error.code || JSON.stringify(error) || "Unknown database error";
+        const errorMessage =
+          error.message ||
+          error.code ||
+          JSON.stringify(error) ||
+          "Unknown database error";
         throw new Error(`Database error: ${errorMessage}`);
       }
 
       console.log("Modification recorded successfully:", modificationEntry.id);
       return modificationEntry.id;
-
     } catch (error) {
       // Catch any unexpected errors and ensure they're properly handled
       console.error("Unexpected error in recordModification:", error);
@@ -121,7 +149,8 @@ class AutofixHistoryManager {
       }
 
       // Handle unknown error types
-      const errorString = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      const errorString =
+        typeof error === "object" ? JSON.stringify(error) : String(error);
       throw new Error(`Unexpected error: ${errorString}`);
     }
   }
@@ -130,7 +159,7 @@ class AutofixHistoryManager {
     limit: number = 50,
     offset: number = 0,
     module?: string,
-    type?: ModificationEntry["type"]
+    type?: ModificationEntry["type"],
   ): Promise<ModificationEntry[]> {
     try {
       let query = supabase
@@ -150,23 +179,35 @@ class AutofixHistoryManager {
       const { data, error } = await query;
 
       if (error) {
-        console.error("Failed to fetch modification history - Detailed error:", {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
+        console.error(
+          "Failed to fetch modification history - Detailed error:",
+          {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          },
+        );
 
-        if (error.message && error.message.includes("relation") && error.message.includes("does not exist")) {
-          throw new Error("Database tables not found. Please run the setup SQL script in Supabase SQL Editor.");
+        if (
+          error.message &&
+          error.message.includes("relation") &&
+          error.message.includes("does not exist")
+        ) {
+          throw new Error(
+            "Database tables not found. Please run the setup SQL script in Supabase SQL Editor.",
+          );
         }
 
-        const errorMessage = error.message || error.code || JSON.stringify(error) || "Unknown database error";
+        const errorMessage =
+          error.message ||
+          error.code ||
+          JSON.stringify(error) ||
+          "Unknown database error";
         throw new Error(`Database error: ${errorMessage}`);
       }
 
       return data || [];
-
     } catch (error) {
       console.error("Unexpected error in getModificationHistory:", error);
 
@@ -174,7 +215,8 @@ class AutofixHistoryManager {
         throw error;
       }
 
-      const errorString = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      const errorString =
+        typeof error === "object" ? JSON.stringify(error) : String(error);
       throw new Error(`Unexpected error: ${errorString}`);
     }
   }
@@ -183,13 +225,13 @@ class AutofixHistoryManager {
     try {
       // Simulate git log parsing - in real implementation, this would call git API
       const gitCommits = await this.fetchGitCommits();
-      
+
       for (const commit of gitCommits) {
         const modificationEntry: Omit<ModificationEntry, "id" | "timestamp"> = {
           type: "git_import",
           module: "repository",
           description: `Git commit: ${commit.message}`,
-          changes: commit.files_changed.map(file => `Modified ${file}`),
+          changes: commit.files_changed.map((file) => `Modified ${file}`),
           success: true,
           context: {
             git_commit: commit.commit_hash,
@@ -222,19 +264,17 @@ class AutofixHistoryManager {
         files_changed: [
           "client/components/Sidebar.tsx",
           "client/components/OfficeModulesWindow.tsx",
-          "client/components/AppShell.tsx"
+          "client/components/AppShell.tsx",
         ],
         additions: 354,
         deletions: 73,
       },
       {
         commit_hash: "def456",
-        author: "Adriano Hermida Maia", 
+        author: "Adriano Hermida Maia",
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         message: "fix: Resolve Label import error in InboxLegalV2",
-        files_changed: [
-          "client/pages/InboxLegalV2.tsx"
-        ],
+        files_changed: ["client/pages/InboxLegalV2.tsx"],
         additions: 1,
         deletions: 0,
       },
@@ -247,17 +287,19 @@ class AutofixHistoryManager {
           "client/components/ui/toast.tsx",
           "client/components/ui/toaster.tsx",
           "client/hooks/use-toast.ts",
-          "client/global.css"
+          "client/global.css",
         ],
         additions: 89,
         deletions: 45,
-      }
+      },
     ];
   }
 
-  async executeBuilderPrompt(request: BuilderPromptRequest): Promise<BuilderPromptResponse> {
+  async executeBuilderPrompt(
+    request: BuilderPromptRequest,
+  ): Promise<BuilderPromptResponse> {
     const promptId = crypto.randomUUID();
-    
+
     try {
       // Record the prompt request
       await this.recordModification({
@@ -281,7 +323,7 @@ class AutofixHistoryManager {
 
       // Call real Builder.io API
       const response = await this.callBuilderAPI(request, promptId);
-      
+
       // Record the results
       if (response.status === "completed" && response.result) {
         for (const modification of response.result.modifications) {
@@ -315,7 +357,7 @@ class AutofixHistoryManager {
 
   private async callBuilderAPI(
     request: BuilderPromptRequest,
-    promptId: string
+    promptId: string,
   ): Promise<BuilderPromptResponse> {
     // Wrap everything in ultimate try-catch to prevent any errors from propagating
     try {
@@ -323,8 +365,14 @@ class AutofixHistoryManager {
 
       // Check if we have valid API credentials
       if (!this.builderPrivateKey || this.builderPrivateKey.length < 20) {
-        console.warn("⚠️ Builder.io private key appears invalid, using mock implementation");
-        return this.mockBuilderAPI(request, promptId, "Invalid API credentials");
+        console.warn(
+          "⚠️ Builder.io private key appears invalid, using mock implementation",
+        );
+        return this.mockBuilderAPI(
+          request,
+          promptId,
+          "Invalid API credentials",
+        );
       }
 
       // Real Builder.io API integration with timeout
@@ -332,13 +380,13 @@ class AutofixHistoryManager {
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
       try {
-        const response = await fetch('https://builder.io/api/v1/ai-code-gen', {
-          method: 'POST',
+        const response = await fetch("https://builder.io/api/v1/ai-code-gen", {
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${this.builderPrivateKey}`,
-            'Content-Type': 'application/json',
-            'User-Agent': 'Autofix-System/1.0',
-            'Accept': 'application/json',
+            Authorization: `Bearer ${this.builderPrivateKey}`,
+            "Content-Type": "application/json",
+            "User-Agent": "Autofix-System/1.0",
+            Accept: "application/json",
           },
           body: JSON.stringify({
             prompt: request.prompt,
@@ -353,7 +401,9 @@ class AutofixHistoryManager {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          console.warn(`🔥 Builder.io API failed with status ${response.status}: ${response.statusText}`);
+          console.warn(
+            `🔥 Builder.io API failed with status ${response.status}: ${response.statusText}`,
+          );
 
           // Try to get error details
           let errorDetails = "Unknown error";
@@ -398,14 +448,15 @@ class AutofixHistoryManager {
             success: true,
             context: {
               builder_prompt_id: promptId,
-              files_modified: data.files_changed || request.expected_files || [],
+              files_modified:
+                data.files_changed || request.expected_files || [],
               api_response: true,
               real_api_used: true,
             },
             metadata: {
               builder_response: data,
-              execution_time: data.execution_time || 'unknown',
-              api_status: 'success',
+              execution_time: data.execution_time || "unknown",
+              api_status: "success",
             },
           },
         ];
@@ -416,31 +467,38 @@ class AutofixHistoryManager {
           result: {
             modifications: realApiModifications,
             files_changed: data.files_changed || request.expected_files || [],
-            summary: data.summary || `Successfully processed ${request.category} via Builder.io API`,
+            summary:
+              data.summary ||
+              `Successfully processed ${request.category} via Builder.io API`,
           },
         };
-
       } catch (fetchError) {
         clearTimeout(timeoutId);
         // Convert fetch error to our handled error format
-        const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        const errorMessage =
+          fetchError instanceof Error ? fetchError.message : String(fetchError);
         console.log(`🔄 Fetch failed: ${errorMessage}, using mock fallback`);
 
         // Return mock instead of throwing
-        return this.mockBuilderAPI(request, promptId, `Fetch error: ${errorMessage}`);
+        return this.mockBuilderAPI(
+          request,
+          promptId,
+          `Fetch error: ${errorMessage}`,
+        );
       }
-
     } catch (error) {
       // Enhanced error logging
       let reason = "Unknown error";
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
+        if (error.name === "AbortError") {
           console.warn("⏰ Builder.io API request timed out after 8 seconds");
           reason = "Request timeout";
-        } else if (error.message.includes('Failed to fetch')) {
-          console.warn("🌐 Network error calling Builder.io API (possibly CORS or network issue)");
+        } else if (error.message.includes("Failed to fetch")) {
+          console.warn(
+            "🌐 Network error calling Builder.io API (possibly CORS or network issue)",
+          );
           reason = "Network connectivity issue";
-        } else if (error.message.includes('NetworkError')) {
+        } else if (error.message.includes("NetworkError")) {
           console.warn("🌐 Network error calling Builder.io API");
           reason = "Network error";
         } else {
@@ -459,12 +517,15 @@ class AutofixHistoryManager {
   private async mockBuilderAPI(
     request: BuilderPromptRequest,
     promptId: string,
-    fallbackReason: string = "Real Builder.io API unavailable"
+    fallbackReason: string = "Real Builder.io API unavailable",
   ): Promise<BuilderPromptResponse> {
-    console.log("🎭 Using mock Builder.io API implementation due to:", fallbackReason);
+    console.log(
+      "🎭 Using mock Builder.io API implementation due to:",
+      fallbackReason,
+    );
 
     // Simulate API delay (shorter than real API)
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Mock successful response with clear indication it's a fallback
     const mockModifications: ModificationEntry[] = [
@@ -527,28 +588,44 @@ class AutofixHistoryManager {
           message: error.message,
           code: error.code,
           details: error.details,
-          hint: error.hint
+          hint: error.hint,
         });
 
-        if (error.message && error.message.includes("relation") && error.message.includes("does not exist")) {
-          throw new Error("Database tables not found. Please run the setup SQL script in Supabase SQL Editor.");
+        if (
+          error.message &&
+          error.message.includes("relation") &&
+          error.message.includes("does not exist")
+        ) {
+          throw new Error(
+            "Database tables not found. Please run the setup SQL script in Supabase SQL Editor.",
+          );
         }
 
-        const errorMessage = error.message || error.code || JSON.stringify(error) || "Unknown database error";
+        const errorMessage =
+          error.message ||
+          error.code ||
+          JSON.stringify(error) ||
+          "Unknown database error";
         throw new Error(`Database error: ${errorMessage}`);
       }
 
       const modifications = allMods || [];
-      const successful = modifications.filter(m => m.success);
-      const failed = modifications.filter(m => !m.success);
+      const successful = modifications.filter((m) => m.success);
+      const failed = modifications.filter((m) => !m.success);
 
-      const byType = modifications.reduce((acc, mod) => {
-        acc[mod.type] = (acc[mod.type] || 0) + 1;
-        return acc;
-      }, {} as Record<ModificationEntry["type"], number>);
+      const byType = modifications.reduce(
+        (acc, mod) => {
+          acc[mod.type] = (acc[mod.type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<ModificationEntry["type"], number>,
+      );
 
       const recent = modifications
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        )
         .slice(0, 10);
 
       return {
@@ -558,7 +635,6 @@ class AutofixHistoryManager {
         modifications_by_type: byType,
         recent_activity: recent,
       };
-
     } catch (error) {
       console.error("Unexpected error in getSystemStats:", error);
 
@@ -566,17 +642,22 @@ class AutofixHistoryManager {
         throw error;
       }
 
-      const errorString = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      const errorString =
+        typeof error === "object" ? JSON.stringify(error) : String(error);
       throw new Error(`Unexpected error: ${errorString}`);
     }
   }
 
-  async testBuilderConnection(): Promise<{ success: boolean; message: string; details?: any }> {
+  async testBuilderConnection(): Promise<{
+    success: boolean;
+    message: string;
+    details?: any;
+  }> {
     try {
       console.log("🧪 Testing Builder.io connection with improved system...");
 
       // Use the improved API system
-      const { improvedBuilderAPI } = await import('./builder-api-improved');
+      const { improvedBuilderAPI } = await import("./builder-api-improved");
 
       // Perform health check first
       const healthCheck = await improvedBuilderAPI.performHealthCheck();
@@ -591,7 +672,7 @@ class AutofixHistoryManager {
       };
 
       // Import and use safe wrapper
-      const { safeAPICall } = await import('./safe-api-wrapper');
+      const { safeAPICall } = await import("./safe-api-wrapper");
 
       const apiResult = await safeAPICall(
         async () => {
@@ -604,13 +685,13 @@ class AutofixHistoryManager {
             status: "completed",
             result: {
               summary: "Safe wrapper fallback - connection test completed",
-              modifications: []
-            }
+              modifications: [],
+            },
           },
           usedMock: true,
-          reason: "Safe wrapper guaranteed fallback"
+          reason: "Safe wrapper guaranteed fallback",
         },
-        'Builder.io connection test'
+        "Builder.io connection test",
       );
 
       // apiResult.data now contains the actual result or fallback
@@ -623,7 +704,9 @@ class AutofixHistoryManager {
         type: "builder_prompt",
         module: "builder_connection_test",
         description: "Builder.io connection test completed with safe wrapper",
-        changes: [`API test result: ${actualResult.success ? 'successful' : 'safe fallback used'}`],
+        changes: [
+          `API test result: ${actualResult.success ? "successful" : "safe fallback used"}`,
+        ],
         success: true, // Always true with safe wrapper
         context: {
           test_mode: true,
@@ -635,15 +718,17 @@ class AutofixHistoryManager {
         },
         metadata: {
           test_timestamp: new Date().toISOString(),
-          fallback_reason: actualResult.reason || apiResult.reason || 'N/A',
+          fallback_reason: actualResult.reason || apiResult.reason || "N/A",
           health_recommendations: healthCheck.recommendations,
-          safe_wrapper_status: apiResult.usedFallback ? 'fallback' : 'success',
+          safe_wrapper_status: apiResult.usedFallback ? "fallback" : "success",
         },
       });
 
       return {
         success: true, // Always true with safe wrapper protection
-        message: status.message + (apiResult.usedFallback ? ' (with safe fallback)' : ''),
+        message:
+          status.message +
+          (apiResult.usedFallback ? " (with safe fallback)" : ""),
         details: {
           api_health: status.healthy,
           used_mock: actualResult.usedMock || apiResult.usedFallback,
@@ -691,16 +776,22 @@ class AutofixHistoryManager {
         details: {
           error_type: error instanceof Error ? error.name : typeof error,
           error_message: errorMessage,
-          api_keys_configured: !!(this.builderPublicKey && this.builderPrivateKey),
-          public_key: this.builderPublicKey ? this.builderPublicKey.substring(0, 8) + "..." : "Not configured",
-          private_key: this.builderPrivateKey ? this.builderPrivateKey.substring(0, 8) + "..." : "Not configured",
+          api_keys_configured: !!(
+            this.builderPublicKey && this.builderPrivateKey
+          ),
+          public_key: this.builderPublicKey
+            ? this.builderPublicKey.substring(0, 8) + "..."
+            : "Not configured",
+          private_key: this.builderPrivateKey
+            ? this.builderPrivateKey.substring(0, 8) + "..."
+            : "Not configured",
           fallback_note: "System will use mock API for full functionality",
           troubleshooting: [
             "🔧 Check network connectivity",
             "🔍 Verify API credentials format",
             "🔄 Mock API provides complete functionality",
-            "✅ System remains fully operational"
-          ]
+            "✅ System remains fully operational",
+          ],
         },
       };
     }
@@ -715,8 +806,12 @@ class AutofixHistoryManager {
     return {
       public_key_configured: !!this.builderPublicKey,
       private_key_configured: !!this.builderPrivateKey,
-      public_key_preview: this.builderPublicKey ? this.builderPublicKey.substring(0, 8) + "..." : "Not configured",
-      private_key_preview: this.builderPrivateKey ? this.builderPrivateKey.substring(0, 8) + "..." : "Not configured",
+      public_key_preview: this.builderPublicKey
+        ? this.builderPublicKey.substring(0, 8) + "..."
+        : "Not configured",
+      private_key_preview: this.builderPrivateKey
+        ? this.builderPrivateKey.substring(0, 8) + "..."
+        : "Not configured",
     };
   }
 }

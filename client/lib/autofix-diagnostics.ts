@@ -10,21 +10,21 @@ export interface DiagnosticResult {
 export class AutofixDiagnostics {
   async runDiagnostics(): Promise<DiagnosticResult[]> {
     const results: DiagnosticResult[] = [];
-    
+
     console.log("🔍 Running Autofix System Diagnostics...");
 
     // 1. Check Supabase connection
     results.push(await this.checkSupabaseConnection());
-    
+
     // 2. Check environment variables
     results.push(await this.checkEnvironmentVariables());
-    
+
     // 3. Check table existence
     results.push(await this.checkTableExistence());
-    
+
     // 4. Test basic database operations
     results.push(await this.testBasicOperations());
-    
+
     // 5. Check data types and structure
     results.push(await this.checkDataStructure());
 
@@ -33,24 +33,29 @@ export class AutofixDiagnostics {
 
   private async checkSupabaseConnection(): Promise<DiagnosticResult> {
     try {
-      const { data, error } = await supabase.from('dummy_table_that_should_not_exist').select('*').limit(1);
-      
+      const { data, error } = await supabase
+        .from("dummy_table_that_should_not_exist")
+        .select("*")
+        .limit(1);
+
       // If we get here without throwing, Supabase is connected (even if table doesn't exist)
       return {
         step: "Supabase Connection",
         status: "success",
         message: "✅ Supabase client is properly configured and connected",
-        details: { 
+        details: {
           connection: "active",
           expected_error: error?.message || "No error (unexpected)",
-        }
+        },
       };
     } catch (error) {
       return {
         step: "Supabase Connection",
         status: "error",
         message: "❌ Supabase connection failed",
-        details: { error: error instanceof Error ? error.message : String(error) }
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+        },
       };
     }
   }
@@ -67,14 +72,17 @@ export class AutofixDiagnostics {
     return {
       step: "Environment Variables",
       status: missing.length === 0 ? "success" : "warning",
-      message: missing.length === 0 
-        ? "✅ All environment variables are configured"
-        : `⚠️ ${missing.length} environment variables are missing`,
+      message:
+        missing.length === 0
+          ? "✅ All environment variables are configured"
+          : `⚠️ ${missing.length} environment variables are missing`,
       details: {
-        configured: configured.map(([key, value]) => `${key}: ${String(value).substring(0, 8)}...`),
+        configured: configured.map(
+          ([key, value]) => `${key}: ${String(value).substring(0, 8)}...`,
+        ),
         missing: missing.map(([key]) => key),
-        all_vars: envVars
-      }
+        all_vars: envVars,
+      },
     };
   }
 
@@ -92,34 +100,39 @@ export class AutofixDiagnostics {
         .select("id")
         .limit(1);
 
-      const historyExists = !historyError || !historyError.message.includes("does not exist");
-      const promptsExists = !promptsError || !promptsError.message.includes("does not exist");
+      const historyExists =
+        !historyError || !historyError.message.includes("does not exist");
+      const promptsExists =
+        !promptsError || !promptsError.message.includes("does not exist");
 
       return {
         step: "Table Existence",
         status: historyExists && promptsExists ? "success" : "error",
-        message: historyExists && promptsExists 
-          ? "✅ All required tables exist and are accessible"
-          : "❌ Some required tables are missing",
+        message:
+          historyExists && promptsExists
+            ? "✅ All required tables exist and are accessible"
+            : "❌ Some required tables are missing",
         details: {
           autofix_history: {
             exists: historyExists,
             error: historyError?.message,
-            data_count: historyData?.length || 0
+            data_count: historyData?.length || 0,
           },
           builder_prompts: {
             exists: promptsExists,
             error: promptsError?.message,
-            data_count: promptsData?.length || 0
-          }
-        }
+            data_count: promptsData?.length || 0,
+          },
+        },
       };
     } catch (error) {
       return {
         step: "Table Existence",
         status: "error",
         message: "❌ Error checking table existence",
-        details: { error: error instanceof Error ? error.message : String(error) }
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+        },
       };
     }
   }
@@ -134,7 +147,7 @@ export class AutofixDiagnostics {
         changes: ["Diagnostic test"],
         success: true,
         context: { diagnostic: true },
-        metadata: { test_id: crypto.randomUUID() }
+        metadata: { test_id: crypto.randomUUID() },
       };
 
       console.log("Testing insert operation with:", testEntry);
@@ -153,8 +166,8 @@ export class AutofixDiagnostics {
           details: {
             operation: "insert",
             error: insertError,
-            test_entry: testEntry
-          }
+            test_entry: testEntry,
+          },
         };
       }
 
@@ -173,16 +186,15 @@ export class AutofixDiagnostics {
         details: {
           operations: ["insert", "delete"],
           test_entry_id: insertData?.[0]?.id,
-          cleaned_up: true
-        }
+          cleaned_up: true,
+        },
       };
-
     } catch (error) {
       return {
         step: "Basic Operations",
         status: "error",
         message: `❌ Operations test failed: ${error instanceof Error ? error.message : String(error)}`,
-        details: { error }
+        details: { error },
       };
     }
   }
@@ -200,7 +212,7 @@ export class AutofixDiagnostics {
           step: "Data Structure",
           status: "error",
           message: "❌ Cannot check data structure - tables don't exist",
-          details: { error: error.message }
+          details: { error: error.message },
         };
       }
 
@@ -211,16 +223,15 @@ export class AutofixDiagnostics {
         details: {
           sample_data: data,
           record_count: data?.length || 0,
-          table_accessible: !error
-        }
+          table_accessible: !error,
+        },
       };
-
     } catch (error) {
       return {
         step: "Data Structure",
         status: "error",
         message: `❌ Data structure check failed: ${error instanceof Error ? error.message : String(error)}`,
-        details: { error }
+        details: { error },
       };
     }
   }
@@ -235,14 +246,14 @@ export async function quickDiagnostic(): Promise<{
   summary: string;
 }> {
   const results = await autofixDiagnostics.runDiagnostics();
-  
-  const successCount = results.filter(r => r.status === "success").length;
-  const errorCount = results.filter(r => r.status === "error").length;
-  const warningCount = results.filter(r => r.status === "warning").length;
-  
+
+  const successCount = results.filter((r) => r.status === "success").length;
+  const errorCount = results.filter((r) => r.status === "error").length;
+  const warningCount = results.filter((r) => r.status === "warning").length;
+
   let overallStatus: "healthy" | "issues" | "critical";
   let summary: string;
-  
+
   if (errorCount === 0) {
     overallStatus = warningCount === 0 ? "healthy" : "issues";
     summary = `✅ System healthy (${successCount}/${results.length} checks passed)`;

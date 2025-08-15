@@ -89,11 +89,11 @@ interface SF5JourneyCardProps {
   autoRefresh?: boolean;
 }
 
-export default function SF5JourneyCard({ 
-  numeroCnj, 
-  size = "full", 
+export default function SF5JourneyCard({
+  numeroCnj,
+  size = "full",
   showAccordion = true,
-  autoRefresh = false 
+  autoRefresh = false,
 }: SF5JourneyCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isActionDialogOpen, setIsActionDialogOpen] = useState(false);
@@ -107,10 +107,12 @@ export default function SF5JourneyCard({
     queryFn: async () => {
       const { data, error } = await lf
         .from("journey_instances")
-        .select(`
+        .select(
+          `
           *,
           journey_templates(name)
-        `)
+        `,
+        )
         .eq("numero_cnj", numeroCnj)
         .eq("status", "in_progress")
         .order("started_at", { ascending: false })
@@ -118,7 +120,7 @@ export default function SF5JourneyCard({
         .single();
 
       if (error && error.code !== "PGRST116") throw error;
-      
+
       if (!data) return null;
 
       return {
@@ -137,7 +139,8 @@ export default function SF5JourneyCard({
 
       const { data, error } = await lf
         .from("stage_instances")
-        .select(`
+        .select(
+          `
           *,
           journey_template_stages(
             title,
@@ -145,18 +148,20 @@ export default function SF5JourneyCard({
             sla_days,
             stage_types(code)
           )
-        `)
+        `,
+        )
         .eq("journey_instance_id", journey.id)
         .order("journey_template_stages(order_index)", { ascending: true });
 
       if (error) throw error;
 
-      return data.map(stage => ({
+      return data.map((stage) => ({
         ...stage,
         title: stage.journey_template_stages?.title || "Etapa",
         order_index: stage.journey_template_stages?.order_index || 0,
         sla_days: stage.journey_template_stages?.sla_days,
-        stage_type_code: stage.journey_template_stages?.stage_types?.code || "default",
+        stage_type_code:
+          stage.journey_template_stages?.stage_types?.code || "default",
       })) as StageInstance[];
     },
     enabled: !!journey?.id,
@@ -164,7 +169,13 @@ export default function SF5JourneyCard({
 
   // Mutation para executar próxima ação
   const executeActionMutation = useMutation({
-    mutationFn: async ({ stageId, notes }: { stageId: string; notes?: string }) => {
+    mutationFn: async ({
+      stageId,
+      notes,
+    }: {
+      stageId: string;
+      notes?: string;
+    }) => {
       // Marcar etapa como concluída
       const { error: updateError } = await lf
         .from("stage_instances")
@@ -191,16 +202,19 @@ export default function SF5JourneyCard({
         title: "Etapa concluída!",
         description: "A próxima ação foi atualizada automaticamente.",
       });
-      
+
       queryClient.invalidateQueries({ queryKey: ["sf5-journey", numeroCnj] });
-      queryClient.invalidateQueries({ queryKey: ["sf5-journey-stages", journey?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["sf5-journey-stages", journey?.id],
+      });
       setIsActionDialogOpen(false);
       setActionNotes("");
     },
     onError: (error) => {
       toast({
         title: "Erro ao executar ação",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description:
+          error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     },
@@ -225,8 +239,10 @@ export default function SF5JourneyCard({
         title: "Etapa iniciada!",
         description: "A etapa foi marcada como em progresso.",
       });
-      
-      queryClient.invalidateQueries({ queryKey: ["sf5-journey-stages", journey?.id] });
+
+      queryClient.invalidateQueries({
+        queryKey: ["sf5-journey-stages", journey?.id],
+      });
     },
   });
 
@@ -246,7 +262,9 @@ export default function SF5JourneyCard({
       <Card className="border-dashed">
         <CardContent className="p-4 text-center">
           <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-600">Nenhuma jornada ativa para este processo</p>
+          <p className="text-sm text-gray-600">
+            Nenhuma jornada ativa para este processo
+          </p>
           <Button variant="outline" size="sm" className="mt-2">
             <Plus className="w-4 h-4 mr-2" />
             Iniciar Jornada
@@ -256,9 +274,9 @@ export default function SF5JourneyCard({
     );
   }
 
-  const nextStage = stages.find(s => s.status === "pending");
-  const currentStage = stages.find(s => s.status === "in_progress");
-  const completedStages = stages.filter(s => s.status === "completed").length;
+  const nextStage = stages.find((s) => s.status === "pending");
+  const currentStage = stages.find((s) => s.status === "in_progress");
+  const completedStages = stages.filter((s) => s.status === "completed").length;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -317,19 +335,23 @@ export default function SF5JourneyCard({
   };
 
   return (
-    <Card className={`transition-all duration-200 ${journey.next_action?.priority === "high" ? getPriorityColor("high") : ""}`}>
+    <Card
+      className={`transition-all duration-200 ${journey.next_action?.priority === "high" ? getPriorityColor("high") : ""}`}
+    >
       <CardHeader className={size === "compact" ? "p-4 pb-2" : "p-6 pb-2"}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Target className="w-5 h-5 text-blue-600" />
             <div>
-              <CardTitle className="text-lg font-semibold">{journey.template_name}</CardTitle>
+              <CardTitle className="text-lg font-semibold">
+                {journey.template_name}
+              </CardTitle>
               <p className="text-sm text-gray-600">
                 {completedStages} de {stages.length} etapas concluídas
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Badge variant="outline" className={getStatusColor(journey.status)}>
               {journey.status === "in_progress" ? "Em andamento" : "Concluída"}
@@ -341,7 +363,11 @@ export default function SF5JourneyCard({
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="p-1"
               >
-                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {isExpanded ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </Button>
             )}
           </div>
@@ -353,7 +379,9 @@ export default function SF5JourneyCard({
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium">Progresso</span>
-            <span className="text-sm text-gray-600">{Math.round(journey.progress_pct)}%</span>
+            <span className="text-sm text-gray-600">
+              {Math.round(journey.progress_pct)}%
+            </span>
           </div>
           <Progress value={journey.progress_pct} className="h-2" />
         </div>
@@ -367,12 +395,19 @@ export default function SF5JourneyCard({
                   <Zap className="w-4 h-4 text-blue-600" />
                   <h4 className="font-medium text-blue-900">Próxima Ação</h4>
                   {journey.next_action.priority && (
-                    <Badge 
-                      size="sm" 
-                      variant={journey.next_action.priority === "high" ? "destructive" : "outline"}
+                    <Badge
+                      size="sm"
+                      variant={
+                        journey.next_action.priority === "high"
+                          ? "destructive"
+                          : "outline"
+                      }
                     >
-                      {journey.next_action.priority === "high" ? "Urgente" : 
-                       journey.next_action.priority === "medium" ? "Média" : "Baixa"}
+                      {journey.next_action.priority === "high"
+                        ? "Urgente"
+                        : journey.next_action.priority === "medium"
+                          ? "Média"
+                          : "Baixa"}
                     </Badge>
                   )}
                 </div>
@@ -391,12 +426,18 @@ export default function SF5JourneyCard({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {currentStage && currentStage.status === "in_progress" && (
-                  <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>
+                  <Dialog
+                    open={isActionDialogOpen}
+                    onOpenChange={setIsActionDialogOpen}
+                  >
                     <DialogTrigger asChild>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      <Button
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Concluir
                       </Button>
@@ -418,23 +459,28 @@ export default function SF5JourneyCard({
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsActionDialogOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsActionDialogOpen(false)}
+                        >
                           Cancelar
                         </Button>
-                        <Button 
+                        <Button
                           onClick={handleExecuteAction}
                           disabled={executeActionMutation.isPending}
                         >
-                          {executeActionMutation.isPending ? "Concluindo..." : "Concluir Etapa"}
+                          {executeActionMutation.isPending
+                            ? "Concluindo..."
+                            : "Concluir Etapa"}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
                 )}
-                
+
                 {nextStage && (
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => handleStartStage(nextStage.id)}
                     disabled={startStageMutation.isPending}
@@ -458,28 +504,40 @@ export default function SF5JourneyCard({
               <AccordionContent>
                 <div className="space-y-3">
                   {stages.map((stage, index) => (
-                    <div 
-                      key={stage.id} 
+                    <div
+                      key={stage.id}
                       className={`flex items-center gap-3 p-3 rounded-lg border ${
-                        stage.status === "in_progress" ? "border-blue-200 bg-blue-50" : 
-                        stage.status === "completed" ? "border-green-200 bg-green-50" : 
-                        "border-gray-200"
+                        stage.status === "in_progress"
+                          ? "border-blue-200 bg-blue-50"
+                          : stage.status === "completed"
+                            ? "border-green-200 bg-green-50"
+                            : "border-gray-200"
                       }`}
                     >
                       <div className="flex-shrink-0">
                         {getStatusIcon(stage.status)}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">{stage.title}</span>
-                          <Badge size="sm" variant="outline" className={getStatusColor(stage.status)}>
-                            {stage.status === "pending" ? "Pendente" :
-                             stage.status === "in_progress" ? "Em andamento" :
-                             stage.status === "completed" ? "Concluída" : "Pulada"}
+                          <span className="font-medium text-sm">
+                            {stage.title}
+                          </span>
+                          <Badge
+                            size="sm"
+                            variant="outline"
+                            className={getStatusColor(stage.status)}
+                          >
+                            {stage.status === "pending"
+                              ? "Pendente"
+                              : stage.status === "in_progress"
+                                ? "Em andamento"
+                                : stage.status === "completed"
+                                  ? "Concluída"
+                                  : "Pulada"}
                           </Badge>
                         </div>
-                        
+
                         <div className="flex items-center gap-4 text-xs text-gray-600">
                           {stage.sla_days && (
                             <div className="flex items-center gap-1">
@@ -487,14 +545,14 @@ export default function SF5JourneyCard({
                               SLA: {stage.sla_days} dias
                             </div>
                           )}
-                          
+
                           {stage.due_at && (
                             <div className="flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
                               Prazo: {formatDate(stage.due_at)}
                             </div>
                           )}
-                          
+
                           {stage.completed_at && (
                             <div className="flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" />
@@ -502,16 +560,18 @@ export default function SF5JourneyCard({
                             </div>
                           )}
                         </div>
-                        
+
                         {stage.notes && (
-                          <p className="text-xs text-gray-600 mt-1 italic">{stage.notes}</p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            {stage.notes}
+                          </p>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         {stage.status === "pending" && !currentStage && (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="ghost"
                             onClick={() => handleStartStage(stage.id)}
                             disabled={startStageMutation.isPending}

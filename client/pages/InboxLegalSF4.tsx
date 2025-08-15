@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import {
   Calendar,
   FileText,
@@ -24,20 +24,30 @@ import {
   Users,
   Eye,
   Trash2,
-  Settings
-} from 'lucide-react';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+  Settings,
+} from "lucide-react";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
+} from "../components/ui/select";
 import {
   Table,
   TableBody,
@@ -45,7 +55,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
+} from "../components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -54,7 +64,7 @@ import {
   DialogTrigger,
   DialogDescription,
   DialogFooter,
-} from '../components/ui/dialog';
+} from "../components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,18 +72,26 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from '../components/ui/dropdown-menu';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Switch } from '../components/ui/switch';
-import { Skeleton } from '../components/ui/skeleton';
-import { Checkbox } from '../components/ui/checkbox';
-import { supabase, lf } from '../lib/supabase';
-import { useToast } from '../hooks/use-toast';
-import { sf4Telemetry, sf4SavedViews, sf4Utils, SF4SavedView } from '../lib/sf4-telemetry';
-import { useSF4KeyboardShortcuts, sf4A11yUtils } from '../hooks/useSF4KeyboardShortcuts';
-import { format, subDays, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+} from "../components/ui/dropdown-menu";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { Switch } from "../components/ui/switch";
+import { Skeleton } from "../components/ui/skeleton";
+import { Checkbox } from "../components/ui/checkbox";
+import { supabase, lf } from "../lib/supabase";
+import { useToast } from "../hooks/use-toast";
+import {
+  sf4Telemetry,
+  sf4SavedViews,
+  sf4Utils,
+  SF4SavedView,
+} from "../lib/sf4-telemetry";
+import {
+  useSF4KeyboardShortcuts,
+  sf4A11yUtils,
+} from "../hooks/useSF4KeyboardShortcuts";
+import { format, subDays, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface MovimentacaoItem {
   id: number;
@@ -112,7 +130,7 @@ interface Filters {
   dateTo: string;
   tribunal: string;
   searchText: string;
-  tab: 'publicacoes' | 'movimentacoes';
+  tab: "publicacoes" | "movimentacoes";
   page: number;
 }
 
@@ -125,34 +143,47 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
 
   // State management from URL params
   const [filters, setFilters] = useState<Filters>({
-    dateFrom: searchParams.get('from') || format(subDays(new Date(), 30), 'yyyy-MM-dd'),
-    dateTo: searchParams.get('to') || format(new Date(), 'yyyy-MM-dd'),
-    tribunal: searchParams.get('tribunal') || 'all',
-    searchText: searchParams.get('q') || '',
-    tab: (searchParams.get('tab') as 'publicacoes' | 'movimentacoes') || 'publicacoes',
-    page: parseInt(searchParams.get('page') || '1'),
+    dateFrom:
+      searchParams.get("from") || format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    dateTo: searchParams.get("to") || format(new Date(), "yyyy-MM-dd"),
+    tribunal: searchParams.get("tribunal") || "all",
+    searchText: searchParams.get("q") || "",
+    tab:
+      (searchParams.get("tab") as "publicacoes" | "movimentacoes") ||
+      "publicacoes",
+    page: parseInt(searchParams.get("page") || "1"),
   });
 
   // Dialog states
-  const [selectedItem, setSelectedItem] = useState<MovimentacaoItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MovimentacaoItem | null>(
+    null,
+  );
   const [showVincularDialog, setShowVincularDialog] = useState(false);
   const [showCriarEtapaDialog, setShowCriarEtapaDialog] = useState(false);
   const [showNotificarDialog, setShowNotificarDialog] = useState(false);
-  const [showBuscarCadastrarDialog, setShowBuscarCadastrarDialog] = useState(false);
+  const [showBuscarCadastrarDialog, setShowBuscarCadastrarDialog] =
+    useState(false);
 
   // Form states
-  const [vincularCnj, setVincularCnj] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
-  const [selectedJourneyInstance, setSelectedJourneyInstance] = useState('');
-  const [selectedTemplateStage, setSelectedTemplateStage] = useState('');
+  const [vincularCnj, setVincularCnj] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [selectedJourneyInstance, setSelectedJourneyInstance] = useState("");
+  const [selectedTemplateStage, setSelectedTemplateStage] = useState("");
   const [createActivity, setCreateActivity] = useState(false);
-  const [selectedSource, setSelectedSource] = useState<'advise' | 'escavador'>('advise');
+  const [selectedSource, setSelectedSource] = useState<"advise" | "escavador">(
+    "advise",
+  );
 
   // Saved views and accessibility
   const [savedViews, setSavedViews] = useState<SF4SavedView[]>([]);
   const [showSaveViewDialog, setShowSaveViewDialog] = useState(false);
-  const [saveViewName, setSaveViewName] = useState('');
-  const anyDialogOpen = showVincularDialog || showCriarEtapaDialog || showNotificarDialog || showBuscarCadastrarDialog || showSaveViewDialog;
+  const [saveViewName, setSaveViewName] = useState("");
+  const anyDialogOpen =
+    showVincularDialog ||
+    showCriarEtapaDialog ||
+    showNotificarDialog ||
+    showBuscarCadastrarDialog ||
+    showSaveViewDialog;
 
   const pageSize = 25;
 
@@ -174,9 +205,9 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     },
     onClearFilters: clearAllFilters,
     onRefresh: () => {
-      queryClient.invalidateQueries({ queryKey: ['sf4-publicacoes'] });
-      queryClient.invalidateQueries({ queryKey: ['sf4-movimentacoes'] });
-      sf4A11yUtils.announce('Dados atualizados');
+      queryClient.invalidateQueries({ queryKey: ["sf4-publicacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["sf4-movimentacoes"] });
+      sf4A11yUtils.announce("Dados atualizados");
     },
     currentTab: filters.tab,
     isDialogOpen: anyDialogOpen,
@@ -185,24 +216,30 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
   // Update URL params when filters change and track telemetry
   useEffect(() => {
     const params = new URLSearchParams();
-    if (filters.tab !== 'publicacoes') params.set('tab', filters.tab);
-    if (filters.dateFrom !== format(subDays(new Date(), 30), 'yyyy-MM-dd')) params.set('from', filters.dateFrom);
-    if (filters.dateTo !== format(new Date(), 'yyyy-MM-dd')) params.set('to', filters.dateTo);
-    if (filters.tribunal !== 'all') params.set('tribunal', filters.tribunal);
-    if (filters.searchText) params.set('q', filters.searchText);
-    if (filters.page !== 1) params.set('page', filters.page.toString());
+    if (filters.tab !== "publicacoes") params.set("tab", filters.tab);
+    if (filters.dateFrom !== format(subDays(new Date(), 30), "yyyy-MM-dd"))
+      params.set("from", filters.dateFrom);
+    if (filters.dateTo !== format(new Date(), "yyyy-MM-dd"))
+      params.set("to", filters.dateTo);
+    if (filters.tribunal !== "all") params.set("tribunal", filters.tribunal);
+    if (filters.searchText) params.set("q", filters.searchText);
+    if (filters.page !== 1) params.set("page", filters.page.toString());
 
     setSearchParams(params);
 
     // Update page title for accessibility
-    sf4A11yUtils.setPageTitle(`${filters.tab === 'publicacoes' ? 'Publicações' : 'Movimentações'} - Página ${filters.page}`);
+    sf4A11yUtils.setPageTitle(
+      `${filters.tab === "publicacoes" ? "Publicações" : "Movimentações"} - Página ${filters.page}`,
+    );
   }, [filters, setSearchParams]);
 
   // Load saved views on component mount
   useEffect(() => {
     const loadSavedViews = async () => {
       const views = await sf4SavedViews.loadViews(
-        filters.tab === 'publicacoes' ? 'inbox_publicacoes' : 'inbox_movimentacoes'
+        filters.tab === "publicacoes"
+          ? "inbox_publicacoes"
+          : "inbox_movimentacoes",
       );
       setSavedViews(views);
 
@@ -210,10 +247,12 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       const hasUrlParams = searchParams.toString().length > 0;
       if (!hasUrlParams) {
         const defaultView = await sf4SavedViews.getDefaultView(
-          filters.tab === 'publicacoes' ? 'inbox_publicacoes' : 'inbox_movimentacoes'
+          filters.tab === "publicacoes"
+            ? "inbox_publicacoes"
+            : "inbox_movimentacoes",
         );
         if (defaultView) {
-          setFilters(prev => ({
+          setFilters((prev) => ({
             ...prev,
             ...defaultView.filters,
           }));
@@ -228,15 +267,16 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
   const {
     data: publicacoesData,
     isLoading: isLoadingPublicacoes,
-    error: publicacoesError
+    error: publicacoesError,
   } = useQuery({
-    queryKey: ['sf4-publicacoes', filters],
+    queryKey: ["sf4-publicacoes", filters],
     queryFn: async () => {
       const startIndex = (filters.page - 1) * pageSize;
-      
+
       let query = supabase
-        .from('movimentacoes')
-        .select(`
+        .from("movimentacoes")
+        .select(
+          `
           *,
           processos!movimentacoes_numero_cnj_fkey (
             numero_cnj,
@@ -244,26 +284,31 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             titulo_polo_ativo,
             titulo_polo_passivo
           )
-        `, { count: 'exact' })
-        .eq('data->>tipo', 'publicacao')
-        .order('data_movimentacao', { ascending: false, nullsLast: true })
-        .order('id', { ascending: false })
+        `,
+          { count: "exact" },
+        )
+        .eq("data->>tipo", "publicacao")
+        .order("data_movimentacao", { ascending: false, nullsLast: true })
+        .order("id", { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
 
       // Date filtering
       if (filters.dateFrom && filters.dateTo) {
-        query = query.gte('data_movimentacao', filters.dateFrom)
-                   .lte('data_movimentacao', filters.dateTo);
+        query = query
+          .gte("data_movimentacao", filters.dateFrom)
+          .lte("data_movimentacao", filters.dateTo);
       }
 
       // Text search - search in JSONB data
       if (filters.searchText) {
-        query = query.or(`data::text.ilike.%${filters.searchText}%,numero_cnj.ilike.%${filters.searchText}%`);
+        query = query.or(
+          `data::text.ilike.%${filters.searchText}%,numero_cnj.ilike.%${filters.searchText}%`,
+        );
       }
 
       // Tribunal filter via join
-      if (filters.tribunal !== 'all') {
-        query = query.eq('processos.tribunal_sigla', filters.tribunal);
+      if (filters.tribunal !== "all") {
+        query = query.eq("processos.tribunal_sigla", filters.tribunal);
       }
 
       const { data, error, count } = await query;
@@ -272,26 +317,27 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       return {
         data: data || [],
         total: count || 0,
-        totalPages: Math.ceil((count || 0) / pageSize)
+        totalPages: Math.ceil((count || 0) / pageSize),
       };
     },
-    enabled: filters.tab === 'publicacoes',
-    keepPreviousData: true
+    enabled: filters.tab === "publicacoes",
+    keepPreviousData: true,
   });
 
   // Movimentações query - using public.movimentacoes excluding publicações
   const {
     data: movimentacoesData,
     isLoading: isLoadingMovimentacoes,
-    error: movimentacoesError
+    error: movimentacoesError,
   } = useQuery({
-    queryKey: ['sf4-movimentacoes', filters],
+    queryKey: ["sf4-movimentacoes", filters],
     queryFn: async () => {
       const startIndex = (filters.page - 1) * pageSize;
-      
+
       let query = supabase
-        .from('movimentacoes')
-        .select(`
+        .from("movimentacoes")
+        .select(
+          `
           *,
           processos!movimentacoes_numero_cnj_fkey (
             numero_cnj,
@@ -299,26 +345,31 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             titulo_polo_ativo,
             titulo_polo_passivo
           )
-        `, { count: 'exact' })
-        .or('data->>tipo.is.null,data->>tipo.neq.publicacao')
-        .order('data_movimentacao', { ascending: false, nullsLast: true })
-        .order('id', { ascending: false })
+        `,
+          { count: "exact" },
+        )
+        .or("data->>tipo.is.null,data->>tipo.neq.publicacao")
+        .order("data_movimentacao", { ascending: false, nullsLast: true })
+        .order("id", { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
 
       // Date filtering
       if (filters.dateFrom && filters.dateTo) {
-        query = query.gte('data_movimentacao', filters.dateFrom)
-                   .lte('data_movimentacao', filters.dateTo);
+        query = query
+          .gte("data_movimentacao", filters.dateFrom)
+          .lte("data_movimentacao", filters.dateTo);
       }
 
       // Text search
       if (filters.searchText) {
-        query = query.or(`data::text.ilike.%${filters.searchText}%,numero_cnj.ilike.%${filters.searchText}%`);
+        query = query.or(
+          `data::text.ilike.%${filters.searchText}%,numero_cnj.ilike.%${filters.searchText}%`,
+        );
       }
 
       // Tribunal filter
-      if (filters.tribunal !== 'all') {
-        query = query.eq('processos.tribunal_sigla', filters.tribunal);
+      if (filters.tribunal !== "all") {
+        query = query.eq("processos.tribunal_sigla", filters.tribunal);
       }
 
       const { data, error, count } = await query;
@@ -327,92 +378,98 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       return {
         data: data || [],
         total: count || 0,
-        totalPages: Math.ceil((count || 0) / pageSize)
+        totalPages: Math.ceil((count || 0) / pageSize),
       };
     },
-    enabled: filters.tab === 'movimentacoes',
-    keepPreviousData: true
+    enabled: filters.tab === "movimentacoes",
+    keepPreviousData: true,
   });
 
   // Tribunais query for filter dropdown
   const { data: tribunais = [] } = useQuery({
-    queryKey: ['tribunais-sf4'],
+    queryKey: ["tribunais-sf4"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('processos')
-        .select('tribunal_sigla')
-        .not('tribunal_sigla', 'is', null)
-        .order('tribunal_sigla');
-      
+        .from("processos")
+        .select("tribunal_sigla")
+        .not("tribunal_sigla", "is", null)
+        .order("tribunal_sigla");
+
       if (error) throw error;
-      
-      const unique = [...new Set(data.map(p => p.tribunal_sigla))];
+
+      const unique = [...new Set(data.map((p) => p.tribunal_sigla))];
       return unique.filter(Boolean);
-    }
+    },
   });
 
   // Processos query for CNJ autocomplete
   const { data: processos = [] } = useQuery({
-    queryKey: ['processos-autocomplete', vincularCnj],
+    queryKey: ["processos-autocomplete", vincularCnj],
     queryFn: async () => {
       if (!vincularCnj || vincularCnj.length < 3) return [];
-      
+
       const { data, error } = await supabase
-        .from('processos')
-        .select('numero_cnj, tribunal_sigla, titulo_polo_ativo, titulo_polo_passivo')
-        .ilike('numero_cnj', `%${vincularCnj}%`)
+        .from("processos")
+        .select(
+          "numero_cnj, tribunal_sigla, titulo_polo_ativo, titulo_polo_passivo",
+        )
+        .ilike("numero_cnj", `%${vincularCnj}%`)
         .limit(10);
-      
+
       if (error) throw error;
       return data || [];
     },
-    enabled: showVincularDialog && vincularCnj.length >= 3
+    enabled: showVincularDialog && vincularCnj.length >= 3,
   });
 
   // Journey instances for criar etapa
   const { data: journeyInstances = [] } = useQuery({
-    queryKey: ['journey-instances', selectedItem?.numero_cnj],
+    queryKey: ["journey-instances", selectedItem?.numero_cnj],
     queryFn: async () => {
       if (!selectedItem?.numero_cnj) return [];
-      
+
       const { data, error } = await lf
-        .from('journey_instances')
-        .select('*')
-        .eq('numero_cnj', selectedItem.numero_cnj)
-        .eq('status', 'active');
-      
+        .from("journey_instances")
+        .select("*")
+        .eq("numero_cnj", selectedItem.numero_cnj)
+        .eq("status", "active");
+
       if (error) throw error;
       return data || [];
     },
-    enabled: showCriarEtapaDialog && !!selectedItem?.numero_cnj
+    enabled: showCriarEtapaDialog && !!selectedItem?.numero_cnj,
   });
 
   // Template stages for criar etapa
   const { data: templateStages = [] } = useQuery({
-    queryKey: ['template-stages'],
+    queryKey: ["template-stages"],
     queryFn: async () => {
       const { data, error } = await lf
-        .from('template_stages')
-        .select('*')
-        .order('name');
-      
+        .from("template_stages")
+        .select("*")
+        .order("name");
+
       if (error) throw error;
       return data || [];
     },
-    enabled: showCriarEtapaDialog
+    enabled: showCriarEtapaDialog,
   });
 
   // Get current data based on active tab
-  const currentData = filters.tab === 'publicacoes' ? publicacoesData : movimentacoesData;
-  const isLoading = filters.tab === 'publicacoes' ? isLoadingPublicacoes : isLoadingMovimentacoes;
+  const currentData =
+    filters.tab === "publicacoes" ? publicacoesData : movimentacoesData;
+  const isLoading =
+    filters.tab === "publicacoes"
+      ? isLoadingPublicacoes
+      : isLoadingMovimentacoes;
 
   // Mutations for actions
   const vincularMutation = useMutation({
     mutationFn: async ({ itemId, cnj }: { itemId: number; cnj: string }) => {
       const { error } = await supabase
-        .from('movimentacoes')
+        .from("movimentacoes")
         .update({ numero_cnj: cnj })
-        .eq('id', itemId);
+        .eq("id", itemId);
 
       if (error) throw error;
 
@@ -420,32 +477,39 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       await sf4Telemetry.trackVincularCnj(itemId, cnj, filters.tab);
     },
     onSuccess: () => {
-      toast({ title: "Sucesso", description: "Item vinculado ao processo com sucesso!" });
-      queryClient.invalidateQueries({ queryKey: ['sf4-publicacoes'] });
-      queryClient.invalidateQueries({ queryKey: ['sf4-movimentacoes'] });
-      sf4A11yUtils.announce('Item vinculado ao processo com sucesso');
+      toast({
+        title: "Sucesso",
+        description: "Item vinculado ao processo com sucesso!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["sf4-publicacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["sf4-movimentacoes"] });
+      sf4A11yUtils.announce("Item vinculado ao processo com sucesso");
       setShowVincularDialog(false);
-      setVincularCnj('');
+      setVincularCnj("");
       setSelectedItem(null);
     },
     onError: () => {
-      toast({ title: "Erro", description: "Erro ao vincular item", variant: "destructive" });
-    }
+      toast({
+        title: "Erro",
+        description: "Erro ao vincular item",
+        variant: "destructive",
+      });
+    },
   });
 
   const criarEtapaMutation = useMutation({
-    mutationFn: async ({ 
-      journeyInstanceId, 
-      templateStageId, 
-      createActivityFlag 
-    }: { 
-      journeyInstanceId: string; 
-      templateStageId: string; 
+    mutationFn: async ({
+      journeyInstanceId,
+      templateStageId,
+      createActivityFlag,
+    }: {
+      journeyInstanceId: string;
+      templateStageId: string;
       createActivityFlag: boolean;
     }) => {
       // Insert stage instance
       const { data: stageData, error: stageError } = await lf
-        .from('stage_instances')
+        .from("stage_instances")
         .insert({
           journey_instance_id: journeyInstanceId,
           template_stage_id: templateStageId,
@@ -453,145 +517,175 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
         })
         .select()
         .single();
-      
+
       if (stageError) throw stageError;
-      
+
       // Optionally create activity
       if (createActivityFlag && selectedItem?.numero_cnj) {
-        const { error: activityError } = await lf
-          .from('activities')
-          .insert({
-            numero_cnj: selectedItem.numero_cnj,
-            title: `Etapa criada a partir de ${filters.tab}`,
-            description: `Criado automaticamente a partir do item ${selectedItem.id}`,
-            due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            assigned_oab: null, // Could be set based on process assignment
-          });
-        
+        const { error: activityError } = await lf.from("activities").insert({
+          numero_cnj: selectedItem.numero_cnj,
+          title: `Etapa criada a partir de ${filters.tab}`,
+          description: `Criado automaticamente a partir do item ${selectedItem.id}`,
+          due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          assigned_oab: null, // Could be set based on process assignment
+        });
+
         if (activityError) throw activityError;
       }
-      
+
       // Track telemetry
       await sf4Telemetry.trackCriarEtapa(
         selectedItem?.id || 0,
         journeyInstanceId,
         templateStageId,
         createActivityFlag,
-        filters.tab
+        filters.tab,
       );
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Etapa criada com sucesso!" });
       setShowCriarEtapaDialog(false);
-      setSelectedJourneyInstance('');
-      setSelectedTemplateStage('');
+      setSelectedJourneyInstance("");
+      setSelectedTemplateStage("");
       setCreateActivity(false);
       setSelectedItem(null);
     },
     onError: () => {
-      toast({ title: "Erro", description: "Erro ao criar etapa", variant: "destructive" });
-    }
+      toast({
+        title: "Erro",
+        description: "Erro ao criar etapa",
+        variant: "destructive",
+      });
+    },
   });
 
   const notificarMutation = useMutation({
-    mutationFn: async ({ itemId, message }: { itemId: number; message: string }) => {
-      const { error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: 'current_user', // Should be replaced with actual user ID
-          title: `Nova ${filters.tab.slice(0, -1)} requer atenção`,
-          body: message || `Item ${itemId} na inbox precisa de análise`,
-          type: 'inbox_action',
-          meta: {
-            numero_cnj: selectedItem?.numero_cnj,
-            mov_id: itemId,
-            tab: filters.tab
-          }
-        });
-      
+    mutationFn: async ({
+      itemId,
+      message,
+    }: {
+      itemId: number;
+      message: string;
+    }) => {
+      const { error } = await supabase.from("notifications").insert({
+        user_id: "current_user", // Should be replaced with actual user ID
+        title: `Nova ${filters.tab.slice(0, -1)} requer atenção`,
+        body: message || `Item ${itemId} na inbox precisa de análise`,
+        type: "inbox_action",
+        meta: {
+          numero_cnj: selectedItem?.numero_cnj,
+          mov_id: itemId,
+          tab: filters.tab,
+        },
+      });
+
       if (error) throw error;
-      
+
       // Track telemetry
       await sf4Telemetry.trackNotificar(itemId, filters.tab, !!message);
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Notificação enviada!" });
       setShowNotificarDialog(false);
-      setNotificationMessage('');
+      setNotificationMessage("");
       setSelectedItem(null);
     },
     onError: () => {
-      toast({ title: "Erro", description: "Erro ao enviar notificação", variant: "destructive" });
-    }
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar notificação",
+        variant: "destructive",
+      });
+    },
   });
 
   const buscarCadastrarMutation = useMutation({
-    mutationFn: async ({ source, itemId }: { source: 'advise' | 'escavador'; itemId: number }) => {
+    mutationFn: async ({
+      source,
+      itemId,
+    }: {
+      source: "advise" | "escavador";
+      itemId: number;
+    }) => {
       const payload = selectedItem?.data;
-      
-      if (source === 'advise') {
+
+      if (source === "advise") {
         // Call Advise API endpoint
-        const response = await fetch('/api/ingest/advise/publicacoes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items: [payload] })
+        const response = await fetch("/api/ingest/advise/publicacoes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: [payload] }),
         });
-        
-        if (!response.ok) throw new Error('Advise API failed');
-      } else if (source === 'escavador' && selectedItem?.numero_cnj) {
+
+        if (!response.ok) throw new Error("Advise API failed");
+      } else if (source === "escavador" && selectedItem?.numero_cnj) {
         // Call Escavador API endpoints
         const [capaResponse, movimentosResponse] = await Promise.all([
-          fetch(`/api/ingest/escavador/capa?cnj=${selectedItem.numero_cnj}`, { method: 'POST' }),
-          fetch(`/api/ingest/escavador/movimentos?cnj=${selectedItem.numero_cnj}`, { method: 'POST' })
+          fetch(`/api/ingest/escavador/capa?cnj=${selectedItem.numero_cnj}`, {
+            method: "POST",
+          }),
+          fetch(
+            `/api/ingest/escavador/movimentos?cnj=${selectedItem.numero_cnj}`,
+            { method: "POST" },
+          ),
         ]);
-        
+
         if (!capaResponse.ok || !movimentosResponse.ok) {
-          throw new Error('Escavador API failed');
+          throw new Error("Escavador API failed");
         }
       }
-      
+
       // Track telemetry
       await sf4Telemetry.trackBuscarCadastrar(itemId, source, filters.tab);
     },
     onSuccess: () => {
       toast({ title: "Sucesso", description: "Busca e cadastro iniciados!" });
-      queryClient.invalidateQueries({ queryKey: ['sf4-publicacoes'] });
-      queryClient.invalidateQueries({ queryKey: ['sf4-movimentacoes'] });
+      queryClient.invalidateQueries({ queryKey: ["sf4-publicacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["sf4-movimentacoes"] });
       setShowBuscarCadastrarDialog(false);
       setSelectedItem(null);
     },
     onError: () => {
-      toast({ title: "Erro", description: "Erro ao buscar e cadastrar", variant: "destructive" });
-    }
+      toast({
+        title: "Erro",
+        description: "Erro ao buscar e cadastrar",
+        variant: "destructive",
+      });
+    },
   });
 
   // Helper functions
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     try {
-      return format(parseISO(dateString), 'dd/MM/yyyy', { locale: ptBR });
+      return format(parseISO(dateString), "dd/MM/yyyy", { locale: ptBR });
     } catch {
-      return '-';
+      return "-";
     }
   };
 
   const getResumo = (item: MovimentacaoItem) => {
     const data = item.data || {};
-    return data.resumo || data.conteudo || data.texto || 'Sem resumo disponível';
+    return (
+      data.resumo || data.conteudo || data.texto || "Sem resumo disponível"
+    );
   };
 
   const getTipoOrigem = (item: MovimentacaoItem) => {
     const data = item.data || {};
-    return data.tipo || data.fonte || 'Movimento';
+    return data.tipo || data.fonte || "Movimento";
   };
 
   // Save view mutation
   const saveViewMutation = useMutation({
     mutationFn: async ({ name }: { name: string }) => {
-      const viewType = filters.tab === 'publicacoes' ? 'inbox_publicacoes' : 'inbox_movimentacoes';
+      const viewType =
+        filters.tab === "publicacoes"
+          ? "inbox_publicacoes"
+          : "inbox_movimentacoes";
       const savedView = await sf4SavedViews.saveView({
         name,
-        user_id: '', // Will be set by the manager
+        user_id: "", // Will be set by the manager
         view_type: viewType,
         filters: {
           dateFrom: filters.dateFrom,
@@ -602,20 +696,27 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
         is_default: false,
       });
 
-      if (!savedView) throw new Error('Failed to save view');
+      if (!savedView) throw new Error("Failed to save view");
 
       await sf4Telemetry.trackSaveView(name, viewType, filters);
       return savedView;
     },
     onSuccess: (savedView) => {
-      toast({ title: "Sucesso", description: `Visualização "${savedView.name}" salva!` });
-      setSavedViews(prev => [savedView, ...prev]);
+      toast({
+        title: "Sucesso",
+        description: `Visualização "${savedView.name}" salva!`,
+      });
+      setSavedViews((prev) => [savedView, ...prev]);
       setShowSaveViewDialog(false);
-      setSaveViewName('');
+      setSaveViewName("");
     },
     onError: () => {
-      toast({ title: "Erro", description: "Erro ao salvar visualização", variant: "destructive" });
-    }
+      toast({
+        title: "Erro",
+        description: "Erro ao salvar visualização",
+        variant: "destructive",
+      });
+    },
   });
 
   const updateFilters = (updates: Partial<Filters>) => {
@@ -624,32 +725,36 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
     setFilters(newFilters);
 
     // Track filter changes with debouncing
-    Object.keys(updates).forEach(key => {
-      if (key !== 'page' && key !== 'tab') {
-        sf4Utils.trackFilterChangeDebounced(key, updates[key as keyof Filters], filters.tab);
+    Object.keys(updates).forEach((key) => {
+      if (key !== "page" && key !== "tab") {
+        sf4Utils.trackFilterChangeDebounced(
+          key,
+          updates[key as keyof Filters],
+          filters.tab,
+        );
       }
     });
   };
 
   const clearAllFilters = () => {
     setFilters({
-      dateFrom: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
-      dateTo: format(new Date(), 'yyyy-MM-dd'),
-      tribunal: 'all',
-      searchText: '',
+      dateFrom: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+      dateTo: format(new Date(), "yyyy-MM-dd"),
+      tribunal: "all",
+      searchText: "",
       tab: filters.tab,
       page: 1,
     });
 
     sf4Telemetry.trackEvent({
-      event_name: 'sf4_filter_change',
+      event_name: "sf4_filter_change",
       properties: {
-        action_type: 'clear_all_filters',
-        tab: filters.tab
-      }
+        action_type: "clear_all_filters",
+        tab: filters.tab,
+      },
     });
 
-    sf4A11yUtils.announce('Todos os filtros foram limpos');
+    sf4A11yUtils.announce("Todos os filtros foram limpos");
   };
 
   return (
@@ -659,13 +764,17 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-neutral-900">Inbox Legal</h1>
+              <h1 className="text-2xl font-bold text-neutral-900">
+                Inbox Legal
+              </h1>
               <p className="text-sm text-neutral-600">
                 Triagem assistida de publicações e movimentações
-                <Badge className="ml-2 bg-green-100 text-green-800 text-xs">SF-4</Badge>
+                <Badge className="ml-2 bg-green-100 text-green-800 text-xs">
+                  SF-4
+                </Badge>
               </p>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {/* Saved Views Dropdown */}
               <DropdownMenu>
@@ -683,7 +792,7 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                       <DropdownMenuItem
                         key={view.id}
                         onClick={() => {
-                          setFilters(prev => ({
+                          setFilters((prev) => ({
                             ...prev,
                             ...view.filters,
                             page: 1,
@@ -715,7 +824,11 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                 Limpar filtros
               </Button>
 
-              <Button variant="outline" size="sm" onClick={showKeyboardShortcutsHelp}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={showKeyboardShortcutsHelp}
+              >
                 <Command className="w-4 h-4 mr-2" />
                 Atalhos
               </Button>
@@ -733,7 +846,9 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
       <div className="px-6 py-4 bg-white border-b border-neutral-200">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1">
-            <Label htmlFor="date-from" className="text-xs text-neutral-600">Data inicial</Label>
+            <Label htmlFor="date-from" className="text-xs text-neutral-600">
+              Data inicial
+            </Label>
             <Input
               id="date-from"
               type="date"
@@ -742,9 +857,11 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
               className="h-9"
             />
           </div>
-          
+
           <div className="space-y-1">
-            <Label htmlFor="date-to" className="text-xs text-neutral-600">Data final</Label>
+            <Label htmlFor="date-to" className="text-xs text-neutral-600">
+              Data final
+            </Label>
             <Input
               id="date-to"
               type="date"
@@ -753,10 +870,13 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
               className="h-9"
             />
           </div>
-          
+
           <div className="space-y-1">
             <Label className="text-xs text-neutral-600">Tribunal</Label>
-            <Select value={filters.tribunal} onValueChange={(value) => updateFilters({ tribunal: value })}>
+            <Select
+              value={filters.tribunal}
+              onValueChange={(value) => updateFilters({ tribunal: value })}
+            >
               <SelectTrigger className="h-9">
                 <SelectValue />
               </SelectTrigger>
@@ -770,9 +890,11 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="space-y-1">
-            <Label htmlFor="search" className="text-xs text-neutral-600">Buscar</Label>
+            <Label htmlFor="search" className="text-xs text-neutral-600">
+              Buscar
+            </Label>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
               <Input
@@ -789,16 +911,24 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
 
       {/* Main Content */}
       <div className="p-6">
-        <Tabs 
-          value={filters.tab} 
-          onValueChange={(value) => updateFilters({ tab: value as 'publicacoes' | 'movimentacoes' })}
+        <Tabs
+          value={filters.tab}
+          onValueChange={(value) =>
+            updateFilters({ tab: value as "publicacoes" | "movimentacoes" })
+          }
         >
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="publicacoes" className="flex items-center gap-2">
+            <TabsTrigger
+              value="publicacoes"
+              className="flex items-center gap-2"
+            >
               <FileText className="w-4 h-4" />
               Publicações ({publicacoesData?.total || 0})
             </TabsTrigger>
-            <TabsTrigger value="movimentacoes" className="flex items-center gap-2">
+            <TabsTrigger
+              value="movimentacoes"
+              className="flex items-center gap-2"
+            >
               <Clock className="w-4 h-4" />
               Movimentações ({movimentacoesData?.total || 0})
             </TabsTrigger>
@@ -846,7 +976,10 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                               {formatDate(item.data_movimentacao)}
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="bg-green-50 text-green-700">
+                              <Badge
+                                variant="outline"
+                                className="bg-green-50 text-green-700"
+                              >
                                 {getTipoOrigem(item)}
                               </Badge>
                             </TableCell>
@@ -858,16 +991,21 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                             <TableCell>
                               {item.numero_cnj ? (
                                 <div className="flex items-center gap-1">
-                                  <span className="font-mono text-sm">{item.numero_cnj}</span>
+                                  <span className="font-mono text-sm">
+                                    {item.numero_cnj}
+                                  </span>
                                 </div>
                               ) : (
-                                <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-orange-100 text-orange-800"
+                                >
                                   Não vinculado
                                 </Badge>
                               )}
                             </TableCell>
                             <TableCell>
-                              {item.processos?.tribunal_sigla || '-'}
+                              {item.processos?.tribunal_sigla || "-"}
                             </TableCell>
                             <TableCell>
                               <DropdownMenu>
@@ -926,17 +1064,24 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                         ))}
                       </TableBody>
                     </Table>
-                    
+
                     {/* Pagination */}
                     <div className="flex items-center justify-between px-6 py-4 border-t">
                       <p className="text-sm text-neutral-600">
-                        Exibindo {((filters.page - 1) * pageSize) + 1} a {Math.min(filters.page * pageSize, publicacoesData.total)} de {publicacoesData.total} publicações
+                        Exibindo {(filters.page - 1) * pageSize + 1} a{" "}
+                        {Math.min(
+                          filters.page * pageSize,
+                          publicacoesData.total,
+                        )}{" "}
+                        de {publicacoesData.total} publicações
                       </p>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateFilters({ page: filters.page - 1 })}
+                          onClick={() =>
+                            updateFilters({ page: filters.page - 1 })
+                          }
                           disabled={filters.page === 1}
                         >
                           <ChevronLeft className="w-4 h-4" />
@@ -948,7 +1093,9 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateFilters({ page: filters.page + 1 })}
+                          onClick={() =>
+                            updateFilters({ page: filters.page + 1 })
+                          }
                           disabled={filters.page >= publicacoesData.totalPages}
                         >
                           Próxima
@@ -1014,7 +1161,10 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                               {formatDate(item.data_movimentacao)}
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                              <Badge
+                                variant="outline"
+                                className="bg-blue-50 text-blue-700"
+                              >
                                 {getTipoOrigem(item)}
                               </Badge>
                             </TableCell>
@@ -1026,16 +1176,21 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                             <TableCell>
                               {item.numero_cnj ? (
                                 <div className="flex items-center gap-1">
-                                  <span className="font-mono text-sm">{item.numero_cnj}</span>
+                                  <span className="font-mono text-sm">
+                                    {item.numero_cnj}
+                                  </span>
                                 </div>
                               ) : (
-                                <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-orange-100 text-orange-800"
+                                >
                                   Não vinculado
                                 </Badge>
                               )}
                             </TableCell>
                             <TableCell>
-                              {item.processos?.tribunal_sigla || '-'}
+                              {item.processos?.tribunal_sigla || "-"}
                             </TableCell>
                             <TableCell>
                               <DropdownMenu>
@@ -1094,30 +1249,42 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                         ))}
                       </TableBody>
                     </Table>
-                    
+
                     {/* Pagination */}
                     <div className="flex items-center justify-between px-6 py-4 border-t">
                       <p className="text-sm text-neutral-600">
-                        Exibindo {((filters.page - 1) * pageSize) + 1} a {Math.min(filters.page * pageSize, movimentacoesData.total)} de {movimentacoesData.total} movimentações
+                        Exibindo {(filters.page - 1) * pageSize + 1} a{" "}
+                        {Math.min(
+                          filters.page * pageSize,
+                          movimentacoesData.total,
+                        )}{" "}
+                        de {movimentacoesData.total} movimentações
                       </p>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateFilters({ page: filters.page - 1 })}
+                          onClick={() =>
+                            updateFilters({ page: filters.page - 1 })
+                          }
                           disabled={filters.page === 1}
                         >
                           <ChevronLeft className="w-4 h-4" />
                           Anterior
                         </Button>
                         <span className="text-sm">
-                          Página {filters.page} de {movimentacoesData.totalPages}
+                          Página {filters.page} de{" "}
+                          {movimentacoesData.totalPages}
                         </span>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateFilters({ page: filters.page + 1 })}
-                          disabled={filters.page >= movimentacoesData.totalPages}
+                          onClick={() =>
+                            updateFilters({ page: filters.page + 1 })
+                          }
+                          disabled={
+                            filters.page >= movimentacoesData.totalPages
+                          }
                         >
                           Próxima
                           <ChevronRight className="w-4 h-4" />
@@ -1162,23 +1329,28 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                 className="font-mono"
               />
             </div>
-            
+
             {processos.length > 0 && (
               <div className="space-y-2">
                 <Label>Processos encontrados:</Label>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {processos.map((processo) => (
-                    <Card 
-                      key={processo.numero_cnj} 
+                    <Card
+                      key={processo.numero_cnj}
                       className="p-3 cursor-pointer hover:bg-neutral-50"
                       onClick={() => setVincularCnj(processo.numero_cnj)}
                     >
                       <div className="text-sm">
-                        <div className="font-mono font-medium">{processo.numero_cnj}</div>
-                        <div className="text-neutral-600">
-                          {processo.titulo_polo_ativo} x {processo.titulo_polo_passivo}
+                        <div className="font-mono font-medium">
+                          {processo.numero_cnj}
                         </div>
-                        <div className="text-xs text-neutral-500">{processo.tribunal_sigla}</div>
+                        <div className="text-neutral-600">
+                          {processo.titulo_polo_ativo} x{" "}
+                          {processo.titulo_polo_passivo}
+                        </div>
+                        <div className="text-xs text-neutral-500">
+                          {processo.tribunal_sigla}
+                        </div>
                       </div>
                     </Card>
                   ))}
@@ -1187,25 +1359,34 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowVincularDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowVincularDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 if (selectedItem && vincularCnj) {
-                  vincularMutation.mutate({ itemId: selectedItem.id, cnj: vincularCnj });
+                  vincularMutation.mutate({
+                    itemId: selectedItem.id,
+                    cnj: vincularCnj,
+                  });
                 }
               }}
               disabled={!vincularCnj || vincularMutation.isPending}
             >
-              {vincularMutation.isPending ? 'Vinculando...' : 'Vincular'}
+              {vincularMutation.isPending ? "Vinculando..." : "Vincular"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Criar Etapa Dialog */}
-      <Dialog open={showCriarEtapaDialog} onOpenChange={setShowCriarEtapaDialog}>
+      <Dialog
+        open={showCriarEtapaDialog}
+        onOpenChange={setShowCriarEtapaDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Criar Etapa</DialogTitle>
@@ -1216,7 +1397,10 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
           <div className="space-y-4">
             <div>
               <Label>Instância de Jornada</Label>
-              <Select value={selectedJourneyInstance} onValueChange={setSelectedJourneyInstance}>
+              <Select
+                value={selectedJourneyInstance}
+                onValueChange={setSelectedJourneyInstance}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma jornada" />
                 </SelectTrigger>
@@ -1229,10 +1413,13 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label>Tipo de Etapa</Label>
-              <Select value={selectedTemplateStage} onValueChange={setSelectedTemplateStage}>
+              <Select
+                value={selectedTemplateStage}
+                onValueChange={setSelectedTemplateStage}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo de etapa" />
                 </SelectTrigger>
@@ -1245,9 +1432,9 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex items-center space-x-2">
-              <Checkbox 
+              <Checkbox
                 id="create-activity"
                 checked={createActivity}
                 onCheckedChange={setCreateActivity}
@@ -1256,10 +1443,13 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCriarEtapaDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCriarEtapaDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 if (selectedJourneyInstance && selectedTemplateStage) {
                   criarEtapaMutation.mutate({
@@ -1269,9 +1459,13 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
                   });
                 }
               }}
-              disabled={!selectedJourneyInstance || !selectedTemplateStage || criarEtapaMutation.isPending}
+              disabled={
+                !selectedJourneyInstance ||
+                !selectedTemplateStage ||
+                criarEtapaMutation.isPending
+              }
             >
-              {criarEtapaMutation.isPending ? 'Criando...' : 'Criar Etapa'}
+              {criarEtapaMutation.isPending ? "Criando..." : "Criar Etapa"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1299,28 +1493,36 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNotificarDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowNotificarDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 if (selectedItem) {
-                  notificarMutation.mutate({ 
-                    itemId: selectedItem.id, 
-                    message: notificationMessage 
+                  notificarMutation.mutate({
+                    itemId: selectedItem.id,
+                    message: notificationMessage,
                   });
                 }
               }}
               disabled={notificarMutation.isPending}
             >
-              {notificarMutation.isPending ? 'Enviando...' : 'Enviar Notificação'}
+              {notificarMutation.isPending
+                ? "Enviando..."
+                : "Enviar Notificação"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Buscar & Cadastrar Dialog */}
-      <Dialog open={showBuscarCadastrarDialog} onOpenChange={setShowBuscarCadastrarDialog}>
+      <Dialog
+        open={showBuscarCadastrarDialog}
+        onOpenChange={setShowBuscarCadastrarDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Buscar & Cadastrar</DialogTitle>
@@ -1331,26 +1533,34 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
           <div className="space-y-4">
             <div>
               <Label>Fonte de dados</Label>
-              <Select value={selectedSource} onValueChange={(value: 'advise' | 'escavador') => setSelectedSource(value)}>
+              <Select
+                value={selectedSource}
+                onValueChange={(value: "advise" | "escavador") =>
+                  setSelectedSource(value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="advise">Advise (sempre disponível)</SelectItem>
+                  <SelectItem value="advise">
+                    Advise (sempre disponível)
+                  </SelectItem>
                   <SelectItem value="escavador">Escavador (premium)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
-            {selectedSource === 'escavador' && (
+
+            {selectedSource === "escavador" && (
               <div className="p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Escavador Premium:</strong> Busca capa e movimentos completos
+                  <strong>Escavador Premium:</strong> Busca capa e movimentos
+                  completos
                 </p>
               </div>
             )}
-            
-            {selectedSource === 'advise' && (
+
+            {selectedSource === "advise" && (
               <div className="p-3 bg-green-50 rounded-lg">
                 <p className="text-sm text-green-800">
                   <strong>Advise:</strong> Reprocessa item e demais do período
@@ -1359,21 +1569,26 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBuscarCadastrarDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowBuscarCadastrarDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 if (selectedItem) {
-                  buscarCadastrarMutation.mutate({ 
-                    source: selectedSource, 
-                    itemId: selectedItem.id 
+                  buscarCadastrarMutation.mutate({
+                    source: selectedSource,
+                    itemId: selectedItem.id,
                   });
                 }
               }}
               disabled={buscarCadastrarMutation.isPending}
             >
-              {buscarCadastrarMutation.isPending ? 'Processando...' : 'Buscar & Cadastrar'}
+              {buscarCadastrarMutation.isPending
+                ? "Processando..."
+                : "Buscar & Cadastrar"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1402,15 +1617,29 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
             <div className="p-3 bg-neutral-50 rounded-lg text-sm">
               <p className="font-medium mb-2">Filtros que serão salvos:</p>
               <ul className="space-y-1 text-neutral-600">
-                <li>• Período: {format(new Date(filters.dateFrom), 'dd/MM/yyyy')} - {format(new Date(filters.dateTo), 'dd/MM/yyyy')}</li>
-                <li>• Tribunal: {filters.tribunal === 'all' ? 'Todos' : filters.tribunal}</li>
-                <li>• Busca: {filters.searchText || 'Nenhuma'}</li>
-                <li>• Aba: {filters.tab === 'publicacoes' ? 'Publicações' : 'Movimentações'}</li>
+                <li>
+                  • Período: {format(new Date(filters.dateFrom), "dd/MM/yyyy")}{" "}
+                  - {format(new Date(filters.dateTo), "dd/MM/yyyy")}
+                </li>
+                <li>
+                  • Tribunal:{" "}
+                  {filters.tribunal === "all" ? "Todos" : filters.tribunal}
+                </li>
+                <li>• Busca: {filters.searchText || "Nenhuma"}</li>
+                <li>
+                  • Aba:{" "}
+                  {filters.tab === "publicacoes"
+                    ? "Publicações"
+                    : "Movimentações"}
+                </li>
               </ul>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSaveViewDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowSaveViewDialog(false)}
+            >
               Cancelar
             </Button>
             <Button
@@ -1421,7 +1650,9 @@ export default function InboxLegalSF4({}: SF4InboxProps) {
               }}
               disabled={!saveViewName.trim() || saveViewMutation.isPending}
             >
-              {saveViewMutation.isPending ? 'Salvando...' : 'Salvar Visualização'}
+              {saveViewMutation.isPending
+                ? "Salvando..."
+                : "Salvar Visualização"}
             </Button>
           </DialogFooter>
         </DialogContent>

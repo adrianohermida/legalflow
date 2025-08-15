@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
-import { Header } from './Header';
-import { OfficeModulesWindow } from './OfficeModulesWindow';
-import { NotificationPanel } from './NotificationPanel';
-import { ChatDock } from './ChatDock';
-import { CommandPalette } from './CommandPalette';
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Sidebar } from "./Sidebar";
+import { Header } from "./Header";
+import { OfficeModulesWindow } from "./OfficeModulesWindow";
+import { NotificationPanel } from "./NotificationPanel";
+import { ChatDock } from "./ChatDock";
+import { CommandPalette } from "./CommandPalette";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
 interface AppShellProps {
-  userType: 'advogado' | 'cliente';
+  userType: "advogado" | "cliente";
   user?: any;
   logout?: () => void;
   children?: React.ReactNode;
@@ -25,11 +25,11 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    'cmd+k': () => setIsCommandPaletteOpen(true),
-    'ctrl+k': () => setIsCommandPaletteOpen(true),
-    'g+p': () => navigate('/processos'),
-    'g+c': () => navigate('/clientes'),
-    'escape': () => {
+    "cmd+k": () => setIsCommandPaletteOpen(true),
+    "ctrl+k": () => setIsCommandPaletteOpen(true),
+    "g+p": () => navigate("/processos"),
+    "g+c": () => navigate("/clientes"),
+    escape: () => {
       setIsOfficeModulesOpen(false);
       setIsNotificationPanelOpen(false);
       setIsCommandPaletteOpen(false);

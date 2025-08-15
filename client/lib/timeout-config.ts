@@ -4,10 +4,10 @@
  */
 
 export interface TimeoutConfig {
-  short: number;      // Quick operations (< 1s)
-  medium: number;     // Standard operations (1-3s)
-  long: number;       // Complex operations (3-8s)
-  extended: number;   // Long-running operations (8-15s)
+  short: number; // Quick operations (< 1s)
+  medium: number; // Standard operations (1-3s)
+  long: number; // Complex operations (3-8s)
+  extended: number; // Long-running operations (8-15s)
 }
 
 export interface OperationTimeouts {
@@ -23,21 +23,21 @@ export interface OperationTimeouts {
 
 class TimeoutManager {
   private baseConfig: TimeoutConfig = {
-    short: 1500,    // 1.5 seconds for quick operations
-    medium: 3000,   // 3 seconds for standard operations  
-    long: 6000,     // 6 seconds for complex operations
-    extended: 12000 // 12 seconds for long operations
+    short: 1500, // 1.5 seconds for quick operations
+    medium: 3000, // 3 seconds for standard operations
+    long: 6000, // 6 seconds for complex operations
+    extended: 12000, // 12 seconds for long operations
   };
 
   private operationTimeouts: OperationTimeouts = {
-    database_query: 2000,      // Database queries should be fast
-    api_call: 5000,            // API calls need more time for network
-    network_test: 2000,        // Network tests should be quick
-    health_check: 1500,        // Health checks need to be fast
-    diagnostic_test: 1000,     // Diagnostics should be very quick
-    builder_api: 6000,         // Builder.io API may need more time
-    supabase_operation: 3000,  // Supabase operations
-    recovery_operation: 4000,  // Recovery operations
+    database_query: 2000, // Database queries should be fast
+    api_call: 5000, // API calls need more time for network
+    network_test: 2000, // Network tests should be quick
+    health_check: 1500, // Health checks need to be fast
+    diagnostic_test: 1000, // Diagnostics should be very quick
+    builder_api: 6000, // Builder.io API may need more time
+    supabase_operation: 3000, // Supabase operations
+    recovery_operation: 4000, // Recovery operations
   };
 
   constructor() {
@@ -48,7 +48,7 @@ class TimeoutManager {
   private adjustForEnvironment() {
     // Detect if we're in a slow environment (CI, etc.)
     const isSlowEnvironment = this.detectSlowEnvironment();
-    
+
     if (isSlowEnvironment) {
       console.log("📊 Detected slow environment - increasing timeouts by 50%");
       this.adjustTimeouts(1.5);
@@ -62,20 +62,22 @@ class TimeoutManager {
     const indicators = {
       // CI environments - safely check for CI variables
       hasCI: !!(
-        (typeof globalThis !== 'undefined' && globalThis.process?.env?.CI) ||
+        (typeof globalThis !== "undefined" && globalThis.process?.env?.CI) ||
         import.meta.env?.VITE_CI ||
         import.meta.env?.CI
       ),
 
       // Check for slow hardware indicators
-      hasLimitedMemory: typeof navigator !== 'undefined' &&
-                       'deviceMemory' in navigator &&
-                       (navigator as any).deviceMemory < 4,
+      hasLimitedMemory:
+        typeof navigator !== "undefined" &&
+        "deviceMemory" in navigator &&
+        (navigator as any).deviceMemory < 4,
 
       // Check connection speed if available
-      hasSlowConnection: typeof navigator !== 'undefined' &&
-                        'connection' in navigator &&
-                        (navigator as any).connection?.effectiveType === 'slow-2g',
+      hasSlowConnection:
+        typeof navigator !== "undefined" &&
+        "connection" in navigator &&
+        (navigator as any).connection?.effectiveType === "slow-2g",
     };
 
     return Object.values(indicators).some(Boolean);
@@ -83,15 +85,19 @@ class TimeoutManager {
 
   private adjustTimeouts(multiplier: number) {
     // Adjust base config
-    Object.keys(this.baseConfig).forEach(key => {
+    Object.keys(this.baseConfig).forEach((key) => {
       const typedKey = key as keyof TimeoutConfig;
-      this.baseConfig[typedKey] = Math.round(this.baseConfig[typedKey] * multiplier);
+      this.baseConfig[typedKey] = Math.round(
+        this.baseConfig[typedKey] * multiplier,
+      );
     });
 
     // Adjust operation timeouts
-    Object.keys(this.operationTimeouts).forEach(key => {
+    Object.keys(this.operationTimeouts).forEach((key) => {
       const typedKey = key as keyof OperationTimeouts;
-      this.operationTimeouts[typedKey] = Math.round(this.operationTimeouts[typedKey] * multiplier);
+      this.operationTimeouts[typedKey] = Math.round(
+        this.operationTimeouts[typedKey] * multiplier,
+      );
     });
   }
 
@@ -104,9 +110,9 @@ class TimeoutManager {
   }
 
   createTimeoutPromise<T>(
-    operation: Promise<T>, 
-    timeoutMs: number, 
-    operationName: string = 'operation'
+    operation: Promise<T>,
+    timeoutMs: number,
+    operationName: string = "operation",
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
@@ -114,11 +120,11 @@ class TimeoutManager {
       }, timeoutMs);
 
       operation
-        .then(result => {
+        .then((result) => {
           clearTimeout(timeoutId);
           resolve(result);
         })
-        .catch(error => {
+        .catch((error) => {
           clearTimeout(timeoutId);
           reject(error);
         });
@@ -128,24 +134,24 @@ class TimeoutManager {
   async withTimeout<T>(
     operation: () => Promise<T>,
     operationType: keyof OperationTimeouts,
-    operationName?: string
+    operationName?: string,
   ): Promise<T> {
     const timeout = this.getTimeout(operationType);
-    const name = operationName || operationType.replace('_', ' ');
-    
+    const name = operationName || operationType.replace("_", " ");
+
     console.log(`⏱️ Starting ${name} with ${timeout}ms timeout`);
-    
+
     const start = Date.now();
     try {
       const result = await this.createTimeoutPromise(
         operation(),
         timeout,
-        name
+        name,
       );
-      
+
       const duration = Date.now() - start;
       console.log(`✅ ${name} completed in ${duration}ms`);
-      
+
       return result;
     } catch (error) {
       const duration = Date.now() - start;
@@ -158,47 +164,55 @@ class TimeoutManager {
     operation: () => Promise<T>,
     operationType: keyof OperationTimeouts,
     maxRetries: number = 2,
-    operationName?: string
+    operationName?: string,
   ): Promise<T> {
-    const name = operationName || operationType.replace('_', ' ');
+    const name = operationName || operationType.replace("_", " ");
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
       try {
         console.log(`🔄 ${name} attempt ${attempt}/${maxRetries + 1}`);
-        return await this.withTimeout(operation, operationType, `${name} (attempt ${attempt})`);
+        return await this.withTimeout(
+          operation,
+          operationType,
+          `${name} (attempt ${attempt})`,
+        );
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+
         if (attempt <= maxRetries) {
           const delay = Math.min(1000 * attempt, 3000); // Progressive delay, max 3s
-          console.log(`⏳ ${name} attempt ${attempt} failed, retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          console.log(
+            `⏳ ${name} attempt ${attempt} failed, retrying in ${delay}ms...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
     }
 
-    throw lastError || new Error(`${name} failed after ${maxRetries + 1} attempts`);
+    throw (
+      lastError || new Error(`${name} failed after ${maxRetries + 1} attempts`)
+    );
   }
 
   // Helper methods for common operations
   async timeoutDatabaseQuery<T>(operation: () => Promise<T>): Promise<T> {
-    return this.withTimeout(operation, 'database_query', 'database query');
+    return this.withTimeout(operation, "database_query", "database query");
   }
 
   async timeoutAPICall<T>(operation: () => Promise<T>): Promise<T> {
-    return this.withTimeout(operation, 'api_call', 'API call');
+    return this.withTimeout(operation, "api_call", "API call");
   }
 
   async timeoutHealthCheck<T>(operation: () => Promise<T>): Promise<T> {
-    return this.withTimeout(operation, 'health_check', 'health check');
+    return this.withTimeout(operation, "health_check", "health check");
   }
 
   async timeoutWithRecovery<T>(
     operation: () => Promise<T>,
     operationType: keyof OperationTimeouts,
     recoveryOperation?: () => Promise<T>,
-    operationName?: string
+    operationName?: string,
   ): Promise<T> {
     try {
       return await this.withTimeout(operation, operationType, operationName);
@@ -206,9 +220,9 @@ class TimeoutManager {
       if (recoveryOperation) {
         console.log(`🔧 Primary operation failed, attempting recovery...`);
         return this.withTimeout(
-          recoveryOperation, 
-          'recovery_operation', 
-          `${operationName || 'operation'} recovery`
+          recoveryOperation,
+          "recovery_operation",
+          `${operationName || "operation"} recovery`,
         );
       }
       throw error;
@@ -220,38 +234,44 @@ class TimeoutManager {
     return {
       // Fast UI interactions
       quickResponse: this.baseConfig.short,
-      
+
       // Standard operations
       normalOperation: this.baseConfig.medium,
-      
+
       // Complex workflows
       heavyOperation: this.baseConfig.long,
-      
+
       // Batch operations
       batchOperation: this.baseConfig.extended,
-      
+
       // Specific operation timeouts
       operations: { ...this.operationTimeouts },
     };
   }
 
   // Performance monitoring
-  measureOperation<T>(operation: () => Promise<T>, operationName: string): Promise<{
+  measureOperation<T>(
+    operation: () => Promise<T>,
+    operationName: string,
+  ): Promise<{
     result: T;
     duration: number;
     success: boolean;
   }> {
     const start = Date.now();
-    
+
     return operation()
-      .then(result => ({
+      .then((result) => ({
         result,
         duration: Date.now() - start,
         success: true,
       }))
-      .catch(error => {
+      .catch((error) => {
         const duration = Date.now() - start;
-        console.error(`📊 Operation "${operationName}" failed after ${duration}ms:`, error);
+        console.error(
+          `📊 Operation "${operationName}" failed after ${duration}ms:`,
+          error,
+        );
         throw Object.assign(error, { duration, success: false });
       });
   }
@@ -263,17 +283,17 @@ export const timeoutManager = new TimeoutManager();
 export const TIMEOUTS = timeoutManager.getOptimizedSettings();
 
 // Utility functions for common patterns
-export const withDatabaseTimeout = <T>(operation: () => Promise<T>) => 
+export const withDatabaseTimeout = <T>(operation: () => Promise<T>) =>
   timeoutManager.timeoutDatabaseQuery(operation);
 
-export const withAPITimeout = <T>(operation: () => Promise<T>) => 
+export const withAPITimeout = <T>(operation: () => Promise<T>) =>
   timeoutManager.timeoutAPICall(operation);
 
-export const withHealthTimeout = <T>(operation: () => Promise<T>) => 
+export const withHealthTimeout = <T>(operation: () => Promise<T>) =>
   timeoutManager.timeoutHealthCheck(operation);
 
 export const withRetry = <T>(
-  operation: () => Promise<T>, 
+  operation: () => Promise<T>,
   operationType: keyof OperationTimeouts,
-  maxRetries: number = 2
+  maxRetries: number = 2,
 ) => timeoutManager.withRetryAndTimeout(operation, operationType, maxRetries);

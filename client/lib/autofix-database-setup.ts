@@ -3,22 +3,32 @@ import { supabase } from "./supabase";
 export async function setupAutofixTables() {
   try {
     // Create autofix_history table
-    const { error: historyTableError } = await supabase.rpc("create_autofix_history_table");
-    
+    const { error: historyTableError } = await supabase.rpc(
+      "create_autofix_history_table",
+    );
+
     if (historyTableError) {
-      console.warn("Autofix history table might already exist:", historyTableError);
+      console.warn(
+        "Autofix history table might already exist:",
+        historyTableError,
+      );
     }
 
     // Create builder_prompts table for tracking Builder.io integration
-    const { error: promptsTableError } = await supabase.rpc("create_builder_prompts_table");
-    
+    const { error: promptsTableError } = await supabase.rpc(
+      "create_builder_prompts_table",
+    );
+
     if (promptsTableError) {
-      console.warn("Builder prompts table might already exist:", promptsTableError);
+      console.warn(
+        "Builder prompts table might already exist:",
+        promptsTableError,
+      );
     }
 
     // Create indexes for better performance
     const { error: indexError } = await supabase.rpc("create_autofix_indexes");
-    
+
     if (indexError) {
       console.warn("Autofix indexes might already exist:", indexError);
     }
@@ -195,12 +205,19 @@ export const AUTOFIX_SQL_SCRIPTS = {
 // Initialize the database setup when this module is imported
 export async function initializeAutofixDatabase() {
   console.log("Initializing autofix database setup...");
-  
+
   // First check if we can access Supabase
   try {
-    const { error } = await supabase.from("autofix_history").select("id").limit(1);
-    
-    if (error && error.message.includes("relation") && error.message.includes("does not exist")) {
+    const { error } = await supabase
+      .from("autofix_history")
+      .select("id")
+      .limit(1);
+
+    if (
+      error &&
+      error.message.includes("relation") &&
+      error.message.includes("does not exist")
+    ) {
       console.log("Autofix tables don't exist, setting up...");
       await setupAutofixTables();
     } else if (!error) {

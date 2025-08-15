@@ -12,7 +12,12 @@ export interface ValidationResult {
 export class AutofixValidator {
   private results: ValidationResult[] = [];
 
-  private addResult(step: string, success: boolean, message: string, details?: any) {
+  private addResult(
+    step: string,
+    success: boolean,
+    message: string,
+    details?: any,
+  ) {
     this.results.push({
       step,
       success,
@@ -24,24 +29,24 @@ export class AutofixValidator {
 
   async runCompleteValidation(): Promise<ValidationResult[]> {
     this.results = [];
-    
+
     console.log("🚀 Starting Autofix System Complete Validation...");
 
     // Step 1: Validate Credentials
     await this.validateCredentials();
-    
+
     // Step 2: Validate Database Setup
     await this.validateDatabaseSetup();
-    
+
     // Step 3: Validate Core Functionality
     await this.validateCoreFunctionality();
-    
+
     // Step 4: Validate Builder.io Integration
     await this.validateBuilderIntegration();
-    
+
     // Step 5: Validate Git History Import
     await this.validateGitImport();
-    
+
     // Step 6: Validate Statistics
     await this.validateStatistics();
 
@@ -52,29 +57,32 @@ export class AutofixValidator {
   private async validateCredentials(): Promise<void> {
     try {
       console.log("🔑 Validating API Credentials...");
-      
+
       const credentials = autofixHistory.getCredentialsStatus();
-      
-      if (credentials.public_key_configured && credentials.private_key_configured) {
+
+      if (
+        credentials.public_key_configured &&
+        credentials.private_key_configured
+      ) {
         this.addResult(
           "API Credentials",
           true,
           "All Builder.io API credentials are properly configured",
-          credentials
+          credentials,
         );
       } else {
         this.addResult(
           "API Credentials",
           false,
           "Missing required Builder.io API credentials",
-          credentials
+          credentials,
         );
       }
     } catch (error) {
       this.addResult(
         "API Credentials",
         false,
-        `Credential validation failed: ${error instanceof Error ? error.message : String(error)}`
+        `Credential validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -82,41 +90,41 @@ export class AutofixValidator {
   private async validateDatabaseSetup(): Promise<void> {
     try {
       console.log("🗄️ Validating Database Setup...");
-      
+
       // Try to setup database tables
       const setupResult = await createAutofixTables();
-      
+
       if (setupResult.success) {
         this.addResult(
           "Database Setup",
           true,
           "Database tables created or verified successfully",
-          setupResult
+          setupResult,
         );
-        
+
         // Try to insert sample data
         const sampleResult = await insertSampleData();
         this.addResult(
           "Sample Data",
           sampleResult.success,
-          sampleResult.success 
-            ? "Sample data inserted successfully" 
+          sampleResult.success
+            ? "Sample data inserted successfully"
             : `Sample data insertion failed: ${sampleResult.error}`,
-          sampleResult
+          sampleResult,
         );
       } else {
         this.addResult(
           "Database Setup",
           false,
           setupResult.error || "Database setup failed",
-          setupResult
+          setupResult,
         );
       }
     } catch (error) {
       this.addResult(
         "Database Setup",
         false,
-        `Database validation failed: ${error instanceof Error ? error.message : String(error)}`
+        `Database validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -124,7 +132,7 @@ export class AutofixValidator {
   private async validateCoreFunctionality(): Promise<void> {
     try {
       console.log("⚙️ Validating Core Functionality...");
-      
+
       // Test modification recording
       const testModId = await autofixHistory.recordModification({
         type: "manual",
@@ -145,27 +153,26 @@ export class AutofixValidator {
         "Modification Recording",
         true,
         `Successfully recorded test modification with ID: ${testModId}`,
-        { modification_id: testModId }
+        { modification_id: testModId },
       );
 
       // Test history retrieval
       const history = await autofixHistory.getModificationHistory(5);
-      
+
       this.addResult(
         "History Retrieval",
         true,
         `Successfully retrieved ${history.length} modification entries`,
-        { 
+        {
           count: history.length,
           latest: history[0],
-        }
+        },
       );
-
     } catch (error) {
       this.addResult(
         "Core Functionality",
         false,
-        `Core functionality validation failed: ${error instanceof Error ? error.message : String(error)}`
+        `Core functionality validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -173,7 +180,7 @@ export class AutofixValidator {
   private async validateBuilderIntegration(): Promise<void> {
     try {
       console.log("🛠️ Validating Builder.io Integration...");
-      
+
       const testPrompt = {
         prompt: "Validation test for Builder.io integration",
         context: "Testing API connectivity and response handling",
@@ -182,25 +189,24 @@ export class AutofixValidator {
       };
 
       const response = await autofixHistory.executeBuilderPrompt(testPrompt);
-      
+
       this.addResult(
         "Builder.io Integration",
         response.status === "completed",
-        response.status === "completed" 
+        response.status === "completed"
           ? "Builder.io integration test completed successfully"
           : `Builder.io integration test failed: ${response.error}`,
         {
           prompt_id: response.id,
           status: response.status,
           result_summary: response.result?.summary,
-        }
+        },
       );
-
     } catch (error) {
       this.addResult(
         "Builder.io Integration",
         false,
-        `Builder.io integration validation failed: ${error instanceof Error ? error.message : String(error)}`
+        `Builder.io integration validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -208,20 +214,19 @@ export class AutofixValidator {
   private async validateGitImport(): Promise<void> {
     try {
       console.log("📚 Validating Git History Import...");
-      
+
       await autofixHistory.importGitHistory();
-      
+
       this.addResult(
         "Git History Import",
         true,
-        "Git history import completed successfully"
+        "Git history import completed successfully",
       );
-
     } catch (error) {
       this.addResult(
         "Git History Import",
         false,
-        `Git history import validation failed: ${error instanceof Error ? error.message : String(error)}`
+        `Git history import validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -229,9 +234,9 @@ export class AutofixValidator {
   private async validateStatistics(): Promise<void> {
     try {
       console.log("📊 Validating System Statistics...");
-      
+
       const stats = await autofixHistory.getSystemStats();
-      
+
       this.addResult(
         "System Statistics",
         true,
@@ -242,14 +247,13 @@ export class AutofixValidator {
           failed: stats.failed_modifications,
           by_type: stats.modifications_by_type,
           recent_count: stats.recent_activity.length,
-        }
+        },
       );
-
     } catch (error) {
       this.addResult(
         "System Statistics",
         false,
-        `System statistics validation failed: ${error instanceof Error ? error.message : String(error)}`
+        `System statistics validation failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -262,10 +266,10 @@ export class AutofixValidator {
     overall_status: "success" | "partial" | "failed";
   } {
     const total = this.results.length;
-    const passed = this.results.filter(r => r.success).length;
+    const passed = this.results.filter((r) => r.success).length;
     const failed = total - passed;
     const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
-    
+
     let overallStatus: "success" | "partial" | "failed";
     if (successRate >= 100) {
       overallStatus = "success";
@@ -295,10 +299,10 @@ export const autofixValidator = new AutofixValidator();
 // Quick validation function for easy use
 export async function validateAutofixSystem(): Promise<{
   results: ValidationResult[];
-  summary: ReturnType<AutofixValidator['getValidationSummary']>;
+  summary: ReturnType<AutofixValidator["getValidationSummary"]>;
 }> {
   const results = await autofixValidator.runCompleteValidation();
   const summary = autofixValidator.getValidationSummary();
-  
+
   return { results, summary };
 }

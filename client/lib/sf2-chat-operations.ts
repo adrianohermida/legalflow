@@ -1,7 +1,7 @@
 // SF-2: Processo > Detalhes — Chat Multi-thread + Memória
 // Database operations and helper functions
 
-import { supabase, lf } from './supabase';
+import { supabase, lf } from "./supabase";
 
 export interface ThreadLinkData {
   id?: string;
@@ -24,7 +24,7 @@ export interface ThreadLinkData {
 export interface ChatMessage {
   id?: string;
   thread_link_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   metadata: {
     contexto_processo?: any;
@@ -54,9 +54,11 @@ export class SF2ChatOperations {
   /**
    * Criar nova thread de conversa
    */
-  static async createThread(data: Omit<ThreadLinkData, 'id' | 'created_at' | 'updated_at'>): Promise<ThreadLinkData> {
+  static async createThread(
+    data: Omit<ThreadLinkData, "id" | "created_at" | "updated_at">,
+  ): Promise<ThreadLinkData> {
     const { data: newThread, error } = await supabase
-      .from('thread_links')
+      .from("thread_links")
       .insert({
         numero_cnj: data.numero_cnj,
         context_type: data.context_type,
@@ -75,12 +77,14 @@ export class SF2ChatOperations {
   /**
    * Buscar threads por processo CNJ
    */
-  static async getThreadsByProcesso(numero_cnj: string): Promise<ThreadLinkData[]> {
+  static async getThreadsByProcesso(
+    numero_cnj: string,
+  ): Promise<ThreadLinkData[]> {
     const { data, error } = await supabase
-      .from('thread_links')
-      .select('*')
-      .eq('properties->>numero_cnj', numero_cnj)
-      .order('updated_at', { ascending: false });
+      .from("thread_links")
+      .select("*")
+      .eq("properties->>numero_cnj", numero_cnj)
+      .order("updated_at", { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -91,10 +95,10 @@ export class SF2ChatOperations {
    */
   static async getMessagesByThread(thread_id: string): Promise<ChatMessage[]> {
     const { data, error } = await supabase
-      .from('ai_messages')
-      .select('*')
-      .eq('thread_link_id', thread_id)
-      .order('created_at', { ascending: true });
+      .from("ai_messages")
+      .select("*")
+      .eq("thread_link_id", thread_id)
+      .order("created_at", { ascending: true });
 
     if (error) throw error;
     return data || [];
@@ -103,9 +107,11 @@ export class SF2ChatOperations {
   /**
    * Adicionar mensagem ao thread
    */
-  static async addMessage(message: Omit<ChatMessage, 'id' | 'created_at'>): Promise<ChatMessage> {
+  static async addMessage(
+    message: Omit<ChatMessage, "id" | "created_at">,
+  ): Promise<ChatMessage> {
     const { data, error } = await supabase
-      .from('ai_messages')
+      .from("ai_messages")
       .insert({
         thread_link_id: message.thread_link_id,
         role: message.role,
@@ -132,9 +138,9 @@ export class SF2ChatOperations {
    */
   static async updateThreadTimestamp(thread_id: string): Promise<void> {
     const { error } = await supabase
-      .from('thread_links')
+      .from("thread_links")
       .update({ updated_at: new Date().toISOString() })
-      .eq('id', thread_id);
+      .eq("id", thread_id);
 
     if (error) throw error;
   }
@@ -153,26 +159,75 @@ export class SF2ChatOperations {
         documentosResult,
         partesResult,
       ] = await Promise.allSettled([
-        supabase.from('processos').select('*').eq('numero_cnj', numero_cnj).single(),
-        supabase.from('movimentacoes').select('*').eq('numero_cnj', numero_cnj).order('data_movimentacao', { ascending: false }).limit(10),
-        supabase.from('vw_publicacoes_unificadas').select('*').eq('numero_cnj', numero_cnj).order('occured_at', { ascending: false }).limit(10),
-        lf.from('activities').select('*').eq('numero_cnj', numero_cnj).in('status', ['pending', 'in_progress']).limit(20),
-        lf.from('eventos_agenda').select('*').eq('numero_cnj', numero_cnj).gte('scheduled_at', new Date().toISOString()).limit(10),
-        supabase.from('documents').select('*').eq('metadata->>numero_cnj', numero_cnj).limit(20),
-        lf.from('partes_processo').select('*').eq('numero_cnj', numero_cnj),
+        supabase
+          .from("processos")
+          .select("*")
+          .eq("numero_cnj", numero_cnj)
+          .single(),
+        supabase
+          .from("movimentacoes")
+          .select("*")
+          .eq("numero_cnj", numero_cnj)
+          .order("data_movimentacao", { ascending: false })
+          .limit(10),
+        supabase
+          .from("vw_publicacoes_unificadas")
+          .select("*")
+          .eq("numero_cnj", numero_cnj)
+          .order("occured_at", { ascending: false })
+          .limit(10),
+        lf
+          .from("activities")
+          .select("*")
+          .eq("numero_cnj", numero_cnj)
+          .in("status", ["pending", "in_progress"])
+          .limit(20),
+        lf
+          .from("eventos_agenda")
+          .select("*")
+          .eq("numero_cnj", numero_cnj)
+          .gte("scheduled_at", new Date().toISOString())
+          .limit(10),
+        supabase
+          .from("documents")
+          .select("*")
+          .eq("metadata->>numero_cnj", numero_cnj)
+          .limit(20),
+        lf.from("partes_processo").select("*").eq("numero_cnj", numero_cnj),
       ]);
 
       return {
-        processo: processoResult.status === 'fulfilled' ? processoResult.value.data : null,
-        ultimasMovimentacoes: movimentacoesResult.status === 'fulfilled' ? (movimentacoesResult.value.data || []) : [],
-        ultimasPublicacoes: publicacoesResult.status === 'fulfilled' ? (publicacoesResult.value.data || []) : [],
-        tarefasAbertas: tarefasResult.status === 'fulfilled' ? (tarefasResult.value.data || []) : [],
-        eventosProximos: eventosResult.status === 'fulfilled' ? (eventosResult.value.data || []) : [],
-        documentos: documentosResult.status === 'fulfilled' ? (documentosResult.value.data || []) : [],
-        partes: partesResult.status === 'fulfilled' ? (partesResult.value.data || []) : [],
+        processo:
+          processoResult.status === "fulfilled"
+            ? processoResult.value.data
+            : null,
+        ultimasMovimentacoes:
+          movimentacoesResult.status === "fulfilled"
+            ? movimentacoesResult.value.data || []
+            : [],
+        ultimasPublicacoes:
+          publicacoesResult.status === "fulfilled"
+            ? publicacoesResult.value.data || []
+            : [],
+        tarefasAbertas:
+          tarefasResult.status === "fulfilled"
+            ? tarefasResult.value.data || []
+            : [],
+        eventosProximos:
+          eventosResult.status === "fulfilled"
+            ? eventosResult.value.data || []
+            : [],
+        documentos:
+          documentosResult.status === "fulfilled"
+            ? documentosResult.value.data || []
+            : [],
+        partes:
+          partesResult.status === "fulfilled"
+            ? partesResult.value.data || []
+            : [],
       };
     } catch (error) {
-      console.error('Erro ao buscar contexto do processo:', error);
+      console.error("Erro ao buscar contexto do processo:", error);
       throw error;
     }
   }
@@ -188,15 +243,17 @@ export class SF2ChatOperations {
     due_date?: string;
   }): Promise<any> {
     const { data, error } = await lf
-      .from('activities')
+      .from("activities")
       .insert({
         numero_cnj: params.numero_cnj,
         title: params.titulo,
         description: params.descricao,
-        due_at: params.due_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'pending',
+        due_at:
+          params.due_date ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        status: "pending",
         metadata: {
-          created_via: 'chat',
+          created_via: "chat",
           thread_id: params.thread_id,
           quick_action: true,
           sf2_integration: true,
@@ -210,10 +267,10 @@ export class SF2ChatOperations {
     // Registrar ação como mensagem do sistema
     await this.addMessage({
       thread_link_id: params.thread_id,
-      role: 'system',
+      role: "system",
       content: `✅ Tarefa criada: "${params.titulo}"`,
       metadata: {
-        action_type: 'CREATE_TASK',
+        action_type: "CREATE_TASK",
         result: data,
         timestamp: new Date().toISOString(),
       },
@@ -231,7 +288,7 @@ export class SF2ChatOperations {
   }): Promise<any> {
     // Criar entrada na tabela ticket_threads
     const { data, error } = await lf
-      .from('ticket_threads')
+      .from("ticket_threads")
       .insert({
         thread_link_id: params.thread_id,
         created_at: new Date().toISOString(),
@@ -244,10 +301,10 @@ export class SF2ChatOperations {
     // Registrar ação como mensagem do sistema
     await this.addMessage({
       thread_link_id: params.thread_id,
-      role: 'system',
+      role: "system",
       content: `🎫 Ticket vinculado ao thread`,
       metadata: {
-        action_type: 'LINK_TICKET',
+        action_type: "LINK_TICKET",
         result: data,
         timestamp: new Date().toISOString(),
       },
@@ -267,16 +324,18 @@ export class SF2ChatOperations {
     prazo?: string;
   }): Promise<any> {
     const { data, error } = await lf
-      .from('activities')
+      .from("activities")
       .insert({
         numero_cnj: params.numero_cnj,
         title: `Solicitação: ${params.tipo_documento}`,
         description: params.justificativa,
-        due_at: params.prazo || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'pending',
-        activity_type: 'document_request',
+        due_at:
+          params.prazo ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        status: "pending",
+        activity_type: "document_request",
         metadata: {
-          created_via: 'chat',
+          created_via: "chat",
           thread_id: params.thread_id,
           quick_action: true,
           document_request: true,
@@ -292,10 +351,10 @@ export class SF2ChatOperations {
     // Registrar ação como mensagem do sistema
     await this.addMessage({
       thread_link_id: params.thread_id,
-      role: 'system',
+      role: "system",
       content: `📄 Documento solicitado: ${params.tipo_documento}`,
       metadata: {
-        action_type: 'REQUEST_DOCUMENT',
+        action_type: "REQUEST_DOCUMENT",
         result: data,
         timestamp: new Date().toISOString(),
       },
@@ -314,15 +373,15 @@ export class SF2ChatOperations {
     observacoes: string;
   }): Promise<any> {
     const { data, error } = await lf
-      .from('activities')
+      .from("activities")
       .insert({
         numero_cnj: params.numero_cnj,
         title: `Etapa concluída: ${params.nome_etapa}`,
         description: params.observacoes,
-        status: 'completed',
+        status: "completed",
         completed_at: new Date().toISOString(),
         metadata: {
-          created_via: 'chat',
+          created_via: "chat",
           thread_id: params.thread_id,
           quick_action: true,
           step_completion: true,
@@ -338,10 +397,10 @@ export class SF2ChatOperations {
     // Registrar ação como mensagem do sistema
     await this.addMessage({
       thread_link_id: params.thread_id,
-      role: 'system',
+      role: "system",
       content: `✅ Etapa concluída: ${params.nome_etapa}`,
       metadata: {
-        action_type: 'COMPLETE_STEP',
+        action_type: "COMPLETE_STEP",
         result: data,
         timestamp: new Date().toISOString(),
       },
@@ -362,9 +421,9 @@ export class SF2ChatOperations {
     try {
       // Buscar threads
       const { data: threads } = await supabase
-        .from('thread_links')
-        .select('id, created_at')
-        .eq('properties->>numero_cnj', numero_cnj);
+        .from("thread_links")
+        .select("id, created_at")
+        .eq("properties->>numero_cnj", numero_cnj);
 
       if (!threads || threads.length === 0) {
         return {
@@ -375,23 +434,29 @@ export class SF2ChatOperations {
         };
       }
 
-      const threadIds = threads.map(t => t.id);
+      const threadIds = threads.map((t) => t.id);
 
       // Buscar mensagens
       const { data: messages } = await supabase
-        .from('ai_messages')
-        .select('id, metadata, created_at')
-        .in('thread_link_id', threadIds);
+        .from("ai_messages")
+        .select("id, metadata, created_at")
+        .in("thread_link_id", threadIds);
 
       // Contar quick actions
-      const quickActions = messages?.filter(m => 
-        m.metadata?.action_type || m.metadata?.quick_action
-      ) || [];
+      const quickActions =
+        messages?.filter(
+          (m) => m.metadata?.action_type || m.metadata?.quick_action,
+        ) || [];
 
       // Última atividade
-      const lastActivity = messages && messages.length > 0 
-        ? messages.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0].created_at
-        : null;
+      const lastActivity =
+        messages && messages.length > 0
+          ? messages.sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime(),
+            )[0].created_at
+          : null;
 
       return {
         total_threads: threads.length,
@@ -400,7 +465,7 @@ export class SF2ChatOperations {
         last_activity: lastActivity,
       };
     } catch (error) {
-      console.error('Erro ao buscar estatísticas do chat:', error);
+      console.error("Erro ao buscar estatísticas do chat:", error);
       return {
         total_threads: 0,
         total_messages: 0,
@@ -417,12 +482,12 @@ export class SF2ChatOperations {
     try {
       // Buscar thread
       const { data: thread } = await supabase
-        .from('thread_links')
-        .select('*')
-        .eq('id', thread_id)
+        .from("thread_links")
+        .select("*")
+        .eq("id", thread_id)
         .single();
 
-      if (!thread) throw new Error('Thread não encontrado');
+      if (!thread) throw new Error("Thread não encontrado");
 
       // Buscar mensagens
       const messages = await this.getMessagesByThread(thread_id);
@@ -432,13 +497,18 @@ export class SF2ChatOperations {
       markdown += `**Processo:** ${thread.properties.numero_cnj}\n`;
       markdown += `**Canal:** ${thread.properties.canal}\n`;
       markdown += `**Tipo:** ${thread.properties.tipo}\n`;
-      markdown += `**Criado em:** ${new Date(thread.created_at).toLocaleString('pt-BR')}\n\n`;
+      markdown += `**Criado em:** ${new Date(thread.created_at).toLocaleString("pt-BR")}\n\n`;
       markdown += `---\n\n`;
 
       for (const message of messages) {
-        const timestamp = new Date(message.created_at!).toLocaleString('pt-BR');
-        const roleIcon = message.role === 'user' ? '👤' : message.role === 'assistant' ? '🤖' : '⚙️';
-        
+        const timestamp = new Date(message.created_at!).toLocaleString("pt-BR");
+        const roleIcon =
+          message.role === "user"
+            ? "👤"
+            : message.role === "assistant"
+              ? "🤖"
+              : "⚙️";
+
         markdown += `## ${roleIcon} ${message.role.toUpperCase()} - ${timestamp}\n\n`;
         markdown += `${message.content}\n\n`;
 
@@ -459,7 +529,7 @@ export class SF2ChatOperations {
 
       return markdown;
     } catch (error) {
-      console.error('Erro ao exportar thread:', error);
+      console.error("Erro ao exportar thread:", error);
       throw error;
     }
   }
@@ -477,10 +547,10 @@ export interface AdvogaAIToolExecution {
 }
 
 export const SF2_TOOL_MAPPINGS = {
-  'criar_tarefa': 'CREATE_TASK',
-  'vincular_ticket': 'LINK_TICKET', 
-  'solicitar_documento': 'REQUEST_DOCUMENT',
-  'concluir_etapa': 'COMPLETE_STEP',
+  criar_tarefa: "CREATE_TASK",
+  vincular_ticket: "LINK_TICKET",
+  solicitar_documento: "REQUEST_DOCUMENT",
+  concluir_etapa: "COMPLETE_STEP",
 } as const;
 
 export type SF2QuickActionType = keyof typeof SF2_TOOL_MAPPINGS;

@@ -1,21 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
   Clock,
-  Play, 
-  ExternalLink, 
-  Copy, 
+  Play,
+  ExternalLink,
+  Copy,
   RotateCcw,
   Globe,
   Users,
@@ -25,22 +44,31 @@ import {
   RefreshCw,
   Zap,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import { routeCoverageSystem, RouteTest, RouteCoverageStats } from "../lib/route-coverage-system";
+import {
+  routeCoverageSystem,
+  RouteTest,
+  RouteCoverageStats,
+} from "../lib/route-coverage-system";
 
 interface RouteCoveragePanelProps {
   className?: string;
 }
 
-const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) => {
+const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
+  className,
+}) => {
   const [routes, setRoutes] = useState<RouteTest[]>([]);
   const [stats, setStats] = useState<RouteCoverageStats | null>(null);
   const [isRunningTests, setIsRunningTests] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchFilter, setSearchFilter] = useState('');
-  const [currentTestProgress, setCurrentTestProgress] = useState({ current: 0, total: 0 });
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchFilter, setSearchFilter] = useState("");
+  const [currentTestProgress, setCurrentTestProgress] = useState({
+    current: 0,
+    total: 0,
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -83,16 +111,21 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
     }
   };
 
-  const runCategoryTests = async (category: RouteTest['category']) => {
+  const runCategoryTests = async (category: RouteTest["category"]) => {
     setIsRunningTests(true);
-    const categoryRoutes = routes.filter(route => route.category === category);
+    const categoryRoutes = routes.filter(
+      (route) => route.category === category,
+    );
     setCurrentTestProgress({ current: 0, total: categoryRoutes.length });
 
     try {
-      await routeCoverageSystem.testRoutesByCategory(category, (route, index, total) => {
-        setCurrentTestProgress({ current: index, total });
-        refreshData();
-      });
+      await routeCoverageSystem.testRoutesByCategory(
+        category,
+        (route, index, total) => {
+          setCurrentTestProgress({ current: index, total });
+          refreshData();
+        },
+      );
 
       toast({
         title: `Teste ${category} Concluído`,
@@ -158,48 +191,48 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
     });
   };
 
-  const getStatusIcon = (status: RouteTest['status']) => {
+  const getStatusIcon = (status: RouteTest["status"]) => {
     switch (status) {
-      case 'ok':
+      case "ok":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case '404':
+      case "404":
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'error':
+      case "error":
         return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'timeout':
+      case "timeout":
         return <Clock className="h-4 w-4 text-orange-500" />;
-      case 'pending':
+      case "pending":
         return <RefreshCw className="h-4 w-4 text-gray-400" />;
       default:
         return <RefreshCw className="h-4 w-4 text-gray-400" />;
     }
   };
 
-  const getStatusBadge = (status: RouteTest['status']) => {
+  const getStatusBadge = (status: RouteTest["status"]) => {
     const variants = {
-      ok: 'default',
-      '404': 'destructive',
-      error: 'destructive',
-      timeout: 'secondary',
-      pending: 'outline',
+      ok: "default",
+      "404": "destructive",
+      error: "destructive",
+      timeout: "secondary",
+      pending: "outline",
     } as const;
 
     const labels = {
-      ok: 'OK',
-      '404': '404',
-      error: 'ERROR',
-      timeout: 'TIMEOUT',
-      pending: 'PENDING',
+      ok: "OK",
+      "404": "404",
+      error: "ERROR",
+      timeout: "TIMEOUT",
+      pending: "PENDING",
     };
 
     return (
-      <Badge variant={variants[status] || 'outline'}>
+      <Badge variant={variants[status] || "outline"}>
         {labels[status] || status.toUpperCase()}
       </Badge>
     );
   };
 
-  const getCategoryIcon = (category: RouteTest['category']) => {
+  const getCategoryIcon = (category: RouteTest["category"]) => {
     const icons = {
       escritorio: <Building className="h-4 w-4" />,
       portal: <Users className="h-4 w-4" />,
@@ -211,16 +244,18 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
     return icons[category] || <Globe className="h-4 w-4" />;
   };
 
-  const filteredRoutes = routes.filter(route => {
-    const matchesCategory = selectedCategory === 'all' || route.category === selectedCategory;
-    const matchesSearch = searchFilter === '' || 
+  const filteredRoutes = routes.filter((route) => {
+    const matchesCategory =
+      selectedCategory === "all" || route.category === selectedCategory;
+    const matchesSearch =
+      searchFilter === "" ||
       route.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
       route.path.toLowerCase().includes(searchFilter.toLowerCase()) ||
       route.description.toLowerCase().includes(searchFilter.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const categories = Array.from(new Set(routes.map(route => route.category)));
+  const categories = Array.from(new Set(routes.map((route) => route.category)));
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -231,7 +266,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
             🛣️ SF-1: Cobertura de Rotas & Navegação
           </h2>
           <p className="text-muted-foreground">
-            QA visual completo com health check, tempo de render e deeplinks de teste
+            QA visual completo com health check, tempo de render e deeplinks de
+            teste
           </p>
         </div>
         <div className="flex gap-2">
@@ -251,7 +287,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
             {isRunningTests ? (
               <>
                 <Play className="mr-2 h-4 w-4 animate-spin" />
-                Testando... ({currentTestProgress.current}/{currentTestProgress.total})
+                Testando... ({currentTestProgress.current}/
+                {currentTestProgress.total})
               </>
             ) : (
               <>
@@ -269,32 +306,44 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
           <CardContent className="pt-4">
             <div className="grid gap-4 md:grid-cols-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {stats.total}
+                </div>
                 <p className="text-sm font-medium">Total de Rotas</p>
                 <p className="text-xs text-muted-foreground">Mapeadas</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{stats.ok}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {stats.ok}
+                </div>
                 <p className="text-sm font-medium">OK</p>
                 <p className="text-xs text-muted-foreground">Funcionando</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{stats.errors}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {stats.errors}
+                </div>
                 <p className="text-sm font-medium">Errors</p>
                 <p className="text-xs text-muted-foreground">Com problemas</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{stats.avg_render_time}ms</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {stats.avg_render_time}ms
+                </div>
                 <p className="text-sm font-medium">Tempo Médio</p>
                 <p className="text-xs text-muted-foreground">Render</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{stats.coverage_percentage}%</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {stats.coverage_percentage}%
+                </div>
                 <p className="text-sm font-medium">Cobertura</p>
                 <p className="text-xs text-muted-foreground">Testada</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">{stats.performance_issues || 0}</div>
+                <div className="text-2xl font-bold text-yellow-600">
+                  {stats.performance_issues || 0}
+                </div>
                 <p className="text-sm font-medium">Performance</p>
                 <p className="text-xs text-muted-foreground">Issues</p>
               </div>
@@ -317,7 +366,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
             <CardHeader>
               <CardTitle>Lista Completa de Rotas</CardTitle>
               <CardDescription>
-                Todas as rotas mapeadas (Escritório + Portal + CRM) com status de health
+                Todas as rotas mapeadas (Escritório + Portal + CRM) com status
+                de health
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -333,13 +383,16 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                 </div>
                 <div className="w-48">
                   <Label>Categoria</Label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
-                      {categories.map(cat => (
+                      {categories.map((cat) => (
                         <SelectItem key={cat} value={cat}>
                           {cat.charAt(0).toUpperCase() + cat.slice(1)}
                         </SelectItem>
@@ -366,23 +419,29 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                   </TableHeader>
                   <TableBody>
                     {filteredRoutes.map((route, index) => {
-                      const originalIndex = routes.findIndex(r => r.path === route.path);
+                      const originalIndex = routes.findIndex(
+                        (r) => r.path === route.path,
+                      );
                       return (
                         <TableRow key={route.path}>
-                          <TableCell>
-                            {getStatusIcon(route.status)}
-                          </TableCell>
+                          <TableCell>{getStatusIcon(route.status)}</TableCell>
                           <TableCell>
                             <div className="space-y-1">
                               <div className="font-medium">{route.name}</div>
-                              <div className="text-sm text-muted-foreground">{route.path}</div>
-                              <div className="text-xs text-muted-foreground">{route.description}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {route.path}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {route.description}
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {getCategoryIcon(route.category)}
-                              <span className="capitalize">{route.category}</span>
+                              <span className="capitalize">
+                                {route.category}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -392,11 +451,17 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className={`text-sm ${route.renderTime > 500 ? 'text-red-600' : 'text-green-600'}`}>
-                                {route.renderTime > 0 ? `${route.renderTime}ms` : '-'}
+                              <span
+                                className={`text-sm ${route.renderTime > 500 ? "text-red-600" : "text-green-600"}`}
+                              >
+                                {route.renderTime > 0
+                                  ? `${route.renderTime}ms`
+                                  : "-"}
                               </span>
                               {route.renderTime > 500 && (
-                                <span className="text-xs text-red-500">⚠️ Slow</span>
+                                <span className="text-xs text-red-500">
+                                  ⚠️ Slow
+                                </span>
                               )}
                             </div>
                           </TableCell>
@@ -404,36 +469,54 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                             {route.performanceScore !== undefined ? (
                               <div className="flex flex-col">
                                 <div className="flex items-center gap-1">
-                                  <span className={`text-sm font-medium ${
-                                    route.performanceStatus === 'excellent' ? 'text-green-600' :
-                                    route.performanceStatus === 'good' ? 'text-blue-600' :
-                                    route.performanceStatus === 'acceptable' ? 'text-yellow-600' :
-                                    'text-red-600'
-                                  }`}>
+                                  <span
+                                    className={`text-sm font-medium ${
+                                      route.performanceStatus === "excellent"
+                                        ? "text-green-600"
+                                        : route.performanceStatus === "good"
+                                          ? "text-blue-600"
+                                          : route.performanceStatus ===
+                                              "acceptable"
+                                            ? "text-yellow-600"
+                                            : "text-red-600"
+                                    }`}
+                                  >
                                     {route.performanceScore}
                                   </span>
-                                  {route.performanceStatus === 'excellent' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                                  {route.performanceStatus === 'poor' && <TrendingDown className="h-3 w-3 text-red-500" />}
+                                  {route.performanceStatus === "excellent" && (
+                                    <TrendingUp className="h-3 w-3 text-green-500" />
+                                  )}
+                                  {route.performanceStatus === "poor" && (
+                                    <TrendingDown className="h-3 w-3 text-red-500" />
+                                  )}
                                 </div>
-                                <Badge variant="outline" className={`text-xs ${
-                                  route.performanceStatus === 'excellent' ? 'border-green-500' :
-                                  route.performanceStatus === 'good' ? 'border-blue-500' :
-                                  route.performanceStatus === 'acceptable' ? 'border-yellow-500' :
-                                  'border-red-500'
-                                }`}>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${
+                                    route.performanceStatus === "excellent"
+                                      ? "border-green-500"
+                                      : route.performanceStatus === "good"
+                                        ? "border-blue-500"
+                                        : route.performanceStatus ===
+                                            "acceptable"
+                                          ? "border-yellow-500"
+                                          : "border-red-500"
+                                  }`}
+                                >
                                   {route.performanceStatus}
                                 </Badge>
                               </div>
                             ) : (
-                              <span className="text-xs text-muted-foreground">-</span>
+                              <span className="text-xs text-muted-foreground">
+                                -
+                              </span>
                             )}
                           </TableCell>
                           <TableCell>
                             <span className="text-sm">
-                              {route.lastTested !== 'never' 
+                              {route.lastTested !== "never"
                                 ? new Date(route.lastTested).toLocaleString()
-                                : 'Never'
-                              }
+                                : "Never"}
                             </span>
                           </TableCell>
                           <TableCell className="text-right">
@@ -474,18 +557,26 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
 
         <TabsContent value="by-category" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            {categories.map(category => {
-              const categoryRoutes = routes.filter(route => route.category === category);
-              const okCount = categoryRoutes.filter(route => route.status === 'ok').length;
-              const errorCount = categoryRoutes.filter(route => ['404', 'error', 'timeout'].includes(route.status)).length;
-              
+            {categories.map((category) => {
+              const categoryRoutes = routes.filter(
+                (route) => route.category === category,
+              );
+              const okCount = categoryRoutes.filter(
+                (route) => route.status === "ok",
+              ).length;
+              const errorCount = categoryRoutes.filter((route) =>
+                ["404", "error", "timeout"].includes(route.status),
+              ).length;
+
               return (
                 <Card key={category}>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       {getCategoryIcon(category)}
                       <span className="capitalize">{category}</span>
-                      <Badge variant="outline">{categoryRoutes.length} rotas</Badge>
+                      <Badge variant="outline">
+                        {categoryRoutes.length} rotas
+                      </Badge>
                     </CardTitle>
                     <CardDescription>
                       {okCount} OK, {errorCount} com problemas
@@ -493,8 +584,11 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 mb-4">
-                      {categoryRoutes.slice(0, 5).map(route => (
-                        <div key={route.path} className="flex items-center gap-2 text-sm">
+                      {categoryRoutes.slice(0, 5).map((route) => (
+                        <div
+                          key={route.path}
+                          className="flex items-center gap-2 text-sm"
+                        >
                           {getStatusIcon(route.status)}
                           <span className="flex-1 truncate">{route.name}</span>
                           {getStatusBadge(route.status)}
@@ -514,7 +608,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                       className="w-full"
                     >
                       <Play className="mr-2 h-3 w-3" />
-                      Testar {category.charAt(0).toUpperCase() + category.slice(1)}
+                      Testar{" "}
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
                     </Button>
                   </CardContent>
                 </Card>
@@ -531,7 +626,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                 Performance Analytics
               </CardTitle>
               <CardDescription>
-                Métricas detalhadas de performance com benchmarks e recomendações
+                Métricas detalhadas de performance com benchmarks e
+                recomendações
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -544,7 +640,9 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                         <Zap className="h-4 w-4" />
                         Tempo Médio
                       </h4>
-                      <div className={`text-2xl font-bold ${stats.avg_render_time > 500 ? 'text-red-600' : 'text-green-600'}`}>
+                      <div
+                        className={`text-2xl font-bold ${stats.avg_render_time > 500 ? "text-red-600" : "text-green-600"}`}
+                      >
                         {stats.avg_render_time}ms
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -552,9 +650,13 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                       </div>
                     </Card>
                     <Card className="p-4">
-                      <h4 className="font-semibold text-sm mb-2">🎯 Meta: &lt;500ms</h4>
-                      <div className={`text-2xl font-bold ${stats.routes_above_500ms > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        {(stats.total - stats.routes_above_500ms)}/{stats.total}
+                      <h4 className="font-semibold text-sm mb-2">
+                        🎯 Meta: &lt;500ms
+                      </h4>
+                      <div
+                        className={`text-2xl font-bold ${stats.routes_above_500ms > 0 ? "text-red-600" : "text-green-600"}`}
+                      >
+                        {stats.total - stats.routes_above_500ms}/{stats.total}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Rotas dentro da meta
@@ -562,7 +664,9 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                     </Card>
                     <Card className="p-4">
                       <h4 className="font-semibold text-sm mb-2">⚠️ Issues</h4>
-                      <div className={`text-2xl font-bold ${stats.performance_issues > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                      <div
+                        className={`text-2xl font-bold ${stats.performance_issues > 0 ? "text-orange-600" : "text-green-600"}`}
+                      >
                         {stats.performance_issues || 0}
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -570,9 +674,16 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                       </div>
                     </Card>
                     <Card className="p-4">
-                      <h4 className="font-semibold text-sm mb-2">📊 Score Geral</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        📊 Score Geral
+                      </h4>
                       <div className="text-2xl font-bold text-blue-600">
-                        {Math.round(((stats.total - stats.performance_issues) / stats.total) * 100) || 0}%
+                        {Math.round(
+                          ((stats.total - stats.performance_issues) /
+                            stats.total) *
+                            100,
+                        ) || 0}
+                        %
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Performance score
@@ -585,8 +696,9 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                     <Alert className="border-orange-200">
                       <TrendingDown className="h-4 w-4 text-orange-500" />
                       <AlertDescription>
-                        ⚠️ {stats.routes_above_500ms} rotas com render time acima de 500ms.
-                        Considere otimizações para melhorar a experiência do usuário.
+                        ⚠️ {stats.routes_above_500ms} rotas com render time
+                        acima de 500ms. Considere otimizações para melhorar a
+                        experiência do usuário.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -595,8 +707,9 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                     <Alert className="border-red-200">
                       <AlertCircle className="h-4 w-4 text-red-500" />
                       <AlertDescription>
-                        🚨 {stats.performance_issues} rotas com problemas de performance detectados.
-                        Revise as rotas marcadas como "poor" ou "acceptable".
+                        🚨 {stats.performance_issues} rotas com problemas de
+                        performance detectados. Revise as rotas marcadas como
+                        "poor" ou "acceptable".
                       </AlertDescription>
                     </Alert>
                   )}
@@ -610,18 +723,30 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                       </h4>
                       <div className="space-y-2">
                         {routes
-                          .filter(route => route.performanceStatus === 'excellent')
+                          .filter(
+                            (route) => route.performanceStatus === "excellent",
+                          )
                           .slice(0, 5)
-                          .map(route => (
-                            <div key={route.path} className="flex items-center justify-between text-sm">
+                          .map((route) => (
+                            <div
+                              key={route.path}
+                              className="flex items-center justify-between text-sm"
+                            >
                               <span className="truncate">{route.name}</span>
-                              <Badge variant="outline" className="border-green-500 text-green-600">
+                              <Badge
+                                variant="outline"
+                                className="border-green-500 text-green-600"
+                              >
                                 {route.performanceScore}
                               </Badge>
                             </div>
                           ))}
-                        {routes.filter(route => route.performanceStatus === 'excellent').length === 0 && (
-                          <div className="text-sm text-muted-foreground">Nenhuma rota com performance excelente ainda</div>
+                        {routes.filter(
+                          (route) => route.performanceStatus === "excellent",
+                        ).length === 0 && (
+                          <div className="text-sm text-muted-foreground">
+                            Nenhuma rota com performance excelente ainda
+                          </div>
                         )}
                       </div>
                     </Card>
@@ -633,18 +758,28 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                       </h4>
                       <div className="space-y-2">
                         {routes
-                          .filter(route => route.performanceStatus === 'poor')
+                          .filter((route) => route.performanceStatus === "poor")
                           .slice(0, 5)
-                          .map(route => (
-                            <div key={route.path} className="flex items-center justify-between text-sm">
+                          .map((route) => (
+                            <div
+                              key={route.path}
+                              className="flex items-center justify-between text-sm"
+                            >
                               <span className="truncate">{route.name}</span>
-                              <Badge variant="outline" className="border-red-500 text-red-600">
+                              <Badge
+                                variant="outline"
+                                className="border-red-500 text-red-600"
+                              >
                                 {route.performanceScore}
                               </Badge>
                             </div>
                           ))}
-                        {routes.filter(route => route.performanceStatus === 'poor').length === 0 && (
-                          <div className="text-sm text-muted-foreground">Nenhuma rota com problemas críticos 🎉</div>
+                        {routes.filter(
+                          (route) => route.performanceStatus === "poor",
+                        ).length === 0 && (
+                          <div className="text-sm text-muted-foreground">
+                            Nenhuma rota com problemas críticos 🎉
+                          </div>
                         )}
                       </div>
                     </Card>
@@ -671,7 +806,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        ⚠️ Tempo de render acima do esperado (&gt;500ms). Algumas rotas podem estar lentas.
+                        ⚠️ Tempo de render acima do esperado (&gt;500ms).
+                        Algumas rotas podem estar lentas.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -681,7 +817,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                     <Alert className="border-red-200">
                       <XCircle className="h-4 w-4 text-red-500" />
                       <AlertDescription>
-                        🚨 {stats.errors} rotas com problemas detectados. Verifique rotas com status 404 ou erro.
+                        🚨 {stats.errors} rotas com problemas detectados.
+                        Verifique rotas com status 404 ou erro.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -691,7 +828,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                     <Alert className="border-green-200">
                       <CheckCircle className="h-4 w-4 text-green-500" />
                       <AlertDescription>
-                        ✅ Excelente! {stats.coverage_percentage}% de cobertura sem erros críticos.
+                        ✅ Excelente! {stats.coverage_percentage}% de cobertura
+                        sem erros críticos.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -699,23 +837,38 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({ className }) =>
                   {/* Detailed Metrics */}
                   <div className="grid gap-4 md:grid-cols-3">
                     <Card className="p-4">
-                      <h4 className="font-semibold text-sm mb-2">📊 Cobertura</h4>
-                      <div className="text-2xl font-bold">{stats.coverage_percentage}%</div>
+                      <h4 className="font-semibold text-sm mb-2">
+                        📊 Cobertura
+                      </h4>
+                      <div className="text-2xl font-bold">
+                        {stats.coverage_percentage}%
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {stats.ok + stats.errors} de {stats.total} testadas
                       </div>
                     </Card>
                     <Card className="p-4">
-                      <h4 className="font-semibold text-sm mb-2">⚡ Performance</h4>
-                      <div className="text-2xl font-bold">{stats.avg_render_time}ms</div>
+                      <h4 className="font-semibold text-sm mb-2">
+                        ⚡ Performance
+                      </h4>
+                      <div className="text-2xl font-bold">
+                        {stats.avg_render_time}ms
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         Tempo médio de render
                       </div>
                     </Card>
                     <Card className="p-4">
-                      <h4 className="font-semibold text-sm mb-2">🎯 Confiabilidade</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        🎯 Confiabilidade
+                      </h4>
                       <div className="text-2xl font-bold">
-                        {stats.total > 0 ? Math.round((stats.ok / (stats.ok + stats.errors)) * 100) : 0}%
+                        {stats.total > 0
+                          ? Math.round(
+                              (stats.ok / (stats.ok + stats.errors)) * 100,
+                            )
+                          : 0}
+                        %
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Rotas funcionais

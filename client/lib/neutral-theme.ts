@@ -202,9 +202,11 @@ export const MONOCHROMATIC_CSS_VARS = {
 
     // Backgrounds
     "--mono-background": MONOCHROMATIC_THEME.light.background,
-    "--mono-background-secondary": MONOCHROMATIC_THEME.light.backgroundSecondary,
+    "--mono-background-secondary":
+      MONOCHROMATIC_THEME.light.backgroundSecondary,
     "--mono-background-tertiary": MONOCHROMATIC_THEME.light.backgroundTertiary,
-    "--mono-background-quaternary": MONOCHROMATIC_THEME.light.backgroundQuaternary,
+    "--mono-background-quaternary":
+      MONOCHROMATIC_THEME.light.backgroundQuaternary,
 
     // Surfaces
     "--mono-surface": MONOCHROMATIC_THEME.light.surface,
@@ -281,7 +283,8 @@ export const MONOCHROMATIC_CSS_VARS = {
     "--mono-background": MONOCHROMATIC_THEME.dark.background,
     "--mono-background-secondary": MONOCHROMATIC_THEME.dark.backgroundSecondary,
     "--mono-background-tertiary": MONOCHROMATIC_THEME.dark.backgroundTertiary,
-    "--mono-background-quaternary": MONOCHROMATIC_THEME.dark.backgroundQuaternary,
+    "--mono-background-quaternary":
+      MONOCHROMATIC_THEME.dark.backgroundQuaternary,
 
     // Surfaces (modo escuro)
     "--mono-surface": MONOCHROMATIC_THEME.dark.surface,

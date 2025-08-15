@@ -136,8 +136,14 @@ const advogadoFolders: FolderItem[] = [
   },
 ];
 
-export function OfficeModulesWindow({ isOpen, onClose, userType }: OfficeModulesWindowProps) {
-  const [currentView, setCurrentView] = useState<"folders" | "modules">("folders");
+export function OfficeModulesWindow({
+  isOpen,
+  onClose,
+  userType,
+}: OfficeModulesWindowProps) {
+  const [currentView, setCurrentView] = useState<"folders" | "modules">(
+    "folders",
+  );
   const [selectedFolder, setSelectedFolder] = useState<FolderItem | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
@@ -193,7 +199,7 @@ export function OfficeModulesWindow({ isOpen, onClose, userType }: OfficeModules
                   <h2 className="text-xl font-heading font-semibold text-neutral-900">
                     Módulos do Escritório
                   </h2>
-                  
+
                   {/* Breadcrumb */}
                   {breadcrumb.length > 0 && (
                     <div className="flex items-center space-x-1 text-sm text-neutral-600">
@@ -206,16 +212,15 @@ export function OfficeModulesWindow({ isOpen, onClose, userType }: OfficeModules
                     </div>
                   )}
                 </div>
-                
+
                 <p className="text-sm text-neutral-600 mt-1">
-                  {currentView === "folders" 
+                  {currentView === "folders"
                     ? "Navegue pelas pastas para acessar os módulos organizados"
-                    : `${selectedFolder?.modules.length || 0} módulos disponíveis`
-                  }
+                    : `${selectedFolder?.modules.length || 0} módulos disponíveis`}
                 </p>
               </div>
             </div>
-            
+
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="w-4 h-4" />
             </Button>
@@ -264,11 +269,11 @@ export function OfficeModulesWindow({ isOpen, onClose, userType }: OfficeModules
                             </h3>
                             <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-600 transition-colors flex-shrink-0" />
                           </div>
-                          
+
                           <p className="text-sm text-neutral-600 mt-1 line-clamp-2">
                             {folder.description}
                           </p>
-                          
+
                           <div className="flex items-center mt-3 text-xs text-neutral-500">
                             <Icon className="w-3 h-3 mr-1" />
                             <span>{folder.modules.length} módulos</span>
@@ -297,12 +302,14 @@ export function OfficeModulesWindow({ isOpen, onClose, userType }: OfficeModules
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = "var(--brand-700)";
                         e.currentTarget.style.transform = "translateY(-2px)";
-                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(40, 82, 69, 0.15)";
+                        e.currentTarget.style.boxShadow =
+                          "0 4px 12px rgba(40, 82, 69, 0.15)";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.borderColor = "var(--border)";
                         e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
+                        e.currentTarget.style.boxShadow =
+                          "0 1px 3px rgba(0, 0, 0, 0.1)";
                       }}
                     >
                       <div className="flex flex-col items-center text-center space-y-3">

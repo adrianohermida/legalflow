@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   Filter,
@@ -37,13 +37,13 @@ import {
   ChevronUp,
   X,
   FilterX,
-} from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { Label } from './ui/label';
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +51,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from './ui/dialog';
+} from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,23 +59,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+} from "./ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from './ui/tabs';
-import { ScrollArea } from './ui/scroll-area';
-import { Progress } from './ui/progress';
-import { Separator } from './ui/separator';
+} from "./ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { ScrollArea } from "./ui/scroll-area";
+import { Progress } from "./ui/progress";
+import { Separator } from "./ui/separator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,23 +80,37 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './ui/alert-dialog';
-import { useToast } from '../hooks/use-toast';
-import { supabase } from '../lib/supabase';
-import { formatDate } from '../lib/utils';
+} from "./ui/alert-dialog";
+import { useToast } from "../hooks/use-toast";
+import { supabase } from "../lib/supabase";
+import { formatDate } from "../lib/utils";
 
 interface BacklogItem {
   id: string;
   title: string;
   description: string;
-  type: 'bug_fix' | 'feature' | 'improvement' | 'refactor' | 'research';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: "bug_fix" | "feature" | "improvement" | "refactor" | "research";
+  priority: "low" | "medium" | "high" | "urgent";
   category: string;
   tags: string[];
-  status: 'backlog' | 'ready' | 'in_progress' | 'review' | 'testing' | 'done' | 'blocked' | 'archived';
-  pipeline_stage: 'ideation' | 'analysis' | 'design' | 'development' | 'testing' | 'deployment';
+  status:
+    | "backlog"
+    | "ready"
+    | "in_progress"
+    | "review"
+    | "testing"
+    | "done"
+    | "blocked"
+    | "archived";
+  pipeline_stage:
+    | "ideation"
+    | "analysis"
+    | "design"
+    | "development"
+    | "testing"
+    | "deployment";
   story_points?: number;
-  complexity: 'low' | 'medium' | 'high' | 'unknown';
+  complexity: "low" | "medium" | "high" | "unknown";
   estimated_hours?: number;
   builder_prompt?: string;
   can_execute_in_builder: boolean;
@@ -113,13 +122,13 @@ interface BacklogItem {
   created_at: string;
   updated_at: string;
   due_date?: string;
-  
+
   // From view
   created_by_email?: string;
   assigned_to_email?: string;
   comment_count: number;
   attachment_count: number;
-  approval_status: 'pending' | 'approved' | 'rejected' | 'changes_requested';
+  approval_status: "pending" | "approved" | "rejected" | "changes_requested";
 }
 
 interface BacklogMetrics {
@@ -139,46 +148,94 @@ interface BacklogMetrics {
 }
 
 const statusConfig = {
-  backlog: { label: 'Backlog', color: 'bg-gray-100 text-gray-800', icon: Circle },
-  ready: { label: 'Pronto', color: 'bg-blue-100 text-blue-800', icon: Target },
-  in_progress: { label: 'Em Progresso', color: 'bg-yellow-100 text-yellow-800', icon: RefreshCw },
-  review: { label: 'Revisão', color: 'bg-purple-100 text-purple-800', icon: Eye },
-  testing: { label: 'Testando', color: 'bg-orange-100 text-orange-800', icon: Settings },
-  done: { label: 'Concluído', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-  blocked: { label: 'Bloqueado', color: 'bg-red-100 text-red-800', icon: AlertCircle },
-  archived: { label: 'Arquivado', color: 'bg-gray-100 text-gray-500', icon: Archive },
+  backlog: {
+    label: "Backlog",
+    color: "bg-gray-100 text-gray-800",
+    icon: Circle,
+  },
+  ready: { label: "Pronto", color: "bg-blue-100 text-blue-800", icon: Target },
+  in_progress: {
+    label: "Em Progresso",
+    color: "bg-yellow-100 text-yellow-800",
+    icon: RefreshCw,
+  },
+  review: {
+    label: "Revisão",
+    color: "bg-purple-100 text-purple-800",
+    icon: Eye,
+  },
+  testing: {
+    label: "Testando",
+    color: "bg-orange-100 text-orange-800",
+    icon: Settings,
+  },
+  done: {
+    label: "Concluído",
+    color: "bg-green-100 text-green-800",
+    icon: CheckCircle,
+  },
+  blocked: {
+    label: "Bloqueado",
+    color: "bg-red-100 text-red-800",
+    icon: AlertCircle,
+  },
+  archived: {
+    label: "Arquivado",
+    color: "bg-gray-100 text-gray-500",
+    icon: Archive,
+  },
 };
 
 const priorityConfig = {
-  low: { label: 'Baixa', color: 'bg-gray-100 text-gray-600' },
-  medium: { label: 'Média', color: 'bg-blue-100 text-blue-700' },
-  high: { label: 'Alta', color: 'bg-orange-100 text-orange-700' },
-  urgent: { label: 'Urgente', color: 'bg-red-100 text-red-700' },
+  low: { label: "Baixa", color: "bg-gray-100 text-gray-600" },
+  medium: { label: "Média", color: "bg-blue-100 text-blue-700" },
+  high: { label: "Alta", color: "bg-orange-100 text-orange-700" },
+  urgent: { label: "Urgente", color: "bg-red-100 text-red-700" },
 };
 
 const typeConfig = {
-  bug_fix: { label: 'Bug Fix', color: 'bg-red-100 text-red-800', icon: AlertCircle },
-  feature: { label: 'Feature', color: 'bg-green-100 text-green-800', icon: Plus },
-  improvement: { label: 'Melhoria', color: 'bg-blue-100 text-blue-800', icon: TrendingUp },
-  refactor: { label: 'Refactor', color: 'bg-purple-100 text-purple-800', icon: GitBranch },
-  research: { label: 'Pesquisa', color: 'bg-yellow-100 text-yellow-800', icon: FileText },
+  bug_fix: {
+    label: "Bug Fix",
+    color: "bg-red-100 text-red-800",
+    icon: AlertCircle,
+  },
+  feature: {
+    label: "Feature",
+    color: "bg-green-100 text-green-800",
+    icon: Plus,
+  },
+  improvement: {
+    label: "Melhoria",
+    color: "bg-blue-100 text-blue-800",
+    icon: TrendingUp,
+  },
+  refactor: {
+    label: "Refactor",
+    color: "bg-purple-100 text-purple-800",
+    icon: GitBranch,
+  },
+  research: {
+    label: "Pesquisa",
+    color: "bg-yellow-100 text-yellow-800",
+    icon: FileText,
+  },
 };
 
 export default function AutofixBacklog() {
-  const [view, setView] = useState<'kanban' | 'list' | 'metrics'>('kanban');
+  const [view, setView] = useState<"kanban" | "list" | "metrics">("kanban");
   const [filter, setFilter] = useState({
-    status: '',
-    priority: '',
-    type: '',
-    assignee: '',
-    search: '',
+    status: "",
+    priority: "",
+    type: "",
+    assignee: "",
+    search: "",
     includeArchived: false,
-    category: '',
-    complexity: '',
-    builderExecutable: '',
-    dateRange: '',
-    tags: '',
-    storyPoints: '',
+    category: "",
+    complexity: "",
+    builderExecutable: "",
+    dateRange: "",
+    tags: "",
+    storyPoints: "",
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -191,32 +248,42 @@ export default function AutofixBacklog() {
 
   // Query para items do backlog
   const { data: items = [], isLoading } = useQuery({
-    queryKey: ['autofix-backlog-items', filter],
+    queryKey: ["autofix-backlog-items", filter],
     queryFn: async () => {
-      const viewName = filter.includeArchived ? 'vw_autofix_kanban_with_archived' : 'vw_autofix_kanban';
-      let query = supabase.from(viewName).select('*');
+      const viewName = filter.includeArchived
+        ? "vw_autofix_kanban_with_archived"
+        : "vw_autofix_kanban";
+      let query = supabase.from(viewName).select("*");
 
       // Filtros básicos
-      if (filter.status) query = query.eq('status', filter.status);
-      if (filter.priority) query = query.eq('priority', filter.priority);
-      if (filter.type) query = query.eq('type', filter.type);
-      if (filter.assignee) query = query.eq('assigned_to', filter.assignee);
+      if (filter.status) query = query.eq("status", filter.status);
+      if (filter.priority) query = query.eq("priority", filter.priority);
+      if (filter.type) query = query.eq("type", filter.type);
+      if (filter.assignee) query = query.eq("assigned_to", filter.assignee);
       if (filter.search) {
-        query = query.or(`title.ilike.%${filter.search}%,description.ilike.%${filter.search}%`);
+        query = query.or(
+          `title.ilike.%${filter.search}%,description.ilike.%${filter.search}%`,
+        );
       }
 
       // Filtros avançados
-      if (filter.category) query = query.eq('category', filter.category);
-      if (filter.complexity) query = query.eq('complexity', filter.complexity);
-      if (filter.builderExecutable === 'true') query = query.eq('can_execute_in_builder', true);
-      if (filter.builderExecutable === 'false') query = query.eq('can_execute_in_builder', false);
-      if (filter.storyPoints) query = query.eq('story_points', parseInt(filter.storyPoints));
+      if (filter.category) query = query.eq("category", filter.category);
+      if (filter.complexity) query = query.eq("complexity", filter.complexity);
+      if (filter.builderExecutable === "true")
+        query = query.eq("can_execute_in_builder", true);
+      if (filter.builderExecutable === "false")
+        query = query.eq("can_execute_in_builder", false);
+      if (filter.storyPoints)
+        query = query.eq("story_points", parseInt(filter.storyPoints));
 
       // Filtro por tags
       if (filter.tags) {
-        const tagList = filter.tags.split(',').map(t => t.trim()).filter(t => t);
+        const tagList = filter.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t);
         if (tagList.length > 0) {
-          query = query.overlaps('tags', tagList);
+          query = query.overlaps("tags", tagList);
         }
       }
 
@@ -226,31 +293,41 @@ export default function AutofixBacklog() {
         let dateFrom;
 
         switch (filter.dateRange) {
-          case 'today':
-            dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          case "today":
+            dateFrom = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate(),
+            );
             break;
-          case 'week':
+          case "week":
             dateFrom = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             break;
-          case 'month':
+          case "month":
             dateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
             break;
-          case 'quarter':
-            dateFrom = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+          case "quarter":
+            dateFrom = new Date(
+              now.getFullYear(),
+              Math.floor(now.getMonth() / 3) * 3,
+              1,
+            );
             break;
         }
 
         if (dateFrom) {
-          query = query.gte('created_at', dateFrom.toISOString());
+          query = query.gte("created_at", dateFrom.toISOString());
         }
       }
 
       // Se não incluir arquivados, filtrar automaticamente
       if (!filter.includeArchived) {
-        query = query.neq('status', 'archived');
+        query = query.neq("status", "archived");
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const { data, error } = await query.order("created_at", {
+        ascending: false,
+      });
       if (error) throw error;
       return data as BacklogItem[];
     },
@@ -258,11 +335,11 @@ export default function AutofixBacklog() {
 
   // Query para métricas
   const { data: metrics } = useQuery({
-    queryKey: ['autofix-backlog-metrics'],
+    queryKey: ["autofix-backlog-metrics"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('vw_autofix_metrics')
-        .select('*')
+        .from("vw_autofix_metrics")
+        .select("*")
         .single();
       if (error) throw error;
       return data as BacklogMetrics;
@@ -272,17 +349,20 @@ export default function AutofixBacklog() {
   // Mutation para criar item
   const createItemMutation = useMutation({
     mutationFn: async (itemData: any) => {
-      const { data, error } = await supabase.rpc('create_backlog_item', itemData);
+      const { data, error } = await supabase.rpc(
+        "create_backlog_item",
+        itemData,
+      );
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-items"] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-metrics"] });
       setIsCreateDialogOpen(false);
       toast({
-        title: 'Item criado',
-        description: 'Item adicionado ao backlog com sucesso.',
+        title: "Item criado",
+        description: "Item adicionado ao backlog com sucesso.",
       });
     },
   });
@@ -290,26 +370,37 @@ export default function AutofixBacklog() {
   // Mutation para atualizar item
   const updateItemMutation = useMutation({
     mutationFn: async (itemData: any) => {
-      const { data, error } = await supabase.rpc('update_backlog_item', itemData);
+      const { data, error } = await supabase.rpc(
+        "update_backlog_item",
+        itemData,
+      );
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-items"] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-metrics"] });
       setIsEditDialogOpen(false);
       setSelectedItem(null);
       toast({
-        title: 'Item atualizado',
-        description: 'Item foi atualizado com sucesso.',
+        title: "Item atualizado",
+        description: "Item foi atualizado com sucesso.",
       });
     },
   });
 
   // Mutation para atualizar status
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ itemId, newStatus, reason }: { itemId: string; newStatus: string; reason?: string }) => {
-      const { data, error } = await supabase.rpc('update_backlog_item_status', {
+    mutationFn: async ({
+      itemId,
+      newStatus,
+      reason,
+    }: {
+      itemId: string;
+      newStatus: string;
+      reason?: string;
+    }) => {
+      const { data, error } = await supabase.rpc("update_backlog_item_status", {
         p_item_id: itemId,
         p_new_status: newStatus,
         p_reason: reason,
@@ -318,19 +409,25 @@ export default function AutofixBacklog() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-items"] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-metrics"] });
       toast({
-        title: 'Status atualizado',
-        description: 'Status do item foi atualizado com sucesso.',
+        title: "Status atualizado",
+        description: "Status do item foi atualizado com sucesso.",
       });
     },
   });
 
   // Mutation para deletar item
   const deleteItemMutation = useMutation({
-    mutationFn: async ({ itemId, hardDelete = false }: { itemId: string; hardDelete?: boolean }) => {
-      const { data, error } = await supabase.rpc('delete_backlog_item', {
+    mutationFn: async ({
+      itemId,
+      hardDelete = false,
+    }: {
+      itemId: string;
+      hardDelete?: boolean;
+    }) => {
+      const { data, error } = await supabase.rpc("delete_backlog_item", {
         p_item_id: itemId,
         p_hard_delete: hardDelete,
       });
@@ -338,14 +435,14 @@ export default function AutofixBacklog() {
       return data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-items"] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-metrics"] });
       setItemToDelete(null);
       toast({
-        title: variables.hardDelete ? 'Item removido' : 'Item arquivado',
-        description: variables.hardDelete 
-          ? 'Item foi removido permanentemente.' 
-          : 'Item foi arquivado com sucesso.',
+        title: variables.hardDelete ? "Item removido" : "Item arquivado",
+        description: variables.hardDelete
+          ? "Item foi removido permanentemente."
+          : "Item foi arquivado com sucesso.",
       });
     },
   });
@@ -353,26 +450,32 @@ export default function AutofixBacklog() {
   // Mutation para restaurar item
   const restoreItemMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      const { data, error } = await supabase.rpc('restore_backlog_item', {
+      const { data, error } = await supabase.rpc("restore_backlog_item", {
         p_item_id: itemId,
       });
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-items"] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-metrics"] });
       toast({
-        title: 'Item restaurado',
-        description: 'Item foi restaurado do arquivo.',
+        title: "Item restaurado",
+        description: "Item foi restaurado do arquivo.",
       });
     },
   });
 
   // Mutation para duplicar item
   const duplicateItemMutation = useMutation({
-    mutationFn: async ({ itemId, newTitle }: { itemId: string; newTitle?: string }) => {
-      const { data, error } = await supabase.rpc('duplicate_backlog_item', {
+    mutationFn: async ({
+      itemId,
+      newTitle,
+    }: {
+      itemId: string;
+      newTitle?: string;
+    }) => {
+      const { data, error } = await supabase.rpc("duplicate_backlog_item", {
         p_item_id: itemId,
         p_new_title: newTitle,
       });
@@ -380,19 +483,25 @@ export default function AutofixBacklog() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-items'] });
-      queryClient.invalidateQueries({ queryKey: ['autofix-backlog-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-items"] });
+      queryClient.invalidateQueries({ queryKey: ["autofix-backlog-metrics"] });
       toast({
-        title: 'Item duplicado',
-        description: 'Item foi duplicado com sucesso.',
+        title: "Item duplicado",
+        description: "Item foi duplicado com sucesso.",
       });
     },
   });
 
   // Mutation para executar prompt no Builder.io
   const executeBuilderMutation = useMutation({
-    mutationFn: async ({ itemId, prompt }: { itemId: string; prompt?: string }) => {
-      const { data, error } = await supabase.rpc('execute_builder_prompt', {
+    mutationFn: async ({
+      itemId,
+      prompt,
+    }: {
+      itemId: string;
+      prompt?: string;
+    }) => {
+      const { data, error } = await supabase.rpc("execute_builder_prompt", {
         p_item_id: itemId,
         p_prompt: prompt,
       });
@@ -401,8 +510,8 @@ export default function AutofixBacklog() {
     },
     onSuccess: () => {
       toast({
-        title: 'Prompt executado',
-        description: 'Prompt foi enviado para execução no Builder.io.',
+        title: "Prompt executado",
+        description: "Prompt foi enviado para execução no Builder.io.",
       });
     },
   });
@@ -435,25 +544,25 @@ export default function AutofixBacklog() {
   const handleBuilderExecution = (item: BacklogItem) => {
     if (!item.can_execute_in_builder || !item.builder_prompt) {
       toast({
-        title: 'Erro',
-        description: 'Este item não possui prompt executável no Builder.io.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Este item não possui prompt executável no Builder.io.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     executeBuilderMutation.mutate({ itemId: item.id });
   };
 
   const ItemCard = ({ item }: { item: BacklogItem }) => {
     const StatusIcon = statusConfig[item.status].icon;
     const TypeIcon = typeConfig[item.type].icon;
-    const isArchived = item.status === 'archived';
-    
+    const isArchived = item.status === "archived";
+
     return (
-      <Card 
+      <Card
         className={`mb-3 cursor-pointer hover:shadow-md transition-shadow ${
-          isArchived ? 'opacity-60 border-dashed' : ''
+          isArchived ? "opacity-60 border-dashed" : ""
         }`}
         onClick={() => {
           setSelectedItem(item);
@@ -464,15 +573,20 @@ export default function AutofixBacklog() {
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2">
               <TypeIcon className="w-4 h-4 text-gray-600" />
-              <h4 className="font-medium text-sm text-gray-900 truncate">{item.title}</h4>
+              <h4 className="font-medium text-sm text-gray-900 truncate">
+                {item.title}
+              </h4>
               {isArchived && (
-                <Badge variant="outline" className="text-xs bg-gray-100 text-gray-500">
+                <Badge
+                  variant="outline"
+                  className="text-xs bg-gray-100 text-gray-500"
+                >
                   <Archive className="w-3 h-3 mr-1" />
                   Arquivado
                 </Badge>
               )}
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -480,18 +594,22 @@ export default function AutofixBacklog() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => {
-                  setSelectedItem(item);
-                  setIsDetailsDialogOpen(true);
-                }}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedItem(item);
+                    setIsDetailsDialogOpen(true);
+                  }}
+                >
                   <Eye className="w-4 h-4 mr-2" />
                   Ver detalhes
                 </DropdownMenuItem>
-                
+
                 {!isArchived && (
                   <>
                     {item.can_execute_in_builder && (
-                      <DropdownMenuItem onClick={() => handleBuilderExecution(item)}>
+                      <DropdownMenuItem
+                        onClick={() => handleBuilderExecution(item)}
+                      >
                         <Play className="w-4 h-4 mr-2" />
                         Executar no Builder.io
                       </DropdownMenuItem>
@@ -505,7 +623,7 @@ export default function AutofixBacklog() {
                       <Copy className="w-4 h-4 mr-2" />
                       Duplicar
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="text-red-600"
                       onClick={() => handleDeleteItem(item)}
                     >
@@ -514,7 +632,7 @@ export default function AutofixBacklog() {
                     </DropdownMenuItem>
                   </>
                 )}
-                
+
                 {isArchived && (
                   <DropdownMenuItem onClick={() => handleRestoreItem(item)}>
                     <RotateCcw className="w-4 h-4 mr-2" />
@@ -524,32 +642,37 @@ export default function AutofixBacklog() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
-          <p className="text-xs text-gray-600 mb-3 line-clamp-2">{item.description}</p>
-          
+
+          <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+            {item.description}
+          </p>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`text-xs ${priorityConfig[item.priority].color}`}
               >
                 {priorityConfig[item.priority].label}
               </Badge>
-              
+
               {item.story_points && (
                 <Badge variant="outline" className="text-xs">
                   {item.story_points}pts
                 </Badge>
               )}
-              
+
               {item.can_execute_in_builder && (
-                <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700">
+                <Badge
+                  variant="outline"
+                  className="text-xs bg-purple-100 text-purple-700"
+                >
                   <Zap className="w-3 h-3 mr-1" />
                   Builder.io
                 </Badge>
               )}
             </div>
-            
+
             <div className="flex items-center gap-1 text-xs text-gray-500">
               {item.comment_count > 0 && (
                 <div className="flex items-center gap-1">
@@ -565,13 +688,15 @@ export default function AutofixBacklog() {
               )}
             </div>
           </div>
-          
+
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <StatusIcon className="w-3 h-3" />
-              <span className="text-xs text-gray-600">{statusConfig[item.status].label}</span>
+              <span className="text-xs text-gray-600">
+                {statusConfig[item.status].label}
+              </span>
             </div>
-            
+
             {item.assigned_to_email && (
               <div className="flex items-center gap-1">
                 <User className="w-3 h-3 text-gray-400" />
@@ -587,16 +712,18 @@ export default function AutofixBacklog() {
   };
 
   const KanbanBoard = () => {
-    const statusColumns = Object.keys(statusConfig).filter(status => 
-      filter.includeArchived || status !== 'archived'
+    const statusColumns = Object.keys(statusConfig).filter(
+      (status) => filter.includeArchived || status !== "archived",
     ) as Array<keyof typeof statusConfig>;
-    
+
     return (
-      <div className={`grid gap-4 h-full ${filter.includeArchived ? 'grid-cols-8' : 'grid-cols-7'}`}>
+      <div
+        className={`grid gap-4 h-full ${filter.includeArchived ? "grid-cols-8" : "grid-cols-7"}`}
+      >
         {statusColumns.map((status) => {
-          const columnItems = items.filter(item => item.status === status);
+          const columnItems = items.filter((item) => item.status === status);
           const StatusIcon = statusConfig[status].icon;
-          
+
           return (
             <div key={status} className="flex flex-col">
               <div className="flex items-center gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
@@ -608,7 +735,7 @@ export default function AutofixBacklog() {
                   {columnItems.length}
                 </Badge>
               </div>
-              
+
               <ScrollArea className="flex-1">
                 <div className="space-y-3">
                   {columnItems.map((item) => (
@@ -625,11 +752,12 @@ export default function AutofixBacklog() {
 
   const MetricsDashboard = () => {
     if (!metrics) return <div>Carregando métricas...</div>;
-    
-    const completionRate = metrics.total_items > 0 
-      ? Math.round((metrics.done_count / metrics.total_items) * 100) 
-      : 0;
-    
+
+    const completionRate =
+      metrics.total_items > 0
+        ? Math.round((metrics.done_count / metrics.total_items) * 100)
+        : 0;
+
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-4 gap-4">
@@ -644,19 +772,21 @@ export default function AutofixBacklog() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Em Progresso</p>
-                  <p className="text-2xl font-bold">{metrics.in_progress_count}</p>
+                  <p className="text-2xl font-bold">
+                    {metrics.in_progress_count}
+                  </p>
                 </div>
                 <RefreshCw className="w-8 h-8 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -668,7 +798,7 @@ export default function AutofixBacklog() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -681,7 +811,7 @@ export default function AutofixBacklog() {
             </CardContent>
           </Card>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -690,9 +820,15 @@ export default function AutofixBacklog() {
             <CardContent>
               <div className="space-y-3">
                 {Object.entries(statusConfig).map(([status, config]) => {
-                  const count = metrics[`${status}_count` as keyof BacklogMetrics] as number || 0;
-                  const percentage = metrics.total_items > 0 ? (count / metrics.total_items) * 100 : 0;
-                  
+                  const count =
+                    (metrics[
+                      `${status}_count` as keyof BacklogMetrics
+                    ] as number) || 0;
+                  const percentage =
+                    metrics.total_items > 0
+                      ? (count / metrics.total_items) * 100
+                      : 0;
+
                   return (
                     <div key={status} className="space-y-1">
                       <div className="flex justify-between text-sm">
@@ -706,7 +842,7 @@ export default function AutofixBacklog() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Informações do Sprint</CardTitle>
@@ -714,20 +850,34 @@ export default function AutofixBacklog() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Story Points Ativos</span>
-                  <span className="font-medium">{Math.round(metrics.active_story_points || 0)}</span>
+                  <span className="text-sm text-gray-600">
+                    Story Points Ativos
+                  </span>
+                  <span className="font-medium">
+                    {Math.round(metrics.active_story_points || 0)}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Média de Story Points</span>
-                  <span className="font-medium">{metrics.avg_story_points?.toFixed(1) || '0.0'}</span>
+                  <span className="text-sm text-gray-600">
+                    Média de Story Points
+                  </span>
+                  <span className="font-medium">
+                    {metrics.avg_story_points?.toFixed(1) || "0.0"}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Itens Executáveis</span>
-                  <span className="font-medium">{metrics.builder_executable_count}</span>
+                  <span className="text-sm text-gray-600">
+                    Itens Executáveis
+                  </span>
+                  <span className="font-medium">
+                    {metrics.builder_executable_count}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Alta Prioridade</span>
-                  <span className="font-medium">{metrics.urgent_count + metrics.high_priority_count}</span>
+                  <span className="font-medium">
+                    {metrics.urgent_count + metrics.high_priority_count}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -743,9 +893,11 @@ export default function AutofixBacklog() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Autofix Backlog</h1>
-          <p className="text-gray-600">Pipeline de melhorias e desenvolvimento</p>
+          <p className="text-gray-600">
+            Pipeline de melhorias e desenvolvimento
+          </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -767,14 +919,21 @@ export default function AutofixBacklog() {
               <Input
                 placeholder="Buscar itens..."
                 value={filter.search}
-                onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+                onChange={(e) =>
+                  setFilter((prev) => ({ ...prev, search: e.target.value }))
+                }
                 className="pl-10 w-64"
               />
             </div>
 
             <Select
-              value={filter.status || 'all'}
-              onValueChange={(value) => setFilter(prev => ({ ...prev, status: value === 'all' ? '' : value }))}
+              value={filter.status || "all"}
+              onValueChange={(value) =>
+                setFilter((prev) => ({
+                  ...prev,
+                  status: value === "all" ? "" : value,
+                }))
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Status" />
@@ -782,14 +941,21 @@ export default function AutofixBacklog() {
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 {Object.entries(statusConfig).map(([status, config]) => (
-                  <SelectItem key={status} value={status}>{config.label}</SelectItem>
+                  <SelectItem key={status} value={status}>
+                    {config.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select
-              value={filter.priority || 'all'}
-              onValueChange={(value) => setFilter(prev => ({ ...prev, priority: value === 'all' ? '' : value }))}
+              value={filter.priority || "all"}
+              onValueChange={(value) =>
+                setFilter((prev) => ({
+                  ...prev,
+                  priority: value === "all" ? "" : value,
+                }))
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Prioridade" />
@@ -797,7 +963,9 @@ export default function AutofixBacklog() {
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 {Object.entries(priorityConfig).map(([priority, config]) => (
-                  <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
+                  <SelectItem key={priority} value={priority}>
+                    {config.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -810,29 +978,43 @@ export default function AutofixBacklog() {
             >
               <Filter className="w-4 h-4" />
               Filtros Avançados
-              {showAdvancedFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {showAdvancedFilters ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
             </Button>
 
             {/* Clear Filters Button */}
-            {(filter.status || filter.priority || filter.type || filter.category || filter.complexity ||
-              filter.builderExecutable || filter.dateRange || filter.tags || filter.storyPoints || filter.search) && (
+            {(filter.status ||
+              filter.priority ||
+              filter.type ||
+              filter.category ||
+              filter.complexity ||
+              filter.builderExecutable ||
+              filter.dateRange ||
+              filter.tags ||
+              filter.storyPoints ||
+              filter.search) && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setFilter({
-                  status: '',
-                  priority: '',
-                  type: '',
-                  assignee: '',
-                  search: '',
-                  includeArchived: filter.includeArchived,
-                  category: '',
-                  complexity: '',
-                  builderExecutable: '',
-                  dateRange: '',
-                  tags: '',
-                  storyPoints: '',
-                })}
+                onClick={() =>
+                  setFilter({
+                    status: "",
+                    priority: "",
+                    type: "",
+                    assignee: "",
+                    search: "",
+                    includeArchived: filter.includeArchived,
+                    category: "",
+                    complexity: "",
+                    builderExecutable: "",
+                    dateRange: "",
+                    tags: "",
+                    storyPoints: "",
+                  })
+                }
                 className="text-gray-500 hover:text-gray-700"
               >
                 <FilterX className="w-4 h-4 mr-1" />
@@ -857,8 +1039,13 @@ export default function AutofixBacklog() {
               <div>
                 <Label className="text-xs text-gray-600 mb-1 block">Tipo</Label>
                 <Select
-                  value={filter.type || 'all'}
-                  onValueChange={(value) => setFilter(prev => ({ ...prev, type: value === 'all' ? '' : value }))}
+                  value={filter.type || "all"}
+                  onValueChange={(value) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      type: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Tipo" />
@@ -866,17 +1053,26 @@ export default function AutofixBacklog() {
                   <SelectContent>
                     <SelectItem value="all">Todos</SelectItem>
                     {Object.entries(typeConfig).map(([type, config]) => (
-                      <SelectItem key={type} value={type}>{config.label}</SelectItem>
+                      <SelectItem key={type} value={type}>
+                        {config.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="text-xs text-gray-600 mb-1 block">Categoria</Label>
+                <Label className="text-xs text-gray-600 mb-1 block">
+                  Categoria
+                </Label>
                 <Select
-                  value={filter.category || 'all'}
-                  onValueChange={(value) => setFilter(prev => ({ ...prev, category: value === 'all' ? '' : value }))}
+                  value={filter.category || "all"}
+                  onValueChange={(value) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      category: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Categoria" />
@@ -895,10 +1091,17 @@ export default function AutofixBacklog() {
               </div>
 
               <div>
-                <Label className="text-xs text-gray-600 mb-1 block">Complexidade</Label>
+                <Label className="text-xs text-gray-600 mb-1 block">
+                  Complexidade
+                </Label>
                 <Select
-                  value={filter.complexity || 'all'}
-                  onValueChange={(value) => setFilter(prev => ({ ...prev, complexity: value === 'all' ? '' : value }))}
+                  value={filter.complexity || "all"}
+                  onValueChange={(value) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      complexity: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Complexidade" />
@@ -914,10 +1117,17 @@ export default function AutofixBacklog() {
               </div>
 
               <div>
-                <Label className="text-xs text-gray-600 mb-1 block">Builder.io</Label>
+                <Label className="text-xs text-gray-600 mb-1 block">
+                  Builder.io
+                </Label>
                 <Select
-                  value={filter.builderExecutable || 'all'}
-                  onValueChange={(value) => setFilter(prev => ({ ...prev, builderExecutable: value === 'all' ? '' : value }))}
+                  value={filter.builderExecutable || "all"}
+                  onValueChange={(value) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      builderExecutable: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Builder.io" />
@@ -931,10 +1141,17 @@ export default function AutofixBacklog() {
               </div>
 
               <div>
-                <Label className="text-xs text-gray-600 mb-1 block">Data Criação</Label>
+                <Label className="text-xs text-gray-600 mb-1 block">
+                  Data Criação
+                </Label>
                 <Select
-                  value={filter.dateRange || 'all'}
-                  onValueChange={(value) => setFilter(prev => ({ ...prev, dateRange: value === 'all' ? '' : value }))}
+                  value={filter.dateRange || "all"}
+                  onValueChange={(value) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      dateRange: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Período" />
@@ -950,10 +1167,17 @@ export default function AutofixBacklog() {
               </div>
 
               <div>
-                <Label className="text-xs text-gray-600 mb-1 block">Story Points</Label>
+                <Label className="text-xs text-gray-600 mb-1 block">
+                  Story Points
+                </Label>
                 <Select
-                  value={filter.storyPoints || 'all'}
-                  onValueChange={(value) => setFilter(prev => ({ ...prev, storyPoints: value === 'all' ? '' : value }))}
+                  value={filter.storyPoints || "all"}
+                  onValueChange={(value) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      storyPoints: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="Pontos" />
@@ -972,11 +1196,15 @@ export default function AutofixBacklog() {
               </div>
 
               <div className="col-span-2">
-                <Label className="text-xs text-gray-600 mb-1 block">Tags (separadas por vírgula)</Label>
+                <Label className="text-xs text-gray-600 mb-1 block">
+                  Tags (separadas por vírgula)
+                </Label>
                 <Input
                   placeholder="tag1, tag2, tag3"
                   value={filter.tags}
-                  onChange={(e) => setFilter(prev => ({ ...prev, tags: e.target.value }))}
+                  onChange={(e) =>
+                    setFilter((prev) => ({ ...prev, tags: e.target.value }))
+                  }
                   className="h-8"
                 />
               </div>
@@ -987,10 +1215,17 @@ export default function AutofixBacklog() {
                     type="checkbox"
                     id="includeArchived"
                     checked={filter.includeArchived}
-                    onChange={(e) => setFilter(prev => ({ ...prev, includeArchived: e.target.checked }))}
+                    onChange={(e) =>
+                      setFilter((prev) => ({
+                        ...prev,
+                        includeArchived: e.target.checked,
+                      }))
+                    }
                     className="rounded"
                   />
-                  <Label htmlFor="includeArchived" className="text-xs">Incluir arquivados</Label>
+                  <Label htmlFor="includeArchived" className="text-xs">
+                    Incluir arquivados
+                  </Label>
                 </div>
               </div>
             </div>
@@ -1000,28 +1235,42 @@ export default function AutofixBacklog() {
               <span className="text-xs text-gray-500">Filtros ativos:</span>
               {filter.status && (
                 <Badge variant="outline" className="text-xs">
-                  Status: {statusConfig[filter.status as keyof typeof statusConfig]?.label}
+                  Status:{" "}
+                  {
+                    statusConfig[filter.status as keyof typeof statusConfig]
+                      ?.label
+                  }
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, status: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, status: "" }))
+                    }
                   />
                 </Badge>
               )}
               {filter.priority && (
                 <Badge variant="outline" className="text-xs">
-                  Prioridade: {priorityConfig[filter.priority as keyof typeof priorityConfig]?.label}
+                  Prioridade:{" "}
+                  {
+                    priorityConfig[
+                      filter.priority as keyof typeof priorityConfig
+                    ]?.label
+                  }
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, priority: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, priority: "" }))
+                    }
                   />
                 </Badge>
               )}
               {filter.type && (
                 <Badge variant="outline" className="text-xs">
-                  Tipo: {typeConfig[filter.type as keyof typeof typeConfig]?.label}
+                  Tipo:{" "}
+                  {typeConfig[filter.type as keyof typeof typeConfig]?.label}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, type: '' }))}
+                    onClick={() => setFilter((prev) => ({ ...prev, type: "" }))}
                   />
                 </Badge>
               )}
@@ -1030,7 +1279,9 @@ export default function AutofixBacklog() {
                   Categoria: {filter.category}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, category: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, category: "" }))
+                    }
                   />
                 </Badge>
               )}
@@ -1039,16 +1290,23 @@ export default function AutofixBacklog() {
                   Complexidade: {filter.complexity}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, complexity: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, complexity: "" }))
+                    }
                   />
                 </Badge>
               )}
               {filter.builderExecutable && (
                 <Badge variant="outline" className="text-xs">
-                  Builder.io: {filter.builderExecutable === 'true' ? 'Executável' : 'Não Executável'}
+                  Builder.io:{" "}
+                  {filter.builderExecutable === "true"
+                    ? "Executável"
+                    : "Não Executável"}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, builderExecutable: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, builderExecutable: "" }))
+                    }
                   />
                 </Badge>
               )}
@@ -1057,7 +1315,9 @@ export default function AutofixBacklog() {
                   Período: {filter.dateRange}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, dateRange: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, dateRange: "" }))
+                    }
                   />
                 </Badge>
               )}
@@ -1066,7 +1326,9 @@ export default function AutofixBacklog() {
                   Pontos: {filter.storyPoints}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, storyPoints: '' }))}
+                    onClick={() =>
+                      setFilter((prev) => ({ ...prev, storyPoints: "" }))
+                    }
                   />
                 </Badge>
               )}
@@ -1075,7 +1337,7 @@ export default function AutofixBacklog() {
                   Tags: {filter.tags}
                   <X
                     className="w-3 h-3 ml-1 cursor-pointer"
-                    onClick={() => setFilter(prev => ({ ...prev, tags: '' }))}
+                    onClick={() => setFilter((prev) => ({ ...prev, tags: "" }))}
                   />
                 </Badge>
               )}
@@ -1086,19 +1348,19 @@ export default function AutofixBacklog() {
 
       {/* Main Content */}
       <div className="flex-1">
-        {view === 'kanban' && <KanbanBoard />}
-        {view === 'list' && (
+        {view === "kanban" && <KanbanBoard />}
+        {view === "list" && (
           <div className="space-y-3">
             {items.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}
           </div>
         )}
-        {view === 'metrics' && <MetricsDashboard />}
+        {view === "metrics" && <MetricsDashboard />}
       </div>
 
       {/* Create Item Dialog */}
-      <CreateItemDialog 
+      <CreateItemDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSubmit={createItemMutation.mutate}
@@ -1106,7 +1368,7 @@ export default function AutofixBacklog() {
       />
 
       {/* Edit Item Dialog */}
-      <EditItemDialog 
+      <EditItemDialog
         item={selectedItem}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
@@ -1127,19 +1389,25 @@ export default function AutofixBacklog() {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
+      <AlertDialog
+        open={!!itemToDelete}
+        onOpenChange={() => setItemToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Arquivar item</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja arquivar o item "{itemToDelete?.title}"? 
+              Tem certeza que deseja arquivar o item "{itemToDelete?.title}"?
               Você poderá restaurá-lo posteriormente se necessário.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => itemToDelete && deleteItemMutation.mutate({ itemId: itemToDelete.id })}
+            <AlertDialogAction
+              onClick={() =>
+                itemToDelete &&
+                deleteItemMutation.mutate({ itemId: itemToDelete.id })
+              }
               className="bg-red-600 hover:bg-red-700"
             >
               Arquivar
@@ -1152,11 +1420,11 @@ export default function AutofixBacklog() {
 }
 
 // Componente para criar novo item
-const CreateItemDialog = ({ 
-  open, 
-  onOpenChange, 
-  onSubmit, 
-  isLoading 
+const CreateItemDialog = ({
+  open,
+  onOpenChange,
+  onSubmit,
+  isLoading,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -1164,38 +1432,44 @@ const CreateItemDialog = ({
   isLoading: boolean;
 }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    type: 'improvement',
-    priority: 'medium',
-    category: 'general',
-    tags: '',
-    builder_prompt: '',
+    title: "",
+    description: "",
+    type: "improvement",
+    priority: "medium",
+    category: "general",
+    tags: "",
+    builder_prompt: "",
     can_execute_in_builder: false,
-    acceptance_criteria: '',
-    business_value: '',
-    technical_notes: '',
-    story_points: '',
+    acceptance_criteria: "",
+    business_value: "",
+    technical_notes: "",
+    story_points: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const data = {
       p_title: formData.title,
       p_description: formData.description,
       p_type: formData.type,
       p_priority: formData.priority,
       p_category: formData.category,
-      p_tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
+      p_tags: formData.tags
+        ? formData.tags.split(",").map((t) => t.trim())
+        : [],
       p_builder_prompt: formData.builder_prompt || null,
       p_can_execute_in_builder: formData.can_execute_in_builder,
-      p_acceptance_criteria: formData.acceptance_criteria ? formData.acceptance_criteria.split('\n').filter(c => c.trim()) : [],
+      p_acceptance_criteria: formData.acceptance_criteria
+        ? formData.acceptance_criteria.split("\n").filter((c) => c.trim())
+        : [],
       p_business_value: formData.business_value || null,
       p_technical_notes: formData.technical_notes || null,
-      p_story_points: formData.story_points ? parseInt(formData.story_points) : null,
+      p_story_points: formData.story_points
+        ? parseInt(formData.story_points)
+        : null,
     };
-    
+
     onSubmit(data);
   };
 
@@ -1203,18 +1477,18 @@ const CreateItemDialog = ({
   useEffect(() => {
     if (!open) {
       setFormData({
-        title: '',
-        description: '',
-        type: 'improvement',
-        priority: 'medium',
-        category: 'general',
-        tags: '',
-        builder_prompt: '',
+        title: "",
+        description: "",
+        type: "improvement",
+        priority: "medium",
+        category: "general",
+        tags: "",
+        builder_prompt: "",
         can_execute_in_builder: false,
-        acceptance_criteria: '',
-        business_value: '',
-        technical_notes: '',
-        story_points: '',
+        acceptance_criteria: "",
+        business_value: "",
+        technical_notes: "",
+        story_points: "",
       });
     }
   }, [open]);
@@ -1225,7 +1499,7 @@ const CreateItemDialog = ({
         <DialogHeader>
           <DialogTitle>Criar Novo Item no Backlog</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -1233,53 +1507,79 @@ const CreateItemDialog = ({
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 required
               />
             </div>
-            
+
             <div className="col-span-2">
               <Label htmlFor="description">Descrição *</Label>
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 rows={3}
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="type">Tipo</Label>
-              <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
+              <Select
+                value={formData.type}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, type: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(typeConfig).map(([type, config]) => (
-                    <SelectItem key={type} value={type}>{config.label}</SelectItem>
+                    <SelectItem key={type} value={type}>
+                      {config.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="priority">Prioridade</Label>
-              <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, priority: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(priorityConfig).map(([priority, config]) => (
-                    <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
+                    <SelectItem key={priority} value={priority}>
+                      {config.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="category">Categoria</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, category: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -1294,10 +1594,18 @@ const CreateItemDialog = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="story_points">Story Points</Label>
-              <Select value={formData.story_points || 'none'} onValueChange={(value) => setFormData(prev => ({ ...prev, story_points: value === 'none' ? '' : value }))}>
+              <Select
+                value={formData.story_points || "none"}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    story_points: value === "none" ? "" : value,
+                  }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -1313,85 +1621,120 @@ const CreateItemDialog = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="col-span-2">
               <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
               <Input
                 id="tags"
                 value={formData.tags}
-                onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, tags: e.target.value }))
+                }
                 placeholder="performance, ui, optimization"
               />
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="can_execute_in_builder"
                 checked={formData.can_execute_in_builder}
-                onChange={(e) => setFormData(prev => ({ ...prev, can_execute_in_builder: e.target.checked }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    can_execute_in_builder: e.target.checked,
+                  }))
+                }
                 className="rounded"
               />
-              <Label htmlFor="can_execute_in_builder">Pode ser executado no Builder.io</Label>
+              <Label htmlFor="can_execute_in_builder">
+                Pode ser executado no Builder.io
+              </Label>
             </div>
-            
+
             {formData.can_execute_in_builder && (
               <div>
                 <Label htmlFor="builder_prompt">Prompt para Builder.io</Label>
                 <Textarea
                   id="builder_prompt"
                   value={formData.builder_prompt}
-                  onChange={(e) => setFormData(prev => ({ ...prev, builder_prompt: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      builder_prompt: e.target.value,
+                    }))
+                  }
                   rows={3}
                   placeholder="Descreva o que deve ser feito quando executado no Builder.io..."
                 />
               </div>
             )}
-            
+
             <div>
-              <Label htmlFor="acceptance_criteria">Critérios de Aceitação (um por linha)</Label>
+              <Label htmlFor="acceptance_criteria">
+                Critérios de Aceitação (um por linha)
+              </Label>
               <Textarea
                 id="acceptance_criteria"
                 value={formData.acceptance_criteria}
-                onChange={(e) => setFormData(prev => ({ ...prev, acceptance_criteria: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    acceptance_criteria: e.target.value,
+                  }))
+                }
                 rows={3}
                 placeholder="O sistema deve fazer X&#10;O usuário deve conseguir Y&#10;A performance deve ser Z"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="business_value">Valor de Negócio</Label>
               <Textarea
                 id="business_value"
                 value={formData.business_value}
-                onChange={(e) => setFormData(prev => ({ ...prev, business_value: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    business_value: e.target.value,
+                  }))
+                }
                 rows={2}
                 placeholder="Qual o valor que esta melhoria traz para o negócio?"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="technical_notes">Notas Técnicas</Label>
               <Textarea
                 id="technical_notes"
                 value={formData.technical_notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, technical_notes: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    technical_notes: e.target.value,
+                  }))
+                }
                 rows={2}
                 placeholder="Detalhes técnicos, considerações de implementação, etc."
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Criando...' : 'Criar Item'}
+              {isLoading ? "Criando..." : "Criar Item"}
             </Button>
           </DialogFooter>
         </form>
@@ -1401,12 +1744,12 @@ const CreateItemDialog = ({
 };
 
 // Componente para editar item existente
-const EditItemDialog = ({ 
+const EditItemDialog = ({
   item,
-  open, 
-  onOpenChange, 
-  onSubmit, 
-  isLoading 
+  open,
+  onOpenChange,
+  onSubmit,
+  isLoading,
 }: {
   item: BacklogItem | null;
   open: boolean;
@@ -1415,36 +1758,38 @@ const EditItemDialog = ({
   isLoading: boolean;
 }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    type: 'improvement',
-    priority: 'medium',
-    category: 'general',
-    tags: '',
-    builder_prompt: '',
+    title: "",
+    description: "",
+    type: "improvement",
+    priority: "medium",
+    category: "general",
+    tags: "",
+    builder_prompt: "",
     can_execute_in_builder: false,
-    acceptance_criteria: '',
-    business_value: '',
-    technical_notes: '',
-    story_points: '',
+    acceptance_criteria: "",
+    business_value: "",
+    technical_notes: "",
+    story_points: "",
   });
 
   // Populate form when item changes
   useEffect(() => {
     if (item && open) {
       setFormData({
-        title: item.title || '',
-        description: item.description || '',
-        type: item.type || 'improvement',
-        priority: item.priority || 'medium',
-        category: item.category || 'general',
-        tags: item.tags ? item.tags.join(', ') : '',
-        builder_prompt: item.builder_prompt || '',
+        title: item.title || "",
+        description: item.description || "",
+        type: item.type || "improvement",
+        priority: item.priority || "medium",
+        category: item.category || "general",
+        tags: item.tags ? item.tags.join(", ") : "",
+        builder_prompt: item.builder_prompt || "",
         can_execute_in_builder: item.can_execute_in_builder || false,
-        acceptance_criteria: item.acceptance_criteria ? item.acceptance_criteria.join('\n') : '',
-        business_value: item.business_value || '',
-        technical_notes: item.technical_notes || '',
-        story_points: item.story_points ? item.story_points.toString() : '',
+        acceptance_criteria: item.acceptance_criteria
+          ? item.acceptance_criteria.join("\n")
+          : "",
+        business_value: item.business_value || "",
+        technical_notes: item.technical_notes || "",
+        story_points: item.story_points ? item.story_points.toString() : "",
       });
     }
   }, [item, open]);
@@ -1452,7 +1797,7 @@ const EditItemDialog = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!item) return;
-    
+
     const data = {
       p_item_id: item.id,
       p_title: formData.title,
@@ -1460,15 +1805,21 @@ const EditItemDialog = ({
       p_type: formData.type,
       p_priority: formData.priority,
       p_category: formData.category,
-      p_tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
+      p_tags: formData.tags
+        ? formData.tags.split(",").map((t) => t.trim())
+        : [],
       p_builder_prompt: formData.builder_prompt || null,
       p_can_execute_in_builder: formData.can_execute_in_builder,
-      p_acceptance_criteria: formData.acceptance_criteria ? formData.acceptance_criteria.split('\n').filter(c => c.trim()) : [],
+      p_acceptance_criteria: formData.acceptance_criteria
+        ? formData.acceptance_criteria.split("\n").filter((c) => c.trim())
+        : [],
       p_business_value: formData.business_value || null,
       p_technical_notes: formData.technical_notes || null,
-      p_story_points: formData.story_points ? parseInt(formData.story_points) : null,
+      p_story_points: formData.story_points
+        ? parseInt(formData.story_points)
+        : null,
     };
-    
+
     onSubmit(data);
   };
 
@@ -1480,7 +1831,7 @@ const EditItemDialog = ({
         <DialogHeader>
           <DialogTitle>Editar Item do Backlog</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -1488,53 +1839,79 @@ const EditItemDialog = ({
               <Input
                 id="edit-title"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 required
               />
             </div>
-            
+
             <div className="col-span-2">
               <Label htmlFor="edit-description">Descrição *</Label>
               <Textarea
                 id="edit-description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 rows={3}
                 required
               />
             </div>
-            
+
             <div>
               <Label htmlFor="edit-type">Tipo</Label>
-              <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
+              <Select
+                value={formData.type}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, type: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(typeConfig).map(([type, config]) => (
-                    <SelectItem key={type} value={type}>{config.label}</SelectItem>
+                    <SelectItem key={type} value={type}>
+                      {config.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="edit-priority">Prioridade</Label>
-              <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, priority: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(priorityConfig).map(([priority, config]) => (
-                    <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
+                    <SelectItem key={priority} value={priority}>
+                      {config.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="edit-category">Categoria</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, category: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -1549,10 +1926,18 @@ const EditItemDialog = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="edit-story_points">Story Points</Label>
-              <Select value={formData.story_points || 'none'} onValueChange={(value) => setFormData(prev => ({ ...prev, story_points: value === 'none' ? '' : value }))}>
+              <Select
+                value={formData.story_points || "none"}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    story_points: value === "none" ? "" : value,
+                  }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -1568,85 +1953,122 @@ const EditItemDialog = ({
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="col-span-2">
               <Label htmlFor="edit-tags">Tags (separadas por vírgula)</Label>
               <Input
                 id="edit-tags"
                 value={formData.tags}
-                onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, tags: e.target.value }))
+                }
                 placeholder="performance, ui, optimization"
               />
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="edit-can_execute_in_builder"
                 checked={formData.can_execute_in_builder}
-                onChange={(e) => setFormData(prev => ({ ...prev, can_execute_in_builder: e.target.checked }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    can_execute_in_builder: e.target.checked,
+                  }))
+                }
                 className="rounded"
               />
-              <Label htmlFor="edit-can_execute_in_builder">Pode ser executado no Builder.io</Label>
+              <Label htmlFor="edit-can_execute_in_builder">
+                Pode ser executado no Builder.io
+              </Label>
             </div>
-            
+
             {formData.can_execute_in_builder && (
               <div>
-                <Label htmlFor="edit-builder_prompt">Prompt para Builder.io</Label>
+                <Label htmlFor="edit-builder_prompt">
+                  Prompt para Builder.io
+                </Label>
                 <Textarea
                   id="edit-builder_prompt"
                   value={formData.builder_prompt}
-                  onChange={(e) => setFormData(prev => ({ ...prev, builder_prompt: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      builder_prompt: e.target.value,
+                    }))
+                  }
                   rows={3}
                   placeholder="Descreva o que deve ser feito quando executado no Builder.io..."
                 />
               </div>
             )}
-            
+
             <div>
-              <Label htmlFor="edit-acceptance_criteria">Critérios de Aceitação (um por linha)</Label>
+              <Label htmlFor="edit-acceptance_criteria">
+                Critérios de Aceitação (um por linha)
+              </Label>
               <Textarea
                 id="edit-acceptance_criteria"
                 value={formData.acceptance_criteria}
-                onChange={(e) => setFormData(prev => ({ ...prev, acceptance_criteria: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    acceptance_criteria: e.target.value,
+                  }))
+                }
                 rows={3}
                 placeholder="O sistema deve fazer X&#10;O usuário deve conseguir Y&#10;A performance deve ser Z"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="edit-business_value">Valor de Negócio</Label>
               <Textarea
                 id="edit-business_value"
                 value={formData.business_value}
-                onChange={(e) => setFormData(prev => ({ ...prev, business_value: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    business_value: e.target.value,
+                  }))
+                }
                 rows={2}
                 placeholder="Qual o valor que esta melhoria traz para o negócio?"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="edit-technical_notes">Notas Técnicas</Label>
               <Textarea
                 id="edit-technical_notes"
                 value={formData.technical_notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, technical_notes: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    technical_notes: e.target.value,
+                  }))
+                }
                 rows={2}
                 placeholder="Detalhes técnicos, considerações de implementação, etc."
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+              {isLoading ? "Salvando..." : "Salvar Alterações"}
             </Button>
           </DialogFooter>
         </form>
@@ -1679,7 +2101,7 @@ const ItemDetailsDialog = ({
 
   const StatusIcon = statusConfig[item.status].icon;
   const TypeIcon = typeConfig[item.type].icon;
-  const isArchived = item.status === 'archived';
+  const isArchived = item.status === "archived";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1691,7 +2113,10 @@ const ItemDetailsDialog = ({
                 <TypeIcon className="w-5 h-5 text-gray-600" />
                 <DialogTitle className="text-xl">{item.title}</DialogTitle>
                 {isArchived && (
-                  <Badge variant="outline" className="bg-gray-100 text-gray-500">
+                  <Badge
+                    variant="outline"
+                    className="bg-gray-100 text-gray-500"
+                  >
                     <Archive className="w-3 h-3 mr-1" />
                     Arquivado
                   </Badge>
@@ -1704,7 +2129,10 @@ const ItemDetailsDialog = ({
                 <Badge className={priorityConfig[item.priority].color}>
                   {priorityConfig[item.priority].label}
                 </Badge>
-                <Badge variant="outline" className={statusConfig[item.status].color}>
+                <Badge
+                  variant="outline"
+                  className={statusConfig[item.status].color}
+                >
                   <StatusIcon className="w-3 h-3 mr-1" />
                   {statusConfig[item.status].label}
                 </Badge>
@@ -1713,7 +2141,7 @@ const ItemDetailsDialog = ({
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {!isArchived && (
                 <>
@@ -1727,7 +2155,7 @@ const ItemDetailsDialog = ({
                       Executar no Builder.io
                     </Button>
                   )}
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -1753,18 +2181,18 @@ const ItemDetailsDialog = ({
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel>Alterar Status</DropdownMenuLabel>
                       {Object.entries(statusConfig)
-                        .filter(([status]) => status !== 'archived')
+                        .filter(([status]) => status !== "archived")
                         .map(([status, config]) => (
-                        <DropdownMenuItem 
-                          key={status}
-                          onClick={() => onStatusChange(item, status)}
-                        >
-                          <config.icon className="w-4 h-4 mr-2" />
-                          {config.label}
-                        </DropdownMenuItem>
-                      ))}
+                          <DropdownMenuItem
+                            key={status}
+                            onClick={() => onStatusChange(item, status)}
+                          >
+                            <config.icon className="w-4 h-4 mr-2" />
+                            {config.label}
+                          </DropdownMenuItem>
+                        ))}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="text-red-600"
                         onClick={() => onDelete(item)}
                       >
@@ -1778,19 +2206,22 @@ const ItemDetailsDialog = ({
             </div>
           </div>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           <div>
             <h3 className="font-medium mb-2">Descrição</h3>
             <p className="text-gray-600">{item.description}</p>
           </div>
-          
+
           {item.acceptance_criteria.length > 0 && (
             <div>
               <h3 className="font-medium mb-2">Critérios de Aceitação</h3>
               <ul className="space-y-1">
                 {item.acceptance_criteria.map((criteria, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+                  <li
+                    key={index}
+                    className="flex items-start gap-2 text-sm text-gray-600"
+                  >
                     <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                     {criteria}
                   </li>
@@ -1798,51 +2229,58 @@ const ItemDetailsDialog = ({
               </ul>
             </div>
           )}
-          
+
           {item.business_value && (
             <div>
               <h3 className="font-medium mb-2">Valor de Negócio</h3>
               <p className="text-gray-600">{item.business_value}</p>
             </div>
           )}
-          
+
           {item.technical_notes && (
             <div>
               <h3 className="font-medium mb-2">Notas Técnicas</h3>
               <p className="text-gray-600">{item.technical_notes}</p>
             </div>
           )}
-          
+
           {item.builder_prompt && (
             <div>
               <h3 className="font-medium mb-2">Prompt Builder.io</h3>
               <div className="bg-gray-50 p-3 rounded-lg">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap">{item.builder_prompt}</pre>
+                <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {item.builder_prompt}
+                </pre>
               </div>
             </div>
           )}
-          
+
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="font-medium">Categoria:</span> {item.category}
             </div>
             <div>
-              <span className="font-medium">Complexidade:</span> {item.complexity}
+              <span className="font-medium">Complexidade:</span>{" "}
+              {item.complexity}
             </div>
             <div>
-              <span className="font-medium">Criado por:</span> {item.created_by_email}
+              <span className="font-medium">Criado por:</span>{" "}
+              {item.created_by_email}
             </div>
             <div>
-              <span className="font-medium">Atribuído a:</span> {item.assigned_to_email || 'Não atribuído'}
+              <span className="font-medium">Atribuído a:</span>{" "}
+              {item.assigned_to_email || "Não atribuído"}
             </div>
             <div>
-              <span className="font-medium">Criado em:</span> {formatDate(item.created_at)}
+              <span className="font-medium">Criado em:</span>{" "}
+              {formatDate(item.created_at)}
             </div>
             <div>
-              <span className="font-medium">Atualizado em:</span> {formatDate(item.updated_at)}
+              <span className="font-medium">Atualizado em:</span>{" "}
+              {formatDate(item.updated_at)}
             </div>
           </div>
-          
+
           {item.tags.length > 0 && (
             <div>
               <h3 className="font-medium mb-2">Tags</h3>

@@ -1,46 +1,53 @@
-import React from 'react';
-import { LucideIcon, FileText, Circle, Settings } from 'lucide-react';
-import { cn } from '../lib/utils';
+import React from "react";
+import { LucideIcon, FileText, Circle, Settings } from "lucide-react";
+import { cn } from "../lib/utils";
 
 interface BrandedIconProps {
   icon: LucideIcon;
-  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  variant?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger"
+    | "info";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
   background?: boolean;
   rounded?: boolean;
 }
 
 const VARIANT_STYLES = {
-  default: 'text-gray-600 bg-gray-100',
-  primary: 'text-blue-600 bg-blue-100',
-  secondary: 'text-purple-600 bg-purple-100',
-  success: 'text-green-600 bg-green-100',
-  warning: 'text-orange-600 bg-orange-100',
-  danger: 'text-red-600 bg-red-100',
-  info: 'text-cyan-600 bg-cyan-100',
+  default: "text-gray-600 bg-gray-100",
+  primary: "text-blue-600 bg-blue-100",
+  secondary: "text-purple-600 bg-purple-100",
+  success: "text-green-600 bg-green-100",
+  warning: "text-orange-600 bg-orange-100",
+  danger: "text-red-600 bg-red-100",
+  info: "text-cyan-600 bg-cyan-100",
 };
 
 const SIZE_STYLES = {
-  xs: 'w-3 h-3',
-  sm: 'w-4 h-4',
-  md: 'w-5 h-5',
-  lg: 'w-6 h-6',
-  xl: 'w-8 h-8',
+  xs: "w-3 h-3",
+  sm: "w-4 h-4",
+  md: "w-5 h-5",
+  lg: "w-6 h-6",
+  xl: "w-8 h-8",
 };
 
 const BACKGROUND_SIZES = {
-  xs: 'w-6 h-6',
-  sm: 'w-8 h-8',
-  md: 'w-10 h-10',
-  lg: 'w-12 h-12',
-  xl: 'w-16 h-16',
+  xs: "w-6 h-6",
+  sm: "w-8 h-8",
+  md: "w-10 h-10",
+  lg: "w-12 h-12",
+  xl: "w-16 h-16",
 };
 
 export default function BrandedIcon({
   icon: Icon,
-  variant = 'default',
-  size = 'md',
+  variant = "default",
+  size = "md",
   className,
   background = false,
   rounded = true,
@@ -53,17 +60,17 @@ export default function BrandedIcon({
     return (
       <div
         className={cn(
-          'flex items-center justify-center',
+          "flex items-center justify-center",
           backgroundSize,
-          variantStyles.split(' ')[1], // bg color
-          rounded ? 'rounded-full' : 'rounded-lg',
-          className
+          variantStyles.split(" ")[1], // bg color
+          rounded ? "rounded-full" : "rounded-lg",
+          className,
         )}
       >
-        <Icon 
+        <Icon
           className={cn(
             iconSize,
-            variantStyles.split(' ')[0] // text color
+            variantStyles.split(" ")[0], // text color
           )}
         />
       </div>
@@ -74,50 +81,56 @@ export default function BrandedIcon({
     <Icon
       className={cn(
         iconSize,
-        variantStyles.split(' ')[0], // text color only
-        className
+        variantStyles.split(" ")[0], // text color only
+        className,
       )}
     />
   );
 }
 
 // Utility function to get contextual icon variants
-export const getContextualVariant = (context: string): BrandedIconProps['variant'] => {
-  const contextMap: Record<string, BrandedIconProps['variant']> = {
+export const getContextualVariant = (
+  context: string,
+): BrandedIconProps["variant"] => {
+  const contextMap: Record<string, BrandedIconProps["variant"]> = {
     // Process contexts
-    processo: 'primary',
-    movimentacao: 'info',
-    publicacao: 'success',
-    audiencia: 'warning',
-    documento: 'secondary',
-    
+    processo: "primary",
+    movimentacao: "info",
+    publicacao: "success",
+    audiencia: "warning",
+    documento: "secondary",
+
     // Status contexts
-    ativo: 'success',
-    pendente: 'warning',
-    cancelado: 'danger',
-    concluido: 'success',
-    
+    ativo: "success",
+    pendente: "warning",
+    cancelado: "danger",
+    concluido: "success",
+
     // Actions
-    editar: 'primary',
-    excluir: 'danger',
-    visualizar: 'info',
-    adicionar: 'success',
-    
+    editar: "primary",
+    excluir: "danger",
+    visualizar: "info",
+    adicionar: "success",
+
     // Areas
-    trabalhista: 'blue',
-    civil: 'purple',
-    criminal: 'red',
-    tributario: 'orange',
-    previdenciario: 'green',
-    
-    default: 'default',
+    trabalhista: "blue",
+    civil: "purple",
+    criminal: "red",
+    tributario: "orange",
+    previdenciario: "green",
+
+    default: "default",
   };
 
-  return contextMap[context.toLowerCase()] || 'default';
+  return contextMap[context.toLowerCase()] || "default";
 };
 
 // Pre-configured icon components for common use cases
-export const ProcessoIcon = ({ icon, className, ...props }: Omit<BrandedIconProps, 'variant'>) => (
+export const ProcessoIcon = ({
+  icon,
+  className,
+  ...props
+}: Omit<BrandedIconProps, "variant">) => (
   <BrandedIcon
     icon={icon || FileText}
     variant="primary"
@@ -126,7 +139,15 @@ export const ProcessoIcon = ({ icon, className, ...props }: Omit<BrandedIconProp
   />
 );
 
-export const StatusIcon = ({ status, icon, className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'> & { status: string; icon?: LucideIcon }) => (
+export const StatusIcon = ({
+  status,
+  icon,
+  className,
+  ...props
+}: Omit<BrandedIconProps, "icon" | "variant"> & {
+  status: string;
+  icon?: LucideIcon;
+}) => (
   <BrandedIcon
     icon={icon || Circle}
     variant={getContextualVariant(status)}
@@ -135,7 +156,15 @@ export const StatusIcon = ({ status, icon, className, ...props }: Omit<BrandedIc
   />
 );
 
-export const ActionIcon = ({ action, icon, className, ...props }: Omit<BrandedIconProps, 'icon' | 'variant'> & { action: string; icon?: LucideIcon }) => (
+export const ActionIcon = ({
+  action,
+  icon,
+  className,
+  ...props
+}: Omit<BrandedIconProps, "icon" | "variant"> & {
+  action: string;
+  icon?: LucideIcon;
+}) => (
   <BrandedIcon
     icon={icon || Settings}
     variant={getContextualVariant(action)}

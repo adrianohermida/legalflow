@@ -3,38 +3,45 @@
 ## ✅ Melhorias Realizadas
 
 ### 1. **Sistema de Controle de Leitura e Tratamento**
+
 - ✅ Tabela `inbox_read_tracking` para rastrear status de leitura e tratamento
 - ✅ Funções SQL para marcar itens como lidos e tratados
 - ✅ Views aprimoradas com status de leitura
 - ✅ Estatísticas em tempo real de itens lidos/não lidos
 
 ### 2. **Detecção Automática de CNJ**
+
 - ✅ Função `extract_cnj_from_movimentacao()` para extrair CNJ do conteúdo
 - ✅ Trigger automático para vincular movimentações com CNJ detectado
 - ✅ Auto-detecção no frontend com pre-seleção de processo
 
 ### 3. **Busca Aprimorada de Processos**
+
 - ✅ Função `search_processos_with_parts()` para busca por nome das partes
 - ✅ Busca unificada por CNJ, autor e réu no formato "Autor x Réu"
 - ✅ Interface de busca com auto-complete
 
 ### 4. **Informações Detalhadas de Movimentações**
+
 - ✅ View `vw_movimentacoes_with_read_status` com dados extraídos do JSON
 - ✅ Identificação de tribunal, grau de instância e tipo de movimentação
 - ✅ Diferenciação visual entre PUBLICAÇÃO e ANDAMENTO
 
 ### 5. **Filtros Avançados**
+
 - ✅ Filtro por status de leitura (lidas/não lidas)
 - ✅ Filtro por status de tratamento (tratadas/não tratadas)
 - ✅ Filtros de período mais granulares (hoje, 7 dias, 30 dias, 90 dias)
 - ✅ Combinação de múltiplos filtros
 
 ### 6. **Exportação para Excel**
+
 - ✅ Função de exportação com dados completos
 - ✅ Inclui status de leitura e tratamento
 - ✅ Dados formatados para análise
 
 ### 7. **Interface Aprimorada**
+
 - ✅ Dashboard com estatísticas visuais
 - ✅ Indicadores visuais de status (lido/não lido, tratado/não tratado)
 - ✅ Menu de ações organizado com dropdown
@@ -86,27 +93,32 @@ npm install xlsx
 ## 📊 Funcionalidades Implementadas
 
 ### Dashboard de Estatísticas
+
 - Total de itens
 - Itens não lidos (destacado em vermelho)
-- Itens lidos (destacado em verde) 
+- Itens lidos (destacado em verde)
 - Itens tratados (destacado em azul)
 
 ### Controle de Status
+
 - **Lido**: Item foi visualizado pelo usuário
 - **Tratado**: Item foi processado/resolvido pelo usuário
 - **Histórico**: Data e hora de leitura/tratamento
 
 ### Detecção Automática
+
 - CNJ é automaticamente extraído do conteúdo
 - Processo correspondente é pré-selecionado se existir
 - Trigger automático vincula movimentações com CNJ detectado
 
 ### Busca Inteligente
+
 - Busca por CNJ completo ou parcial
 - Busca por nome do autor ou réu
 - Resultado no formato "Autor x Réu" para fácil identificação
 
 ### Informações Detalhadas
+
 - Origem do tribunal extraída da fonte
 - Grau da instância identificado
 - Tipo de movimentação (PUBLICAÇÃO vs ANDAMENTO)
