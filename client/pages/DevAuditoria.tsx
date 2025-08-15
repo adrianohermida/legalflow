@@ -76,6 +76,7 @@ import {
   ArrowRight,
   MessageSquare,
   Calendar,
+  Search,
 } from "lucide-react";
 import {
   createAutofixTables,
@@ -512,7 +513,7 @@ const DevAuditoria: React.FC = () => {
         if (suggestions.length > 0) {
           setShowSuggestions(true);
           console.log(
-            `���� ${suggestions.length} sugestões de melhoria identificadas`,
+            `💡 ${suggestions.length} sugestões de melhoria identificadas`,
           );
 
           // Criar automaticamente itens críticos
