@@ -327,6 +327,31 @@ export const implAutofix = async (
         }
         break;
 
+      case "STRIPE_SEED":
+        // Call the dedicated Stripe seeding function
+        try {
+          const { data: seedResult, error } = await supabase.rpc("legalflow.seed_stripe_data");
+
+          if (error) {
+            result.errors.push(`Erro ao executar seed Stripe: ${error.message}`);
+          } else if (seedResult?.success) {
+            result.changes.push(
+              `${seedResult.message}: ${seedResult.products_count} produtos, ${seedResult.prices_count} preços`
+            );
+            result.success = true;
+            result.message = "Stripe configurado com sucesso";
+          } else {
+            result.errors.push(seedResult?.message || "Erro desconhecido no seed Stripe");
+          }
+        } catch (error) {
+          result.errors.push(`Função seed_stripe_data não encontrada: ${error}`);
+        }
+
+        if (!result.success) {
+          result.message = "Falha ao configurar Stripe";
+        }
+        break;
+
       case "journey_triggers_fix":
         // Try to fix stage types names
         try {
