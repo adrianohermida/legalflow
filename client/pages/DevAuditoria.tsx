@@ -21,6 +21,13 @@ import { supabase } from "../lib/supabase";
 import { implAudit, implAutofix } from "../lib/audit-rpcs";
 import { AutofixHistoryPanel } from "../components/AutofixHistoryPanel";
 import { autofixHistory } from "../lib/autofix-history";
+import AutofixBacklog from "../components/AutofixBacklog";
+import RouteCoveragePanel from "../components/RouteCoveragePanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Textarea } from "../components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Label } from "../components/ui/label";
+import { Input } from "../components/ui/input";
 import {
   Shield,
   CheckCircle,
@@ -38,6 +45,13 @@ import {
   Users,
   Loader2,
   ChevronDown,
+  TestTube,
+  Settings,
+  Key,
+  Target,
+  BarChart3,
+  Filter,
+  FileText,
 } from "lucide-react";
 
 interface AuditModule {
