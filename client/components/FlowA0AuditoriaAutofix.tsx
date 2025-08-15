@@ -234,22 +234,10 @@ export function FlowA0AuditoriaAutofix() {
     try {
       console.log(`🔧 Executando autofix: ${module.autofixCode}`);
 
-      // Chamar RPC do Supabase LegalFlow com patch_code
-      const { data: autofixResult, error } = await lf.rpc('impl_autofix', {
-        patch_code: module.autofixCode
-      });
+      // Chamar implementação local que usa supabaseLF
+      const result = await flowA0ImplAutofix(module.autofixCode);
 
-      if (error) {
-        throw new Error(`RPC Error: ${error.message}`);
-      }
-
-      if (!autofixResult) {
-        throw new Error('Nenhum resultado retornado do autofix');
-      }
-
-      console.log('🛠️ Resultado do autofix:', autofixResult);
-
-      const result = autofixResult as AutofixResult;
+      console.log('🛠️ Resultado do autofix:', result);
 
       if (result.success) {
         toast({
