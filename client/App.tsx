@@ -375,24 +375,9 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      {/* Admin and development routes */}
       <Route
-        path="/jornadas-d1"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <JourneysD1 />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/journey-designer"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <JourneyDesignerD2 />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/audit-log"
+        path="/dev/audit-log"
         element={
           <DemoProtectedRoute userType="advogado">
             <AuditLog />
