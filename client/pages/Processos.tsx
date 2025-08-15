@@ -450,7 +450,7 @@ export function Processos() {
                     >
                       <TableCell className="font-mono text-sm">
                         <Link
-                          to={`/processos-v2/${processo.numero_cnj}`}
+                          to={`/processos-overview/${processo.numero_cnj}`}
                           className="hover:underline"
                           style={{ color: colors.brand.primary }}
                         >
