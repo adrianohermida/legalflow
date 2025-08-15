@@ -244,7 +244,7 @@ router.get("/:cpfcnpj/planos", async (req, res, next) => {
       return res.error("Cliente não encontrado", 404);
     }
 
-    const { planosPagamentoApi } = await import("@/lib/api");
+    const { planosPagamentoApi } = await import("../../../client/lib/api");
     const planos = await planosPagamentoApi.getByCliente(cpfcnpj);
 
     res.success(planos, "Planos de pagamento do cliente encontrados com sucesso");
@@ -257,7 +257,7 @@ router.get("/:cpfcnpj/planos", async (req, res, next) => {
 router.get("/:cpfcnpj/jornadas", async (req, res, next) => {
   try {
     const { cpfcnpj } = req.params;
-    
+
     if (!cpfcnpj || !/^\d{11}$|^\d{14}$/.test(cpfcnpj)) {
       return res.error("CPF/CNPJ inválido", 400);
     }
@@ -269,7 +269,7 @@ router.get("/:cpfcnpj/jornadas", async (req, res, next) => {
       return res.error("Cliente não encontrado", 404);
     }
 
-    const { journeyInstancesApi } = await import("@/lib/api");
+    const { journeyInstancesApi } = await import("../../../client/lib/api");
     const jornadas = await journeyInstancesApi.getByCliente(cpfcnpj);
 
     res.success(jornadas, "Jornadas do cliente encontradas com sucesso");
