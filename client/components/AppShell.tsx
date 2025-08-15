@@ -66,18 +66,18 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
 
   return (
     <div className="app-shell">
-      {/* Sidebar */}
-      <Sidebar userType={userType} />
+      {/* Sidebar Customizável */}
+      <SidebarCustomizable userType={userType} />
 
       {/* Main Content Area */}
       <div className="app-main">
         {/* Header */}
         <Header
           userType={userType}
-          onAppLauncherToggle={handleOfficeModulesToggle}
+          onAppLauncherToggle={handleAppLauncherToggle}
           onNotificationToggle={handleNotificationToggle}
           onChatToggle={handleChatToggle}
-          onSearchClick={() => setIsCommandPaletteOpen(true)}
+          onSearchClick={() => setIsGlobalSearchOpen(true)}
           user={user}
           logout={logout}
         />
@@ -88,12 +88,13 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
         </main>
       </div>
 
-      {/* Overlays and Modals */}
-      {isOfficeModulesOpen && (
-        <OfficeModulesWindow
-          isOpen={isOfficeModulesOpen}
-          onClose={() => setIsOfficeModulesOpen(false)}
+      {/* Overlays and Modals - Flow B1 */}
+      {isAppLauncherOpen && (
+        <AppLauncherMosaic
+          isOpen={isAppLauncherOpen}
+          onClose={() => setIsAppLauncherOpen(false)}
           userType={userType}
+          onUpdateSidebar={handleSidebarUpdate}
         />
       )}
 
@@ -113,10 +114,10 @@ export function AppShell({ userType, user, logout, children }: AppShellProps) {
         />
       )}
 
-      {isCommandPaletteOpen && (
-        <CommandPalette
-          isOpen={isCommandPaletteOpen}
-          onClose={() => setIsCommandPaletteOpen(false)}
+      {isGlobalSearchOpen && (
+        <GlobalSearchPalette
+          isOpen={isGlobalSearchOpen}
+          onClose={() => setIsGlobalSearchOpen(false)}
           userType={userType}
         />
       )}
