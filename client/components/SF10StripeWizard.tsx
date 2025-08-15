@@ -163,17 +163,16 @@ export const SF10StripeWizard: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      await Promise.all([
-        loadCustomers(),
-        loadSubscriptions(),
-        loadInvoices(),
-        loadPayments(),
-      ]);
+      // Executa as funções individualmente para não falhar tudo se uma falhar
+      await loadCustomers();
+      await loadSubscriptions();
+      await loadInvoices();
+      await loadPayments();
     } catch (error) {
-      console.error("Error loading Stripe data:", error);
+      console.error("Error loading Stripe data:", error instanceof Error ? error.message : String(error));
       toast({
         title: "Erro ao carregar dados",
-        description: "Não foi possível carregar os dados do Stripe",
+        description: error instanceof Error ? error.message : "Não foi possível carregar os dados do Stripe",
         variant: "destructive",
       });
     } finally {
