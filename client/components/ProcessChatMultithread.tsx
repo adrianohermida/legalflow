@@ -667,6 +667,123 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
               </>
             )}
 
+            {selectedQuickAction?.id === 'request_document' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Nome do documento *
+                  </label>
+                  <Input
+                    placeholder="Ex: RG, Procuração, Contrato..."
+                    value={quickActionData.document_name || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, document_name: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Descrição (opcional)
+                  </label>
+                  <Textarea
+                    placeholder="Detalhes sobre o documento necessário"
+                    value={quickActionData.description || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, description: e.target.value }))}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="required-doc"
+                    checked={quickActionData.required !== 'false'}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, required: e.target.checked.toString() }))}
+                  />
+                  <label htmlFor="required-doc" className="text-sm">
+                    Documento obrigatório
+                  </label>
+                </div>
+              </>
+            )}
+
+            {selectedQuickAction?.id === 'complete_stage' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    ID da Etapa *
+                  </label>
+                  <Input
+                    placeholder="UUID da etapa a ser concluída"
+                    value={quickActionData.stage_instance_id || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, stage_instance_id: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Observações (opcional)
+                  </label>
+                  <Textarea
+                    placeholder="Anotações sobre a conclusão da etapa"
+                    value={quickActionData.notes || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, notes: e.target.value }))}
+                  />
+                </div>
+              </>
+            )}
+
+            {selectedQuickAction?.id === 'advogaai_analysis' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Tipo de análise
+                  </label>
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={quickActionData.analysis_type || "general"}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, analysis_type: e.target.value }))}
+                  >
+                    <option value="general">Análise geral</option>
+                    <option value="legal">Análise jurídica</option>
+                    <option value="procedural">Análise processual</option>
+                    <option value="strategic">Análise estratégica</option>
+                    <option value="risk">Análise de riscos</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Contexto específico (opcional)
+                  </label>
+                  <Textarea
+                    placeholder="Forneça contexto adicional para a análise..."
+                    value={quickActionData.context || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, context: e.target.value }))}
+                  />
+                </div>
+              </>
+            )}
+
+            {selectedQuickAction?.id === 'start_journey' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Tipo de jornada *
+                  </label>
+                  <Input
+                    placeholder="UUID do tipo de jornada"
+                    value={quickActionData.journey_type_id || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, journey_type_id: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Título personalizado (opcional)
+                  </label>
+                  <Input
+                    placeholder="Título específico para esta jornada"
+                    value={quickActionData.title || ""}
+                    onChange={(e) => setQuickActionData(prev => ({ ...prev, title: e.target.value }))}
+                  />
+                </div>
+              </>
+            )}
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
