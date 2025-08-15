@@ -261,13 +261,20 @@ export default function InboxLegalC4() {
       const { data, error, count } = await query;
       if (error) throw error;
 
-      // Process data to extract resumo and tribunal
-      const processedData = data.map((item: any) => ({
-        ...item,
-        resumo_extraido: item.data?.texto || item.data?.conteudo || "Sem resumo",
-        tribunal_origem: item.data?.tribunal || item.data?.orgao || "Não informado",
-        vinculada: !!item.numero_cnj,
-      }));
+      // Process data to extract resumo and tribunal using utilities
+      const processedData = data.map((item: any) => {
+        const triaged: TriagemItem = {
+          ...item,
+          resumo_extraido: extractResumo(item.data, "movimentacao"),
+          tribunal_origem: extractTribunalOrigem(item.data),
+          vinculada: !!item.numero_cnj,
+          prioridade: calculatePriority({
+            ...item,
+            resumo_extraido: extractResumo(item.data, "movimentacao"),
+          } as TriagemItem),
+        };
+        return triaged;
+      });
 
       return {
         data: processedData,
