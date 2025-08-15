@@ -266,7 +266,7 @@ WHERE table_schema = 'public'
 Após executar este script de limpeza:
 
 1. Execute o script principal: AUTOFIX_DATABASE_SETUP.sql
-2. Verifique o setup em /autofix-testing
+2. Verifique o setup em /dev-auditoria
 3. Execute os testes para confirmar funcionamento
 
 ATENÇÃO: Este script remove TODOS os dados do autofix!
