@@ -158,6 +158,7 @@ const DevAuditoria: React.FC = () => {
     | "sf8"
     | "sf9"
     | "sf10"
+    | "sf11"
   >("sf2");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
