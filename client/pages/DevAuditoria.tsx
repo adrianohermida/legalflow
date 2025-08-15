@@ -1092,7 +1092,7 @@ const DevAuditoria: React.FC = () => {
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as typeof activeTab)}
       >
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
             Painel de Auditoria
@@ -1330,7 +1330,7 @@ const DevAuditoria: React.FC = () => {
                       <SelectItem value="feature">
                         Nova Funcionalidade
                       </SelectItem>
-                      <SelectItem value="optimization">Otimizaç��o</SelectItem>
+                      <SelectItem value="optimization">Otimização</SelectItem>
                       <SelectItem value="refactor">Refatoração</SelectItem>
                     </SelectContent>
                   </Select>
