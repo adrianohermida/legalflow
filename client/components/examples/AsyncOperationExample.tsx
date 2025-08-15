@@ -254,14 +254,14 @@ function EmptyStateExample() {
 // Example 4: Form with Async Submit
 function FormExample() {
   const [formData, setFormData] = useState({ name: "", email: "" });
-  
+
   const {
     isLoading,
     error,
     isSuccess,
     execute,
-    LoadingComponent,
-    ErrorComponent,
+    loadingConfig,
+    errorConfig,
   } = useAsyncForm();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -270,7 +270,7 @@ function FormExample() {
   };
 
   if (isLoading) {
-    return <LoadingComponent />;
+    return <LoadingState {...loadingConfig} />;
   }
 
   return (
