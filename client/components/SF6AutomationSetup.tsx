@@ -7,6 +7,7 @@ import { Loader2, CheckCircle, AlertTriangle, Play, Database } from "lucide-reac
 import { useMutation } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
+import { SF6BridgeManager } from "./SF6BridgeManager";
 
 interface AutomationResult {
   success: boolean;
