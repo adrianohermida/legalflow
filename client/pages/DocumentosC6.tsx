@@ -183,14 +183,6 @@ const DocumentosC6 = () => {
   });
 
   // Handlers
-  const handleFileUpload = async (file: File) => {
-    if (!file) return;
-
-    setIsUploading(true);
-    uploadMutation.mutate({ file, form: uploadForm });
-    setIsUploading(false);
-  };
-
   const downloadDocument = async (document: Document) => {
     try {
       const { data, error } = await supabase.storage
@@ -211,24 +203,6 @@ const DocumentosC6 = () => {
       toast({
         title: "Erro no download",
         description: "Não foi possível baixar o documento.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const viewDocument = async (document: Document) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from("documents")
-        .createSignedUrl(document.file_path, 3600);
-
-      if (error) throw error;
-
-      window.open(data.signedUrl, "_blank");
-    } catch (error) {
-      toast({
-        title: "Erro ao visualizar",
-        description: "Não foi possível abrir o documento.",
         variant: "destructive",
       });
     }
