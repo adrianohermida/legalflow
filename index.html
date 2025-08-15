@@ -166,28 +166,12 @@
       </div>
     </div>
 
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 40px; text-align: center; font-family: system-ui;">
+        <h2>🔄 Carregando LegalFlow...</h2>
+        <p>Sistema iniciando...</p>
+      </div>
+    </div>
     <script type="module" src="/client/App.tsx"></script>
-
-    <script>
-      // Development fallback - show loading info
-      console.log("✅ LegalFlow loading React app...");
-
-      // Show loading message if React takes time to load
-      setTimeout(() => {
-        const root = document.getElementById('root');
-        if (!root || !root.children.length) {
-          console.log("🔄 React app is loading...");
-        }
-      }, 1000);
-
-      // Fallback after 5 seconds if React doesn't load
-      setTimeout(() => {
-        const root = document.getElementById('root');
-        if (!root || !root.children.length) {
-          root.innerHTML = '<div style="padding: 40px; text-align: center; font-family: system-ui;"><h2>🔄 Carregando LegalFlow...</h2><p>Se esta mensagem persistir, verifique a conexão.</p></div>';
-        }
-      }, 5000);
-    </script>
   </body>
 </html>
