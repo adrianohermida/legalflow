@@ -737,15 +737,18 @@ export default function ProcessoDetailV2() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Dados da Capa</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => syncPartesMutation.mutate()}
-                    disabled={syncPartesMutation.isPending}
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    Sincronizar Partes
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => syncPartesMutation.mutate()}
+                      disabled={syncPartesMutation.isPending}
+                    >
+                      <Users className="w-4 h-4 mr-2" />
+                      Sincronizar Partes
+                    </Button>
+                    <ProcessoCapa numeroCnj={numero_cnj} />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
