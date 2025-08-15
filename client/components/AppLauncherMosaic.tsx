@@ -2,6 +2,7 @@
  * App Launcher Mosaic - Flow B1
  * Launcher "Apps" abre overlay com cards 3×N dos módulos
  * Preview de módulos permite adicionar e remover páginas do sidebar
+ * INCLUI: Modo de personalização discreto do sidebar (conforme Flow C2)
  */
 
 import React, { useState, useEffect } from "react";
@@ -38,7 +39,13 @@ import {
   TestTube,
   Zap,
   Activity,
+  Save,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  PanelLeft,
 } from "lucide-react";
+import { SidebarItem, defaultAdvogadoItems, defaultClienteItems } from "./SidebarCustomizable";
 
 interface AppLauncherMosaicProps {
   isOpen: boolean;
@@ -103,7 +110,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Compromissos e prazos",
     href: "/agenda",
     icon: Calendar,
-    color: "bg-red-500",
+    color: "bg-indigo-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -114,7 +121,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Jornadas do cliente",
     href: "/jornadas",
     icon: Target,
-    color: "bg-orange-500",
+    color: "bg-teal-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -125,7 +132,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Triagem de publicações",
     href: "/inbox-v2",
     icon: Inbox,
-    color: "bg-cyan-500",
+    color: "bg-orange-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -158,7 +165,7 @@ const allAdvogadoModules: AppModule[] = [
     description: "Relatórios e análises",
     href: "/relatorios",
     icon: BarChart3,
-    color: "bg-indigo-500",
+    color: "bg-cyan-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -180,80 +187,69 @@ const allAdvogadoModules: AppModule[] = [
     description: "Gestão de serviços",
     href: "/servicos",
     icon: ShoppingBag,
-    color: "bg-violet-500",
+    color: "bg-rose-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
   },
 
-  // Módulos adicionais (não estão no sidebar por padrão)
+  // Módulos adicionais (não no sidebar por padrão)
   {
-    id: "tickets",
-    title: "Tickets",
-    description: "Sistema de tickets",
-    href: "/tickets",
-    icon: Ticket,
-    color: "bg-slate-500",
-    category: "Gestão",
+    id: "analytics",
+    title: "Analytics",
+    description: "Análise avançada de dados",
+    href: "/analytics",
+    icon: Activity,
+    color: "bg-violet-500",
+    category: "Avançado",
     inSidebar: false,
     isDefault: false,
+    isNew: true,
   },
   {
-    id: "crm-contatos",
-    title: "CRM Contatos",
-    description: "Gestão avançada de contatos",
-    href: "/crm/contatos",
-    icon: Users,
-    color: "bg-teal-500",
-    category: "CRM",
-    inSidebar: false,
-    isDefault: false,
-  },
-  {
-    id: "crm-deals",
-    title: "CRM Deals",
-    description: "Pipeline de negócios",
-    href: "/crm/deals",
-    icon: Target,
+    id: "api-integrations",
+    title: "API Integrations",
+    description: "Integrações com sistemas externos",
+    href: "/api-integrations",
+    icon: Zap,
     color: "bg-amber-500",
-    category: "CRM",
-    inSidebar: false,
-    isDefault: false,
-  },
-  {
-    id: "stripe-config",
-    title: "Stripe Config",
-    description: "Configuração de pagamentos",
-    href: "/settings/stripe",
-    icon: CreditCard,
-    color: "bg-blue-600",
-    category: "Integração",
-    inSidebar: false,
-    isDefault: false,
-  },
-  {
-    id: "auditoria",
-    title: "Auditoria",
-    description: "Sistema de auditoria e autofix",
-    href: "/dev/auditoria",
-    icon: TestTube,
-    color: "bg-gray-600",
-    category: "Desenvolvimento",
+    category: "Avançado",
     inSidebar: false,
     isDefault: false,
     isBeta: true,
   },
   {
-    id: "activities",
-    title: "Activities",
-    description: "Atividades e tasks",
-    href: "/activities",
-    icon: Activity,
-    color: "bg-lime-500",
-    category: "Produtividade",
+    id: "data-export",
+    title: "Data Export",
+    description: "Exportação e backup de dados",
+    href: "/data-export",
+    icon: Database,
+    color: "bg-slate-500",
+    category: "Utilitários",
     inSidebar: false,
     isDefault: false,
-    isNew: true,
+  },
+  {
+    id: "audit-log",
+    title: "Audit Log",
+    description: "Log de auditoria do sistema",
+    href: "/audit-log",
+    icon: TestTube,
+    color: "bg-stone-500",
+    category: "Utilitários",
+    inSidebar: false,
+    isDefault: false,
+  },
+  {
+    id: "system-settings",
+    title: "Configurações",
+    description: "Configurações do sistema",
+    href: "/settings",
+    icon: Settings,
+    color: "bg-zinc-500",
+    category: "Sistema",
+    inSidebar: false,
+    isDefault: false,
   },
 ];
 
@@ -265,7 +261,7 @@ const allClienteModules: AppModule[] = [
     href: "/portal/chat",
     icon: MessageSquare,
     color: "bg-blue-500",
-    category: "Comunicação",
+    category: "Principal",
     inSidebar: true,
     isDefault: true,
   },
@@ -297,7 +293,7 @@ const allClienteModules: AppModule[] = [
     description: "Agenda e prazos",
     href: "/portal/compromissos",
     icon: CalendarCheck,
-    color: "bg-red-500",
+    color: "bg-indigo-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -319,7 +315,7 @@ const allClienteModules: AppModule[] = [
     description: "Central de ajuda",
     href: "/portal/helpdesk",
     icon: HeadphonesIcon,
-    color: "bg-orange-500",
+    color: "bg-pink-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -330,7 +326,7 @@ const allClienteModules: AppModule[] = [
     description: "Contratar serviços",
     href: "/portal/servicos",
     icon: ShoppingBag,
-    color: "bg-violet-500",
+    color: "bg-rose-500",
     category: "Principal",
     inSidebar: true,
     isDefault: true,
@@ -344,216 +340,338 @@ export function AppLauncherMosaic({
   onUpdateSidebar,
 }: AppLauncherMosaicProps) {
   const [modules, setModules] = useState<AppModule[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("Principal");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [isSidebarCustomizing, setIsSidebarCustomizing] = useState(false);
+  const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
-    // Carregar configuração salva do localStorage
-    const storageKey = `app-launcher-${userType}`;
-    const savedConfig = localStorage.getItem(storageKey);
+    // Carregar módulos baseado no tipo de usuário
+    const allModules = userType === "advogado" ? allAdvogadoModules : allClienteModules;
     
-    if (savedConfig) {
+    // Sincronizar com o estado do sidebar
+    const storageKey = `sidebar-layout-${userType}`;
+    const savedLayout = localStorage.getItem(storageKey);
+    
+    if (savedLayout) {
       try {
-        const parsed = JSON.parse(savedConfig);
-        setModules(parsed);
+        const sidebarItems = JSON.parse(savedLayout);
+        const syncedModules = allModules.map(module => ({
+          ...module,
+          inSidebar: sidebarItems.some((item: any) => item.id === module.id && item.isVisible)
+        }));
+        setModules(syncedModules);
       } catch (error) {
-        console.error("Erro ao carregar configuração do launcher:", error);
-        setModules(userType === "advogado" ? allAdvogadoModules : allClienteModules);
+        setModules(allModules);
       }
     } else {
-      setModules(userType === "advogado" ? allAdvogadoModules : allClienteModules);
+      setModules(allModules);
     }
-  }, [userType]);
 
-  // Salvar configuração
-  const saveConfig = (updatedModules: AppModule[]) => {
-    const storageKey = `app-launcher-${userType}`;
-    localStorage.setItem(storageKey, JSON.stringify(updatedModules));
+    // Carregar itens do sidebar
+    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+    setSidebarItems(savedLayout ? JSON.parse(savedLayout) : defaultItems);
+  }, [userType, isOpen]);
+
+  const categories = ["Todos", ...Array.from(new Set(modules.map(m => m.category)))];
+
+  const filteredModules = modules.filter(module => {
+    const matchesSearch = module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         module.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "Todos" || module.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const toggleModuleInSidebar = (moduleId: string) => {
+    if (!isSidebarCustomizing) return;
+
+    const module = modules.find(m => m.id === moduleId);
+    if (!module || module.isDefault) return;
+
+    // Atualizar módulos
+    const updatedModules = modules.map(module => 
+      module.id === moduleId ? { ...module, inSidebar: !module.inSidebar } : module
+    );
     setModules(updatedModules);
+
+    // Atualizar itens do sidebar
+    const updatedSidebarItems = sidebarItems.map(item => 
+      item.id === moduleId ? { ...item, isVisible: !item.isVisible } : item
+    );
+    setSidebarItems(updatedSidebarItems);
+    setHasChanges(true);
   };
 
-  // Toggle módulo no sidebar
-  const toggleModuleInSidebar = (moduleId: string) => {
-    const updatedModules = modules.map(module => {
-      if (module.id === moduleId && !module.isDefault) {
-        return { ...module, inSidebar: !module.inSidebar };
-      }
-      return module;
+  const startSidebarCustomization = () => {
+    setIsSidebarCustomizing(true);
+    toast({
+      title: "Modo personalização ativado",
+      description: "Clique nos módulos para adicionar/remover do menu lateral",
     });
+  };
 
-    saveConfig(updatedModules);
-
-    // Notificar componente pai para atualizar sidebar
+  const saveSidebarChanges = () => {
+    const storageKey = `sidebar-layout-${userType}`;
+    localStorage.setItem(storageKey, JSON.stringify(sidebarItems));
+    
     if (onUpdateSidebar) {
-      const sidebarItems = updatedModules
-        .filter(module => module.inSidebar)
-        .map(module => ({
-          id: module.id,
-          title: module.title,
-          href: module.href,
-          icon: module.icon,
-          description: module.description,
-          isVisible: true,
-          isDefault: module.isDefault,
-        }));
       onUpdateSidebar(sidebarItems);
     }
 
-    const module = updatedModules.find(m => m.id === moduleId);
-    if (module) {
-      toast({
-        title: module.inSidebar ? "Adicionado ao Sidebar" : "Removido do Sidebar",
-        description: `${module.title} foi ${module.inSidebar ? "adicionado ao" : "removido do"} menu lateral.`,
-      });
-    }
+    setIsSidebarCustomizing(false);
+    setHasChanges(false);
+    
+    toast({
+      title: "Layout salvo",
+      description: "Suas preferências de menu foram salvas",
+    });
   };
 
-  // Filtrar módulos por categoria
-  const categories = [...new Set(modules.map(module => module.category))];
-  const filteredModules = modules.filter(module => module.category === selectedCategory);
+  const resetSidebarToDefault = () => {
+    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+    const allModules = userType === "advogado" ? allAdvogadoModules : allClienteModules;
+    
+    setSidebarItems(defaultItems);
+    setModules(allModules);
+    setHasChanges(true);
+    
+    toast({
+      title: "Layout resetado",
+      description: "Menu restaurado para configuração padrão",
+    });
+  };
 
-  // Organizar em grade 3×N
-  const moduleRows = [];
-  for (let i = 0; i < filteredModules.length; i += 3) {
-    moduleRows.push(filteredModules.slice(i, i + 3));
-  }
+  const cancelSidebarCustomization = () => {
+    // Recarregar do localStorage
+    const storageKey = `sidebar-layout-${userType}`;
+    const savedLayout = localStorage.getItem(storageKey);
+    const defaultItems = userType === "advogado" ? defaultAdvogadoItems : defaultClienteItems;
+    
+    const items = savedLayout ? JSON.parse(savedLayout) : defaultItems;
+    setSidebarItems(items);
+    
+    // Resincronizar módulos
+    const allModules = userType === "advogado" ? allAdvogadoModules : allClienteModules;
+    const syncedModules = allModules.map(module => ({
+      ...module,
+      inSidebar: items.some((item: any) => item.id === module.id && item.isVisible)
+    }));
+    setModules(syncedModules);
+    
+    setIsSidebarCustomizing(false);
+    setHasChanges(false);
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-6xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-brand-700 to-brand-900">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-white">Módulos do Sistema</h2>
-            <p className="text-brand-100">
-              {userType === "advogado" ? "Escritório de Advocacia" : "Portal do Cliente"}
+            <h2 className="text-2xl font-bold text-gray-900">Módulos do Sistema</h2>
+            <p className="text-gray-600 mt-1">
+              Escolha os módulos para acessar funcionalidades do AdvogaAI
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-white hover:bg-white/10"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex border-b bg-gray-50 overflow-x-auto">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={cn(
-                "px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors",
-                selectedCategory === category
-                  ? "border-b-2 border-brand-700 text-brand-700 bg-white"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              )}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        {/* Module Grid */}
-        <div className="p-6 overflow-y-auto max-h-96">
-          {moduleRows.map((row, rowIndex) => (
-            <div key={rowIndex} className="grid grid-cols-3 gap-4 mb-4">
-              {row.map((module) => {
-                const Icon = module.icon;
-                
-                return (
-                  <div
-                    key={module.id}
-                    className="relative group border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white hover:bg-gray-50"
+          <div className="flex items-center gap-2">
+            {/* Controles de customização do sidebar - discretos */}
+            {userType === "advogado" && (
+              <>
+                {!isSidebarCustomizing ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={startSidebarCustomization}
+                    className="text-xs"
                   >
-                    {/* Badges */}
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      {module.isNew && (
-                        <Badge className="bg-green-500 text-white text-xs">Novo</Badge>
-                      )}
-                      {module.isBeta && (
-                        <Badge variant="outline" className="text-xs">Beta</Badge>
-                      )}
-                      {module.inSidebar && (
-                        <Badge variant="outline" className="text-xs bg-brand-50 text-brand-700 border-brand-200">
-                          <Star className="w-3 h-3 mr-1" />
-                          Sidebar
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Module Content */}
-                    <Link
-                      to={module.href}
-                      onClick={onClose}
-                      className="block"
+                    <PanelLeft className="w-4 h-4 mr-1" />
+                    Personalizar Menu
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={saveSidebarChanges}
+                      disabled={!hasChanges}
+                      className="text-xs"
+                      style={hasChanges ? { backgroundColor: "var(--gray-700)", color: "white" } : {}}
                     >
-                      <div className="flex items-center mb-3">
-                        <div className={cn("p-3 rounded-lg", module.color)}>
-                          <Icon className="w-6 h-6 text-white" />
-                        </div>
-                      </div>
-                      
-                      <h3 className="font-semibold text-gray-900 mb-1">{module.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3">{module.description}</p>
-                    </Link>
+                      <Save className="w-3 h-3 mr-1" />
+                      Salvar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={resetSidebarToDefault}
+                      className="text-xs"
+                    >
+                      <RotateCcw className="w-3 h-3 mr-1" />
+                      Resetar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={cancelSidebarCustomization}
+                      className="text-xs"
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
 
-                    {/* Sidebar Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
-                        {module.inSidebar ? "No menu lateral" : "Não está no menu"}
-                      </span>
-                      
-                      {!module.isDefault && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleModuleInSidebar(module.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          {module.inSidebar ? (
-                            <>
-                              <Minus className="w-3 h-3 mr-1" />
-                              Remover
-                            </>
-                          ) : (
-                            <>
-                              <Plus className="w-3 h-3 mr-1" />
-                              Adicionar
-                            </>
-                          )}
-                        </Button>
-                      )}
+        {/* Search and Filters */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Buscar módulos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                  style={
+                    selectedCategory === category 
+                      ? { backgroundColor: "var(--gray-700)", color: "white" }
+                      : {}
+                  }
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Status do modo de personalização */}
+          {isSidebarCustomizing && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-800">
+                <Settings className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  Modo Personalização Ativo
+                </span>
+              </div>
+              <p className="text-blue-700 text-xs mt-1">
+                Clique nos ícones de olho para adicionar/remover módulos do menu lateral
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Modules Grid */}
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredModules.map((module) => {
+              const Icon = module.icon;
+              return (
+                <div
+                  key={module.id}
+                  className={cn(
+                    "relative group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200",
+                    isSidebarCustomizing && "hover:border-gray-400 cursor-pointer"
+                  )}
+                >
+                  {/* Badge de status no sidebar */}
+                  {isSidebarCustomizing && (
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleModuleInSidebar(module.id)}
+                        disabled={module.isDefault}
+                        className="h-6 w-6 p-0"
+                        title={
+                          module.isDefault 
+                            ? "Módulo obrigatório" 
+                            : module.inSidebar 
+                            ? "Remover do menu" 
+                            : "Adicionar ao menu"
+                        }
+                      >
+                        {module.inSidebar ? (
+                          <Eye className="w-3 h-3 text-green-600" />
+                        ) : (
+                          <EyeOff className="w-3 h-3 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="flex items-start space-x-3">
+                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", module.color)}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-gray-900 truncate">
+                          {module.title}
+                        </h3>
+                        {module.inSidebar && (
+                          <Badge variant="secondary" className="text-xs">
+                            Menu
+                          </Badge>
+                        )}
+                        {module.isNew && (
+                          <Badge variant="default" className="text-xs bg-green-500">
+                            Novo
+                          </Badge>
+                        )}
+                        {module.isBeta && (
+                          <Badge variant="outline" className="text-xs">
+                            Beta
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                        {module.description}
+                      </p>
+                      <div className="flex items-center justify-between mt-3">
+                        <Badge variant="outline" className="text-xs">
+                          {module.category}
+                        </Badge>
+                        {!isSidebarCustomizing && (
+                          <Link
+                            to={module.href}
+                            onClick={onClose}
+                            className="text-xs text-gray-700 hover:text-gray-900 font-medium"
+                          >
+                            Abrir →
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
-                );
-              })}
-              
-              {/* Preencher linha incompleta */}
-              {row.length < 3 && (
-                <>
-                  {Array.from({ length: 3 - row.length }).map((_, index) => (
-                    <div key={`empty-${index}`} />
-                  ))}
-                </>
-              )}
-            </div>
-          ))}
-        </div>
+                </div>
+              );
+            })}
+          </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
-          <div className="text-sm text-gray-600">
-            <span className="font-medium">{modules.filter(m => m.inSidebar).length}</span> módulos no sidebar
-          </div>
-          <div className="flex items-center space-x-4 text-xs text-gray-500">
-            <span>💡 Dica: Clique em "Adicionar" para incluir módulos no menu lateral</span>
-          </div>
+          {filteredModules.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              <p>Nenhum módulo encontrado para "{searchTerm}"</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
