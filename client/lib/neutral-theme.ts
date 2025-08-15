@@ -143,43 +143,161 @@ export const MONOCHROMATIC_THEME = {
   },
 };
 
-// CSS Variables para o tema monocromático
+// CSS Variables expandidas para o tema monocromático
 export const MONOCHROMATIC_CSS_VARS = {
   light: {
+    // Cores base
     "--mono-black": MONOCHROMATIC_THEME.light.black,
     "--mono-white": MONOCHROMATIC_THEME.light.white,
+
+    // Escala de cinza completa
+    "--mono-gray-25": MONOCHROMATIC_THEME.light.gray[25],
     "--mono-gray-50": MONOCHROMATIC_THEME.light.gray[50],
+    "--mono-gray-75": MONOCHROMATIC_THEME.light.gray[75],
     "--mono-gray-100": MONOCHROMATIC_THEME.light.gray[100],
+    "--mono-gray-150": MONOCHROMATIC_THEME.light.gray[150],
     "--mono-gray-200": MONOCHROMATIC_THEME.light.gray[200],
+    "--mono-gray-250": MONOCHROMATIC_THEME.light.gray[250],
     "--mono-gray-300": MONOCHROMATIC_THEME.light.gray[300],
+    "--mono-gray-350": MONOCHROMATIC_THEME.light.gray[350],
     "--mono-gray-400": MONOCHROMATIC_THEME.light.gray[400],
+    "--mono-gray-450": MONOCHROMATIC_THEME.light.gray[450],
     "--mono-gray-500": MONOCHROMATIC_THEME.light.gray[500],
+    "--mono-gray-550": MONOCHROMATIC_THEME.light.gray[550],
     "--mono-gray-600": MONOCHROMATIC_THEME.light.gray[600],
+    "--mono-gray-650": MONOCHROMATIC_THEME.light.gray[650],
     "--mono-gray-700": MONOCHROMATIC_THEME.light.gray[700],
+    "--mono-gray-750": MONOCHROMATIC_THEME.light.gray[750],
     "--mono-gray-800": MONOCHROMATIC_THEME.light.gray[800],
+    "--mono-gray-850": MONOCHROMATIC_THEME.light.gray[850],
     "--mono-gray-900": MONOCHROMATIC_THEME.light.gray[900],
+    "--mono-gray-925": MONOCHROMATIC_THEME.light.gray[925],
+    "--mono-gray-950": MONOCHROMATIC_THEME.light.gray[950],
+
+    // Cores funcionais
     "--mono-primary": MONOCHROMATIC_THEME.light.primary,
+    "--mono-primary-hover": MONOCHROMATIC_THEME.light.primaryHover,
+    "--mono-primary-light": MONOCHROMATIC_THEME.light.primaryLight,
+    "--mono-primary-active": MONOCHROMATIC_THEME.light.primaryActive,
+
+    "--mono-secondary": MONOCHROMATIC_THEME.light.secondary,
+    "--mono-secondary-hover": MONOCHROMATIC_THEME.light.secondaryHover,
+    "--mono-secondary-light": MONOCHROMATIC_THEME.light.secondaryLight,
+    "--mono-secondary-active": MONOCHROMATIC_THEME.light.secondaryActive,
+
+    // Backgrounds
     "--mono-background": MONOCHROMATIC_THEME.light.background,
+    "--mono-background-secondary": MONOCHROMATIC_THEME.light.backgroundSecondary,
+    "--mono-background-tertiary": MONOCHROMATIC_THEME.light.backgroundTertiary,
+    "--mono-background-quaternary": MONOCHROMATIC_THEME.light.backgroundQuaternary,
+
+    // Surfaces
+    "--mono-surface": MONOCHROMATIC_THEME.light.surface,
+    "--mono-surface-hover": MONOCHROMATIC_THEME.light.surfaceHover,
+    "--mono-surface-active": MONOCHROMATIC_THEME.light.surfaceActive,
+    "--mono-surface-elevated": MONOCHROMATIC_THEME.light.surfaceElevated,
+
+    // Textos
     "--mono-text": MONOCHROMATIC_THEME.light.text,
+    "--mono-text-secondary": MONOCHROMATIC_THEME.light.textSecondary,
+    "--mono-text-tertiary": MONOCHROMATIC_THEME.light.textTertiary,
+    "--mono-text-muted": MONOCHROMATIC_THEME.light.textMuted,
+    "--mono-text-disabled": MONOCHROMATIC_THEME.light.textDisabled,
+    "--mono-text-placeholder": MONOCHROMATIC_THEME.light.textPlaceholder,
+
+    // Bordas
     "--mono-border": MONOCHROMATIC_THEME.light.border,
+    "--mono-border-secondary": MONOCHROMATIC_THEME.light.borderSecondary,
+    "--mono-border-hover": MONOCHROMATIC_THEME.light.borderHover,
+    "--mono-border-focus": MONOCHROMATIC_THEME.light.borderFocus,
+    "--mono-border-active": MONOCHROMATIC_THEME.light.borderActive,
+
+    // Estados
+    "--mono-success": MONOCHROMATIC_THEME.light.success,
+    "--mono-success-light": MONOCHROMATIC_THEME.light.successLight,
+    "--mono-warning": MONOCHROMATIC_THEME.light.warning,
+    "--mono-warning-light": MONOCHROMATIC_THEME.light.warningLight,
+    "--mono-error": MONOCHROMATIC_THEME.light.error,
+    "--mono-error-light": MONOCHROMATIC_THEME.light.errorLight,
+    "--mono-info": MONOCHROMATIC_THEME.light.info,
+    "--mono-info-light": MONOCHROMATIC_THEME.light.infoLight,
   },
   dark: {
+    // Cores base (invertidas)
     "--mono-black": MONOCHROMATIC_THEME.dark.black,
     "--mono-white": MONOCHROMATIC_THEME.dark.white,
+
+    // Escala de cinza invertida completa
+    "--mono-gray-25": MONOCHROMATIC_THEME.dark.gray[25],
     "--mono-gray-50": MONOCHROMATIC_THEME.dark.gray[50],
+    "--mono-gray-75": MONOCHROMATIC_THEME.dark.gray[75],
     "--mono-gray-100": MONOCHROMATIC_THEME.dark.gray[100],
+    "--mono-gray-150": MONOCHROMATIC_THEME.dark.gray[150],
     "--mono-gray-200": MONOCHROMATIC_THEME.dark.gray[200],
+    "--mono-gray-250": MONOCHROMATIC_THEME.dark.gray[250],
     "--mono-gray-300": MONOCHROMATIC_THEME.dark.gray[300],
+    "--mono-gray-350": MONOCHROMATIC_THEME.dark.gray[350],
     "--mono-gray-400": MONOCHROMATIC_THEME.dark.gray[400],
+    "--mono-gray-450": MONOCHROMATIC_THEME.dark.gray[450],
     "--mono-gray-500": MONOCHROMATIC_THEME.dark.gray[500],
+    "--mono-gray-550": MONOCHROMATIC_THEME.dark.gray[550],
     "--mono-gray-600": MONOCHROMATIC_THEME.dark.gray[600],
+    "--mono-gray-650": MONOCHROMATIC_THEME.dark.gray[650],
     "--mono-gray-700": MONOCHROMATIC_THEME.dark.gray[700],
+    "--mono-gray-750": MONOCHROMATIC_THEME.dark.gray[750],
     "--mono-gray-800": MONOCHROMATIC_THEME.dark.gray[800],
+    "--mono-gray-850": MONOCHROMATIC_THEME.dark.gray[850],
     "--mono-gray-900": MONOCHROMATIC_THEME.dark.gray[900],
+    "--mono-gray-925": MONOCHROMATIC_THEME.dark.gray[925],
+    "--mono-gray-950": MONOCHROMATIC_THEME.dark.gray[950],
+
+    // Cores funcionais (modo escuro)
     "--mono-primary": MONOCHROMATIC_THEME.dark.primary,
+    "--mono-primary-hover": MONOCHROMATIC_THEME.dark.primaryHover,
+    "--mono-primary-light": MONOCHROMATIC_THEME.dark.primaryLight,
+    "--mono-primary-active": MONOCHROMATIC_THEME.dark.primaryActive,
+
+    "--mono-secondary": MONOCHROMATIC_THEME.dark.secondary,
+    "--mono-secondary-hover": MONOCHROMATIC_THEME.dark.secondaryHover,
+    "--mono-secondary-light": MONOCHROMATIC_THEME.dark.secondaryLight,
+    "--mono-secondary-active": MONOCHROMATIC_THEME.dark.secondaryActive,
+
+    // Backgrounds (modo escuro)
     "--mono-background": MONOCHROMATIC_THEME.dark.background,
+    "--mono-background-secondary": MONOCHROMATIC_THEME.dark.backgroundSecondary,
+    "--mono-background-tertiary": MONOCHROMATIC_THEME.dark.backgroundTertiary,
+    "--mono-background-quaternary": MONOCHROMATIC_THEME.dark.backgroundQuaternary,
+
+    // Surfaces (modo escuro)
+    "--mono-surface": MONOCHROMATIC_THEME.dark.surface,
+    "--mono-surface-hover": MONOCHROMATIC_THEME.dark.surfaceHover,
+    "--mono-surface-active": MONOCHROMATIC_THEME.dark.surfaceActive,
+    "--mono-surface-elevated": MONOCHROMATIC_THEME.dark.surfaceElevated,
+
+    // Textos (modo escuro)
     "--mono-text": MONOCHROMATIC_THEME.dark.text,
+    "--mono-text-secondary": MONOCHROMATIC_THEME.dark.textSecondary,
+    "--mono-text-tertiary": MONOCHROMATIC_THEME.dark.textTertiary,
+    "--mono-text-muted": MONOCHROMATIC_THEME.dark.textMuted,
+    "--mono-text-disabled": MONOCHROMATIC_THEME.dark.textDisabled,
+    "--mono-text-placeholder": MONOCHROMATIC_THEME.dark.textPlaceholder,
+
+    // Bordas (modo escuro)
     "--mono-border": MONOCHROMATIC_THEME.dark.border,
+    "--mono-border-secondary": MONOCHROMATIC_THEME.dark.borderSecondary,
+    "--mono-border-hover": MONOCHROMATIC_THEME.dark.borderHover,
+    "--mono-border-focus": MONOCHROMATIC_THEME.dark.borderFocus,
+    "--mono-border-active": MONOCHROMATIC_THEME.dark.borderActive,
+
+    // Estados (modo escuro)
+    "--mono-success": MONOCHROMATIC_THEME.dark.success,
+    "--mono-success-light": MONOCHROMATIC_THEME.dark.successLight,
+    "--mono-warning": MONOCHROMATIC_THEME.dark.warning,
+    "--mono-warning-light": MONOCHROMATIC_THEME.dark.warningLight,
+    "--mono-error": MONOCHROMATIC_THEME.dark.error,
+    "--mono-error-light": MONOCHROMATIC_THEME.dark.errorLight,
+    "--mono-info": MONOCHROMATIC_THEME.dark.info,
+    "--mono-info-light": MONOCHROMATIC_THEME.dark.infoLight,
   },
 };
 
