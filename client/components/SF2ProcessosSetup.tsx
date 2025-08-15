@@ -28,6 +28,7 @@ interface SetupResult {
 
 export function SF2ProcessosSetup() {
   const [setupResult, setSetupResult] = useState<SetupResult | null>(null);
+  const [showInstallation, setShowInstallation] = useState(false);
   const { toast } = useToast();
 
   // Schema SQL completo do SF-2
