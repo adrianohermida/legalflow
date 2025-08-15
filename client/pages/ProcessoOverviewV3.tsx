@@ -88,6 +88,22 @@ import { useToast } from "../hooks/use-toast";
 import { formatCNJ, formatDate } from "../lib/utils";
 import { themeUtils, colors } from "../lib/theme-colors";
 import ProcessoChatMultiThread from "../components/ProcessoChatMultiThread";
+import {
+  fetchProcessoCompleto,
+  fetchTimelineRecente,
+  fetchTimelineCompleto,
+  fetchProcessThreads,
+  createAndamento,
+  createPublicacao,
+  createPeticao,
+  extractAdviseData,
+  formatCNJDisplay,
+  formatCurrency,
+  formatDateDisplay,
+  getEventIconType,
+  getProcessActionContext,
+  type ProcessoCompleto,
+} from "../lib/processo-overview-utils";
 
 interface ProcessoData {
   numero_cnj: string;
