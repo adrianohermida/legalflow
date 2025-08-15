@@ -8,7 +8,7 @@ import {
   ZoomOut,
   RotateCw,
   Share,
-  Print,
+  Printer,
   X,
   ChevronLeft,
   ChevronRight,
