@@ -759,67 +759,329 @@ export default function AutofixBacklog() {
       </div>
 
       {/* Filters and View Toggle */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Buscar itens..."
-              value={filter.search}
-              onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
-              className="pl-10 w-64"
-            />
-          </div>
-          
-          <Select
-            value={filter.status || 'all'}
-            onValueChange={(value) => setFilter(prev => ({ ...prev, status: value === 'all' ? '' : value }))}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {Object.entries(statusConfig).map(([status, config]) => (
-                <SelectItem key={status} value={status}>{config.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Buscar itens..."
+                value={filter.search}
+                onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+                className="pl-10 w-64"
+              />
+            </div>
 
-          <Select
-            value={filter.priority || 'all'}
-            onValueChange={(value) => setFilter(prev => ({ ...prev, priority: value === 'all' ? '' : value }))}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Prioridade" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {Object.entries(priorityConfig).map(([priority, config]) => (
-                <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={filter.status || 'all'}
+              onValueChange={(value) => setFilter(prev => ({ ...prev, status: value === 'all' ? '' : value }))}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {Object.entries(statusConfig).map(([status, config]) => (
+                  <SelectItem key={status} value={status}>{config.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="includeArchived"
-              checked={filter.includeArchived}
-              onChange={(e) => setFilter(prev => ({ ...prev, includeArchived: e.target.checked }))}
-              className="rounded"
-            />
-            <Label htmlFor="includeArchived" className="text-sm">Incluir arquivados</Label>
+            <Select
+              value={filter.priority || 'all'}
+              onValueChange={(value) => setFilter(prev => ({ ...prev, priority: value === 'all' ? '' : value }))}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Prioridade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {Object.entries(priorityConfig).map(([priority, config]) => (
+                  <SelectItem key={priority} value={priority}>{config.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="w-4 h-4" />
+              Filtros Avançados
+              {showAdvancedFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+
+            {/* Clear Filters Button */}
+            {(filter.status || filter.priority || filter.type || filter.category || filter.complexity ||
+              filter.builderExecutable || filter.dateRange || filter.tags || filter.storyPoints || filter.search) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFilter({
+                  status: '',
+                  priority: '',
+                  type: '',
+                  assignee: '',
+                  search: '',
+                  includeArchived: filter.includeArchived,
+                  category: '',
+                  complexity: '',
+                  builderExecutable: '',
+                  dateRange: '',
+                  tags: '',
+                  storyPoints: '',
+                })}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FilterX className="w-4 h-4 mr-1" />
+                Limpar Filtros
+              </Button>
+            )}
           </div>
+
+          <Tabs value={view} onValueChange={(value) => setView(value as any)}>
+            <TabsList>
+              <TabsTrigger value="kanban">Kanban</TabsTrigger>
+              <TabsTrigger value="list">Lista</TabsTrigger>
+              <TabsTrigger value="metrics">Métricas</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
-        
-        <Tabs value={view} onValueChange={(value) => setView(value as any)}>
-          <TabsList>
-            <TabsTrigger value="kanban">Kanban</TabsTrigger>
-            <TabsTrigger value="list">Lista</TabsTrigger>
-            <TabsTrigger value="metrics">Métricas</TabsTrigger>
-          </TabsList>
-        </Tabs>
+
+        {/* Advanced Filters */}
+        {showAdvancedFilters && (
+          <Card className="p-4">
+            <div className="grid grid-cols-6 gap-4">
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Tipo</Label>
+                <Select
+                  value={filter.type || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ ...prev, type: value === 'all' ? '' : value }))}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {Object.entries(typeConfig).map(([type, config]) => (
+                      <SelectItem key={type} value={type}>{config.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Categoria</Label>
+                <Select
+                  value={filter.category || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ ...prev, category: value === 'all' ? '' : value }))}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="general">Geral</SelectItem>
+                    <SelectItem value="ui">Interface</SelectItem>
+                    <SelectItem value="performance">Performance</SelectItem>
+                    <SelectItem value="database">Banco de Dados</SelectItem>
+                    <SelectItem value="security">Segurança</SelectItem>
+                    <SelectItem value="api">API</SelectItem>
+                    <SelectItem value="documentation">Documentação</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Complexidade</Label>
+                <Select
+                  value={filter.complexity || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ ...prev, complexity: value === 'all' ? '' : value }))}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Complexidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="low">Baixa</SelectItem>
+                    <SelectItem value="medium">Média</SelectItem>
+                    <SelectItem value="high">Alta</SelectItem>
+                    <SelectItem value="unknown">Desconhecida</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Builder.io</Label>
+                <Select
+                  value={filter.builderExecutable || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ ...prev, builderExecutable: value === 'all' ? '' : value }))}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Builder.io" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="true">Executável</SelectItem>
+                    <SelectItem value="false">Não Executável</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Data Criação</Label>
+                <Select
+                  value={filter.dateRange || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ ...prev, dateRange: value === 'all' ? '' : value }))}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="today">Hoje</SelectItem>
+                    <SelectItem value="week">Última Semana</SelectItem>
+                    <SelectItem value="month">Último Mês</SelectItem>
+                    <SelectItem value="quarter">Último Trimestre</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-gray-600 mb-1 block">Story Points</Label>
+                <Select
+                  value={filter.storyPoints || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ ...prev, storyPoints: value === 'all' ? '' : value }))}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="Pontos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="8">8</SelectItem>
+                    <SelectItem value="13">13</SelectItem>
+                    <SelectItem value="21">21</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-2">
+                <Label className="text-xs text-gray-600 mb-1 block">Tags (separadas por vírgula)</Label>
+                <Input
+                  placeholder="tag1, tag2, tag3"
+                  value={filter.tags}
+                  onChange={(e) => setFilter(prev => ({ ...prev, tags: e.target.value }))}
+                  className="h-8"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="includeArchived"
+                    checked={filter.includeArchived}
+                    onChange={(e) => setFilter(prev => ({ ...prev, includeArchived: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="includeArchived" className="text-xs">Incluir arquivados</Label>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Filters Summary */}
+            <div className="mt-4 flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-gray-500">Filtros ativos:</span>
+              {filter.status && (
+                <Badge variant="outline" className="text-xs">
+                  Status: {statusConfig[filter.status as keyof typeof statusConfig]?.label}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, status: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.priority && (
+                <Badge variant="outline" className="text-xs">
+                  Prioridade: {priorityConfig[filter.priority as keyof typeof priorityConfig]?.label}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, priority: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.type && (
+                <Badge variant="outline" className="text-xs">
+                  Tipo: {typeConfig[filter.type as keyof typeof typeConfig]?.label}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, type: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.category && (
+                <Badge variant="outline" className="text-xs">
+                  Categoria: {filter.category}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, category: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.complexity && (
+                <Badge variant="outline" className="text-xs">
+                  Complexidade: {filter.complexity}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, complexity: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.builderExecutable && (
+                <Badge variant="outline" className="text-xs">
+                  Builder.io: {filter.builderExecutable === 'true' ? 'Executável' : 'Não Executável'}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, builderExecutable: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.dateRange && (
+                <Badge variant="outline" className="text-xs">
+                  Período: {filter.dateRange}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, dateRange: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.storyPoints && (
+                <Badge variant="outline" className="text-xs">
+                  Pontos: {filter.storyPoints}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, storyPoints: '' }))}
+                  />
+                </Badge>
+              )}
+              {filter.tags && (
+                <Badge variant="outline" className="text-xs">
+                  Tags: {filter.tags}
+                  <X
+                    className="w-3 h-3 ml-1 cursor-pointer"
+                    onClick={() => setFilter(prev => ({ ...prev, tags: '' }))}
+                  />
+                </Badge>
+              )}
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Main Content */}
