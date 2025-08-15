@@ -12,7 +12,14 @@ interface ChatDockProps {
   userType: "advogado" | "cliente";
 }
 
-// Mock data removed - using real queries from ChatDockController
+// Mock data for development
+const mockThreads = [
+  { id: "thread-1", title: "Chat Principal", lastMessage: "Olá!", unread: 0 }
+];
+
+const mockMessages = [
+  { id: "msg-1", threadId: "thread-1", content: "Olá!", sender: "system", timestamp: new Date() }
+];
 
 export function ChatDock({ isOpen, onClose, userType }: ChatDockProps) {
   const [activeThread, setActiveThread] = useState(mockThreads[0].id);
