@@ -1547,6 +1547,49 @@ const DevAuditoria: React.FC = () => {
           </Tabs>
         </TabsContent>
 
+        {/* Features Tab with SF components */}
+        <TabsContent value="features" className="space-y-4">
+          <Tabs value={activeFeaturesTab} onValueChange={setActiveFeaturesTab as (value: string) => void} className="space-y-4">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="sf2">SF2</TabsTrigger>
+              <TabsTrigger value="sf5">SF5</TabsTrigger>
+              <TabsTrigger value="sf6">SF6</TabsTrigger>
+              <TabsTrigger value="sf7">SF7</TabsTrigger>
+              <TabsTrigger value="sf8">SF8</TabsTrigger>
+              <TabsTrigger value="sf9">SF9</TabsTrigger>
+              <TabsTrigger value="sf10">SF10</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="sf2">
+              <SF2ProcessosSetup />
+            </TabsContent>
+
+            <TabsContent value="sf5">
+              <SF5JourneyCardTest />
+            </TabsContent>
+
+            <TabsContent value="sf6">
+              <SF6AutomationSetup />
+            </TabsContent>
+
+            <TabsContent value="sf7">
+              <SF7AgendaSetup />
+            </TabsContent>
+
+            <TabsContent value="sf8">
+              <SF8DocumentosSetup />
+            </TabsContent>
+
+            <TabsContent value="sf9">
+              <SF9ApiConsole />
+            </TabsContent>
+
+            <TabsContent value="sf10">
+              <SF10StripeWizard />
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+
         {/* Diagnostics Category */}
         <TabsContent value="diagnostics">
           <div className="space-y-6">
