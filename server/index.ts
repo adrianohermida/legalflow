@@ -67,10 +67,8 @@ export function createServer() {
 
   // Debug page
   app.get("/debug", (req, res) => {
-    const fs = require('fs');
-    const path = require('path');
     try {
-      const debugHtml = fs.readFileSync(path.join(process.cwd(), 'debug-app.html'), 'utf8');
+      const debugHtml = readFileSync(join(process.cwd(), 'debug-app.html'), 'utf8');
       res.set('Content-Type', 'text/html');
       res.send(debugHtml);
     } catch (error) {
