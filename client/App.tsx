@@ -802,6 +802,14 @@ function RegularAppRoutes() {
         }
       />
       <Route
+        path="/dev-auditoria"
+        element={
+          <ProtectedRoute userType="advogado">
+            <DevAuditoria />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/launch"
         element={
           <ProtectedRoute userType="advogado">
