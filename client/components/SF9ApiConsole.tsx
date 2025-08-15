@@ -458,12 +458,12 @@ export const SF9ApiConsole: React.FC = () => {
             />
           </div>
         </div>
-        <Select value={selectedProvider || ""} onValueChange={(value) => setSelectedProvider(value || null)}>
+        <Select value={selectedProvider || "all"} onValueChange={(value) => setSelectedProvider(value === "all" ? null : value)}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filtrar por provedor" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os provedores</SelectItem>
+            <SelectItem value="all">Todos os provedores</SelectItem>
             {providers.map((provider) => (
               <SelectItem key={provider.id} value={provider.id}>
                 {provider.name}
