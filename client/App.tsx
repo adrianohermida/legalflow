@@ -813,7 +813,7 @@ function RegularAppRoutes() {
         path="/autofix-testing"
         element={
           <ProtectedRoute userType="advogado">
-            <AutofixTesting />
+            <DevAuditoria />
           </ProtectedRoute>
         }
       />
