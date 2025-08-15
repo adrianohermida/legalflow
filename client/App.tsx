@@ -980,28 +980,34 @@ export default function App() {
     }
   });
 
-  // Show mode selector if no mode is selected
+  // Show mode selector if no mode is selected, but allow direct access to dev-auditoria in demo mode
   if (!authMode) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <BrowserRouter>
-            <ModeSelector
-              onModeSelect={(mode) => {
-                try {
-                  localStorage.setItem("auth-mode", mode);
-                  setAuthMode(mode);
-                } catch (error) {
-                  console.error("Failed to set auth mode:", error);
-                }
-              }}
-            />
-          </BrowserRouter>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </QueryClientProvider>
-    );
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('dev-auditoria') || currentPath.includes('dev/auditoria')) {
+      // Force demo mode for dev-auditoria access
+      setAuthMode("demo");
+    } else {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <BrowserRouter>
+              <ModeSelector
+                onModeSelect={(mode) => {
+                  try {
+                    localStorage.setItem("auth-mode", mode);
+                    setAuthMode(mode);
+                  } catch (error) {
+                    console.error("Failed to set auth mode:", error);
+                  }
+                }}
+              />
+            </BrowserRouter>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </QueryClientProvider>
+      );
+    }
   }
 
   const AppContent =
