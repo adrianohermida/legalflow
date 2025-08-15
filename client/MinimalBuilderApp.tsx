@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import BuilderPlaceholderPrevention from './components/BuilderPlaceholderPrevention';
 
 /**
  * MINIMAL BUILDER.IO COMPATIBLE APP
