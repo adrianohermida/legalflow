@@ -356,21 +356,7 @@ export default function ActivitiesC8() {
   };
 
   const getDueStatus = (dueDate?: string, status?: string) => {
-    if (!dueDate || status === "done") return null;
-    
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diffHours = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60));
-    
-    if (diffHours < 0) {
-      return { text: "Atrasado", color: "text-red-600", urgent: true };
-    } else if (diffHours < 24) {
-      return { text: "Vence hoje", color: "text-orange-600", urgent: true };
-    } else if (diffHours < 72) {
-      return { text: "Vence em breve", color: "text-yellow-600", urgent: false };
-    }
-    
-    return null;
+    return getDueDateStatus(dueDate, status);
   };
 
   // Group activities by status for kanban view
