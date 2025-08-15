@@ -397,6 +397,14 @@ function DemoAppRoutes() {
         }
       />
       <Route
+        path="/activities"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <ActivitiesC8 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
         path="/financeiro"
         element={
           <DemoProtectedRoute userType="advogado">
