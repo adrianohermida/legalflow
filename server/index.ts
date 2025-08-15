@@ -98,6 +98,17 @@ export function createServer() {
     }
   });
 
+  // Dashboard page
+  app.get("/dashboard", (req, res) => {
+    try {
+      const dashboardHtml = readFileSync(join(process.cwd(), 'dashboard.html'), 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(dashboardHtml);
+    } catch (error) {
+      res.error("Dashboard page not found", 404);
+    }
+  });
+
   // Simple test page
   app.get("/test", (req, res) => {
     res.set('Content-Type', 'text/html');
