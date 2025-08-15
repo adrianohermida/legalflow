@@ -33,9 +33,9 @@ export const GenericSQLDownloader: React.FC<GenericSQLDownloaderProps> = ({
     "Baixe ou copie o script SQL",
     "Abra o Supabase SQL Editor",
     "Cole e execute o script completo",
-    "Volte aqui e verifique a instalação"
+    "Volte aqui e verifique a instalação",
   ],
-  additionalInfo = []
+  additionalInfo = [],
 }) => {
   const { toast } = useToast();
 
@@ -114,9 +114,7 @@ export const GenericSQLDownloader: React.FC<GenericSQLDownloaderProps> = ({
           {title}
         </CardTitle>
         {description && (
-          <p className="text-sm text-muted-foreground">
-            {description}
-          </p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </CardHeader>
       <CardContent>
@@ -186,9 +184,7 @@ export const GenericSQLDownloader: React.FC<GenericSQLDownloaderProps> = ({
 
           {/* Instru��ões */}
           <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
-            <strong className="flex items-center gap-1">
-              📋 Como usar:
-            </strong>
+            <strong className="flex items-center gap-1">📋 Como usar:</strong>
             <ol className="list-decimal list-inside mt-2 space-y-1">
               {instructions.map((instruction, index) => (
                 <li key={index}>{instruction}</li>

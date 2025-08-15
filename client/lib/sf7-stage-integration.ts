@@ -13,12 +13,19 @@ export interface AutoEventFromStage {
   cliente_cpfcnpj?: string;
   title: string;
   description?: string;
-  event_type?: 'reuniao' | 'audiencia' | 'prazo' | 'entrega' | 'compromisso' | 'videoconferencia' | 'outros';
+  event_type?:
+    | "reuniao"
+    | "audiencia"
+    | "prazo"
+    | "entrega"
+    | "compromisso"
+    | "videoconferencia"
+    | "outros";
   starts_at: string; // ISO timestamp
   ends_at?: string;
   location?: string;
   video_link?: string;
-  priority?: 'baixa' | 'normal' | 'alta' | 'urgente';
+  priority?: "baixa" | "normal" | "alta" | "urgente";
 }
 
 /**
@@ -31,7 +38,7 @@ export async function createEventFromStage(eventData: AutoEventFromStage) {
     const { data: eventoId, error } = await lf.rpc("sf7_create_evento_rapido", {
       p_title: eventData.title,
       p_starts_at: eventData.starts_at,
-      p_event_type: eventData.event_type || 'compromisso',
+      p_event_type: eventData.event_type || "compromisso",
       p_cnj_or_cpf: eventData.numero_cnj,
       p_video_link: eventData.video_link || null,
       p_description: eventData.description || null,
@@ -45,16 +52,16 @@ export async function createEventFromStage(eventData: AutoEventFromStage) {
       .from("eventos_agenda")
       .update({
         stage_instance_id: eventData.stage_instance_id,
-        priority: eventData.priority || 'normal',
+        priority: eventData.priority || "normal",
         ends_at: eventData.ends_at || null,
         metadata: {
           auto_created_from_stage: true,
           stage_instance_id: eventData.stage_instance_id,
           numero_cnj: eventData.numero_cnj,
-          created_method: 'stage_automation',
-          timezone: 'America/Sao_Paulo',
+          created_method: "stage_automation",
+          timezone: "America/Sao_Paulo",
           original_event_data: eventData,
-        }
+        },
       })
       .eq("id", eventoId);
 
@@ -92,7 +99,9 @@ export async function getEventsFromStage(stage_instance_id: string) {
 export async function getEventsFromProcess(numero_cnj: string) {
   try {
     const { data, error } = await lf.rpc("sf7_list_eventos_periodo", {
-      data_inicio: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 dias atrás
+      data_inicio: new Date(
+        Date.now() - 30 * 24 * 60 * 60 * 1000,
+      ).toISOString(), // 30 dias atrás
       data_fim: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 ano no futuro
       p_numero_cnj: numero_cnj,
     });
@@ -109,13 +118,19 @@ export async function getEventsFromProcess(numero_cnj: string) {
  * Atualiza status de um evento (por exemplo, quando uma etapa é concluída)
  */
 export async function updateEventStatusFromStage(
-  stage_instance_id: string, 
-  new_status: 'agendado' | 'confirmado' | 'em_andamento' | 'realizado' | 'cancelado' | 'reagendado'
+  stage_instance_id: string,
+  new_status:
+    | "agendado"
+    | "confirmado"
+    | "em_andamento"
+    | "realizado"
+    | "cancelado"
+    | "reagendado",
 ) {
   try {
     const { data, error } = await lf
       .from("eventos_agenda")
-      .update({ 
+      .update({
         status: new_status,
         metadata: lf.sql`
           COALESCE(metadata, '{}'::jsonb) || 
@@ -124,7 +139,7 @@ export async function updateEventStatusFromStage(
             'status_updated_at', (now() AT TIME ZONE 'America/Sao_Paulo')::text,
             'previous_status_update_method', 'stage_automation'
           )
-        `
+        `,
       })
       .eq("stage_instance_id", stage_instance_id)
       .select();
@@ -140,25 +155,28 @@ export async function updateEventStatusFromStage(
 /**
  * Cancela eventos de uma etapa (por exemplo, quando a etapa é removida)
  */
-export async function cancelEventsFromStage(stage_instance_id: string, reason?: string) {
-  return updateEventStatusFromStage(stage_instance_id, 'cancelado');
+export async function cancelEventsFromStage(
+  stage_instance_id: string,
+  reason?: string,
+) {
+  return updateEventStatusFromStage(stage_instance_id, "cancelado");
 }
 
 /**
  * Reagenda eventos de uma etapa
  */
 export async function rescheduleEventsFromStage(
-  stage_instance_id: string, 
+  stage_instance_id: string,
   new_starts_at: string,
-  new_ends_at?: string
+  new_ends_at?: string,
 ) {
   try {
     const { data, error } = await lf
       .from("eventos_agenda")
-      .update({ 
+      .update({
         starts_at: new_starts_at,
         ends_at: new_ends_at,
-        status: 'reagendado',
+        status: "reagendado",
         metadata: lf.sql`
           COALESCE(metadata, '{}'::jsonb) || 
           jsonb_build_object(
@@ -166,7 +184,7 @@ export async function rescheduleEventsFromStage(
             'rescheduled_at', (now() AT TIME ZONE 'America/Sao_Paulo')::text,
             'original_starts_at', starts_at::text
           )
-        `
+        `,
       })
       .eq("stage_instance_id", stage_instance_id)
       .select();
@@ -198,24 +216,24 @@ export const useSF7StageIntegration = () => {
  */
 export const STAGE_EVENT_TEMPLATES = {
   audiencia: {
-    event_type: 'audiencia' as const,
-    priority: 'alta' as const,
-    title_prefix: 'Audiência',
+    event_type: "audiencia" as const,
+    priority: "alta" as const,
+    title_prefix: "Audiência",
   },
   prazo: {
-    event_type: 'prazo' as const,
-    priority: 'urgente' as const,
-    title_prefix: 'Prazo',
+    event_type: "prazo" as const,
+    priority: "urgente" as const,
+    title_prefix: "Prazo",
   },
   reuniao_cliente: {
-    event_type: 'reuniao' as const,
-    priority: 'normal' as const,
-    title_prefix: 'Reunião com Cliente',
+    event_type: "reuniao" as const,
+    priority: "normal" as const,
+    title_prefix: "Reunião com Cliente",
   },
   entrega_documento: {
-    event_type: 'entrega' as const,
-    priority: 'alta' as const,
-    title_prefix: 'Entrega de Documento',
+    event_type: "entrega" as const,
+    priority: "alta" as const,
+    title_prefix: "Entrega de Documento",
   },
 } as const;
 
@@ -225,7 +243,7 @@ export const STAGE_EVENT_TEMPLATES = {
 export function generateEventTitleFromStage(
   stage_type: keyof typeof STAGE_EVENT_TEMPLATES,
   numero_cnj: string,
-  custom_title?: string
+  custom_title?: string,
 ): string {
   const template = STAGE_EVENT_TEMPLATES[stage_type];
   if (custom_title) {

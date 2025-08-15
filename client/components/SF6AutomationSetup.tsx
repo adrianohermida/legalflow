@@ -914,22 +914,23 @@ COMMENT ON FUNCTION public.sf6_verify_installation() IS
 SELECT 'SF-6 Supabase Compatible Schema instalado com sucesso!' as status,
        'Todas as funções criadas no schema public para compatibilidade com Supabase' as details;`,
               title: "🔄 SF-6: Schema Bridge Activities ↔ Tickets",
-              description: "Schema completo com funções RPC para automação entre tarefas e tickets",
-              variant: "default"
-            }
+              description:
+                "Schema completo com funções RPC para automação entre tarefas e tickets",
+              variant: "default",
+            },
           ]}
           instructions={[
             "Baixe o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql",
             "Abra o Supabase SQL Editor",
             "Execute o script completo (449 linhas)",
-            "Volte aqui e clique em 'Verificar Instalação'"
+            "Volte aqui e clique em 'Verificar Instalação'",
           ]}
           additionalInfo={[
             "✅ Cria funções RPC compatíveis com Supabase",
             "✅ Bridge automático entre Activities e Tickets",
             "✅ Triggers para etapas do tipo 'task'",
             "✅ Sistema de estatísticas e verificação",
-            "⚠️ Requer que o schema 'legalflow' já exista"
+            "⚠️ Requer que o schema 'legalflow' já exista",
           ]}
           className="border-orange-200 bg-orange-50"
         />

@@ -285,13 +285,20 @@ export function Agenda() {
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
-      case "audiencia": return "bg-red-100 text-red-700 border-red-200";
-      case "reuniao": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "prazo": return "bg-orange-100 text-orange-700 border-orange-200";
-      case "entrega": return "bg-green-100 text-green-700 border-green-200";
-      case "compromisso": return "bg-purple-100 text-purple-700 border-purple-200";
-      case "videoconferencia": return "bg-indigo-100 text-indigo-700 border-indigo-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
+      case "audiencia":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "reuniao":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "prazo":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "entrega":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "compromisso":
+        return "bg-purple-100 text-purple-700 border-purple-200";
+      case "videoconferencia":
+        return "bg-indigo-100 text-indigo-700 border-indigo-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
@@ -317,14 +324,17 @@ export function Agenda() {
             <div
               key={index}
               className={`min-h-32 p-2 border rounded-lg ${
-                isToday 
-                  ? "bg-blue-50 border-blue-200 shadow-sm" 
+                isToday
+                  ? "bg-blue-50 border-blue-200 shadow-sm"
                   : "bg-white border-neutral-200 hover:bg-neutral-50"
               }`}
             >
               <div className="text-center mb-2">
                 <div className="text-xs text-neutral-500 uppercase">
-                  {day.toLocaleDateString("pt-BR", { weekday: "short", timeZone: "America/Sao_Paulo" })}
+                  {day.toLocaleDateString("pt-BR", {
+                    weekday: "short",
+                    timeZone: "America/Sao_Paulo",
+                  })}
                 </div>
                 <div
                   className={`text-sm font-medium ${
@@ -338,9 +348,9 @@ export function Agenda() {
                 {dayEventos.map((evento) => (
                   <div
                     key={evento.id}
-                    className={`text-xs p-2 rounded cursor-pointer hover:shadow-sm transition-all ${
-                      getEventTypeColor(evento.event_type)
-                    }`}
+                    className={`text-xs p-2 rounded cursor-pointer hover:shadow-sm transition-all ${getEventTypeColor(
+                      evento.event_type,
+                    )}`}
                     onClick={() => {
                       setEditingEvento(evento);
                       setIsDialogOpen(true);
@@ -366,8 +376,16 @@ export function Agenda() {
   };
 
   const renderMonthView = () => {
-    const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const monthStart = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1,
+    );
+    const monthEnd = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0,
+    );
     const startDate = new Date(monthStart);
     startDate.setDate(startDate.getDate() - monthStart.getDay());
 
@@ -423,16 +441,18 @@ export function Agenda() {
                 {dayEventos.slice(0, 2).map((evento) => (
                   <div
                     key={evento.id}
-                    className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-all truncate ${
-                      getEventTypeColor(evento.event_type)
-                    }`}
+                    className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-all truncate ${getEventTypeColor(
+                      evento.event_type,
+                    )}`}
                     onClick={() => {
                       setEditingEvento(evento);
                       setIsDialogOpen(true);
                     }}
                   >
                     <div className="flex items-center gap-1">
-                      {evento.location?.includes("http") && <Video className="w-3 h-3" />}
+                      {evento.location?.includes("http") && (
+                        <Video className="w-3 h-3" />
+                      )}
                       <span className="truncate">{evento.title}</span>
                     </div>
                   </div>
@@ -539,7 +559,9 @@ export function Agenda() {
                         <SelectItem value="prazo">Prazo</SelectItem>
                         <SelectItem value="entrega">Entrega</SelectItem>
                         <SelectItem value="compromisso">Compromisso</SelectItem>
-                        <SelectItem value="videoconferencia">Videoconferência</SelectItem>
+                        <SelectItem value="videoconferencia">
+                          Videoconferência
+                        </SelectItem>
                         <SelectItem value="outros">Outros</SelectItem>
                       </SelectContent>
                     </Select>
@@ -729,13 +751,18 @@ export function Agenda() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-orange-500" />
-              Próximos Eventos ({eventos.filter(e => new Date(e.starts_at) >= new Date()).length})
+              Próximos Eventos (
+              {
+                eventos.filter((e) => new Date(e.starts_at) >= new Date())
+                  .length
+              }
+              )
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {eventos
-                .filter(evento => new Date(evento.starts_at) >= new Date())
+                .filter((evento) => new Date(evento.starts_at) >= new Date())
                 .slice(0, 5)
                 .map((evento) => (
                   <div
@@ -745,7 +772,9 @@ export function Agenda() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium">{evento.title}</h4>
-                        <Badge className={`text-xs ${getEventTypeColor(evento.event_type)}`}>
+                        <Badge
+                          className={`text-xs ${getEventTypeColor(evento.event_type)}`}
+                        >
                           {evento.event_type}
                         </Badge>
                       </div>
@@ -761,8 +790,8 @@ export function Agenda() {
                             ) : (
                               <MapPin className="w-3 h-3" />
                             )}
-                            {evento.location.length > 30 
-                              ? evento.location.substring(0, 30) + "..." 
+                            {evento.location.length > 30
+                              ? evento.location.substring(0, 30) + "..."
                               : evento.location}
                           </div>
                         )}
@@ -776,8 +805,8 @@ export function Agenda() {
                     </div>
                     <div className="flex items-center gap-2">
                       {evento.location?.includes("http") && (
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => copyToClipboard(evento.location!)}
                         >

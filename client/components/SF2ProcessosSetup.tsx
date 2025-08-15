@@ -43,11 +43,11 @@ export function SF2ProcessosSetup() {
       "relation does not exist",
       "Esquema SF-2 não instalado",
       "undefined function",
-      "invalid function name"
+      "invalid function name",
     ];
 
-    return schemaErrorPatterns.some(pattern =>
-      errorMessage.toLowerCase().includes(pattern.toLowerCase())
+    return schemaErrorPatterns.some((pattern) =>
+      errorMessage.toLowerCase().includes(pattern.toLowerCase()),
     );
   };
 
@@ -477,15 +477,16 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
 -- BAIXE O ARQUIVO COMPLETO SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql (733 linhas)
 -- do diretório raiz do projeto para instalação completa.`,
               title: "💬 SF-2: Schema Chat Multi-thread + Memória",
-              description: "Schema completo para chat multi-thread com memória e quick-actions (733 linhas)",
-              variant: "default"
-            }
+              description:
+                "Schema completo para chat multi-thread com memória e quick-actions (733 linhas)",
+              variant: "default",
+            },
           ]}
           instructions={[
             "Baixe o arquivo SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql",
             "Abra o Supabase SQL Editor",
             "Execute o script completo (733 linhas)",
-            "Volte aqui e teste novamente a funcionalidade"
+            "Volte aqui e teste novamente a funcionalidade",
           ]}
           additionalInfo={[
             "✅ Chat multi-thread com memória persistente",
@@ -493,7 +494,7 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
             "✅ Automação thread_links.properties com numero_cnj",
             "✅ Sistema de roles (user, assistant, system)",
             "✅ Índices otimizados para performance",
-            "���️ Requer schemas 'public' e 'legalflow'"
+            "���️ Requer schemas 'public' e 'legalflow'",
           ]}
           className="border-orange-200 bg-orange-50"
         />

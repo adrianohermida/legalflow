@@ -3,12 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   Dialog,
   DialogContent,
@@ -180,8 +175,12 @@ export function SF7AgendaEnhanced() {
     }
 
     // Converter para SP timezone
-    const startSP = new Date(start.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-    const endSP = new Date(end.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const startSP = new Date(
+      start.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }),
+    );
+    const endSP = new Date(
+      end.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }),
+    );
 
     return {
       from: startSP.toISOString(),
@@ -200,7 +199,14 @@ export function SF7AgendaEnhanced() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["sf7-eventos", currentDate, viewMode, searchTerm, filterStatus, filterType],
+    queryKey: [
+      "sf7-eventos",
+      currentDate,
+      viewMode,
+      searchTerm,
+      filterStatus,
+      filterType,
+    ],
     queryFn: async () => {
       const { from, to } = getDateRange();
 
@@ -210,24 +216,31 @@ export function SF7AgendaEnhanced() {
       });
 
       if (error) throw error;
-      
+
       let filteredData = data || [];
 
       // Aplicar filtros
       if (searchTerm) {
-        filteredData = filteredData.filter((evento: SF7Evento) =>
-          evento.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          evento.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          evento.numero_cnj?.includes(searchTerm)
+        filteredData = filteredData.filter(
+          (evento: SF7Evento) =>
+            evento.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            evento.description
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            evento.numero_cnj?.includes(searchTerm),
         );
       }
 
       if (filterStatus !== "all") {
-        filteredData = filteredData.filter((evento: SF7Evento) => evento.status === filterStatus);
+        filteredData = filteredData.filter(
+          (evento: SF7Evento) => evento.status === filterStatus,
+        );
       }
 
       if (filterType !== "all") {
-        filteredData = filteredData.filter((evento: SF7Evento) => evento.event_type === filterType);
+        filteredData = filteredData.filter(
+          (evento: SF7Evento) => evento.event_type === filterType,
+        );
       }
 
       return filteredData;
@@ -239,7 +252,9 @@ export function SF7AgendaEnhanced() {
   const { data: eventosProximos = [] } = useQuery({
     queryKey: ["sf7-eventos-proximos"],
     queryFn: async () => {
-      const { data, error } = await lf.rpc("sf7_eventos_proximos", { p_limite: 5 });
+      const { data, error } = await lf.rpc("sf7_eventos_proximos", {
+        p_limite: 5,
+      });
       if (error) throw error;
       return data || [];
     },
@@ -263,7 +278,12 @@ export function SF7AgendaEnhanced() {
 
   // Mutation para criação rápida
   const quickCreateMutation = useMutation({
-    mutationFn: async (formData: { title: string; starts_at: string; cnj_or_cpf: string; video_link?: string }) => {
+    mutationFn: async (formData: {
+      title: string;
+      starts_at: string;
+      cnj_or_cpf: string;
+      video_link?: string;
+    }) => {
       const { data, error } = await lf.rpc("sf7_create_evento_rapido", {
         p_title: formData.title,
         p_starts_at: formData.starts_at,
@@ -416,32 +436,48 @@ export function SF7AgendaEnhanced() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "urgente": return "bg-red-100 text-red-700 border-red-200";
-      case "alta": return "bg-orange-100 text-orange-700 border-orange-200";
-      case "normal": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "baixa": return "bg-gray-100 text-gray-700 border-gray-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
+      case "urgente":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "alta":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "normal":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "baixa":
+        return "bg-gray-100 text-gray-700 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "agendado": return "bg-blue-100 text-blue-700";
-      case "confirmado": return "bg-green-100 text-green-700";
-      case "em_andamento": return "bg-yellow-100 text-yellow-700";
-      case "realizado": return "bg-emerald-100 text-emerald-700";
-      case "cancelado": return "bg-red-100 text-red-700";
-      case "reagendado": return "bg-purple-100 text-purple-700";
-      default: return "bg-gray-100 text-gray-700";
+      case "agendado":
+        return "bg-blue-100 text-blue-700";
+      case "confirmado":
+        return "bg-green-100 text-green-700";
+      case "em_andamento":
+        return "bg-yellow-100 text-yellow-700";
+      case "realizado":
+        return "bg-emerald-100 text-emerald-700";
+      case "cancelado":
+        return "bg-red-100 text-red-700";
+      case "reagendado":
+        return "bg-purple-100 text-purple-700";
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   };
 
   const getUrgenciaColor = (urgencia: string) => {
     switch (urgencia) {
-      case "urgente": return "border-l-4 border-red-500 bg-red-50";
-      case "hoje": return "border-l-4 border-orange-500 bg-orange-50";
-      case "proximo": return "border-l-4 border-blue-500 bg-blue-50";
-      default: return "border-l-4 border-gray-300 bg-white";
+      case "urgente":
+        return "border-l-4 border-red-500 bg-red-50";
+      case "hoje":
+        return "border-l-4 border-orange-500 bg-orange-50";
+      case "proximo":
+        return "border-l-4 border-blue-500 bg-blue-50";
+      default:
+        return "border-l-4 border-gray-300 bg-white";
     }
   };
 
@@ -449,7 +485,8 @@ export function SF7AgendaEnhanced() {
     navigator.clipboard.writeText(link);
     toast({
       title: "Link copiado",
-      description: "Link da videoconferência copiado para a área de transferência",
+      description:
+        "Link da videoconferência copiado para a área de transferência",
     });
   };
 
@@ -484,14 +521,17 @@ export function SF7AgendaEnhanced() {
             <div
               key={index}
               className={`min-h-32 p-2 border rounded-lg ${
-                isToday 
-                  ? "bg-blue-50 border-blue-200 shadow-sm" 
+                isToday
+                  ? "bg-blue-50 border-blue-200 shadow-sm"
                   : "bg-white border-neutral-200 hover:bg-neutral-50"
               }`}
             >
               <div className="text-center mb-2">
                 <div className="text-xs text-neutral-500 uppercase">
-                  {day.toLocaleDateString("pt-BR", { weekday: "short", timeZone: "America/Sao_Paulo" })}
+                  {day.toLocaleDateString("pt-BR", {
+                    weekday: "short",
+                    timeZone: "America/Sao_Paulo",
+                  })}
                 </div>
                 <div
                   className={`text-sm font-medium ${
@@ -505,9 +545,9 @@ export function SF7AgendaEnhanced() {
                 {dayEventos.map((evento) => (
                   <div
                     key={evento.id}
-                    className={`text-xs p-2 rounded cursor-pointer hover:shadow-sm transition-all ${
-                      getPriorityColor(evento.priority)
-                    }`}
+                    className={`text-xs p-2 rounded cursor-pointer hover:shadow-sm transition-all ${getPriorityColor(
+                      evento.priority,
+                    )}`}
                     onClick={() => {
                       setEditingEvento(evento);
                       setIsDialogOpen(true);
@@ -533,8 +573,16 @@ export function SF7AgendaEnhanced() {
   };
 
   const renderMonthView = () => {
-    const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const monthStart = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1,
+    );
+    const monthEnd = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0,
+    );
     const startDate = new Date(monthStart);
     startDate.setDate(startDate.getDate() - monthStart.getDay());
 
@@ -590,9 +638,9 @@ export function SF7AgendaEnhanced() {
                 {dayEventos.slice(0, 2).map((evento) => (
                   <div
                     key={evento.id}
-                    className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-all truncate ${
-                      getPriorityColor(evento.priority)
-                    }`}
+                    className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-all truncate ${getPriorityColor(
+                      evento.priority,
+                    )}`}
                     onClick={() => {
                       setEditingEvento(evento);
                       setIsDialogOpen(true);
@@ -626,7 +674,9 @@ export function SF7AgendaEnhanced() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-heading font-semibold">SF-7: Agenda</h1>
+            <h1 className="text-2xl font-heading font-semibold">
+              SF-7: Agenda
+            </h1>
             <p className="text-neutral-600 mt-1">
               Compromissos, prazos e eventos (TZ: America/Sao_Paulo)
             </p>
@@ -721,8 +771,12 @@ export function SF7AgendaEnhanced() {
                           <SelectItem value="audiencia">Audiência</SelectItem>
                           <SelectItem value="prazo">Prazo</SelectItem>
                           <SelectItem value="entrega">Entrega</SelectItem>
-                          <SelectItem value="compromisso">Compromisso</SelectItem>
-                          <SelectItem value="videoconferencia">Videoconferência</SelectItem>
+                          <SelectItem value="compromisso">
+                            Compromisso
+                          </SelectItem>
+                          <SelectItem value="videoconferencia">
+                            Videoconferência
+                          </SelectItem>
                           <SelectItem value="outros">Outros</SelectItem>
                         </SelectContent>
                       </Select>
@@ -826,7 +880,9 @@ export function SF7AgendaEnhanced() {
                         <SelectContent>
                           <SelectItem value="agendado">Agendado</SelectItem>
                           <SelectItem value="confirmado">Confirmado</SelectItem>
-                          <SelectItem value="em_andamento">Em Andamento</SelectItem>
+                          <SelectItem value="em_andamento">
+                            Em Andamento
+                          </SelectItem>
                           <SelectItem value="realizado">Realizado</SelectItem>
                           <SelectItem value="cancelado">Cancelado</SelectItem>
                           <SelectItem value="reagendado">Reagendado</SelectItem>
@@ -843,7 +899,11 @@ export function SF7AgendaEnhanced() {
                         variant="destructive"
                         size="sm"
                         onClick={() => {
-                          if (confirm("Tem certeza que deseja excluir este evento?")) {
+                          if (
+                            confirm(
+                              "Tem certeza que deseja excluir este evento?",
+                            )
+                          ) {
                             deleteEventoMutation.mutate(editingEvento.id);
                             setIsDialogOpen(false);
                             setEditingEvento(null);
@@ -866,8 +926,15 @@ export function SF7AgendaEnhanced() {
                     >
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={updateEventoMutation.isPending || quickCreateMutation.isPending}>
-                      {(updateEventoMutation.isPending || quickCreateMutation.isPending) && (
+                    <Button
+                      type="submit"
+                      disabled={
+                        updateEventoMutation.isPending ||
+                        quickCreateMutation.isPending
+                      }
+                    >
+                      {(updateEventoMutation.isPending ||
+                        quickCreateMutation.isPending) && (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       )}
                       {editingEvento ? "Atualizar" : "Criar"}
@@ -895,11 +962,7 @@ export function SF7AgendaEnhanced() {
                   placeholder="Título do evento *"
                   required
                 />
-                <Input
-                  name="quick_starts_at"
-                  type="datetime-local"
-                  required
-                />
+                <Input name="quick_starts_at" type="datetime-local" required />
                 <Input
                   name="quick_cnj_cpf"
                   placeholder="CNJ ou CPF (opcional)"
@@ -910,8 +973,8 @@ export function SF7AgendaEnhanced() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   size="sm"
                   disabled={quickCreateMutation.isPending}
                 >
@@ -920,9 +983,9 @@ export function SF7AgendaEnhanced() {
                   )}
                   Criar Rápido
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={() => setShowQuickCreate(false)}
                 >
@@ -970,7 +1033,7 @@ export function SF7AgendaEnhanced() {
                 Hoje
               </Button>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
                 <Search className="w-4 h-4 text-neutral-400" />
@@ -981,7 +1044,7 @@ export function SF7AgendaEnhanced() {
                   className="w-48"
                 />
               </div>
-              
+
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -1034,7 +1097,9 @@ export function SF7AgendaEnhanced() {
                       <Badge variant="outline" className="text-xs">
                         {evento.event_type}
                       </Badge>
-                      <Badge className={`text-xs ${getStatusColor(evento.status)}`}>
+                      <Badge
+                        className={`text-xs ${getStatusColor(evento.status)}`}
+                      >
                         {evento.status}
                       </Badge>
                     </div>
@@ -1059,8 +1124,8 @@ export function SF7AgendaEnhanced() {
                   </div>
                   <div className="flex items-center gap-2">
                     {evento.video_link && (
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => copyVideoLink(evento.video_link!)}
                       >
@@ -1072,7 +1137,9 @@ export function SF7AgendaEnhanced() {
                       size="sm"
                       onClick={() => {
                         // Buscar evento completo para edição
-                        const eventoCompleto = eventos.find(e => e.id === evento.id);
+                        const eventoCompleto = eventos.find(
+                          (e) => e.id === evento.id,
+                        );
                         if (eventoCompleto) {
                           setEditingEvento(eventoCompleto);
                           setIsDialogOpen(true);

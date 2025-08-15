@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   Calendar,
   Clock,
@@ -21,7 +16,10 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
-import { createEventFromStage, useSF7StageIntegration } from "../lib/sf7-stage-integration";
+import {
+  createEventFromStage,
+  useSF7StageIntegration,
+} from "../lib/sf7-stage-integration";
 import { GenericSQLDownloader } from "./GenericSQLDownloader";
 
 export function SF7AgendaSetup() {
@@ -51,7 +49,7 @@ export function SF7AgendaSetup() {
   const testSchemaMutation = useMutation({
     mutationFn: async () => {
       setIsTestingSchema(true);
-      
+
       // Testar criação de evento rápido
       const testEvent = {
         title: "Teste SF-7: Reunião de Alinhamento",
@@ -62,31 +60,43 @@ export function SF7AgendaSetup() {
         location: "Sala Virtual",
       };
 
-      const { data: eventoId, error } = await lf.rpc("sf7_create_evento_rapido", {
-        p_title: testEvent.title,
-        p_starts_at: testEvent.starts_at,
-        p_event_type: "videoconferencia",
-        p_cnj_or_cpf: testEvent.cnj_or_cpf,
-        p_video_link: testEvent.video_link,
-        p_description: testEvent.description,
-        p_location: testEvent.location,
-      });
+      const { data: eventoId, error } = await lf.rpc(
+        "sf7_create_evento_rapido",
+        {
+          p_title: testEvent.title,
+          p_starts_at: testEvent.starts_at,
+          p_event_type: "videoconferencia",
+          p_cnj_or_cpf: testEvent.cnj_or_cpf,
+          p_video_link: testEvent.video_link,
+          p_description: testEvent.description,
+          p_location: testEvent.location,
+        },
+      );
 
       if (error) throw error;
 
       // Testar listagem de eventos próximos
-      const { data: proximosEventos, error: proximosError } = await lf.rpc("sf7_eventos_proximos", {
-        p_limite: 3,
-      });
+      const { data: proximosEventos, error: proximosError } = await lf.rpc(
+        "sf7_eventos_proximos",
+        {
+          p_limite: 3,
+        },
+      );
 
       if (proximosError) throw proximosError;
 
       // Testar atualização
-      const { data: updateResult, error: updateError } = await lf.rpc("sf7_update_evento", {
-        p_evento_id: eventoId,
-        p_status: "confirmado",
-        p_metadata: { test_completed: true, test_timestamp: new Date().toISOString() },
-      });
+      const { data: updateResult, error: updateError } = await lf.rpc(
+        "sf7_update_evento",
+        {
+          p_evento_id: eventoId,
+          p_status: "confirmado",
+          p_metadata: {
+            test_completed: true,
+            test_timestamp: new Date().toISOString(),
+          },
+        },
+      );
 
       if (updateError) throw updateError;
 
@@ -125,10 +135,13 @@ export function SF7AgendaSetup() {
         numero_cnj: "1234567-89.2024.8.26.0100",
         cliente_cpfcnpj: "12345678901",
         title: "Audiência de Conciliação - Teste SF-7",
-        description: "Evento de teste criado automaticamente a partir de uma etapa do processo",
+        description:
+          "Evento de teste criado automaticamente a partir de uma etapa do processo",
         event_type: "audiencia" as const,
         starts_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 1 dia no futuro
-        ends_at: new Date(Date.now() + 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(), // +2 horas
+        ends_at: new Date(
+          Date.now() + 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000,
+        ).toISOString(), // +2 horas
         location: "Fórum Central - Sala 15",
         priority: "alta" as const,
       };
@@ -137,13 +150,15 @@ export function SF7AgendaSetup() {
       if (!createResult.success) throw new Error(createResult.error);
 
       // Testar busca de eventos da etapa
-      const eventsResult = await sf7Integration.getEventsFromStage(stageEventData.stage_instance_id);
+      const eventsResult = await sf7Integration.getEventsFromStage(
+        stageEventData.stage_instance_id,
+      );
       if (!eventsResult.success) throw new Error(eventsResult.error);
 
       // Testar atualização de status
       const statusResult = await sf7Integration.updateEventStatusFromStage(
         stageEventData.stage_instance_id,
-        "confirmado"
+        "confirmado",
       );
       if (!statusResult.success) throw new Error(statusResult.error);
 
@@ -182,7 +197,8 @@ export function SF7AgendaSetup() {
           SF-7: Agenda (TZ America/Sao_Paulo)
         </h2>
         <p className="text-neutral-600">
-          Sistema de agenda com timezone São Paulo, criação rápida com CNJ/CPF e automação de etapas.
+          Sistema de agenda com timezone São Paulo, criação rápida com CNJ/CPF e
+          automação de etapas.
         </p>
       </div>
 
@@ -223,19 +239,27 @@ export function SF7AgendaSetup() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
                   <span className="text-neutral-600">Versão:</span>
-                  <div className="font-medium">{verificationResult.schema_version}</div>
+                  <div className="font-medium">
+                    {verificationResult.schema_version}
+                  </div>
                 </div>
                 <div>
                   <span className="text-neutral-600">Timezone:</span>
-                  <div className="font-medium">{verificationResult.timezone}</div>
+                  <div className="font-medium">
+                    {verificationResult.timezone}
+                  </div>
                 </div>
                 <div>
                   <span className="text-neutral-600">Tabelas:</span>
-                  <div className="font-medium">{verificationResult.tables_created}/3</div>
+                  <div className="font-medium">
+                    {verificationResult.tables_created}/3
+                  </div>
                 </div>
                 <div>
                   <span className="text-neutral-600">Funções:</span>
-                  <div className="font-medium">{verificationResult.functions_created}</div>
+                  <div className="font-medium">
+                    {verificationResult.functions_created}
+                  </div>
                 </div>
               </div>
 
@@ -250,8 +274,12 @@ export function SF7AgendaSetup() {
                         ) : (
                           <AlertTriangle className="w-4 h-4 text-orange-500" />
                         )}
-                        <span className={available ? "text-green-700" : "text-orange-700"}>
-                          {feature.replace(/_/g, ' ')}
+                        <span
+                          className={
+                            available ? "text-green-700" : "text-orange-700"
+                          }
+                        >
+                          {feature.replace(/_/g, " ")}
                         </span>
                       </div>
                     ))}
@@ -262,7 +290,8 @@ export function SF7AgendaSetup() {
               {verificationResult.test_events > 0 && (
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <div className="text-sm text-blue-700">
-                    📅 {verificationResult.test_events} evento(s) de teste encontrado(s) na agenda
+                    📅 {verificationResult.test_events} evento(s) de teste
+                    encontrado(s) na agenda
                   </div>
                 </div>
               )}
@@ -289,7 +318,8 @@ export function SF7AgendaSetup() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-neutral-600 mb-4">
-                Testa criação rápida, listagem e atualização de eventos com timezone SP.
+                Testa criação rápida, listagem e atualização de eventos com
+                timezone SP.
               </p>
               <Button
                 onClick={() => testSchemaMutation.mutate()}
@@ -316,7 +346,8 @@ export function SF7AgendaSetup() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-neutral-600 mb-4">
-                Testa automação de eventos a partir de etapas com stage_instance_id.
+                Testa automação de eventos a partir de etapas com
+                stage_instance_id.
               </p>
               <Button
                 onClick={() => testStageIntegrationMutation.mutate()}
@@ -448,15 +479,16 @@ CREATE TABLE IF NOT EXISTS legalflow.eventos_agenda (
 -- BAIXE O ARQUIVO COMPLETO SF7_AGENDA_SCHEMA_COMPLETE.sql (599 linhas)
 -- do diretório raiz do projeto para instalação completa.`,
               title: "📅 SF-7: Schema Principal da Agenda",
-              description: "Schema completo com timezone América/São_Paulo, automações e funções RPC (599 linhas)",
-              variant: "default"
-            }
+              description:
+                "Schema completo com timezone América/São_Paulo, automações e funções RPC (599 linhas)",
+              variant: "default",
+            },
           ]}
           instructions={[
             "Baixe o arquivo SF7_AGENDA_SCHEMA_COMPLETE.sql",
             "Abra o Supabase SQL Editor",
             "Execute o script completo (todas as 599 linhas)",
-            "Volte aqui e clique em 'Verificar Novamente'"
+            "Volte aqui e clique em 'Verificar Novamente'",
           ]}
           additionalInfo={[
             "✅ Timezone América/São_Paulo em todas as operações",
@@ -464,7 +496,7 @@ CREATE TABLE IF NOT EXISTS legalflow.eventos_agenda (
             "✅ Suporte a links de vídeo e plataformas",
             "✅ Automação com stage_instance_id para etapas",
             "✅ Views semanais/mensais otimizadas",
-            "⚠️ Requer que o schema 'legalflow' já exista no Supabase"
+            "⚠️ Requer que o schema 'legalflow' já exista no Supabase",
           ]}
           className="border-orange-200 bg-orange-50"
         />
