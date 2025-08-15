@@ -71,6 +71,8 @@ import DocumentosC6 from "./pages/DocumentosC6";
 import TicketsC7 from "./pages/TicketsC7";
 import ActivitiesC8 from "./pages/ActivitiesC8";
 import DealsC9 from "./pages/DealsC9";
+import JourneysD1 from "./pages/JourneysD1";
+import JourneyDesignerD2 from "./pages/JourneyDesignerD2";
 import ContatosUnificados from "./pages/crm/ContatosUnificados";
 import LeadsConversao from "./pages/crm/LeadsConversao";
 import DealsKanban from "./pages/crm/DealsKanban";
@@ -410,6 +412,22 @@ function DemoAppRoutes() {
         element={
           <DemoProtectedRoute userType="advogado">
             <DealsC9 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/jornadas-d1"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <JourneysD1 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/journey-designer"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <JourneyDesignerD2 />
           </DemoProtectedRoute>
         }
       />
@@ -855,6 +873,22 @@ function RegularAppRoutes() {
         element={
           <ProtectedRoute userType="advogado">
             <DealsC9 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/jornadas-d1"
+        element={
+          <ProtectedRoute userType="advogado">
+            <JourneysD1 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/journey-designer"
+        element={
+          <ProtectedRoute userType="advogado">
+            <JourneyDesignerD2 />
           </ProtectedRoute>
         }
       />
