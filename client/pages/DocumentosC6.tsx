@@ -106,15 +106,7 @@ const DocumentosC6 = () => {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isFlipbookOpen, setIsFlipbookOpen] = useState(false);
-  const [flipbookCNJ, setFlipbookCNJ] = useState("");
-  const [uploadForm, setUploadForm] = useState<DocumentUploadForm>({
-    title: "",
-    description: "",
-    numero_cnj: "",
-    document_type: "outros",
-    tags: [],
-  });
-  const [isUploading, setIsUploading] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   // Queries
   const { data: documents = [], isLoading: loadingDocs } = useQuery({
