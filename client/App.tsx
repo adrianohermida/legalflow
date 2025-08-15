@@ -70,6 +70,7 @@ import Documentos from "./pages/Documentos";
 import DocumentosC6 from "./pages/DocumentosC6";
 import TicketsC7 from "./pages/TicketsC7";
 import ActivitiesC8 from "./pages/ActivitiesC8";
+import DealsC9 from "./pages/DealsC9";
 import ContatosUnificados from "./pages/crm/ContatosUnificados";
 import LeadsConversao from "./pages/crm/LeadsConversao";
 import DealsKanban from "./pages/crm/DealsKanban";
@@ -401,6 +402,14 @@ function DemoAppRoutes() {
         element={
           <DemoProtectedRoute userType="advogado">
             <ActivitiesC8 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
+        path="/deals"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <DealsC9 />
           </DemoProtectedRoute>
         }
       />
