@@ -39,7 +39,15 @@ export function SF7AgendaSetup() {
     queryKey: ["sf7-verify-installation"],
     queryFn: async () => {
       const { data, error } = await lf.rpc("sf7_verify_installation");
-      if (error) throw error;
+      if (error) {
+        const errorMsg = error.message || error.toString();
+        if (errorMsg.includes("does not exist") || errorMsg.includes("function")) {
+          throw new Error(
+            "Funções SF-7 não encontradas. Execute o arquivo SF7_AGENDA_RPC_FIXED.sql no Supabase SQL Editor."
+          );
+        }
+        throw error;
+      }
       return data;
     },
     staleTime: 30 * 1000, // 30 segundos
@@ -116,9 +124,14 @@ export function SF7AgendaSetup() {
     },
     onError: (error: any) => {
       setIsTestingSchema(false);
+      const errorMsg = error.message || "Falha ao testar o schema SF-7";
+      const isSchemaError = errorMsg.includes("does not exist") || errorMsg.includes("function");
+
       toast({
         title: "Erro no Teste do Schema",
-        description: error.message || "Falha ao testar o schema SF-7",
+        description: isSchemaError
+          ? "Funções SF-7 não encontradas. Execute SF7_AGENDA_RPC_FIXED.sql primeiro."
+          : errorMsg,
         variant: "destructive",
       });
     },
@@ -179,9 +192,14 @@ export function SF7AgendaSetup() {
     },
     onError: (error: any) => {
       setIsTestingIntegration(false);
+      const errorMsg = error.message || "Falha na integração com etapas";
+      const isSchemaError = errorMsg.includes("does not exist") || errorMsg.includes("function");
+
       toast({
         title: "Erro no Teste de Integração",
-        description: error.message || "Falha na integração com etapas",
+        description: isSchemaError
+          ? "Funções SF-7 não encontradas. Execute SF7_AGENDA_RPC_FIXED.sql primeiro."
+          : errorMsg,
         variant: "destructive",
       });
     },
@@ -382,7 +400,7 @@ export function SF7AgendaSetup() {
           description="Execute este script no Supabase SQL Editor para configurar o sistema de agenda com timezone América/São_Paulo"
           files={[
             {
-              filename: "SF7_AGENDA_SCHEMA_COMPLETE.sql",
+              filename: "SF7_AGENDA_RPC_FIXED.sql",
               content: `-- ============================================================================
 -- SF-7: Agenda (TZ America/Sao Paulo) - SCHEMA COMPLETO
 -- ============================================================================
@@ -476,7 +494,7 @@ CREATE TABLE IF NOT EXISTS legalflow.eventos_agenda (
 -- ✅ Dados de teste para validação
 -- ✅ Função de verificação sf7_verify_installation()
 
--- BAIXE O ARQUIVO COMPLETO SF7_AGENDA_SCHEMA_COMPLETE.sql (599 linhas)
+-- BAIXE O ARQUIVO COMPLETO SF7_AGENDA_RPC_FIXED.sql (476 linhas)
 -- do diretório raiz do projeto para instalação completa.`,
               title: "📅 SF-7: Schema Principal da Agenda",
               description:
@@ -485,7 +503,7 @@ CREATE TABLE IF NOT EXISTS legalflow.eventos_agenda (
             },
           ]}
           instructions={[
-            "Baixe o arquivo SF7_AGENDA_SCHEMA_COMPLETE.sql",
+            "Baixe o arquivo SF7_AGENDA_RPC_FIXED.sql",
             "Abra o Supabase SQL Editor",
             "Execute o script completo (todas as 599 linhas)",
             "Volte aqui e clique em 'Verificar Novamente'",

@@ -94,13 +94,18 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
   const installMutation = useMutation({
     mutationFn: async () => {
       try {
-        // Como não podemos executar SQL diretamente, vamos testar se as funções RPC existem
+        // Primeiro, testar se as funções RPC principais existem
         const { data, error } = await lf.rpc("sf2_create_sample_data");
 
         if (error) {
-          // Se a função não existe, orientar o usuário
+          const errorMsg = error.message || error.toString();
+          if (errorMsg.includes("does not exist") || errorMsg.includes("function")) {
+            throw new Error(
+              "Funções SF-2 não encontradas. Execute o arquivo SF2_CHAT_MULTITHREAD_RPC_FIXED.sql no Supabase SQL Editor.",
+            );
+          }
           throw new Error(
-            "Esquema SF-2 não instalado. Por favor, execute o arquivo SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql no seu banco Supabase.",
+            `Erro na verificação SF-2: ${errorMsg}. Execute SF2_CHAT_MULTITHREAD_RPC_FIXED.sql se necessário.`,
           );
         }
 
@@ -368,7 +373,7 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
                 <p>1. Acesse seu painel Supabase SQL Editor</p>
                 <p>
                   2. Execute o arquivo:{" "}
-                  <code>SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql</code>
+                  <code>SF2_CHAT_MULTITHREAD_RPC_FIXED.sql</code>
                 </p>
                 <p>3. Volte aqui e clique em "Verificar Schema"</p>
               </div>
@@ -413,7 +418,7 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
           description="Para utilizar o Chat Multi-thread dos Processos, você deve instalar primeiro o schema SF2 no seu banco Supabase."
           files={[
             {
-              filename: "SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql",
+              filename: "SF2_CHAT_MULTITHREAD_RPC_FIXED.sql",
               content: `-- SF-2: Processos > Detalhes — Chat Multi-thread + Memória - SCHEMA COMPLETO
 --
 -- IMPORTANTE: Este arquivo contém 733 linhas de código SQL.
@@ -474,7 +479,7 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
 -- ✅ Dados de teste
 -- ✅ Verificação de instalação
 
--- BAIXE O ARQUIVO COMPLETO SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql (733 linhas)
+-- BAIXE O ARQUIVO COMPLETO SF2_CHAT_MULTITHREAD_RPC_FIXED.sql (571 linhas)
 -- do diretório raiz do projeto para instalação completa.`,
               title: "💬 SF-2: Schema Chat Multi-thread + Memória",
               description:
@@ -483,7 +488,7 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
             },
           ]}
           instructions={[
-            "Baixe o arquivo SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql",
+            "Baixe o arquivo SF2_CHAT_MULTITHREAD_RPC_FIXED.sql",
             "Abra o Supabase SQL Editor",
             "Execute o script completo (733 linhas)",
             "Volte aqui e teste novamente a funcionalidade",
