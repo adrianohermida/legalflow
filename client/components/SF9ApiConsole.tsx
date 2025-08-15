@@ -121,7 +121,8 @@ export const SF9ApiConsole: React.FC = () => {
   const [executing, setExecuting] = useState(false);
   const [preparedRequest, setPreparedRequest] = useState<any>(null);
   const [executionResult, setExecutionResult] = useState<any>(null);
-  
+  const [seeding, setSeeding] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
