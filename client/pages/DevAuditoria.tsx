@@ -1590,6 +1590,10 @@ const DevAuditoria: React.FC = () => {
             <TabsContent value="sf10">
               <SF10StripeWizard />
             </TabsContent>
+
+            <TabsContent value="sf11">
+              <SF11CRMSetup />
+            </TabsContent>
           </Tabs>
         </TabsContent>
 
