@@ -157,20 +157,7 @@ export default function ProcessoOverviewV3() {
     queryKey: ["timeline-recente", numero_cnj],
     queryFn: async () => {
       if (!numero_cnj) return [];
-
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      const { data, error } = await supabase
-        .from("vw_timeline_processo")
-        .select("*")
-        .eq("numero_cnj", numero_cnj)
-        .gte("data", thirtyDaysAgo.toISOString())
-        .order("data", { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      return data as TimelineEvent[];
+      return fetchTimelineRecente(numero_cnj, 10);
     },
     enabled: !!numero_cnj,
   });
