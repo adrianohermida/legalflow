@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { clientesApi } from "../../../client/lib/api";
+import {
+  mockClientesApi as clientesApi,
+  mockProcessosApi,
+  mockPlanosPagamentoApi,
+  mockJourneyInstancesApi
+} from "../../lib/mock-api";
 import { validateRequest, commonSchemas } from "../../middleware/validation";
 import { CreateClienteRequest, ClienteFilters, PaginationParams } from "@shared/api";
 
