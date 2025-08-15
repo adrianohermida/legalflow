@@ -691,7 +691,7 @@ const DevAuditoria: React.FC = () => {
         description: "Todos os testes foram executados com sucesso.",
       });
     } catch (error) {
-      console.error("❌ Erro durante testes:", error);
+      console.error("�� Erro durante testes:", error);
       toast({
         title: "Erro nos testes",
         description:
@@ -917,6 +917,168 @@ const DevAuditoria: React.FC = () => {
               </span>
             </div>
             <Progress value={auditProgress} className="h-2" />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Audit Suggestions */}
+      {showSuggestions && auditSuggestions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-purple-600" />
+                  Sugestões de Melhoria Identificadas
+                </CardTitle>
+                <CardDescription>
+                  {auditSuggestions.length} oportunidades de melhoria detectadas pela auditoria
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSuggestions(false)}
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                Fechar
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3">
+              {auditSuggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className={`p-4 border rounded-lg ${
+                    suggestion.autoCreate
+                      ? 'border-green-200 bg-green-50'
+                      : 'border-yellow-200 bg-yellow-50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge
+                          variant="outline"
+                          className={
+                            suggestion.finding.severity === 'critical'
+                              ? 'border-red-500 text-red-700'
+                              : suggestion.finding.severity === 'high'
+                              ? 'border-orange-500 text-orange-700'
+                              : suggestion.finding.severity === 'medium'
+                              ? 'border-yellow-500 text-yellow-700'
+                              : 'border-gray-500 text-gray-700'
+                          }
+                        >
+                          {suggestion.finding.severity}
+                        </Badge>
+                        <Badge variant="outline">
+                          {suggestion.finding.category}
+                        </Badge>
+                        <Badge variant="outline">
+                          {suggestion.finding.module}
+                        </Badge>
+                        {suggestion.finding.builderExecutable && (
+                          <Badge variant="outline" className="bg-purple-100 text-purple-700">
+                            <Zap className="w-3 h-3 mr-1" />
+                            Builder.io
+                          </Badge>
+                        )}
+                      </div>
+                      <h4 className="font-medium text-gray-900 mb-1">
+                        {suggestion.finding.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {suggestion.finding.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {suggestion.reason}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <div className="text-right text-xs text-gray-500">
+                        <div>{suggestion.finding.storyPoints} pts</div>
+                        <div>{suggestion.finding.estimatedEffort}h</div>
+                      </div>
+                      {suggestion.autoCreate ? (
+                        <Badge className="bg-green-600">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Auto-criado
+                        </Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={async () => {
+                            try {
+                              await createItemsFromSuggestions([suggestion]);
+                              toast({
+                                title: "Item criado",
+                                description: "Item adicionado ao backlog com sucesso.",
+                              });
+                              // Atualizar a sugestão para mostrar que foi criada
+                              setAuditSuggestions(prev =>
+                                prev.map((s, i) =>
+                                  i === index
+                                    ? { ...s, autoCreate: true, reason: 'Criado manualmente' }
+                                    : s
+                                )
+                              );
+                            } catch (error) {
+                              toast({
+                                title: "Erro",
+                                description: "Erro ao criar item no backlog.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Criar Item
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div className="text-sm text-gray-600">
+                {auditSuggestions.filter(s => s.autoCreate).length} itens criados automaticamente, {' '}
+                {auditSuggestions.filter(s => !s.autoCreate).length} aguardando revisão manual
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const pendingSuggestions = auditSuggestions.filter(s => !s.autoCreate);
+                    if (pendingSuggestions.length > 0) {
+                      await createItemsFromSuggestions(pendingSuggestions);
+                      toast({
+                        title: "Itens criados",
+                        description: `${pendingSuggestions.length} itens adicionados ao backlog.`,
+                      });
+                      setAuditSuggestions(prev =>
+                        prev.map(s => ({ ...s, autoCreate: true, reason: 'Criado via ação em lote' }))
+                      );
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Erro",
+                      description: "Erro ao criar itens no backlog.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                disabled={auditSuggestions.filter(s => !s.autoCreate).length === 0}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Criar Todos os Pendentes
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
