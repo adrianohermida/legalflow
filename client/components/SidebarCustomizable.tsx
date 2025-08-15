@@ -359,11 +359,11 @@ export function SidebarCustomizable({
             </div>
             <div>
               <div className="text-lg font-bold text-gray-900">Legalflow</div>
-              <div className="text-sm text-gray-600">CRM Jurídico</div>
               {/* Reserved space for client branding logo */}
               <div className="h-8 bg-gray-50 border border-dashed border-gray-300 rounded flex items-center justify-center mt-1">
                 <span className="text-xs text-gray-400">Logo Cliente</span>
               </div>
+              <div className="text-sm text-gray-600">CRM Jurídico</div>
               <div className="text-xs text-gray-500 capitalize mt-1">{userType}</div>
             </div>
           </Link>
