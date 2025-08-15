@@ -29,77 +29,21 @@
           <h1 style="color: #667eea; margin-bottom: 20px;">⚡ LegalFlow</h1>
           <p>Software Jurídico Inteligente</p>
           <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px; color: #1e40af;">
-            Inicializando sistema...
+            Carregando aplicativo completo...
           </div>
         </div>
       </div>
     </div>
 
-    <!-- React 18 from CDN for immediate loading -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
+    <!-- CARREGAR O APLICATIVO REAL DO LEGALFLOW -->
+    <script type="module" src="/client/App.tsx"></script>
+
     <script>
-      // FIXED: Improved Builder.io protection without reload loops
-      let protectionActive = false;
+      // Builder.io protection com limite de tentativas
       let reloadAttempts = 0;
       const MAX_RELOAD_ATTEMPTS = 2;
       
-      function smartBuilderProtection() {
-        // Prevent multiple simultaneous checks
-        if (protectionActive) return false;
-        
-        // Don't run if we've already reloaded too many times
-        if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
-          console.log('🛡️ Builder.io protection: Max reload attempts reached, stopping');
-          return false;
-        }
-        
-        protectionActive = true;
-        
-        try {
-          const bodyText = document.body.textContent || '';
-          
-          // VERY SPECIFIC detection - only the exact problematic strings
-          const exactProblematicStrings = [
-            'export default function MyComponent(props) { return <></>;',
-            'export default function MyComponent(props) {\n  return <></>;\n}'
-          ];
-          
-          let hasExactProblem = false;
-          for (const exactString of exactProblematicStrings) {
-            if (bodyText.includes(exactString)) {
-              hasExactProblem = true;
-              console.error('🚨 EXACT Builder.io issue detected:', exactString);
-              break;
-            }
-          }
-          
-          if (hasExactProblem) {
-            reloadAttempts++;
-            console.log(`🔄 Builder.io protection: Reloading (attempt ${reloadAttempts}/${MAX_RELOAD_ATTEMPTS})`);
-            
-            // Store reload count in sessionStorage to persist across reloads
-            try {
-              sessionStorage.setItem('builderReloadAttempts', reloadAttempts.toString());
-            } catch (e) {
-              console.warn('Could not store reload attempts in sessionStorage');
-            }
-            
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
-            
-            return true;
-          }
-          
-          return false;
-        } finally {
-          protectionActive = false;
-        }
-      }
-      
-      // Initialize reload attempts from sessionStorage
+      // Inicializar contador de sessionStorage
       try {
         const storedAttempts = sessionStorage.getItem('builderReloadAttempts');
         if (storedAttempts) {
@@ -109,339 +53,52 @@
         console.warn('Could not read reload attempts from sessionStorage');
       }
       
-      // IMMEDIATE REACT APP INITIALIZATION
-      const { createElement: h, useState, useEffect } = React;
-      const { createRoot } = ReactDOM;
-      
-      function LegalFlowApp() {
-        const [isLoading, setIsLoading] = useState(true);
-        const [authMode, setAuthMode] = useState('demo');
+      function smartBuilderProtection() {
+        // Não executar se já atingimos o limite
+        if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
+          console.log('🛡️ Builder.io protection: Max reload attempts reached, stopping');
+          return false;
+        }
         
-        useEffect(() => {
-          console.log('🚀 LegalFlow initializing...');
+        const bodyText = document.body.textContent || '';
+        
+        // DETECÇÃO ESPECÍFICA - apenas o código exato problemático
+        const exactProblematicStrings = [
+          'export default function MyComponent(props) { return <></>;',
+          'export default function MyComponent(props) {\n  return <></>;\\n}'
+        ];
+        
+        let hasExactProblem = false;
+        for (const exactString of exactProblematicStrings) {
+          if (bodyText.includes(exactString)) {
+            hasExactProblem = true;
+            console.error('🚨 EXACT Builder.io issue detected:', exactString);
+            break;
+          }
+        }
+        
+        if (hasExactProblem) {
+          reloadAttempts++;
+          console.log(`🔄 Builder.io protection: Reloading (attempt ${reloadAttempts}/${MAX_RELOAD_ATTEMPTS})`);
           
-          // Clear reload attempts when app loads successfully
+          // Armazenar contador
           try {
-            sessionStorage.removeItem('builderReloadAttempts');
+            sessionStorage.setItem('builderReloadAttempts', reloadAttempts.toString());
           } catch (e) {
-            // Ignore sessionStorage errors
+            console.warn('Could not store reload attempts in sessionStorage');
           }
           
-          // Simple loading simulation
           setTimeout(() => {
-            setIsLoading(false);
-            console.log('✅ LegalFlow loaded successfully');
-          }, 2000);
-        }, []);
-        
-        if (isLoading) {
-          return h('div', { className: 'loading-fallback' },
-            h('div', { 
-              style: { 
-                background: 'white', 
-                color: '#333', 
-                padding: '50px', 
-                borderRadius: '25px',
-                boxShadow: '0 25px 70px rgba(0,0,0,0.15)',
-                maxWidth: '600px',
-                textAlign: 'center'
-              }
-            },
-              h('div', { 
-                style: { 
-                  fontSize: '3rem', 
-                  fontWeight: '800',
-                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  marginBottom: '1.5rem'
-                }
-              }, '⚡ LegalFlow'),
-              h('p', { 
-                style: { 
-                  color: '#6b7280', 
-                  fontSize: '1.3rem', 
-                  marginBottom: '2rem' 
-                } 
-              }, 'Software Jurídico Inteligente'),
-              h('div', {
-                style: {
-                  background: '#3b82f6',
-                  color: 'white',
-                  padding: '15px 25px',
-                  borderRadius: '25px',
-                  display: 'inline-block',
-                  fontSize: '1rem',
-                  fontWeight: '600'
-                }
-              }, '🔄 Carregando sistema...')
-            )
-          );
+            window.location.reload();
+          }, 1000);
+          
+          return true;
         }
         
-        // Main application interface
-        return h('div', { 
-          style: { 
-            fontFamily: 'system-ui',
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }
-        },
-          h('div', {
-            style: {
-              background: 'white',
-              padding: '60px',
-              borderRadius: '25px',
-              textAlign: 'center',
-              boxShadow: '0 30px 80px rgba(0, 0, 0, 0.2)',
-              maxWidth: '900px',
-              width: '95%'
-            }
-          },
-            h('div', {
-              style: {
-                fontSize: '3.5rem',
-                fontWeight: '900',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                marginBottom: '2rem'
-              }
-            }, '✅ LegalFlow'),
-            
-            h('div', { 
-              style: { 
-                color: '#6b7280', 
-                marginBottom: '3rem', 
-                fontSize: '1.4rem',
-                fontWeight: '600'
-              } 
-            }, 'Software Jurídico Inteligente'),
-
-            h('div', {
-              style: {
-                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                color: 'white',
-                padding: '30px',
-                borderRadius: '20px',
-                marginBottom: '30px',
-                boxShadow: '0 10px 30px rgba(34, 197, 94, 0.3)'
-              }
-            },
-              h('h2', {
-                style: {
-                  margin: '0 0 15px 0',
-                  fontSize: '2rem',
-                  fontWeight: '800'
-                }
-              }, '🎉 Sistema Operacional!'),
-              h('p', {
-                style: {
-                  margin: 0,
-                  fontSize: '1.2rem',
-                  fontWeight: '500'
-                }
-              }, 'LegalFlow carregado com sucesso sem loops de reload!')
-            ),
-
-            h('div', {
-              style: {
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '25px',
-                margin: '40px 0'
-              }
-            },
-              h('div', {
-                style: {
-                  background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-                  padding: '30px',
-                  borderRadius: '20px',
-                  borderLeft: '6px solid #667eea',
-                  boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
-                }
-              },
-                h('h3', {
-                  style: {
-                    color: '#667eea',
-                    marginBottom: '15px',
-                    fontSize: '1.3rem',
-                    fontWeight: '700'
-                  }
-                }, '📊 Dashboard'),
-                h('p', {
-                  style: {
-                    color: '#64748b',
-                    fontSize: '1rem',
-                    lineHeight: '1.5'
-                  }
-                }, 'Visão completa do escritório jurídico com analytics e métricas em tempo real')
-              ),
-
-              h('div', {
-                style: {
-                  background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-                  padding: '30px',
-                  borderRadius: '20px',
-                  borderLeft: '6px solid #667eea',
-                  boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
-                }
-              },
-                h('h3', {
-                  style: {
-                    color: '#667eea',
-                    marginBottom: '15px',
-                    fontSize: '1.3rem',
-                    fontWeight: '700'
-                  }
-                }, '⚖️ Processos'),
-                h('p', {
-                  style: {
-                    color: '#64748b',
-                    fontSize: '1rem',
-                    lineHeight: '1.5'
-                  }
-                }, 'Gestão completa de processos jurídicos, prazos e acompanhamento de andamentos')
-              ),
-
-              h('div', {
-                style: {
-                  background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-                  padding: '30px',
-                  borderRadius: '20px',
-                  borderLeft: '6px solid #667eea',
-                  boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
-                }
-              },
-                h('h3', {
-                  style: {
-                    color: '#667eea',
-                    marginBottom: '15px',
-                    fontSize: '1.3rem',
-                    fontWeight: '700'
-                  }
-                }, '👥 Clientes'),
-                h('p', {
-                  style: {
-                    color: '#64748b',
-                    fontSize: '1rem',
-                    lineHeight: '1.5'
-                  }
-                }, 'CRM jurídico integrado com gestão completa de relacionamento e comunicação')
-              )
-            ),
-
-            h('div', {
-              style: {
-                background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-                color: 'white',
-                padding: '30px',
-                borderRadius: '20px',
-                marginTop: '30px',
-                textAlign: 'left',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-              }
-            },
-              h('div', {
-                style: {
-                  fontWeight: '700',
-                  color: '#22c55e',
-                  marginBottom: '15px',
-                  fontSize: '1.2rem'
-                }
-              }, '🔧 Status do Sistema:'),
-              h('div', {
-                style: {
-                  lineHeight: '1.8',
-                  fontWeight: '500'
-                }
-              },
-                '✅ React: Funcionando', h('br'),
-                '✅ Proteção: Inteligente (sem loops)', h('br'),
-                '✅ Interface: Carregada com sucesso', h('br'),
-                '✅ Sistema: Operacional', h('br'),
-                `✅ Tentativas de reload: ${reloadAttempts}/${MAX_RELOAD_ATTEMPTS}`, h('br'),
-                '✅ Timestamp: ' + new Date().toLocaleString('pt-BR')
-              )
-            ),
-
-            h('div', {
-              style: {
-                marginTop: '40px'
-              }
-            },
-              h('button', {
-                onClick: () => {
-                  // Clear reload attempts and reload
-                  try {
-                    sessionStorage.removeItem('builderReloadAttempts');
-                  } catch (e) {}
-                  window.location.reload();
-                },
-                style: {
-                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '20px 40px',
-                  borderRadius: '30px',
-                  fontSize: '1.2rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)',
-                  marginRight: '15px'
-                }
-              }, '🔄 Recarregar (Limpo)'),
-              
-              h('button', {
-                onClick: () => {
-                  const currentUrl = window.location.href;
-                  const testUrl = currentUrl + (currentUrl.endsWith('/') ? '' : '/') + 'test-final-fix.html';
-                  window.open(testUrl, '_blank');
-                },
-                style: {
-                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '20px 40px',
-                  borderRadius: '30px',
-                  fontSize: '1.2rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 10px 25px rgba(34, 197, 94, 0.4)'
-                }
-              }, '🧪 Executar Testes')
-            )
-          )
-        );
+        return false;
       }
       
-      // Initialize React app immediately
-      document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('root');
-        if (container) {
-          console.log('🚀 Initializing LegalFlow React App...');
-          const root = createRoot(container);
-          root.render(h(LegalFlowApp));
-          console.log('✅ LegalFlow initialized successfully');
-        }
-      });
-      
-      // Fallback initialization if DOM is already loaded
-      if (document.readyState !== 'loading') {
-        const container = document.getElementById('root');
-        if (container && !container.hasAttribute('data-react-initialized')) {
-          container.setAttribute('data-react-initialized', 'true');
-          console.log('🚀 Fallback: Initializing LegalFlow...');
-          const root = createRoot(container);
-          root.render(h(LegalFlowApp));
-          console.log('✅ LegalFlow fallback initialization complete');
-        }
-      }
-
-      // IMPROVED: Smart Builder.io protection with limits
+      // PROTEÇÃO APENAS EM AMBIENTES BUILDER.IO/FLY.DEV
       const isBuilderEnv = window.location.hostname.includes('builder.codes') || 
                            window.location.hostname.includes('fly.dev') ||
                            window.location.hostname.includes('builder.io');
@@ -449,15 +106,44 @@
       if (isBuilderEnv && reloadAttempts < MAX_RELOAD_ATTEMPTS) {
         console.log('🏗️ Production environment detected - smart protection active');
         
-        // Run protection check only once after a delay
+        // Executar verificação apenas uma vez após delay
         setTimeout(() => {
           if (!smartBuilderProtection()) {
             console.log('✅ Builder.io protection: No issues detected');
+            
+            // Limpar contador se tudo está OK
+            try {
+              sessionStorage.removeItem('builderReloadAttempts');
+            } catch (e) {
+              // Ignore
+            }
           }
-        }, 3000); // Wait 3 seconds before checking
+        }, 3000); // Aguardar 3 segundos antes de verificar
       } else if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
         console.log('🛡️ Builder.io protection: Disabled due to max reload attempts');
       }
+      
+      // DETECTAR QUANDO O APLICATIVO REAL CARREGA
+      setTimeout(() => {
+        const reactLoaded = document.getElementById('root')?.getAttribute('data-react-loaded');
+        const appStatus = document.getElementById('root')?.getAttribute('data-app-status');
+        
+        if (reactLoaded && appStatus) {
+          console.log('✅ LegalFlow real app loaded successfully');
+          console.log('📱 App status:', appStatus);
+          
+          // Limpar contador de reloads quando app carrega com sucesso
+          try {
+            sessionStorage.removeItem('builderReloadAttempts');
+          } catch (e) {
+            // Ignore
+          }
+        } else {
+          console.log('⚠️ LegalFlow app may not have loaded properly');
+        }
+      }, 5000);
+      
+      console.log('🚀 LegalFlow - Loading real application...');
     </script>
   </body>
 </html>
