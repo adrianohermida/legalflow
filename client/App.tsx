@@ -53,6 +53,7 @@ import InboxLegalV2 from "./pages/InboxLegalV2";
 import InboxLegalSF4 from "./pages/InboxLegalSF4";
 import InboxLegalC4 from "./pages/InboxLegalC4";
 import { Agenda } from "./pages/Agenda";
+import AgendaC5 from "./pages/AgendaC5";
 import { Financeiro } from "./pages/Financeiro";
 import Relatorios from "./pages/Relatorios";
 import { Helpdesk } from "./pages/Helpdesk";
