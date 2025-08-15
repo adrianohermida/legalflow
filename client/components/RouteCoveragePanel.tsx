@@ -70,7 +70,13 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
     current: 0,
     total: 0,
   });
+  const [diagnosticsResults, setDiagnosticsResults] = useState<any[]>([]);
+  const [healthStats, setHealthStats] = useState<any>(null);
+  const [isRunningDiagnostics, setIsRunningDiagnostics] = useState(false);
+  const [isApplyingFixes, setIsApplyingFixes] = useState(false);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
   const { toast } = useToast();
+  const { runDiagnostics, applyAutoFixes, getHealthStats, generateReport } = useRouteDiagnostics();
 
   useEffect(() => {
     refreshData();
