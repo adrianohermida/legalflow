@@ -353,7 +353,7 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
             <p className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
               <strong>��️ Instalação necessária:</strong> Execute o arquivo
               <code className="bg-yellow-100 px-1 rounded">
-                SF6_SUPABASE_COMPATIBLE_SCHEMA.sql
+                SF6_SUPABASE_RPC_FIXED.sql
               </code>
               no seu Supabase SQL Editor primeiro.
             </p>
