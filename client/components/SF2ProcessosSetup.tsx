@@ -356,6 +356,50 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
           </div>
         </CardContent>
       </Card>
+
+      {/* Show installation downloader when needed */}
+      {showInstallation && (
+        <GenericSQLDownloader
+          title="Instalação Obrigatória - Schema SF2"
+          description="Para utilizar o Chat Multi-thread dos Processos, você deve instalar primeiro o schema SF2 no seu banco Supabase."
+          files={[
+            {
+              filename: "SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql",
+              content: `-- SF-2: Processos > Detalhes — Chat Multi-thread + Memória - SCHEMA COMPLETO
+--
+-- Este é um preview. Baixe o arquivo completo para obter todo o schema.
+-- O arquivo completo contém:
+-- - Tabelas thread_links, ai_messages, conversation_properties
+-- - 10+ funções RPC para operações de chat
+-- - Sistema de quick-actions integrado
+-- - Triggers e automações
+-- - Indexes para performance
+-- - Dados de teste
+
+-- IMPORTANTE: Baixe o arquivo completo SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql do projeto
+-- e execute no Supabase SQL Editor para instalação completa.`,
+              title: "💬 SF-2: Schema Chat Multi-thread + Memória",
+              description: "Schema completo para chat multi-thread com memória e quick-actions",
+              variant: "default"
+            }
+          ]}
+          instructions={[
+            "Baixe o arquivo SF2_CHAT_MULTITHREAD_SCHEMA_COMPLETE.sql",
+            "Abra o Supabase SQL Editor",
+            "Execute o script completo (733 linhas)",
+            "Volte aqui e teste novamente a funcionalidade"
+          ]}
+          additionalInfo={[
+            "✅ Chat multi-thread com memória persistente",
+            "✅ Quick-actions integradas (Criar tarefa, Vincular ticket, etc)",
+            "✅ Automação thread_links.properties com numero_cnj",
+            "✅ Sistema de roles (user, assistant, system)",
+            "✅ Índices otimizados para performance",
+            "⚠️ Requer schemas 'public' e 'legalflow'"
+          ]}
+          className="border-orange-200 bg-orange-50"
+        />
+      )}
     </div>
   );
 }
