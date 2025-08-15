@@ -105,6 +105,8 @@ import { PortalCliente } from "./pages/portal/PortalCliente";
 import { SupabaseSetup } from "./components/SupabaseSetup";
 import { UnifiedOABSelectionModal } from "./components/UnifiedOABSelectionModal";
 import { AdminBrandingConfig } from "./components/AdminBrandingConfig";
+import { RedirectHandler } from "./components/RedirectHandler";
+import { ROUTES } from "./lib/routes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
