@@ -201,7 +201,7 @@ router.get("/:cnj/movimentacoes", async (req, res, next) => {
     }
 
     // Import movimentacoesApi directly since it's not in the main api file
-    const { movimentacoesApi } = await import("@/lib/api");
+    const { movimentacoesApi } = await import("../../../client/lib/api");
     const movimentacoes = await movimentacoesApi.getByProcesso(cnj);
 
     res.success(movimentacoes, "Movimentações encontradas com sucesso");
