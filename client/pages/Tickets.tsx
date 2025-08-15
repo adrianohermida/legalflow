@@ -224,6 +224,82 @@ export function Tickets() {
     },
   });
 
+  // Buscar stage instances para vincular activity
+  const { data: stageInstances = [] } = useQuery({
+    queryKey: ["stage-instances-tickets"],
+    queryFn: async () => {
+      const { data, error } = await lf
+        .from("stage_instances")
+        .select(`
+          id,
+          order_index,
+          status,
+          stage_types!inner(
+            code,
+            name
+          ),
+          journey_instances!inner(
+            id,
+            journey_types!inner(
+              name
+            )
+          )
+        `)
+        .eq("stage_types.code", "task")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // SF-6: Mutation para criar activity a partir de ticket
+  const createActivityMutation = useMutation({
+    mutationFn: async ({ ticketId, stageInstanceId }: { ticketId: string; stageInstanceId?: string }) => {
+      const ticket = ticketsData.data?.find(t => t.id === ticketId);
+      if (!ticket) throw new Error("Ticket não encontrado");
+
+      const activityData = {
+        title: `[Ticket] ${ticket.subject}`,
+        status: "todo",
+        priority: ticket.priority,
+        assigned_oab: ticket.assigned_oab,
+        cliente_cpfcnpj: ticket.cliente_cpfcnpj,
+        numero_cnj: ticket.numero_cnj,
+        ticket_id: ticketId,
+        stage_instance_id: stageInstanceId || null,
+        created_by: "current_user",
+        // Definir prazo baseado na TTR do ticket
+        due_at: ticket.ttr_due_at,
+      };
+
+      const { data: activity, error } = await lf
+        .from("activities")
+        .insert([activityData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { ticket, activity };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      setIsActivityDialogOpen(false);
+      toast({
+        title: "Activity criada",
+        description: `Activity espelho criada para "${result.ticket.subject}"`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao criar activity",
+        variant: "destructive",
+      });
+    },
+  });
+
   // P2.7 - Mutation para criar ticket
   const ticketMutation = useMutation({
     mutationFn: async (ticketData: TicketFormData) => {
