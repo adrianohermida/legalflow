@@ -76,7 +76,8 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
   const [isApplyingFixes, setIsApplyingFixes] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const { toast } = useToast();
-  const { runDiagnostics, applyAutoFixes, getHealthStats, generateReport } = useRouteDiagnostics();
+  const { runDiagnostics, applyAutoFixes, getHealthStats, generateReport } =
+    useRouteDiagnostics();
 
   useEffect(() => {
     refreshData();
@@ -92,7 +93,7 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
   const runRouteDiagnostics = async () => {
     setIsRunningDiagnostics(true);
     try {
-      console.log('🔍 Executando diagnóstico completo das rotas...');
+      console.log("🔍 Executando diagnóstico completo das rotas...");
 
       const issues = await runDiagnostics();
       const stats = await getHealthStats();
@@ -106,7 +107,7 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
         description: `${issues.length} problemas identificados. ${stats.autoFixableIssues} podem ser corrigidos automaticamente.`,
       });
     } catch (error) {
-      console.error('Erro no diagnóstico:', error);
+      console.error("Erro no diagnóstico:", error);
       toast({
         title: "Erro no diagnóstico",
         description: "Falha ao executar diagnóstico das rotas.",
@@ -122,10 +123,10 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
 
     setIsApplyingFixes(true);
     try {
-      console.log('🔧 Aplicando correções automáticas...');
+      console.log("🔧 Aplicando correções automáticas...");
 
       const fixResults = await applyAutoFixes(diagnosticsResults);
-      const successfulFixes = fixResults.filter(r => r.success);
+      const successfulFixes = fixResults.filter((r) => r.success);
 
       // Atualizar dados após aplicar correções
       await refreshData();
@@ -136,7 +137,7 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
         description: `${successfulFixes.length} de ${fixResults.length} correções aplicadas com sucesso.`,
       });
     } catch (error) {
-      console.error('Erro ao aplicar correções:', error);
+      console.error("Erro ao aplicar correções:", error);
       toast({
         title: "Erro nas correções",
         description: "Falha ao aplicar algumas correções automáticas.",
@@ -1055,13 +1056,19 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
                     ) : (
                       <Play className="h-4 w-4 mr-2" />
                     )}
-                    {isRunningDiagnostics ? "Diagnosticando..." : "Executar Diagnóstico"}
+                    {isRunningDiagnostics
+                      ? "Diagnosticando..."
+                      : "Executar Diagnóstico"}
                   </Button>
 
                   {diagnosticsResults.length > 0 && (
                     <Button
                       onClick={applyAutomaticFixes}
-                      disabled={isApplyingFixes || diagnosticsResults.filter(d => d.autoFixable).length === 0}
+                      disabled={
+                        isApplyingFixes ||
+                        diagnosticsResults.filter((d) => d.autoFixable)
+                          .length === 0
+                      }
                       className="bg-green-600 hover:bg-green-700"
                     >
                       {isApplyingFixes ? (
@@ -1116,7 +1123,9 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
               {diagnosticsResults.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Problemas Identificados</h3>
+                    <h3 className="text-lg font-semibold">
+                      Problemas Identificados
+                    </h3>
                     <Badge variant="outline" className="text-sm">
                       {diagnosticsResults.length} issues
                     </Badge>
@@ -1127,13 +1136,13 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
                       <div
                         key={index}
                         className={`p-4 border rounded-lg ${
-                          issue.severity === 'critical'
-                            ? 'border-red-200 bg-red-50'
-                            : issue.severity === 'high'
-                            ? 'border-orange-200 bg-orange-50'
-                            : issue.severity === 'medium'
-                            ? 'border-yellow-200 bg-yellow-50'
-                            : 'border-blue-200 bg-blue-50'
+                          issue.severity === "critical"
+                            ? "border-red-200 bg-red-50"
+                            : issue.severity === "high"
+                              ? "border-orange-200 bg-orange-50"
+                              : issue.severity === "medium"
+                                ? "border-yellow-200 bg-yellow-50"
+                                : "border-blue-200 bg-blue-50"
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -1142,19 +1151,19 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
                               <Badge
                                 variant="outline"
                                 className={
-                                  issue.severity === 'critical'
-                                    ? 'border-red-500 text-red-700'
-                                    : issue.severity === 'high'
-                                    ? 'border-orange-500 text-orange-700'
-                                    : issue.severity === 'medium'
-                                    ? 'border-yellow-500 text-yellow-700'
-                                    : 'border-blue-500 text-blue-700'
+                                  issue.severity === "critical"
+                                    ? "border-red-500 text-red-700"
+                                    : issue.severity === "high"
+                                      ? "border-orange-500 text-orange-700"
+                                      : issue.severity === "medium"
+                                        ? "border-yellow-500 text-yellow-700"
+                                        : "border-blue-500 text-blue-700"
                                 }
                               >
                                 {issue.severity}
                               </Badge>
                               <Badge variant="outline">
-                                {issue.issueType.replace('_', ' ')}
+                                {issue.issueType.replace("_", " ")}
                               </Badge>
                               <Badge variant="outline" className="capitalize">
                                 {issue.route.category}
@@ -1194,13 +1203,25 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
                   <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-blue-900">Resumo do Diagnóstico</h4>
+                        <h4 className="font-medium text-blue-900">
+                          Resumo do Diagnóstico
+                        </h4>
                         <p className="text-sm text-blue-700">
-                          {diagnosticsResults.filter(d => d.autoFixable).length} problemas podem ser corrigidos automaticamente.
-                          Tempo estimado: ~{diagnosticsResults.reduce((sum, d) => sum + d.estimatedTime, 0)} minutos.
+                          {
+                            diagnosticsResults.filter((d) => d.autoFixable)
+                              .length
+                          }{" "}
+                          problemas podem ser corrigidos automaticamente. Tempo
+                          estimado: ~
+                          {diagnosticsResults.reduce(
+                            (sum, d) => sum + d.estimatedTime,
+                            0,
+                          )}{" "}
+                          minutos.
                         </p>
                       </div>
-                      {diagnosticsResults.filter(d => d.autoFixable).length > 0 && (
+                      {diagnosticsResults.filter((d) => d.autoFixable).length >
+                        0 && (
                         <Button
                           onClick={applyAutomaticFixes}
                           disabled={isApplyingFixes}
@@ -1219,8 +1240,13 @@ const RouteCoveragePanel: React.FC<RouteCoveragePanelProps> = ({
               {diagnosticsResults.length === 0 && !isRunningDiagnostics && (
                 <div className="text-center py-8 text-gray-500">
                   <Settings className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>Execute o diagnóstico para identificar problemas nas rotas</p>
-                  <p className="text-sm">O sistema analisará deeplinks, componentes, autenticação e performance</p>
+                  <p>
+                    Execute o diagnóstico para identificar problemas nas rotas
+                  </p>
+                  <p className="text-sm">
+                    O sistema analisará deeplinks, componentes, autenticação e
+                    performance
+                  </p>
                 </div>
               )}
             </CardContent>

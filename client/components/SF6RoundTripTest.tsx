@@ -3,16 +3,16 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
-import { 
-  Loader2, 
-  CheckCircle, 
-  AlertTriangle, 
-  Play, 
-  ArrowRight, 
+import {
+  Loader2,
+  CheckCircle,
+  AlertTriangle,
+  Play,
+  ArrowRight,
   ArrowLeft,
   Link2,
   TestTube,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
@@ -36,11 +36,12 @@ export function SF6RoundTripTest() {
 
   // Helper function to add test result
   const addResult = (result: TestResult) => {
-    setTestResults(prev => [...prev, result]);
+    setTestResults((prev) => [...prev, result]);
   };
 
   // Helper function to simulate delay
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
   // Get sample data for testing
   const { data: sampleData, refetch: refetchSamples } = useQuery({
@@ -49,16 +50,16 @@ export function SF6RoundTripTest() {
       // Get sample activity and ticket for testing
       const [activitiesResult, ticketsResult] = await Promise.all([
         lf.from("activities").select("*").limit(1),
-        lf.from("tickets").select("*").limit(1)
+        lf.from("tickets").select("*").limit(1),
       ]);
 
       return {
         activity: activitiesResult.data?.[0],
         ticket: ticketsResult.data?.[0],
         activitiesError: activitiesResult.error,
-        ticketsError: ticketsResult.error
+        ticketsError: ticketsResult.error,
       };
-    }
+    },
   });
 
   // Comprehensive round-trip test
@@ -69,14 +70,23 @@ export function SF6RoundTripTest() {
 
     try {
       // Step 1: Verify SF-6 installation
-      addResult({ success: true, step: "1. Starting SF-6 Round-Trip Test", timing: 0 });
+      addResult({
+        success: true,
+        step: "1. Starting SF-6 Round-Trip Test",
+        timing: 0,
+      });
 
       // First verify the installation
-      const { data: verifyResult, error: verifyError } = await lf.rpc('sf6_verify_installation');
-      if (verifyError) throw new Error(`Verification failed: ${verifyError.message}`);
+      const { data: verifyResult, error: verifyError } = await lf.rpc(
+        "sf6_verify_installation",
+      );
+      if (verifyError)
+        throw new Error(`Verification failed: ${verifyError.message}`);
 
       if (!verifyResult?.installation_complete) {
-        throw new Error(`SF-6 not properly installed: ${verifyResult?.message}`);
+        throw new Error(
+          `SF-6 not properly installed: ${verifyResult?.message}`,
+        );
       }
 
       addResult({
@@ -84,33 +94,39 @@ export function SF6RoundTripTest() {
         step: "2. ✅ SF-6 Installation verified",
         data: {
           functions_installed: verifyResult.functions_installed,
-          tables_accessible: verifyResult.tables_accessible
+          tables_accessible: verifyResult.tables_accessible,
         },
-        timing: Date.now() - startTime
+        timing: Date.now() - startTime,
       });
 
       await delay(500);
 
       // Step 2: Test statistics function
-      const { data: statsResult, error: statsError } = await lf.rpc('sf6_get_bridge_statistics');
-      if (statsError) throw new Error(`Statistics failed: ${statsError.message}`);
-      
+      const { data: statsResult, error: statsError } = await lf.rpc(
+        "sf6_get_bridge_statistics",
+      );
+      if (statsError)
+        throw new Error(`Statistics failed: ${statsError.message}`);
+
       addResult({
         success: true,
         step: "3. ✅ Bridge statistics retrieved",
         data: {
           total_activities: statsResult.total_activities,
           total_tickets: statsResult.total_tickets,
-          activities_with_tickets: statsResult.activities_with_tickets
+          activities_with_tickets: statsResult.activities_with_tickets,
         },
-        timing: Date.now() - startTime
+        timing: Date.now() - startTime,
       });
 
       await delay(500);
 
       // Step 3: Test processing existing completed tasks
-      const { data: processResult, error: processError } = await lf.rpc('sf6_process_existing_completed_tasks');
-      if (processError) throw new Error(`Process failed: ${processError.message}`);
+      const { data: processResult, error: processError } = await lf.rpc(
+        "sf6_process_existing_completed_tasks",
+      );
+      if (processError)
+        throw new Error(`Process failed: ${processError.message}`);
 
       addResult({
         success: true,
@@ -118,16 +134,19 @@ export function SF6RoundTripTest() {
         data: {
           processed_count: processResult.processed_count,
           created_count: processResult.created_count,
-          message: processResult.message
+          message: processResult.message,
         },
-        timing: Date.now() - startTime
+        timing: Date.now() - startTime,
       });
 
       await delay(500);
 
       // Step 4: Test cleanup function
-      const { data: cleanupResult, error: cleanupError } = await lf.rpc('sf6_cleanup_test_data');
-      if (cleanupError) throw new Error(`Cleanup failed: ${cleanupError.message}`);
+      const { data: cleanupResult, error: cleanupError } = await lf.rpc(
+        "sf6_cleanup_test_data",
+      );
+      if (cleanupError)
+        throw new Error(`Cleanup failed: ${cleanupError.message}`);
 
       addResult({
         success: true,
@@ -135,9 +154,9 @@ export function SF6RoundTripTest() {
         data: {
           deleted_activities: cleanupResult.deleted_activities,
           deleted_tickets: cleanupResult.deleted_tickets,
-          message: cleanupResult.message
+          message: cleanupResult.message,
         },
-        timing: Date.now() - startTime
+        timing: Date.now() - startTime,
       });
 
       await delay(500);
@@ -149,22 +168,22 @@ export function SF6RoundTripTest() {
         data: {
           total_time: Date.now() - startTime,
           steps_completed: 5,
-          functions_verified: "✅ Todas as funções SF-6 funcionando corretamente"
+          functions_verified:
+            "✅ Todas as funções SF-6 funcionando corretamente",
         },
-        timing: Date.now() - startTime
+        timing: Date.now() - startTime,
       });
 
       toast({
         title: "SF-6 Test Passed",
         description: "Round-trip functionality working perfectly!",
       });
-
     } catch (error: any) {
-      addResult({ 
-        success: false, 
-        step: "❌ Test Failed", 
+      addResult({
+        success: false,
+        step: "❌ Test Failed",
         error: error.message,
-        timing: Date.now() - startTime 
+        timing: Date.now() - startTime,
       });
 
       toast({
@@ -199,10 +218,12 @@ export function SF6RoundTripTest() {
         <CardContent className="space-y-4">
           <div className="text-sm text-neutral-600">
             <p>
-              <strong>Aceite SF-6:</strong> ida-e-volta entre Activity e Ticket com 1 clique
+              <strong>Aceite SF-6:</strong> ida-e-volta entre Activity e Ticket
+              com 1 clique
             </p>
             <p className="mt-2">
-              Este teste simula o fluxo completo: criar activity → gerar ticket → criar activity espelho → navegação bidirecional.
+              Este teste simula o fluxo completo: criar activity → gerar ticket
+              → criar activity espelho → navegação bidirecional.
             </p>
           </div>
 
@@ -212,9 +233,7 @@ export function SF6RoundTripTest() {
               disabled={isRunning}
               style={{ backgroundColor: "var(--brand-700)", color: "white" }}
             >
-              {isRunning && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
+              {isRunning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <Play className="w-4 h-4 mr-2" />
               Run Full Test
             </Button>
@@ -276,10 +295,12 @@ export function SF6RoundTripTest() {
           <CardContent>
             <div className="space-y-2">
               {testResults.map((result, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`flex items-start gap-3 p-3 rounded-lg border ${
-                    result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                    result.success
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
                   }`}
                 >
                   <div className="flex-shrink-0 mt-0.5">
@@ -292,11 +313,15 @@ export function SF6RoundTripTest() {
                   <div className="flex-1">
                     <div className="font-medium text-sm">{result.step}</div>
                     {result.error && (
-                      <div className="text-xs text-red-600 mt-1">{result.error}</div>
+                      <div className="text-xs text-red-600 mt-1">
+                        {result.error}
+                      </div>
                     )}
                     {result.data && (
                       <div className="text-xs text-neutral-600 mt-1">
-                        {typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : result.data}
+                        {typeof result.data === "object"
+                          ? JSON.stringify(result.data, null, 2)
+                          : result.data}
                       </div>
                     )}
                   </div>
@@ -327,8 +352,8 @@ export function SF6RoundTripTest() {
               <div className="text-xs text-neutral-600 mb-2">
                 User clicks "Ver ticket" button on activity with ticket_id
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="outline"
                 onClick={() => testNavigation("/tickets/[ticket_id]")}
               >
@@ -342,10 +367,12 @@ export function SF6RoundTripTest() {
               <div className="text-xs text-neutral-600 mb-2">
                 User clicks "Activity espelho" to create/view linked activity
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="outline"
-                onClick={() => testNavigation("/activities?ticket_id=[ticket_id]")}
+                onClick={() =>
+                  testNavigation("/activities?ticket_id=[ticket_id]")
+                }
               >
                 <ArrowLeft className="w-3 h-3 mr-1" />
                 Test Navigation
@@ -354,7 +381,9 @@ export function SF6RoundTripTest() {
           </div>
 
           <div className="text-xs text-neutral-500">
-            <p><strong>SF-6 Navigation Requirements:</strong></p>
+            <p>
+              <strong>SF-6 Navigation Requirements:</strong>
+            </p>
             <ul className="list-disc pl-4 mt-1 space-y-1">
               <li>Activities with ticket_id show "Ver ticket" button</li>
               <li>Tickets always show "Activity espelho" button</li>

@@ -231,7 +231,8 @@ export function Tickets() {
     queryFn: async () => {
       const { data, error } = await lf
         .from("stage_instances")
-        .select(`
+        .select(
+          `
           id,
           order_index,
           status,
@@ -245,7 +246,8 @@ export function Tickets() {
               name
             )
           )
-        `)
+        `,
+        )
         .eq("stage_types.code", "task")
         .order("created_at", { ascending: false })
         .limit(50);
@@ -257,8 +259,14 @@ export function Tickets() {
 
   // SF-6: Mutation para criar activity a partir de ticket
   const createActivityMutation = useMutation({
-    mutationFn: async ({ ticketId, stageInstanceId }: { ticketId: string; stageInstanceId?: string }) => {
-      const ticket = ticketsData.data?.find(t => t.id === ticketId);
+    mutationFn: async ({
+      ticketId,
+      stageInstanceId,
+    }: {
+      ticketId: string;
+      stageInstanceId?: string;
+    }) => {
+      const ticket = ticketsData.data?.find((t) => t.id === ticketId);
       if (!ticket) throw new Error("Ticket não encontrado");
 
       const activityData = {
@@ -937,12 +945,16 @@ export function Tickets() {
       )}
 
       {/* SF-6: Dialog para criação de activity espelho */}
-      <Dialog open={isActivityDialogOpen} onOpenChange={setIsActivityDialogOpen}>
+      <Dialog
+        open={isActivityDialogOpen}
+        onOpenChange={setIsActivityDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Criar Activity Espelho</DialogTitle>
             <DialogDescription>
-              Criar uma activity baseada neste ticket (opcional: vincular a etapa da jornada)
+              Criar uma activity baseada neste ticket (opcional: vincular a
+              etapa da jornada)
             </DialogDescription>
           </DialogHeader>
           {selectedTicket && (
@@ -967,7 +979,9 @@ export function Tickets() {
                 <Select
                   onValueChange={(value) => {
                     // Store selected stage instance
-                    setSelectedTicket(prev => prev ? {...prev, selectedStageInstanceId: value} : null);
+                    setSelectedTicket((prev) =>
+                      prev ? { ...prev, selectedStageInstanceId: value } : null,
+                    );
                   }}
                 >
                   <SelectTrigger>
@@ -987,17 +1001,31 @@ export function Tickets() {
               <div className="p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-medium mb-2">Activity que será criada:</h4>
                 <div className="text-sm space-y-1">
-                  <p><strong>Título:</strong> [Ticket] {selectedTicket.subject}</p>
-                  <p><strong>Prioridade:</strong> {selectedTicket.priority}</p>
-                  <p><strong>Status:</strong> A Fazer</p>
+                  <p>
+                    <strong>Título:</strong> [Ticket] {selectedTicket.subject}
+                  </p>
+                  <p>
+                    <strong>Prioridade:</strong> {selectedTicket.priority}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> A Fazer
+                  </p>
                   {selectedTicket.ttr_due_at && (
-                    <p><strong>Vence em:</strong> {formatDateTime(selectedTicket.ttr_due_at)}</p>
+                    <p>
+                      <strong>Vence em:</strong>{" "}
+                      {formatDateTime(selectedTicket.ttr_due_at)}
+                    </p>
                   )}
                   {selectedTicket.cliente_nome && (
-                    <p><strong>Cliente:</strong> {selectedTicket.cliente_nome}</p>
+                    <p>
+                      <strong>Cliente:</strong> {selectedTicket.cliente_nome}
+                    </p>
                   )}
                   {selectedTicket.responsavel_nome && (
-                    <p><strong>Responsável:</strong> {selectedTicket.responsavel_nome}</p>
+                    <p>
+                      <strong>Responsável:</strong>{" "}
+                      {selectedTicket.responsavel_nome}
+                    </p>
                   )}
                 </div>
               </div>
@@ -1016,7 +1044,9 @@ export function Tickets() {
                 if (selectedTicket) {
                   createActivityMutation.mutate({
                     ticketId: selectedTicket.id,
-                    stageInstanceId: (selectedTicket as any).selectedStageInstanceId || undefined
+                    stageInstanceId:
+                      (selectedTicket as any).selectedStageInstanceId ||
+                      undefined,
                   });
                 }
               }}

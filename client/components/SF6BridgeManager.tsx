@@ -11,7 +11,7 @@ import {
   Link2,
   Lightbulb,
   Trash2,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
@@ -47,11 +47,11 @@ export function SF6BridgeManager() {
   const {
     data: bridgeStats,
     isLoading: statsLoading,
-    refetch: refetchStats
+    refetch: refetchStats,
   } = useQuery({
     queryKey: ["sf6-bridge-stats"],
     queryFn: async () => {
-      const { data, error } = await lf.rpc('sf6_get_bridge_statistics');
+      const { data, error } = await lf.rpc("sf6_get_bridge_statistics");
       if (error) throw error;
       return data as BridgeStats;
     },
@@ -61,11 +61,11 @@ export function SF6BridgeManager() {
   const {
     data: suggestions,
     isLoading: suggestionsLoading,
-    refetch: refetchSuggestions
+    refetch: refetchSuggestions,
   } = useQuery({
     queryKey: ["sf6-link-suggestions"],
     queryFn: async () => {
-      const { data, error } = await lf.rpc('sf6_suggest_activity_ticket_links');
+      const { data, error } = await lf.rpc("sf6_suggest_activity_ticket_links");
       if (error) throw error;
       return data.suggestions as LinkSuggestion[];
     },
@@ -76,17 +76,21 @@ export function SF6BridgeManager() {
   const schemaEnhancementsMutation = useMutation({
     mutationFn: async () => {
       // Verify the installation first
-      const { data: verifyData, error: verifyError } = await lf.rpc('sf6_verify_installation');
+      const { data: verifyData, error: verifyError } = await lf.rpc(
+        "sf6_verify_installation",
+      );
       if (verifyError) {
         throw new Error(`Verificação falhou: ${verifyError.message}`);
       }
 
       if (!verifyData?.installation_complete) {
-        throw new Error(`Schema não instalado completamente. Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase.`);
+        throw new Error(
+          `Schema não instalado completamente. Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase.`,
+        );
       }
 
       // Test that the schema is properly set up by calling a function
-      const { data, error } = await lf.rpc('sf6_get_bridge_statistics');
+      const { data, error } = await lf.rpc("sf6_get_bridge_statistics");
       if (error) throw error;
       return data;
     },
@@ -94,7 +98,7 @@ export function SF6BridgeManager() {
       setSetupResult({
         success: true,
         message: "Schema enhancements verified successfully",
-        data: result
+        data: result,
       });
       refetchStats();
       toast({
@@ -120,7 +124,7 @@ export function SF6BridgeManager() {
     mutationFn: async () => {
       // This would sync all misaligned statuses
       // For now, we'll just return the current stats
-      const { data, error } = await lf.rpc('sf6_get_bridge_statistics');
+      const { data, error } = await lf.rpc("sf6_get_bridge_statistics");
       if (error) throw error;
       return data;
     },
@@ -143,7 +147,7 @@ export function SF6BridgeManager() {
   // Cleanup test data mutation
   const cleanupMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await lf.rpc('sf6_cleanup_test_data');
+      const { data, error } = await lf.rpc("sf6_cleanup_test_data");
       if (error) throw error;
       return data;
     },
@@ -199,7 +203,9 @@ export function SF6BridgeManager() {
                 <div className="text-2xl font-bold text-purple-600">
                   {bridgeStats.activities_with_tickets}
                 </div>
-                <div className="text-sm text-neutral-600">Activities → Tickets</div>
+                <div className="text-sm text-neutral-600">
+                  Activities → Tickets
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">
@@ -207,7 +213,7 @@ export function SF6BridgeManager() {
                 </div>
                 <div className="text-sm text-neutral-600">From Stages</div>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">
                   {bridgeStats.completed_task_stages}
@@ -215,13 +221,17 @@ export function SF6BridgeManager() {
                 <div className="text-sm text-neutral-600">Completed Tasks</div>
               </div>
               <div className="text-center">
-                <div className={`text-2xl font-bold ${bridgeStats.orphaned_activities > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                <div
+                  className={`text-2xl font-bold ${bridgeStats.orphaned_activities > 0 ? "text-red-600" : "text-green-600"}`}
+                >
                   {bridgeStats.orphaned_activities}
                 </div>
                 <div className="text-sm text-neutral-600">Orphaned</div>
               </div>
               <div className="text-center">
-                <div className={`text-2xl font-bold ${bridgeStats.status_misalignments > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                <div
+                  className={`text-2xl font-bold ${bridgeStats.status_misalignments > 0 ? "text-red-600" : "text-green-600"}`}
+                >
                   {bridgeStats.status_misalignments}
                 </div>
                 <div className="text-sm text-neutral-600">Misaligned</div>
@@ -241,7 +251,8 @@ export function SF6BridgeManager() {
             <Alert>
               <AlertTriangle className="w-4 h-4" />
               <AlertDescription>
-                Unable to load bridge statistics. Make sure the SF-6 schema is installed.
+                Unable to load bridge statistics. Make sure the SF-6 schema is
+                installed.
               </AlertDescription>
             </Alert>
           )}
@@ -350,13 +361,19 @@ export function SF6BridgeManager() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">
-                          {(suggestion.similarity_score * 100).toFixed(0)}% match
+                          {(suggestion.similarity_score * 100).toFixed(0)}%
+                          match
                         </Badge>
                         <Badge variant="secondary">
                           {suggestion.match_reason}
                         </Badge>
                         {suggestion.cliente_nome && (
-                          <Badge style={{ backgroundColor: "var(--brand-700)", color: "white" }}>
+                          <Badge
+                            style={{
+                              backgroundColor: "var(--brand-700)",
+                              color: "white",
+                            }}
+                          >
                             {suggestion.cliente_nome}
                           </Badge>
                         )}
@@ -374,10 +391,14 @@ export function SF6BridgeManager() {
       )}
 
       <div className="text-xs text-neutral-500 space-y-1">
-        <p><strong>SF-6 Bridge Components:</strong></p>
+        <p>
+          <strong>SF-6 Bridge Components:</strong>
+        </p>
         <ul className="list-disc pl-4 space-y-1">
           <li>Enhanced Activities page with "Gerar ticket" functionality</li>
-          <li>Enhanced Tickets page with "Criar Activity espelho" functionality</li>
+          <li>
+            Enhanced Tickets page with "Criar Activity espelho" functionality
+          </li>
           <li>Automatic activity creation from completed task stages</li>
           <li>Database schema with proper foreign keys and indexes</li>
           <li>Bridge statistics and management tools</li>

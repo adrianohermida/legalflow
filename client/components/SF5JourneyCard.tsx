@@ -195,7 +195,7 @@ export default function SF5JourneyCard({
       });
 
       if (rpcError) {
-        console.error('Erro ao computar próxima ação:', rpcError);
+        console.error("Erro ao computar próxima ação:", rpcError);
         throw rpcError;
       }
 
@@ -243,7 +243,10 @@ export default function SF5JourneyCard({
       });
 
       if (rpcError) {
-        console.error('Erro ao computar próxima ação após iniciar etapa:', rpcError);
+        console.error(
+          "Erro ao computar próxima ação após iniciar etapa:",
+          rpcError,
+        );
         throw rpcError;
       }
 

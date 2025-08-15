@@ -3,7 +3,13 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Loader2, CheckCircle, AlertTriangle, Play, Database } from "lucide-react";
+import {
+  Loader2,
+  CheckCircle,
+  AlertTriangle,
+  Play,
+  Database,
+} from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
@@ -252,23 +258,31 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
   const setupMutation = useMutation({
     mutationFn: async () => {
       // First, verify if the functions are installed
-      const { data: verifyResult, error: verifyError } = await lf
-        .rpc('sf6_verify_installation');
+      const { data: verifyResult, error: verifyError } = await lf.rpc(
+        "sf6_verify_installation",
+      );
 
       if (verifyError) {
-        throw new Error(`Verificação falhou: ${verifyError.message}. Por favor, execute o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no seu Supabase SQL Editor.`);
+        throw new Error(
+          `Verificação falhou: ${verifyError.message}. Por favor, execute o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no seu Supabase SQL Editor.`,
+        );
       }
 
       if (!verifyResult?.installation_complete) {
-        throw new Error(`SF-6 não está completamente instalado. ${verifyResult?.message || 'Execute o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase SQL Editor.'}`);
+        throw new Error(
+          `SF-6 não está completamente instalado. ${verifyResult?.message || "Execute o arquivo SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase SQL Editor."}`,
+        );
       }
 
       // Test the setup by calling the helper function
-      const { data: testResult, error: testError } = await lf
-        .rpc('sf6_process_existing_completed_tasks');
+      const { data: testResult, error: testError } = await lf.rpc(
+        "sf6_process_existing_completed_tasks",
+      );
 
       if (testError) {
-        throw new Error(`Setup verificado mas teste falhou: ${testError.message}`);
+        throw new Error(
+          `Setup verificado mas teste falhou: ${testError.message}`,
+        );
       }
 
       return testResult as AutomationResult;
@@ -287,7 +301,8 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
       });
       toast({
         title: "Schema não instalado",
-        description: "Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase primeiro",
+        description:
+          "Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase primeiro",
         variant: "destructive",
       });
     },
@@ -296,7 +311,9 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
   // Test existing automation
   const testMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await lf.rpc('sf6_process_existing_completed_tasks');
+      const { data, error } = await lf.rpc(
+        "sf6_process_existing_completed_tasks",
+      );
       if (error) throw error;
       return data as AutomationResult;
     },
@@ -318,101 +335,123 @@ GRANT EXECUTE ON FUNCTION sf6_process_existing_completed_tasks() TO authenticate
 
   return (
     <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Database className="w-5 h-5" />
-          Tarefas e Tickets - Sistema de Bridge
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-sm text-neutral-600">
-          <p>
-            <strong>Tarefas e Tickets:</strong> Bridge automático que cria
-            tarefas quando etapas do tipo "task" são concluídas na jornada.
-          </p>
-          <p className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
-            <strong>��️ Instalação necessária:</strong> Execute o arquivo
-            <code className="bg-yellow-100 px-1 rounded">SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code>
-            no seu Supabase SQL Editor primeiro.
-          </p>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="w-5 h-5" />
+            Tarefas e Tickets - Sistema de Bridge
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-sm text-neutral-600">
+            <p>
+              <strong>Tarefas e Tickets:</strong> Bridge automático que cria
+              tarefas quando etapas do tipo "task" são concluídas na jornada.
+            </p>
+            <p className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+              <strong>��️ Instalação necessária:</strong> Execute o arquivo
+              <code className="bg-yellow-100 px-1 rounded">
+                SF6_SUPABASE_COMPATIBLE_SCHEMA.sql
+              </code>
+              no seu Supabase SQL Editor primeiro.
+            </p>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setupMutation.mutate()}
-            disabled={setupMutation.isPending}
-            style={{ backgroundColor: "var(--brand-700)", color: "white" }}
-          >
-            {setupMutation.isPending && (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            )}
-            <Play className="w-4 h-4 mr-2" />
-            Verificar Instalação
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => testMutation.mutate()}
-            disabled={testMutation.isPending}
-          >
-            {testMutation.isPending && (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            )}
-            Testar Automação
-          </Button>
-        </div>
-
-        {setupResult && (
-          <Alert>
-            <div className="flex items-center gap-2">
-              {setupResult.success ? (
-                <CheckCircle className="w-4 h-4 text-green-600" />
-              ) : (
-                <AlertTriangle className="w-4 h-4 text-red-600" />
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setupMutation.mutate()}
+              disabled={setupMutation.isPending}
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
+              {setupMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              <AlertDescription>
+              <Play className="w-4 h-4 mr-2" />
+              Verificar Instalação
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => testMutation.mutate()}
+              disabled={testMutation.isPending}
+            >
+              {testMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
+              Testar Automação
+            </Button>
+          </div>
+
+          {setupResult && (
+            <Alert>
+              <div className="flex items-center gap-2">
                 {setupResult.success ? (
-                  <div className="space-y-1">
-                    <p>✅ SF-6 Automation instalada com sucesso!</p>
-                    <div className="flex items-center gap-4 text-sm">
-                      <Badge variant="secondary">
-                        {setupResult.processed_count} etapas processadas
-                      </Badge>
-                      <Badge 
-                        style={{ backgroundColor: "var(--brand-700)", color: "white" }}
-                      >
-                        {setupResult.created_count} activities criadas
-                      </Badge>
-                    </div>
-                  </div>
+                  <CheckCircle className="w-4 h-4 text-green-600" />
                 ) : (
-                  <p>❌ Erro: {setupResult.error}</p>
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
                 )}
-              </AlertDescription>
-            </div>
-          </Alert>
-        )}
+                <AlertDescription>
+                  {setupResult.success ? (
+                    <div className="space-y-1">
+                      <p>✅ SF-6 Automation instalada com sucesso!</p>
+                      <div className="flex items-center gap-4 text-sm">
+                        <Badge variant="secondary">
+                          {setupResult.processed_count} etapas processadas
+                        </Badge>
+                        <Badge
+                          style={{
+                            backgroundColor: "var(--brand-700)",
+                            color: "white",
+                          }}
+                        >
+                          {setupResult.created_count} activities criadas
+                        </Badge>
+                      </div>
+                    </div>
+                  ) : (
+                    <p>❌ Erro: {setupResult.error}</p>
+                  )}
+                </AlertDescription>
+              </div>
+            </Alert>
+          )}
 
-        <div className="text-xs text-neutral-500 space-y-1">
-          <p><strong>Funções verificadas:</strong></p>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Função RPC: <code>sf6_auto_create_activity_for_completed_task()</code></li>
-            <li>Estatísticas: <code>sf6_get_bridge_statistics()</code></li>
-            <li>Processamento: <code>sf6_process_existing_completed_tasks()</code></li>
-            <li>Limpeza: <code>sf6_cleanup_test_data()</code></li>
-            <li>Verificação: <code>sf6_verify_installation()</code></li>
-          </ul>
-          <p className="mt-2"><strong>Arquivo para instalar:</strong> <code>SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code></p>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="text-xs text-neutral-500 space-y-1">
+            <p>
+              <strong>Funções verificadas:</strong>
+            </p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>
+                Função RPC:{" "}
+                <code>sf6_auto_create_activity_for_completed_task()</code>
+              </li>
+              <li>
+                Estatísticas: <code>sf6_get_bridge_statistics()</code>
+              </li>
+              <li>
+                Processamento:{" "}
+                <code>sf6_process_existing_completed_tasks()</code>
+              </li>
+              <li>
+                Limpeza: <code>sf6_cleanup_test_data()</code>
+              </li>
+              <li>
+                Verificação: <code>sf6_verify_installation()</code>
+              </li>
+            </ul>
+            <p className="mt-2">
+              <strong>Arquivo para instalar:</strong>{" "}
+              <code>SF6_SUPABASE_COMPATIBLE_SCHEMA.sql</code>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
-    {/* SF-6 Bridge Manager */}
-    <SF6BridgeManager />
+      {/* SF-6 Bridge Manager */}
+      <SF6BridgeManager />
 
-    {/* SF-6 Round-Trip Test */}
-    <SF6RoundTripTest />
+      {/* SF-6 Round-Trip Test */}
+      <SF6RoundTripTest />
     </div>
   );
 }

@@ -195,12 +195,16 @@ export function Activities() {
         } else if (filterDueDate === "hoje") {
           const endOfDay = new Date(now);
           endOfDay.setHours(23, 59, 59, 999);
-          query = query.gte("due_at", now.toISOString()).lte("due_at", endOfDay.toISOString());
+          query = query
+            .gte("due_at", now.toISOString())
+            .lte("due_at", endOfDay.toISOString());
         } else if (filterDueDate === "esta-semana") {
           const endOfWeek = new Date(now);
           endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
           endOfWeek.setHours(23, 59, 59, 999);
-          query = query.gte("due_at", now.toISOString()).lte("due_at", endOfWeek.toISOString());
+          query = query
+            .gte("due_at", now.toISOString())
+            .lte("due_at", endOfWeek.toISOString());
         }
       }
 
@@ -418,7 +422,7 @@ export function Activities() {
   // SF-6: Mutation para criar ticket a partir de activity
   const createTicketMutation = useMutation({
     mutationFn: async (activityId: string) => {
-      const activity = activitiesData.data?.find(a => a.id === activityId);
+      const activity = activitiesData.data?.find((a) => a.id === activityId);
       if (!activity) throw new Error("Activity não encontrada");
 
       const ticketData = {
@@ -449,7 +453,7 @@ export function Activities() {
         .from("activities")
         .update({
           ticket_id: ticket.id,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", activityId);
 
@@ -919,10 +923,7 @@ export function Activities() {
                 <SelectContent>
                   <SelectItem value="todos">Todos os clientes</SelectItem>
                   {clientes.map((cliente) => (
-                    <SelectItem
-                      key={cliente.cpfcnpj}
-                      value={cliente.cpfcnpj}
-                    >
+                    <SelectItem key={cliente.cpfcnpj} value={cliente.cpfcnpj}>
                       {cliente.nome}
                     </SelectItem>
                   ))}
@@ -1099,7 +1100,9 @@ export function Activities() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/tickets/${activity.ticket_id}`)}
+                              onClick={() =>
+                                navigate(`/tickets/${activity.ticket_id}`)
+                              }
                               style={{ color: "var(--brand-700)" }}
                             >
                               <Link2 className="w-4 h-4 mr-1" />
@@ -1318,22 +1321,38 @@ export function Activities() {
                     <span>Cliente: {selectedActivity.cliente_nome}</span>
                   )}
                   {selectedActivity.responsavel_nome && (
-                    <span>Responsável: {selectedActivity.responsavel_nome}</span>
+                    <span>
+                      Responsável: {selectedActivity.responsavel_nome}
+                    </span>
                   )}
                 </div>
               </div>
               <div className="p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-medium mb-2">Ticket que será criado:</h4>
                 <div className="text-sm space-y-1">
-                  <p><strong>Assunto:</strong> [Activity] {selectedActivity.title}</p>
-                  <p><strong>Prioridade:</strong> {selectedActivity.priority}</p>
-                  <p><strong>Canal:</strong> Sistema</p>
-                  <p><strong>Status:</strong> Aberto</p>
+                  <p>
+                    <strong>Assunto:</strong> [Activity]{" "}
+                    {selectedActivity.title}
+                  </p>
+                  <p>
+                    <strong>Prioridade:</strong> {selectedActivity.priority}
+                  </p>
+                  <p>
+                    <strong>Canal:</strong> Sistema
+                  </p>
+                  <p>
+                    <strong>Status:</strong> Aberto
+                  </p>
                   {selectedActivity.cliente_nome && (
-                    <p><strong>Cliente:</strong> {selectedActivity.cliente_nome}</p>
+                    <p>
+                      <strong>Cliente:</strong> {selectedActivity.cliente_nome}
+                    </p>
                   )}
                   {selectedActivity.responsavel_nome && (
-                    <p><strong>Responsável:</strong> {selectedActivity.responsavel_nome}</p>
+                    <p>
+                      <strong>Responsável:</strong>{" "}
+                      {selectedActivity.responsavel_nome}
+                    </p>
                   )}
                 </div>
               </div>
@@ -1348,7 +1367,10 @@ export function Activities() {
               Cancelar
             </Button>
             <Button
-              onClick={() => selectedActivity && createTicketMutation.mutate(selectedActivity.id)}
+              onClick={() =>
+                selectedActivity &&
+                createTicketMutation.mutate(selectedActivity.id)
+              }
               disabled={createTicketMutation.isPending}
               style={{ backgroundColor: "var(--brand-700)", color: "white" }}
             >

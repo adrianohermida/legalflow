@@ -131,7 +131,8 @@ const DevAuditoria: React.FC = () => {
   >("audit");
   const [auditSuggestions, setAuditSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const { processAuditResults, createItemsFromSuggestions, getStats } = useAuditBacklogIntegration();
+  const { processAuditResults, createItemsFromSuggestions, getStats } =
+    useAuditBacklogIntegration();
   const [isRunningAutofix, setIsRunningAutofix] = useState(false);
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -485,10 +486,10 @@ const DevAuditoria: React.FC = () => {
 
         // Criar objeto de resultados da auditoria
         const auditResults: Record<string, any> = {};
-        modules.forEach(module => {
+        modules.forEach((module) => {
           auditResults[module.id] = {
             status: module.status,
-            checks: module.checks
+            checks: module.checks,
           };
         });
 
@@ -497,13 +498,19 @@ const DevAuditoria: React.FC = () => {
 
         if (suggestions.length > 0) {
           setShowSuggestions(true);
-          console.log(`💡 ${suggestions.length} sugestões de melhoria identificadas`);
+          console.log(
+            `💡 ${suggestions.length} sugestões de melhoria identificadas`,
+          );
 
           // Criar automaticamente itens críticos
-          const autoCreateSuggestions = suggestions.filter(s => s.autoCreate);
+          const autoCreateSuggestions = suggestions.filter((s) => s.autoCreate);
           if (autoCreateSuggestions.length > 0) {
-            const createdItems = await createItemsFromSuggestions(autoCreateSuggestions);
-            console.log(`🎯 ${createdItems.length} itens criados automaticamente no backlog`);
+            const createdItems = await createItemsFromSuggestions(
+              autoCreateSuggestions,
+            );
+            console.log(
+              `🎯 ${createdItems.length} itens criados automaticamente no backlog`,
+            );
 
             toast({
               title: "Auditoria concluída com integração",
@@ -525,7 +532,8 @@ const DevAuditoria: React.FC = () => {
         console.error("Erro na integração com backlog:", integrationError);
         toast({
           title: "Auditoria concluída",
-          description: "Todos os módulos foram verificados. Erro na integração com backlog.",
+          description:
+            "Todos os módulos foram verificados. Erro na integração com backlog.",
           variant: "destructive",
         });
       }
@@ -938,7 +946,8 @@ const DevAuditoria: React.FC = () => {
                   Sugestões de Melhoria Identificadas
                 </CardTitle>
                 <CardDescription>
-                  {auditSuggestions.length} oportunidades de melhoria detectadas pela auditoria
+                  {auditSuggestions.length} oportunidades de melhoria detectadas
+                  pela auditoria
                 </CardDescription>
               </div>
               <Button
@@ -958,8 +967,8 @@ const DevAuditoria: React.FC = () => {
                   key={index}
                   className={`p-4 border rounded-lg ${
                     suggestion.autoCreate
-                      ? 'border-green-200 bg-green-50'
-                      : 'border-yellow-200 bg-yellow-50'
+                      ? "border-green-200 bg-green-50"
+                      : "border-yellow-200 bg-yellow-50"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -968,13 +977,13 @@ const DevAuditoria: React.FC = () => {
                         <Badge
                           variant="outline"
                           className={
-                            suggestion.finding.severity === 'critical'
-                              ? 'border-red-500 text-red-700'
-                              : suggestion.finding.severity === 'high'
-                              ? 'border-orange-500 text-orange-700'
-                              : suggestion.finding.severity === 'medium'
-                              ? 'border-yellow-500 text-yellow-700'
-                              : 'border-gray-500 text-gray-700'
+                            suggestion.finding.severity === "critical"
+                              ? "border-red-500 text-red-700"
+                              : suggestion.finding.severity === "high"
+                                ? "border-orange-500 text-orange-700"
+                                : suggestion.finding.severity === "medium"
+                                  ? "border-yellow-500 text-yellow-700"
+                                  : "border-gray-500 text-gray-700"
                           }
                         >
                           {suggestion.finding.severity}
@@ -986,7 +995,10 @@ const DevAuditoria: React.FC = () => {
                           {suggestion.finding.module}
                         </Badge>
                         {suggestion.finding.builderExecutable && (
-                          <Badge variant="outline" className="bg-purple-100 text-purple-700">
+                          <Badge
+                            variant="outline"
+                            className="bg-purple-100 text-purple-700"
+                          >
                             <Zap className="w-3 h-3 mr-1" />
                             Builder.io
                           </Badge>
@@ -1021,15 +1033,20 @@ const DevAuditoria: React.FC = () => {
                               await createItemsFromSuggestions([suggestion]);
                               toast({
                                 title: "Item criado",
-                                description: "Item adicionado ao backlog com sucesso.",
+                                description:
+                                  "Item adicionado ao backlog com sucesso.",
                               });
                               // Atualizar a sugestão para mostrar que foi criada
-                              setAuditSuggestions(prev =>
+                              setAuditSuggestions((prev) =>
                                 prev.map((s, i) =>
                                   i === index
-                                    ? { ...s, autoCreate: true, reason: 'Criado manualmente' }
-                                    : s
-                                )
+                                    ? {
+                                        ...s,
+                                        autoCreate: true,
+                                        reason: "Criado manualmente",
+                                      }
+                                    : s,
+                                ),
                               );
                             } catch (error) {
                               toast({
@@ -1052,23 +1069,31 @@ const DevAuditoria: React.FC = () => {
 
             <div className="flex items-center justify-between pt-4 border-t">
               <div className="text-sm text-gray-600">
-                {auditSuggestions.filter(s => s.autoCreate).length} itens criados automaticamente, {' '}
-                {auditSuggestions.filter(s => !s.autoCreate).length} aguardando revisão manual
+                {auditSuggestions.filter((s) => s.autoCreate).length} itens
+                criados automaticamente,{" "}
+                {auditSuggestions.filter((s) => !s.autoCreate).length}{" "}
+                aguardando revisão manual
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={async () => {
                   try {
-                    const pendingSuggestions = auditSuggestions.filter(s => !s.autoCreate);
+                    const pendingSuggestions = auditSuggestions.filter(
+                      (s) => !s.autoCreate,
+                    );
                     if (pendingSuggestions.length > 0) {
                       await createItemsFromSuggestions(pendingSuggestions);
                       toast({
                         title: "Itens criados",
                         description: `${pendingSuggestions.length} itens adicionados ao backlog.`,
                       });
-                      setAuditSuggestions(prev =>
-                        prev.map(s => ({ ...s, autoCreate: true, reason: 'Criado via ação em lote' }))
+                      setAuditSuggestions((prev) =>
+                        prev.map((s) => ({
+                          ...s,
+                          autoCreate: true,
+                          reason: "Criado via ação em lote",
+                        })),
                       );
                     }
                   } catch (error) {
@@ -1079,7 +1104,9 @@ const DevAuditoria: React.FC = () => {
                     });
                   }
                 }}
-                disabled={auditSuggestions.filter(s => !s.autoCreate).length === 0}
+                disabled={
+                  auditSuggestions.filter((s) => !s.autoCreate).length === 0
+                }
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Criar Todos os Pendentes

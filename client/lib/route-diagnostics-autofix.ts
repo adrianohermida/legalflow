@@ -1,9 +1,14 @@
-import { RouteTest, RouteCoverageSystem } from './route-coverage-system';
+import { RouteTest, RouteCoverageSystem } from "./route-coverage-system";
 
 interface RouteIssue {
   route: RouteTest;
-  issueType: 'missing_component' | 'broken_deeplink' | 'auth_issue' | 'performance_issue' | 'render_error';
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  issueType:
+    | "missing_component"
+    | "broken_deeplink"
+    | "auth_issue"
+    | "performance_issue"
+    | "render_error";
+  severity: "critical" | "high" | "medium" | "low";
   description: string;
   suggestedFix: string;
   autoFixable: boolean;
@@ -33,67 +38,67 @@ export class RouteDiagnosticsAutofix {
   private initializeRouteComponentMapping() {
     this.knownRouteComponents = {
       // Escritório Routes
-      '/': 'Dashboard',
-      '/dashboard': 'Dashboard',
-      '/dashboard-v2': 'DashboardV2',
-      '/processos': 'Processos',
-      '/processos-v2': 'ProcessosV2',
-      '/processos/123': 'ProcessoDetailV2',
-      '/clientes': 'Clientes',
-      '/jornadas': 'Jornadas',
-      '/jornadas/designer': 'JourneyDesignerPage',
-      '/jornadas/nova': 'NovaJornada',
-      '/jornadas/iniciar': 'IniciarJornada',
-      '/inbox': 'InboxLegal',
-      '/inbox-v2': 'InboxLegalV2',
-      '/inbox-sf4': 'InboxLegalSF4',
-      '/agenda': 'Agenda',
-      '/financeiro': 'Financeiro',
-      '/relatorios': 'Relatorios',
-      '/helpdesk': 'Helpdesk',
-      '/servicos': 'Servicos',
-      '/tickets': 'Tickets',
-      '/planos': 'PlanosPagamento',
-      '/documentos': 'Documentos',
+      "/": "Dashboard",
+      "/dashboard": "Dashboard",
+      "/dashboard-v2": "DashboardV2",
+      "/processos": "Processos",
+      "/processos-v2": "ProcessosV2",
+      "/processos/123": "ProcessoDetailV2",
+      "/clientes": "Clientes",
+      "/jornadas": "Jornadas",
+      "/jornadas/designer": "JourneyDesignerPage",
+      "/jornadas/nova": "NovaJornada",
+      "/jornadas/iniciar": "IniciarJornada",
+      "/inbox": "InboxLegal",
+      "/inbox-v2": "InboxLegalV2",
+      "/inbox-sf4": "InboxLegalSF4",
+      "/agenda": "Agenda",
+      "/financeiro": "Financeiro",
+      "/relatorios": "Relatorios",
+      "/helpdesk": "Helpdesk",
+      "/servicos": "Servicos",
+      "/tickets": "Tickets",
+      "/planos": "PlanosPagamento",
+      "/documentos": "Documentos",
 
       // CRM Routes
-      '/crm/contatos': 'ContatosUnificados',
-      '/crm/contatos/123': 'ContatoPerfil360',
-      '/crm/leads': 'LeadsConversao',
-      '/crm/deals': 'DealsKanban',
-      '/crm/relatorios': 'RelatoriosCRM',
+      "/crm/contatos": "ContatosUnificados",
+      "/crm/contatos/123": "ContatoPerfil360",
+      "/crm/leads": "LeadsConversao",
+      "/crm/deals": "DealsKanban",
+      "/crm/relatorios": "RelatoriosCRM",
 
       // Portal Routes
-      '/portal/chat': 'PortalChat',
-      '/portal/jornada': 'PortalJornada',
-      '/portal/processos': 'PortalProcessos',
-      '/portal/compromissos': 'PortalCompromissos',
-      '/portal/financeiro': 'PortalFinanceiro',
-      '/portal/helpdesk': 'PortalHelpdesk',
-      '/portal/servicos': 'PortalServicos',
-      '/portal/cliente/inst123': 'PortalCliente',
+      "/portal/chat": "PortalChat",
+      "/portal/jornada": "PortalJornada",
+      "/portal/processos": "PortalProcessos",
+      "/portal/compromissos": "PortalCompromissos",
+      "/portal/financeiro": "PortalFinanceiro",
+      "/portal/helpdesk": "PortalHelpdesk",
+      "/portal/servicos": "PortalServicos",
+      "/portal/cliente/inst123": "PortalCliente",
 
       // Admin Routes
-      '/admin/qa': 'QAConsole',
-      '/admin/status': 'StatusDashboard',
-      '/admin/flags': 'FeatureFlags',
-      '/admin/devtools': 'DevTools',
-      '/admin/integrity': 'AdminIntegrity',
-      '/dev/auditoria': 'DevAuditoria',
-      '/admin/stripe-settings': 'StripeSettings',
-      '/admin/stripe-center': 'StripeCenter',
-      '/admin/launch-plan': 'LaunchPlan',
+      "/admin/qa": "QAConsole",
+      "/admin/status": "StatusDashboard",
+      "/admin/flags": "FeatureFlags",
+      "/admin/devtools": "DevTools",
+      "/admin/integrity": "AdminIntegrity",
+      "/dev/auditoria": "DevAuditoria",
+      "/admin/stripe-settings": "StripeSettings",
+      "/admin/stripe-center": "StripeCenter",
+      "/admin/launch-plan": "LaunchPlan",
 
       // Auth Routes
-      '/login': 'DemoLoginPage',
-      '/supabase-login': 'SupabaseLoginPage',
-      '/esqueci-senha': 'ForgotPassword',
-      '/redefinir-senha': 'ResetPassword',
+      "/login": "DemoLoginPage",
+      "/supabase-login": "SupabaseLoginPage",
+      "/esqueci-senha": "ForgotPassword",
+      "/redefinir-senha": "ResetPassword",
 
       // Setup Routes
-      '/setup': 'Setup',
-      '/quick-setup': 'QuickSetup',
-      '/mode-selector': 'ModeSelector',
+      "/setup": "Setup",
+      "/quick-setup": "QuickSetup",
+      "/mode-selector": "ModeSelector",
     };
   }
 
@@ -146,30 +151,30 @@ export class RouteDiagnosticsAutofix {
    */
   private checkMissingComponent(route: RouteTest): RouteIssue | null {
     const expectedComponent = this.knownRouteComponents[route.path];
-    
+
     if (!expectedComponent) {
       return {
         route,
-        issueType: 'missing_component',
-        severity: 'high',
+        issueType: "missing_component",
+        severity: "high",
         description: `Componente não mapeado para a rota ${route.path}`,
         suggestedFix: `Criar ou mapear componente para ${route.path}`,
         autoFixable: false,
-        estimatedTime: 30
+        estimatedTime: 30,
       };
     }
 
     // Verificar se a rota está definida no App.tsx
     // Esta é uma verificação simulada - em produção, você faria uma verificação real
-    if (route.status === '404') {
+    if (route.status === "404") {
       return {
         route,
-        issueType: 'missing_component',
-        severity: 'critical',
+        issueType: "missing_component",
+        severity: "critical",
         description: `Rota ${route.path} retorna 404 - componente não registrado no roteador`,
         suggestedFix: `Adicionar rota ${route.path} -> ${expectedComponent} no App.tsx`,
         autoFixable: true,
-        estimatedTime: 10
+        estimatedTime: 10,
       };
     }
 
@@ -186,15 +191,15 @@ export class RouteDiagnosticsAutofix {
     }
 
     // Verificar se deeplink com parâmetros funciona
-    if (route.params && route.status === 'error') {
+    if (route.params && route.status === "error") {
       return {
         route,
-        issueType: 'broken_deeplink',
-        severity: 'medium',
+        issueType: "broken_deeplink",
+        severity: "medium",
         description: `Deeplink ${route.deeplink} com parâmetros não funciona corretamente`,
-        suggestedFix: 'Corrigir parsing de parâmetros na rota',
+        suggestedFix: "Corrigir parsing de parâmetros na rota",
         autoFixable: true,
-        estimatedTime: 15
+        estimatedTime: 15,
       };
     }
 
@@ -206,15 +211,15 @@ export class RouteDiagnosticsAutofix {
    */
   private checkAuthIssues(route: RouteTest): RouteIssue | null {
     // Verificar se rotas protegidas estão adequadamente protegidas
-    if (route.userType !== 'any' && route.status === 'error') {
+    if (route.userType !== "any" && route.status === "error") {
       return {
         route,
-        issueType: 'auth_issue',
-        severity: 'high',
+        issueType: "auth_issue",
+        severity: "high",
         description: `Rota protegida ${route.path} apresenta problemas de autenticação`,
-        suggestedFix: 'Verificar configuração do AuthProvider e ProtectedRoute',
+        suggestedFix: "Verificar configuração do AuthProvider e ProtectedRoute",
         autoFixable: true,
-        estimatedTime: 20
+        estimatedTime: 20,
       };
     }
 
@@ -228,12 +233,13 @@ export class RouteDiagnosticsAutofix {
     if (route.renderTime > 2000) {
       return {
         route,
-        issueType: 'performance_issue',
-        severity: route.renderTime > 5000 ? 'high' : 'medium',
+        issueType: "performance_issue",
+        severity: route.renderTime > 5000 ? "high" : "medium",
         description: `Rota ${route.path} tem tempo de renderização alto (${route.renderTime}ms)`,
-        suggestedFix: 'Otimizar componente, adicionar lazy loading ou code splitting',
+        suggestedFix:
+          "Otimizar componente, adicionar lazy loading ou code splitting",
         autoFixable: false,
-        estimatedTime: 45
+        estimatedTime: 45,
       };
     }
 
@@ -244,15 +250,16 @@ export class RouteDiagnosticsAutofix {
    * Verifica erros de renderização
    */
   private checkRenderErrors(route: RouteTest): RouteIssue | null {
-    if (route.status === 'error' && route.renderTime > 0) {
+    if (route.status === "error" && route.renderTime > 0) {
       return {
         route,
-        issueType: 'render_error',
-        severity: 'critical',
+        issueType: "render_error",
+        severity: "critical",
         description: `Rota ${route.path} apresenta erro de renderização`,
-        suggestedFix: 'Verificar logs do console e corrigir erros JavaScript/TypeScript',
+        suggestedFix:
+          "Verificar logs do console e corrigir erros JavaScript/TypeScript",
         autoFixable: false,
-        estimatedTime: 60
+        estimatedTime: 60,
       };
     }
 
@@ -264,7 +271,7 @@ export class RouteDiagnosticsAutofix {
    */
   async applyAutoFixes(issues: RouteIssue[]): Promise<RouteFixResult[]> {
     const results: RouteFixResult[] = [];
-    const autoFixableIssues = issues.filter(issue => issue.autoFixable);
+    const autoFixableIssues = issues.filter((issue) => issue.autoFixable);
 
     for (const issue of autoFixableIssues) {
       const result = await this.applyFix(issue);
@@ -280,26 +287,26 @@ export class RouteDiagnosticsAutofix {
   private async applyFix(issue: RouteIssue): Promise<RouteFixResult> {
     try {
       switch (issue.issueType) {
-        case 'missing_component':
+        case "missing_component":
           return await this.fixMissingComponent(issue);
-        case 'broken_deeplink':
+        case "broken_deeplink":
           return await this.fixBrokenDeeplink(issue);
-        case 'auth_issue':
+        case "auth_issue":
           return await this.fixAuthIssue(issue);
         default:
           return {
             route: issue.route.path,
             success: false,
-            fixApplied: 'none',
-            message: 'Tipo de issue não suportado para auto-fix'
+            fixApplied: "none",
+            message: "Tipo de issue não suportado para auto-fix",
           };
       }
     } catch (error) {
       return {
         route: issue.route.path,
         success: false,
-        fixApplied: 'error',
-        message: `Erro ao aplicar correção: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+        fixApplied: "error",
+        message: `Erro ao aplicar correção: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
       };
     }
   }
@@ -307,20 +314,22 @@ export class RouteDiagnosticsAutofix {
   /**
    * Corrige problemas de componente faltando
    */
-  private async fixMissingComponent(issue: RouteIssue): Promise<RouteFixResult> {
+  private async fixMissingComponent(
+    issue: RouteIssue,
+  ): Promise<RouteFixResult> {
     // Simular adição da rota no App.tsx
     console.log(`🔧 Adicionando rota ${issue.route.path} ao App.tsx`);
-    
+
     // Em uma implementação real, você faria:
     // 1. Ler App.tsx
     // 2. Adicionar a importação do componente
     // 3. Adicionar a rota na estrutura Routes
-    
+
     return {
       route: issue.route.path,
       success: true,
-      fixApplied: 'route_added',
-      message: `Rota ${issue.route.path} adicionada ao sistema de roteamento`
+      fixApplied: "route_added",
+      message: `Rota ${issue.route.path} adicionada ao sistema de roteamento`,
     };
   }
 
@@ -329,13 +338,13 @@ export class RouteDiagnosticsAutofix {
    */
   private async fixBrokenDeeplink(issue: RouteIssue): Promise<RouteFixResult> {
     console.log(`🔧 Corrigindo deeplink para ${issue.route.path}`);
-    
+
     // Simular correção de parâmetros na rota
     return {
       route: issue.route.path,
       success: true,
-      fixApplied: 'deeplink_params_fixed',
-      message: `Parsing de parâmetros corrigido para ${issue.route.path}`
+      fixApplied: "deeplink_params_fixed",
+      message: `Parsing de parâmetros corrigido para ${issue.route.path}`,
     };
   }
 
@@ -344,13 +353,13 @@ export class RouteDiagnosticsAutofix {
    */
   private async fixAuthIssue(issue: RouteIssue): Promise<RouteFixResult> {
     console.log(`🔧 Corrigindo configuração de auth para ${issue.route.path}`);
-    
+
     // Simular correção de configuração de autenticação
     return {
       route: issue.route.path,
       success: true,
-      fixApplied: 'auth_config_fixed',
-      message: `Configuração de autenticação corrigida para ${issue.route.path}`
+      fixApplied: "auth_config_fixed",
+      message: `Configuração de autenticação corrigida para ${issue.route.path}`,
     };
   }
 
@@ -368,22 +377,22 @@ export class RouteDiagnosticsAutofix {
     let autoFixableCount = 0;
     let estimatedFixTime = 0;
 
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       // Summary by issue type
       summary[issue.issueType] = (summary[issue.issueType] || 0) + 1;
-      
+
       // Group by category
       const category = issue.route.category;
       if (!byCategory[category]) {
         byCategory[category] = [];
       }
       byCategory[category].push(issue);
-      
+
       // Count auto-fixable issues
       if (issue.autoFixable) {
         autoFixableCount++;
       }
-      
+
       // Sum estimated time
       estimatedFixTime += issue.estimatedTime;
     });
@@ -392,7 +401,7 @@ export class RouteDiagnosticsAutofix {
       summary,
       byCategory,
       autoFixableCount,
-      estimatedFixTime
+      estimatedFixTime,
     };
   }
 
@@ -409,18 +418,24 @@ export class RouteDiagnosticsAutofix {
   }> {
     const allRoutes = await this.routeCoverageSystem.getAllRoutes();
     const allIssues = await this.diagnoseAllRoutes();
-    
-    const healthyRoutes = allRoutes.filter(route => route.status === 'ok').length;
-    const criticalIssues = allIssues.filter(issue => issue.severity === 'critical').length;
-    const autoFixableIssues = allIssues.filter(issue => issue.autoFixable).length;
-    
+
+    const healthyRoutes = allRoutes.filter(
+      (route) => route.status === "ok",
+    ).length;
+    const criticalIssues = allIssues.filter(
+      (issue) => issue.severity === "critical",
+    ).length;
+    const autoFixableIssues = allIssues.filter(
+      (issue) => issue.autoFixable,
+    ).length;
+
     return {
       totalRoutes: allRoutes.length,
       healthyRoutes,
       issuesFound: allIssues.length,
       criticalIssues,
       autoFixableIssues,
-      healthPercentage: Math.round((healthyRoutes / allRoutes.length) * 100)
+      healthPercentage: Math.round((healthyRoutes / allRoutes.length) * 100),
     };
   }
 }
@@ -451,6 +466,6 @@ export const useRouteDiagnostics = () => {
     runDiagnostics,
     applyAutoFixes,
     getHealthStats,
-    generateReport
+    generateReport,
   };
 };

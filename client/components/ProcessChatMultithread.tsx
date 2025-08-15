@@ -5,12 +5,7 @@ import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Alert, AlertDescription } from "./ui/alert";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "./ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -69,7 +64,7 @@ interface Thread {
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   attachments: any[];
   metadata: Record<string, any>;
@@ -82,16 +77,22 @@ interface QuickAction {
   icon: string;
 }
 
-export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessChatProps) {
+export function ProcessChatMultithread({
+  numeroCnj,
+  className = "",
+}: ProcessChatProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isNewThreadDialogOpen, setIsNewThreadDialogOpen] = useState(false);
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [isQuickActionDialogOpen, setIsQuickActionDialogOpen] = useState(false);
-  const [selectedQuickAction, setSelectedQuickAction] = useState<QuickAction | null>(null);
-  const [quickActionData, setQuickActionData] = useState<Record<string, string>>({});
-  
+  const [selectedQuickAction, setSelectedQuickAction] =
+    useState<QuickAction | null>(null);
+  const [quickActionData, setQuickActionData] = useState<
+    Record<string, string>
+  >({});
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -100,12 +101,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
   const {
     data: threadsData,
     isLoading: threadsLoading,
-    refetch: refetchThreads
+    refetch: refetchThreads,
   } = useQuery({
     queryKey: ["process-threads", numeroCnj],
     queryFn: async () => {
-      const { data, error } = await lf.rpc('sf2_get_process_threads', {
-        p_numero_cnj: numeroCnj
+      const { data, error } = await lf.rpc("sf2_get_process_threads", {
+        p_numero_cnj: numeroCnj,
       });
       if (error) throw error;
       return data;
@@ -119,14 +120,14 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
   const {
     data: messagesData,
     isLoading: messagesLoading,
-    refetch: refetchMessages
+    refetch: refetchMessages,
   } = useQuery({
     queryKey: ["thread-messages", activeThreadId],
     queryFn: async () => {
       if (!activeThreadId) return null;
-      const { data, error } = await lf.rpc('sf2_get_thread_messages', {
+      const { data, error } = await lf.rpc("sf2_get_thread_messages", {
         p_thread_id: activeThreadId,
-        p_limit: 100
+        p_limit: 100,
       });
       if (error) throw error;
       return data;
@@ -151,10 +152,10 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
   // Mutation para criar nova thread
   const createThreadMutation = useMutation({
     mutationFn: async (title: string) => {
-      const { data, error } = await lf.rpc('sf2_create_process_chat_thread', {
+      const { data, error } = await lf.rpc("sf2_create_process_chat_thread", {
         p_numero_cnj: numeroCnj,
         p_title: title,
-        p_channel: 'chat'
+        p_channel: "chat",
       });
       if (error) throw error;
       return data;
@@ -180,13 +181,19 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
 
   // Mutation para enviar mensagem
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ threadId, content }: { threadId: string; content: string }) => {
-      const { data, error } = await lf.rpc('sf2_add_thread_message', {
+    mutationFn: async ({
+      threadId,
+      content,
+    }: {
+      threadId: string;
+      content: string;
+    }) => {
+      const { data, error } = await lf.rpc("sf2_add_thread_message", {
         p_thread_id: threadId,
-        p_role: 'user',
+        p_role: "user",
         p_content: content,
         p_attachments: [],
-        p_metadata: {}
+        p_metadata: {},
       });
       if (error) throw error;
       return data;
@@ -208,64 +215,82 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
   const quickActionMutation = useMutation({
     mutationFn: async (actionData: any) => {
       switch (actionData.action) {
-        case 'create_task':
-          const { data: taskData, error: taskError } = await lf.rpc('sf2_quick_action_create_task', {
-            p_thread_id: activeThreadId,
-            p_task_title: actionData.title,
-            p_task_description: actionData.description,
-            p_due_date: actionData.due_date
-          });
+        case "create_task":
+          const { data: taskData, error: taskError } = await lf.rpc(
+            "sf2_quick_action_create_task",
+            {
+              p_thread_id: activeThreadId,
+              p_task_title: actionData.title,
+              p_task_description: actionData.description,
+              p_due_date: actionData.due_date,
+            },
+          );
           if (taskError) throw taskError;
           return taskData;
-          
-        case 'link_ticket':
-          const { data: ticketData, error: ticketError } = await lf.rpc('sf2_quick_action_link_ticket', {
-            p_thread_id: activeThreadId,
-            p_ticket_subject: actionData.subject,
-            p_priority: actionData.priority
-          });
+
+        case "link_ticket":
+          const { data: ticketData, error: ticketError } = await lf.rpc(
+            "sf2_quick_action_link_ticket",
+            {
+              p_thread_id: activeThreadId,
+              p_ticket_subject: actionData.subject,
+              p_priority: actionData.priority,
+            },
+          );
           if (ticketError) throw ticketError;
           return ticketData;
 
-        case 'request_document':
-          const { data: docData, error: docError } = await lf.rpc('sf2_quick_action_request_document', {
-            p_thread_id: activeThreadId,
-            p_document_name: actionData.document_name,
-            p_document_description: actionData.description,
-            p_required: actionData.required || true
-          });
+        case "request_document":
+          const { data: docData, error: docError } = await lf.rpc(
+            "sf2_quick_action_request_document",
+            {
+              p_thread_id: activeThreadId,
+              p_document_name: actionData.document_name,
+              p_document_description: actionData.description,
+              p_required: actionData.required || true,
+            },
+          );
           if (docError) throw docError;
           return docData;
 
-        case 'complete_stage':
-          const { data: stageData, error: stageError } = await lf.rpc('sf2_quick_action_complete_stage', {
-            p_thread_id: activeThreadId,
-            p_stage_instance_id: actionData.stage_instance_id,
-            p_notes: actionData.notes
-          });
+        case "complete_stage":
+          const { data: stageData, error: stageError } = await lf.rpc(
+            "sf2_quick_action_complete_stage",
+            {
+              p_thread_id: activeThreadId,
+              p_stage_instance_id: actionData.stage_instance_id,
+              p_notes: actionData.notes,
+            },
+          );
           if (stageError) throw stageError;
           return stageData;
 
-        case 'advogaai_analysis':
-          const { data: analysisData, error: analysisError } = await lf.rpc('sf2_quick_action_advogaai_analysis', {
-            p_thread_id: activeThreadId,
-            p_analysis_type: actionData.analysis_type || 'general',
-            p_context: actionData.context
-          });
+        case "advogaai_analysis":
+          const { data: analysisData, error: analysisError } = await lf.rpc(
+            "sf2_quick_action_advogaai_analysis",
+            {
+              p_thread_id: activeThreadId,
+              p_analysis_type: actionData.analysis_type || "general",
+              p_context: actionData.context,
+            },
+          );
           if (analysisError) throw analysisError;
           return analysisData;
 
-        case 'start_journey':
-          const { data: journeyData, error: journeyError } = await lf.rpc('sf2_quick_action_start_journey', {
-            p_thread_id: activeThreadId,
-            p_journey_type_id: actionData.journey_type_id,
-            p_title: actionData.title
-          });
+        case "start_journey":
+          const { data: journeyData, error: journeyError } = await lf.rpc(
+            "sf2_quick_action_start_journey",
+            {
+              p_thread_id: activeThreadId,
+              p_journey_type_id: actionData.journey_type_id,
+              p_title: actionData.title,
+            },
+          );
           if (journeyError) throw journeyError;
           return journeyData;
 
         default:
-          throw new Error('Ação não implementada');
+          throw new Error("Ação não implementada");
       }
     },
     onSuccess: (data) => {
@@ -290,7 +315,7 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
     if (!newMessage.trim() || !activeThreadId) return;
     sendMessageMutation.mutate({
       threadId: activeThreadId,
-      content: newMessage
+      content: newMessage,
     });
   };
 
@@ -301,29 +326,29 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
 
   const executeQuickAction = () => {
     if (!selectedQuickAction || !activeThreadId) return;
-    
+
     const actionData = {
       action: selectedQuickAction.id,
-      ...quickActionData
+      ...quickActionData,
     };
-    
+
     quickActionMutation.mutate(actionData);
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'user':
+      case "user":
         return <User className="w-3 h-3" />;
-      case 'assistant':
+      case "assistant":
         return <Bot className="w-3 h-3" />;
-      case 'system':
+      case "system":
         return <Hash className="w-3 h-3" />;
       default:
         return <MessageSquare className="w-3 h-3" />;
@@ -342,9 +367,7 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
           <MessageSquare className="w-6 h-6" />
         </Button>
         {threads.length > 0 && (
-          <Badge 
-            className="absolute -top-2 -right-2 bg-red-500 text-white"
-          >
+          <Badge className="absolute -top-2 -right-2 bg-red-500 text-white">
             {threads.length}
           </Badge>
         )}
@@ -396,8 +419,8 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
               </Button>
             </div>
           ) : (
-            <Tabs 
-              value={activeThreadId || ""} 
+            <Tabs
+              value={activeThreadId || ""}
               onValueChange={setActiveThreadId}
               className="flex flex-col h-full"
             >
@@ -415,7 +438,10 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                           {thread.title}
                         </span>
                         {thread.message_count > 0 && (
-                          <Badge variant="secondary" className="ml-1 h-4 text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="ml-1 h-4 text-xs"
+                          >
                             {thread.message_count}
                           </Badge>
                         )}
@@ -454,15 +480,15 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                       messages.map((message) => (
                         <div
                           key={message.id}
-                          className={`flex gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                          className={`flex gap-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                         >
                           <div
                             className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                              message.role === 'user'
-                                ? 'bg-brand-700 text-white'
-                                : message.role === 'system'
-                                ? 'bg-neutral-100 text-neutral-600'
-                                : 'bg-neutral-100 text-neutral-800'
+                              message.role === "user"
+                                ? "bg-brand-700 text-white"
+                                : message.role === "system"
+                                  ? "bg-neutral-100 text-neutral-600"
+                                  : "bg-neutral-100 text-neutral-800"
                             }`}
                           >
                             <div className="flex items-center gap-1 mb-1">
@@ -473,10 +499,7 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                             </div>
                             <div>{message.content}</div>
                             {message.metadata?.action_type && (
-                              <Badge 
-                                variant="outline" 
-                                className="mt-1 text-xs"
-                              >
+                              <Badge variant="outline" className="mt-1 text-xs">
                                 {message.metadata.action_type}
                               </Badge>
                             )}
@@ -515,7 +538,7 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           onKeyPress={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
+                            if (e.key === "Enter" && !e.shiftKey) {
                               e.preventDefault();
                               handleSendMessage();
                             }
@@ -532,9 +555,14 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                       </div>
                       <Button
                         onClick={handleSendMessage}
-                        disabled={!newMessage.trim() || sendMessageMutation.isPending}
+                        disabled={
+                          !newMessage.trim() || sendMessageMutation.isPending
+                        }
                         size="sm"
-                        style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+                        style={{
+                          backgroundColor: "var(--brand-700)",
+                          color: "white",
+                        }}
                       >
                         {sendMessageMutation.isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -552,7 +580,10 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
       </Card>
 
       {/* Dialog para nova thread */}
-      <Dialog open={isNewThreadDialogOpen} onOpenChange={setIsNewThreadDialogOpen}>
+      <Dialog
+        open={isNewThreadDialogOpen}
+        onOpenChange={setIsNewThreadDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Nova Conversa</DialogTitle>
@@ -579,7 +610,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                 Cancelar
               </Button>
               <Button
-                onClick={() => createThreadMutation.mutate(newThreadTitle || `Chat - ${new Date().toLocaleString('pt-BR')}`)}
+                onClick={() =>
+                  createThreadMutation.mutate(
+                    newThreadTitle ||
+                      `Chat - ${new Date().toLocaleString("pt-BR")}`,
+                  )
+                }
                 disabled={createThreadMutation.isPending}
                 style={{ backgroundColor: "var(--brand-700)", color: "white" }}
               >
@@ -594,15 +630,16 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
       </Dialog>
 
       {/* Dialog para quick actions */}
-      <Dialog open={isQuickActionDialogOpen} onOpenChange={setIsQuickActionDialogOpen}>
+      <Dialog
+        open={isQuickActionDialogOpen}
+        onOpenChange={setIsQuickActionDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {selectedQuickAction?.label}
-            </DialogTitle>
+            <DialogTitle>{selectedQuickAction?.label}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {selectedQuickAction?.id === 'create_task' && (
+            {selectedQuickAction?.id === "create_task" && (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -611,7 +648,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     placeholder="Descreva a tarefa"
                     value={quickActionData.title || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -621,7 +663,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Textarea
                     placeholder="Detalhes adicionais"
                     value={quickActionData.description || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -631,13 +678,18 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     type="datetime-local"
                     value={quickActionData.due_date || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, due_date: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        due_date: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </>
             )}
 
-            {selectedQuickAction?.id === 'link_ticket' && (
+            {selectedQuickAction?.id === "link_ticket" && (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -646,7 +698,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     placeholder="Descreva o problema ou solicitação"
                     value={quickActionData.subject || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, subject: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        subject: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -656,7 +713,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <select
                     className="w-full p-2 border rounded"
                     value={quickActionData.priority || "media"}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, priority: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        priority: e.target.value,
+                      }))
+                    }
                   >
                     <option value="baixa">Baixa</option>
                     <option value="media">Média</option>
@@ -667,7 +729,7 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
               </>
             )}
 
-            {selectedQuickAction?.id === 'request_document' && (
+            {selectedQuickAction?.id === "request_document" && (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -676,7 +738,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     placeholder="Ex: RG, Procuração, Contrato..."
                     value={quickActionData.document_name || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, document_name: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        document_name: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -686,15 +753,25 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Textarea
                     placeholder="Detalhes sobre o documento necessário"
                     value={quickActionData.description || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="required-doc"
-                    checked={quickActionData.required !== 'false'}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, required: e.target.checked.toString() }))}
+                    checked={quickActionData.required !== "false"}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        required: e.target.checked.toString(),
+                      }))
+                    }
                   />
                   <label htmlFor="required-doc" className="text-sm">
                     Documento obrigatório
@@ -703,7 +780,7 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
               </>
             )}
 
-            {selectedQuickAction?.id === 'complete_stage' && (
+            {selectedQuickAction?.id === "complete_stage" && (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -712,7 +789,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     placeholder="UUID da etapa a ser concluída"
                     value={quickActionData.stage_instance_id || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, stage_instance_id: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        stage_instance_id: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -722,13 +804,18 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Textarea
                     placeholder="Anotações sobre a conclusão da etapa"
                     value={quickActionData.notes || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </>
             )}
 
-            {selectedQuickAction?.id === 'advogaai_analysis' && (
+            {selectedQuickAction?.id === "advogaai_analysis" && (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -737,7 +824,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <select
                     className="w-full p-2 border rounded"
                     value={quickActionData.analysis_type || "general"}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, analysis_type: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        analysis_type: e.target.value,
+                      }))
+                    }
                   >
                     <option value="general">Análise geral</option>
                     <option value="legal">Análise jurídica</option>
@@ -753,13 +845,18 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Textarea
                     placeholder="Forneça contexto adicional para a análise..."
                     value={quickActionData.context || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, context: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        context: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </>
             )}
 
-            {selectedQuickAction?.id === 'start_journey' && (
+            {selectedQuickAction?.id === "start_journey" && (
               <>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -768,7 +865,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     placeholder="UUID do tipo de jornada"
                     value={quickActionData.journey_type_id || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, journey_type_id: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        journey_type_id: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -778,7 +880,12 @@ export function ProcessChatMultithread({ numeroCnj, className = "" }: ProcessCha
                   <Input
                     placeholder="Título específico para esta jornada"
                     value={quickActionData.title || ""}
-                    onChange={(e) => setQuickActionData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) =>
+                      setQuickActionData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </>
