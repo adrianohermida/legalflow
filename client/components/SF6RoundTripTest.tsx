@@ -68,26 +68,32 @@ export function SF6RoundTripTest() {
     const startTime = Date.now();
 
     try {
-      // Step 1: Create a test activity
+      // Step 1: Verify SF-6 installation
       addResult({ success: true, step: "1. Starting SF-6 Round-Trip Test", timing: 0 });
-      
-      const activityData = {
-        title: "[SF-6 Test] Round-trip test activity",
-        status: "todo",
-        priority: "media",
-        created_by: "sf6-test",
-        assigned_oab: null,
-        cliente_cpfcnpj: null,
-        numero_cnj: null,
-      };
 
-      const { data: activity, error: activityError } = await lf
-        .from("activities")
-        .insert([activityData])
-        .select()
-        .single();
+      // First verify the installation
+      const { data: verifyResult, error: verifyError } = await lf.rpc('sf6_verify_installation');
+      if (verifyError) throw new Error(`Verification failed: ${verifyError.message}`);
 
-      if (activityError) throw new Error(`Activity creation failed: ${activityError.message}`);
+      if (!verifyResult?.installation_complete) {
+        throw new Error(`SF-6 not properly installed: ${verifyResult?.message}`);
+      }
+
+      addResult({
+        success: true,
+        step: "2. ✅ SF-6 Installation verified",
+        data: {
+          functions_installed: verifyResult.functions_installed,
+          tables_accessible: verifyResult.tables_accessible
+        },
+        timing: Date.now() - startTime
+      });
+
+      await delay(500);
+
+      // Step 2: Test statistics function
+      const { data: statsResult, error: statsError } = await lf.rpc('sf6_get_bridge_statistics');
+      if (statsError) throw new Error(`Statistics failed: ${statsError.message}`);
       
       addResult({ 
         success: true, 
