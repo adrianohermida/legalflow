@@ -885,6 +885,49 @@ export function Activities() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* SF-6: Filtro de vencimento */}
+              <Select
+                value={filterDueDate}
+                onValueChange={(value) => {
+                  setFilterDueDate(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Vencimento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os prazos</SelectItem>
+                  <SelectItem value="vencidas">Vencidas</SelectItem>
+                  <SelectItem value="hoje">Vencem hoje</SelectItem>
+                  <SelectItem value="esta-semana">Esta semana</SelectItem>
+                </SelectContent>
+              </Select>
+              {/* SF-6: Filtro de cliente */}
+              <Select
+                value={filterCliente}
+                onValueChange={(value) => {
+                  setFilterCliente(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os clientes</SelectItem>
+                  {clientes.map((cliente) => (
+                    <SelectItem
+                      key={cliente.cpfcnpj}
+                      value={cliente.cpfcnpj}
+                    >
+                      {cliente.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
