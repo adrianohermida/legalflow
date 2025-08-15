@@ -204,9 +204,7 @@ router.get("/:cnj/movimentacoes", async (req, res, next) => {
       return res.error("CNJ inválido", 400);
     }
 
-    // Import movimentacoesApi directly since it's not in the main api file
-    const { movimentacoesApi } = await import("../../../client/lib/api");
-    const movimentacoes = await movimentacoesApi.getByProcesso(cnj);
+    const movimentacoes = await mockMovimentacoesApi.getByProcesso(cnj);
 
     res.success(movimentacoes, "Movimentações encontradas com sucesso");
   } catch (error) {
