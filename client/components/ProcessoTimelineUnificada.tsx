@@ -191,12 +191,27 @@ export default function ProcessoTimelineUnificada({
       publicationId: number;
       cnj: string;
     }) => {
-      const { error } = await supabase
-        .from("publicacoes")
-        .update({ numero_cnj: cnj })
-        .eq("id", publicationId);
+      // Try RPC first, fallback to direct update
+      try {
+        const { data, error } = await supabase.rpc(
+          "legalflow.link_publicacao_to_cnj",
+          {
+            p_publicacao_id: publicationId,
+            p_numero_cnj: cnj,
+          }
+        );
 
-      if (error) throw error;
+        if (error) throw error;
+      } catch (rpcError) {
+        // Fallback to direct update if RPC doesn't exist
+        console.log("RPC not found, using direct update:", rpcError);
+        const { error } = await supabase
+          .from("publicacoes")
+          .update({ numero_cnj: cnj })
+          .eq("id", publicationId);
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast({
