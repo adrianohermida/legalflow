@@ -22,19 +22,22 @@ export function createServer() {
   app.use(helmet());
   app.use(compression());
 
-  // Rate limiting
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: {
-      success: false,
-      error: "Muitas requisições. Tente novamente em 15 minutos.",
-      timestamp: new Date().toISOString(),
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-  app.use("/api", limiter);
+  // Rate limiting - only for production
+  if (process.env.NODE_ENV === "production") {
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // Limit each IP to 100 requests per windowMs
+      message: {
+        success: false,
+        error: "Muitas requisições. Tente novamente em 15 minutos.",
+        timestamp: new Date().toISOString(),
+      },
+      standardHeaders: true,
+      legacyHeaders: false,
+      trustProxy: true,
+    });
+    app.use("/api", limiter);
+  }
 
   // Basic middleware
   app.use(cors({
