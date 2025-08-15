@@ -27,6 +27,7 @@ interface AutomationResult {
 
 export function SF6AutomationSetup() {
   const [setupResult, setSetupResult] = useState<AutomationResult | null>(null);
+  const [showInstallation, setShowInstallation] = useState(false);
   const { toast } = useToast();
 
   // The SF-6 automation SQL
