@@ -1297,6 +1297,69 @@ export function Activities() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* SF-6: Dialog para confirmação de criação de ticket */}
+      <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Gerar Ticket</DialogTitle>
+            <DialogDescription>
+              Criar um ticket de atendimento baseado nesta activity
+            </DialogDescription>
+          </DialogHeader>
+          {selectedActivity && (
+            <div className="space-y-4">
+              <div className="p-4 bg-neutral-50 rounded-lg">
+                <h4 className="font-medium mb-2">Activity selecionada:</h4>
+                <p className="text-sm font-medium">{selectedActivity.title}</p>
+                <div className="flex items-center gap-4 mt-2 text-sm text-neutral-600">
+                  <span>Prioridade: {selectedActivity.priority}</span>
+                  {selectedActivity.cliente_nome && (
+                    <span>Cliente: {selectedActivity.cliente_nome}</span>
+                  )}
+                  {selectedActivity.responsavel_nome && (
+                    <span>Responsável: {selectedActivity.responsavel_nome}</span>
+                  )}
+                </div>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-medium mb-2">Ticket que será criado:</h4>
+                <div className="text-sm space-y-1">
+                  <p><strong>Assunto:</strong> [Activity] {selectedActivity.title}</p>
+                  <p><strong>Prioridade:</strong> {selectedActivity.priority}</p>
+                  <p><strong>Canal:</strong> Sistema</p>
+                  <p><strong>Status:</strong> Aberto</p>
+                  {selectedActivity.cliente_nome && (
+                    <p><strong>Cliente:</strong> {selectedActivity.cliente_nome}</p>
+                  )}
+                  {selectedActivity.responsavel_nome && (
+                    <p><strong>Responsável:</strong> {selectedActivity.responsavel_nome}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsTicketDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => selectedActivity && createTicketMutation.mutate(selectedActivity.id)}
+              disabled={createTicketMutation.isPending}
+              style={{ backgroundColor: "var(--brand-700)", color: "white" }}
+            >
+              {createTicketMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
+              Criar Ticket
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
