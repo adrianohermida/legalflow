@@ -275,6 +275,43 @@ export const SF9ApiConsole: React.FC = () => {
     }
   };
 
+  const seedApiLibrary = async () => {
+    try {
+      setSeeding(true);
+
+      const result = await implAutofix("API_SEED");
+
+      if (result.success) {
+        toast({
+          title: "Seed executado com sucesso",
+          description: result.message,
+        });
+
+        // Recarregar dados
+        await Promise.all([
+          loadProviders(),
+          loadEndpoints(),
+          loadLogs(),
+        ]);
+      } else {
+        toast({
+          title: "Erro no seed",
+          description: result.message || "Falha ao executar seed da API Library",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error seeding API library:", error);
+      toast({
+        title: "Erro no seed",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "success":
