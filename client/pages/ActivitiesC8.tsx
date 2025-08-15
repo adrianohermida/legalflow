@@ -63,6 +63,11 @@ import { lf } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import { formatDate } from "../lib/utils";
 import { ActivityDetailModal } from "../components/ActivityDetailModal";
+import {
+  getDueDateStatus,
+  sortActivitiesByPriority,
+  calculateActivityStats
+} from "../lib/activity-utils";
 
 interface Activity {
   id: string;
