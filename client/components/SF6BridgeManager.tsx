@@ -85,7 +85,7 @@ export function SF6BridgeManager() {
 
       if (!verifyData?.installation_complete) {
         throw new Error(
-          `Schema não instalado completamente. Execute SF6_SUPABASE_COMPATIBLE_SCHEMA.sql no Supabase.`,
+          `Schema não instalado completamente. Execute SF6_SUPABASE_RPC_FIXED.sql no Supabase.`,
         );
       }
 
