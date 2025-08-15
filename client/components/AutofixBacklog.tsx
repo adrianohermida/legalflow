@@ -169,7 +169,14 @@ export default function AutofixBacklog() {
     assignee: '',
     search: '',
     includeArchived: false,
+    category: '',
+    complexity: '',
+    builderExecutable: '',
+    dateRange: '',
+    tags: '',
+    storyPoints: '',
   });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<BacklogItem | null>(null);
