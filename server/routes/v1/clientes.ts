@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { clientesApi } from "@/lib/api";
+import { clientesApi } from "../../../client/lib/api";
 import { validateRequest, commonSchemas } from "../../middleware/validation";
 import { CreateClienteRequest, ClienteFilters, PaginationParams } from "@shared/api";
 
