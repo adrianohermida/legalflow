@@ -3,13 +3,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
-import { 
-  Loader2, 
-  CheckCircle, 
-  AlertTriangle, 
-  BarChart3, 
-  Link2, 
-  Sync, 
+import {
+  Loader2,
+  CheckCircle,
+  AlertTriangle,
+  BarChart3,
+  Link2,
   Lightbulb,
   Trash2,
   RefreshCw
