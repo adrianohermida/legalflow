@@ -956,8 +956,12 @@ GRANT EXECUTE ON FUNCTION sf2_get_thread_messages(TEXT, INTEGER, INTEGER) TO aut
 GRANT EXECUTE ON FUNCTION sf2_add_thread_message(TEXT, TEXT, TEXT, JSONB, JSONB) TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION sf2_quick_action_create_task(TEXT, TEXT, TEXT, TIMESTAMP) TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION sf2_quick_action_link_ticket(TEXT, TEXT, TEXT) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION sf2_quick_action_request_document(TEXT, TEXT, TEXT, BOOLEAN) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION sf2_quick_action_complete_stage(TEXT, UUID, TEXT) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION sf2_quick_action_advogaai_analysis(TEXT, TEXT, TEXT) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION sf2_quick_action_start_journey(TEXT, UUID, TEXT) TO authenticated, anon;
 
--- Permissões nas tabelas
+-- Permiss��es nas tabelas
 GRANT SELECT, INSERT, UPDATE ON public.thread_links TO authenticated, anon;
 GRANT SELECT, INSERT, UPDATE ON public.ai_messages TO authenticated, anon;
 GRANT SELECT, INSERT, UPDATE ON legalflow.conversation_properties TO authenticated, anon;
