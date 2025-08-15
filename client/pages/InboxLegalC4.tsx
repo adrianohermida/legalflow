@@ -92,6 +92,20 @@ import { useToast } from "../hooks/use-toast";
 import { formatDate, formatCNJ } from "../lib/utils";
 import { themeUtils, colors } from "../lib/theme-colors";
 import CreateStageDialog from "../components/CreateStageDialog";
+import {
+  extractResumo,
+  extractTribunalOrigem,
+  detectCNJInContent,
+  validateCNJ,
+  calculatePriority,
+  getPriorityColor,
+  checkProcessExists,
+  getProcessResponsible,
+  autoSuggestCNJ,
+  generateWorkflowSummary,
+  getWorkflowProgress,
+  type TriagemItem,
+} from "../lib/inbox-c4-utils";
 
 interface PublicacaoItem {
   id: number;
