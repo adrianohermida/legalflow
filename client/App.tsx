@@ -323,32 +323,9 @@ function DemoAppRoutes() {
           </DemoProtectedRoute>
         }
       />
+      {/* Consolidated inbox routes */}
       <Route
         path="/inbox"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <InboxLegal />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/inbox-v2"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <InboxLegalV2 />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/inbox-sf4"
-        element={
-          <DemoProtectedRoute userType="advogado">
-            <InboxLegalSF4 />
-          </DemoProtectedRoute>
-        }
-      />
-      <Route
-        path="/inbox-c4"
         element={
           <DemoProtectedRoute userType="advogado">
             <InboxLegalC4 />
