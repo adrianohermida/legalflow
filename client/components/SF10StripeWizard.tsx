@@ -288,19 +288,22 @@ export const SF10StripeWizard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("legalflow.stripe_prices")
-        .select(
-          `
-          *,
-          product:product_id(name, description)
-        `,
-        )
+        .select("*")
         .eq("active", true)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+          console.log("Tabela stripe_prices não existe. Execute o setup SF-10 primeiro.");
+          setAvailablePrices([]);
+          return;
+        }
+        throw error;
+      }
       setAvailablePrices(data || []);
     } catch (error) {
       console.error("Error loading prices:", error instanceof Error ? error.message : String(error));
+      setAvailablePrices([]);
     }
   };
 
