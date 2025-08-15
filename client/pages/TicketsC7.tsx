@@ -191,10 +191,8 @@ export default function TicketsC7() {
   // Mutations
   const createTicketMutation = useMutation({
     mutationFn: async (form: TicketForm) => {
-      // Calculate SLA times (simplified logic)
-      const now = new Date();
-      const frtDue = new Date(now.getTime() + (form.priority === "urgente" ? 2 : 24) * 60 * 60 * 1000);
-      const ttrDue = new Date(now.getTime() + (form.priority === "urgente" ? 8 : 72) * 60 * 60 * 1000);
+      // Calculate SLA times using utility function
+      const { frtDue, ttrDue } = calculateSLADueDates(new Date(), form.priority);
 
       const { data, error } = await lf
         .from("tickets")
