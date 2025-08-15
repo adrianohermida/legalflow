@@ -233,4 +233,8 @@ if (typeof window !== "undefined") {
   applyMonochromaticBrand();
 }
 
+// Export missing constants for compatibility
+export const APPROVED_BRAND_COLORS = MONOCHROMATIC_BRAND_CONFIG.colors;
+export const BLOCKED_COLORS = ["red", "blue", "green", "yellow", "purple", "pink"];
+
 export default MONOCHROMATIC_BRAND_CONFIG;
