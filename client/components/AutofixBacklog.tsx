@@ -191,7 +191,8 @@ export default function AutofixBacklog() {
     queryFn: async () => {
       const viewName = filter.includeArchived ? 'vw_autofix_kanban_with_archived' : 'vw_autofix_kanban';
       let query = supabase.from(viewName).select('*');
-      
+
+      // Filtros básicos
       if (filter.status) query = query.eq('status', filter.status);
       if (filter.priority) query = query.eq('priority', filter.priority);
       if (filter.type) query = query.eq('type', filter.type);
@@ -199,12 +200,52 @@ export default function AutofixBacklog() {
       if (filter.search) {
         query = query.or(`title.ilike.%${filter.search}%,description.ilike.%${filter.search}%`);
       }
-      
+
+      // Filtros avançados
+      if (filter.category) query = query.eq('category', filter.category);
+      if (filter.complexity) query = query.eq('complexity', filter.complexity);
+      if (filter.builderExecutable === 'true') query = query.eq('can_execute_in_builder', true);
+      if (filter.builderExecutable === 'false') query = query.eq('can_execute_in_builder', false);
+      if (filter.storyPoints) query = query.eq('story_points', parseInt(filter.storyPoints));
+
+      // Filtro por tags
+      if (filter.tags) {
+        const tagList = filter.tags.split(',').map(t => t.trim()).filter(t => t);
+        if (tagList.length > 0) {
+          query = query.overlaps('tags', tagList);
+        }
+      }
+
+      // Filtro por data
+      if (filter.dateRange) {
+        const now = new Date();
+        let dateFrom;
+
+        switch (filter.dateRange) {
+          case 'today':
+            dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case 'week':
+            dateFrom = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'month':
+            dateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+          case 'quarter':
+            dateFrom = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+            break;
+        }
+
+        if (dateFrom) {
+          query = query.gte('created_at', dateFrom.toISOString());
+        }
+      }
+
       // Se não incluir arquivados, filtrar automaticamente
       if (!filter.includeArchived) {
         query = query.neq('status', 'archived');
       }
-      
+
       const { data, error } = await query.order('created_at', { ascending: false });
       if (error) throw error;
       return data as BacklogItem[];
