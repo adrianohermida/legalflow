@@ -364,15 +364,23 @@ export const SF9ApiConsole: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
+            onClick={seedApiLibrary}
+            disabled={seeding}
+          >
+            <Zap className={`w-4 h-4 mr-2 ${seeding ? 'animate-spin' : ''}`} />
+            {seeding ? "Seeding..." : "Seed/Autofix"}
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => loadProviders()}
             disabled={loading}
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          <Button 
+          <Button
             onClick={() => setShowApiTester(true)}
             className="bg-blue-600 hover:bg-blue-700"
           >
