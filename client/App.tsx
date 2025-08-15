@@ -96,7 +96,6 @@ import { SupabaseSetup } from "./components/SupabaseSetup";
 import { UnifiedOABSelectionModal } from "./components/UnifiedOABSelectionModal";
 import { AdminBrandingConfig } from "./components/AdminBrandingConfig";
 import NotFound from "./pages/NotFound";
-import AutofixTesting from "./pages/AutofixTesting";
 
 const queryClient = new QueryClient();
 
