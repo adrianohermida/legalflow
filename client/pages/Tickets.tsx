@@ -56,6 +56,7 @@ import {
   Link2,
   Calendar,
   Users,
+  ArrowLeft,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { lf, supabase } from "../lib/supabase";
