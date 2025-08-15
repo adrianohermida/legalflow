@@ -1206,9 +1206,9 @@ export default function App() {
 const container = document.getElementById("root");
 if (container) {
   // Check if root already exists to prevent React warning
-  if (!container._reactRoot) {
+  if (!(container as any)._reactRoot) {
     const root = createRoot(container);
-    container._reactRoot = root;
+    (container as any)._reactRoot = root;
     root.render(
       <AppErrorBoundary>
         <App />
@@ -1216,7 +1216,7 @@ if (container) {
     );
   } else {
     // Re-render on existing root
-    container._reactRoot.render(
+    (container as any)._reactRoot.render(
       <AppErrorBoundary>
         <App />
       </AppErrorBoundary>,
