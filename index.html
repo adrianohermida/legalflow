@@ -31,6 +31,46 @@
         <p>Sistema iniciando...</p>
       </div>
     </div>
-    <script type="module" src="/client/App.tsx"></script>
+    <script type="module" src="/client/MinimalBuilderApp.tsx"></script>
+
+    <script>
+      // Builder.io compatibility checks
+      console.log('🔧 Builder.io Compatibility Mode Active');
+
+      // Detect and prevent code rendering as text
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 3) { // Text node
+              const text = node.textContent || '';
+              if (text.includes('export default function') || text.includes('MyComponent')) {
+                console.error('🚨 CRITICAL: Code being rendered as text detected!');
+                console.error('Problematic text:', text.slice(0, 100));
+
+                // Replace with error message
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; margin: 10px; border-radius: 4px;';
+                errorDiv.innerHTML = '<strong>⚠️ Erro de Renderização Detectado</strong><br>Recarregando página...';
+
+                if (node.parentNode) {
+                  node.parentNode.replaceChild(errorDiv, node);
+                }
+
+                // Auto-reload after 2 seconds
+                setTimeout(() => window.location.reload(), 2000);
+              }
+            }
+          });
+        });
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      // Stop observing after 10 seconds
+      setTimeout(() => observer.disconnect(), 10000);
+    </script>
   </body>
 </html>
