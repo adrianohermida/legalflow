@@ -232,20 +232,8 @@ export default function ProcessoOverviewV3() {
     },
   });
 
-  const extractAdviseData = (data: any) => {
-    if (!data) return {};
-    
-    return {
-      area: data.area || data.classe?.area || "Não informado",
-      classe: data.classe?.nome || data.classeProcessual || "Não informado",
-      assunto: data.assunto?.[0]?.nome || data.assuntoPrincipal || "Não informado",
-      orgao: data.orgaoJulgador?.nome || data.tribunal || processoData?.tribunal_sigla || "Não informado",
-      valor: data.valorCausa || data.valor || null,
-      audiencias: data.audiencias || [],
-    };
-  };
-
   const adviseData = processoData ? extractAdviseData(processoData.data) : {};
+  const actionContext = processoData ? getProcessActionContext(processoData) : null;
 
   if (processoError) {
     return (
