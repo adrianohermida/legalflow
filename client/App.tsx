@@ -973,6 +973,12 @@ export default function App() {
 
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
+      const currentPath = window.location.pathname;
+      // Auto-set demo mode for dev pages to enable debugging
+      if (currentPath.includes('dev-auditoria') || currentPath.includes('dev/auditoria')) {
+        localStorage.setItem("auth-mode", "demo");
+        return "demo";
+      }
       return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
     } catch (error) {
       console.warn("Failed to read localStorage:", error);
