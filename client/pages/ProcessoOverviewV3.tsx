@@ -509,7 +509,7 @@ export default function ProcessoOverviewV3() {
                     Criado em
                   </span>
                   <span className="text-sm" style={{ color: colors.neutral[600] }}>
-                    {processoData ? formatDate(processoData.created_at) : "N/A"}
+                    {processoData ? formatDateDisplay(processoData.created_at) : "N/A"}
                   </span>
                 </div>
               </CardContent>
