@@ -310,6 +310,14 @@ CREATE TABLE IF NOT EXISTS legalflow.conversation_properties (
               <Trash2 className="w-4 h-4 mr-2" />
               Limpar Testes
             </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowInstallation(!showInstallation)}
+            >
+              <Database className="w-4 h-4 mr-2" />
+              {showInstallation ? "Ocultar" : "Baixar"} Schema
+            </Button>
           </div>
 
           {setupResult && (
