@@ -221,8 +221,7 @@ router.get("/:cnj/publicacoes", async (req, res, next) => {
       return res.error("CNJ inválido", 400);
     }
 
-    const { publicacoesApi } = await import("../../../client/lib/api");
-    const publicacoes = await publicacoesApi.getByProcesso(cnj);
+    const publicacoes = await mockPublicacoesApi.getByProcesso(cnj);
 
     res.success(publicacoes, "Publicações encontradas com sucesso");
   } catch (error) {
