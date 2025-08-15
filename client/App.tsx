@@ -379,6 +379,14 @@ function DemoAppRoutes() {
         }
       />
       <Route
+        path="/documentos-c6"
+        element={
+          <DemoProtectedRoute userType="advogado">
+            <DocumentosC6 />
+          </DemoProtectedRoute>
+        }
+      />
+      <Route
         path="/financeiro"
         element={
           <DemoProtectedRoute userType="advogado">
