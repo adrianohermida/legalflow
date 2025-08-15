@@ -117,24 +117,8 @@ export function Header({
             )}
           </Button>
 
-          {/* Notifications */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onNotificationToggle}
-            className="relative text-neutral-600 hover:text-neutral-900"
-            title="Notificações"
-          >
-            <Bell className="w-5 h-5" />
-            {notificationCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs font-medium"
-              >
-                {notificationCount > 9 ? "9+" : notificationCount}
-              </Badge>
-            )}
-          </Button>
+          {/* System Notifications */}
+          <SystemNotifications />
 
           {/* User Menu */}
           <DropdownMenu>
