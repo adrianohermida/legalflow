@@ -8,7 +8,11 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 // Import middleware
-import { standardizeResponse, errorHandler, notFound } from "./middleware/response";
+import {
+  standardizeResponse,
+  errorHandler,
+  notFound,
+} from "./middleware/response";
 
 // Import route modules
 import { handleDemo } from "./routes/demo";
@@ -18,7 +22,7 @@ export function createServer() {
   const app = express();
 
   // Trust proxy for Fly.dev environment
-  app.set('trust proxy', true);
+  app.set("trust proxy", true);
 
   // Security middleware
   app.use(helmet());
@@ -42,10 +46,12 @@ export function createServer() {
   }
 
   // Basic middleware
-  app.use(cors({
-    origin: process.env.CORS_ORIGIN || "*",
-    credentials: true,
-  }));
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || "*",
+      credentials: true,
+    }),
+  );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -53,23 +59,29 @@ export function createServer() {
   app.use(standardizeResponse());
 
   // API Routes
-  
+
   // Health check
   app.get("/api/health", (req, res) => {
-    res.success({
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || "1.0.0",
-      environment: process.env.NODE_ENV || "development",
-      uptime: process.uptime(),
-    }, "Sistema funcionando corretamente");
+    res.success(
+      {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || "1.0.0",
+        environment: process.env.NODE_ENV || "development",
+        uptime: process.uptime(),
+      },
+      "Sistema funcionando corretamente",
+    );
   });
 
   // Debug page
   app.get("/debug", (req, res) => {
     try {
-      const debugHtml = readFileSync(join(process.cwd(), 'debug-app.html'), 'utf8');
-      res.set('Content-Type', 'text/html');
+      const debugHtml = readFileSync(
+        join(process.cwd(), "debug-app.html"),
+        "utf8",
+      );
+      res.set("Content-Type", "text/html");
       res.send(debugHtml);
     } catch (error) {
       res.error("Debug page not found", 404);
@@ -79,8 +91,11 @@ export function createServer() {
   // React debug page
   app.get("/debug-react", (req, res) => {
     try {
-      const debugHtml = readFileSync(join(process.cwd(), 'debug-simple.html'), 'utf8');
-      res.set('Content-Type', 'text/html');
+      const debugHtml = readFileSync(
+        join(process.cwd(), "debug-simple.html"),
+        "utf8",
+      );
+      res.set("Content-Type", "text/html");
       res.send(debugHtml);
     } catch (error) {
       res.error("React debug page not found", 404);
@@ -90,8 +105,11 @@ export function createServer() {
   // Basic test page
   app.get("/basic", (req, res) => {
     try {
-      const basicHtml = readFileSync(join(process.cwd(), 'test-basic.html'), 'utf8');
-      res.set('Content-Type', 'text/html');
+      const basicHtml = readFileSync(
+        join(process.cwd(), "test-basic.html"),
+        "utf8",
+      );
+      res.set("Content-Type", "text/html");
       res.send(basicHtml);
     } catch (error) {
       res.error("Basic test page not found", 404);
@@ -101,8 +119,11 @@ export function createServer() {
   // Dashboard page
   app.get("/dashboard", (req, res) => {
     try {
-      const dashboardHtml = readFileSync(join(process.cwd(), 'dashboard.html'), 'utf8');
-      res.set('Content-Type', 'text/html');
+      const dashboardHtml = readFileSync(
+        join(process.cwd(), "dashboard.html"),
+        "utf8",
+      );
+      res.set("Content-Type", "text/html");
       res.send(dashboardHtml);
     } catch (error) {
       res.error("Dashboard page not found", 404);
@@ -111,7 +132,7 @@ export function createServer() {
 
   // Simple test page
   app.get("/test", (req, res) => {
-    res.set('Content-Type', 'text/html');
+    res.set("Content-Type", "text/html");
     res.send(`
       <!DOCTYPE html>
       <html>
@@ -156,8 +177,11 @@ export function createServer() {
   // Serve fallback page when React app doesn't load
   app.get("/fallback", (req, res) => {
     try {
-      const fallbackHtml = readFileSync(join(process.cwd(), 'public/fallback.html'), 'utf8');
-      res.set('Content-Type', 'text/html');
+      const fallbackHtml = readFileSync(
+        join(process.cwd(), "public/fallback.html"),
+        "utf8",
+      );
+      res.set("Content-Type", "text/html");
       res.send(fallbackHtml);
     } catch (error) {
       res.error("Fallback page not found", 404);

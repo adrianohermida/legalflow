@@ -3,104 +3,118 @@ import { createRoot } from "react-dom/client";
 
 function UltraSimpleApp() {
   return (
-    <div style={{
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center"
-    }}>
-      <div style={{
-        background: "white",
-        padding: "40px",
-        borderRadius: "20px",
-        textAlign: "center" as const,
-        boxShadow: "0 20px 60px rgba(0, 0, 0, 0.1)",
-        maxWidth: "600px"
-      }}>
-        <h1 style={{
-          background: "linear-gradient(135deg, #667eea, #764ba2)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          fontSize: "2.5rem",
-          fontWeight: "700",
-          marginBottom: "1rem"
-        }}>
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          padding: "40px",
+          borderRadius: "20px",
+          textAlign: "center" as const,
+          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.1)",
+          maxWidth: "600px",
+        }}
+      >
+        <h1
+          style={{
+            background: "linear-gradient(135deg, #667eea, #764ba2)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontSize: "2.5rem",
+            fontWeight: "700",
+            marginBottom: "1rem",
+          }}
+        >
           ✅ LegalFlow React
         </h1>
-        
-        <div style={{
-          background: "#d4edda",
-          color: "#155724",
-          padding: "20px",
-          borderRadius: "10px",
-          marginBottom: "20px"
-        }}>
+
+        <div
+          style={{
+            background: "#d4edda",
+            color: "#155724",
+            padding: "20px",
+            borderRadius: "10px",
+            marginBottom: "20px",
+          }}
+        >
           <h2 style={{ margin: "0 0 10px 0" }}>🎉 React Funcionando!</h2>
           <p style={{ margin: 0 }}>
             Ultra-simple React app carregado com sucesso!
           </p>
         </div>
 
-        <div style={{
-          display: "flex",
-          gap: "10px",
-          justifyContent: "center",
-          flexWrap: "wrap" as const,
-          marginBottom: "20px"
-        }}>
-          <button 
-            onClick={() => window.location.href = '/basic'}
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            justifyContent: "center",
+            flexWrap: "wrap" as const,
+            marginBottom: "20px",
+          }}
+        >
+          <button
+            onClick={() => (window.location.href = "/basic")}
             style={{
               background: "#007bff",
               color: "white",
               border: "none",
               padding: "10px 20px",
               borderRadius: "8px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             📄 Página Básica
           </button>
-          <button 
-            onClick={() => window.location.href = '/test'}
+          <button
+            onClick={() => (window.location.href = "/test")}
             style={{
               background: "#28a745",
               color: "white",
               border: "none",
               padding: "10px 20px",
               borderRadius: "8px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             🔧 Teste Servidor
           </button>
-          <button 
-            onClick={() => alert('React funcionando! 🎉')}
+          <button
+            onClick={() => alert("React funcionando! 🎉")}
             style={{
               background: "#17a2b8",
               color: "white",
               border: "none",
               padding: "10px 20px",
               borderRadius: "8px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             🧪 Testar React
           </button>
         </div>
 
-        <div style={{
-          background: "#f8f9fa",
-          padding: "15px",
-          borderRadius: "8px",
-          fontSize: "0.9rem",
-          color: "#6c757d"
-        }}>
-          <strong>Status:</strong> React Ultra-Simple funcionando<br />
-          <strong>Carregado:</strong> {new Date().toISOString()}<br />
+        <div
+          style={{
+            background: "#f8f9fa",
+            padding: "15px",
+            borderRadius: "8px",
+            fontSize: "0.9rem",
+            color: "#6c757d",
+          }}
+        >
+          <strong>Status:</strong> React Ultra-Simple funcionando
+          <br />
+          <strong>Carregado:</strong> {new Date().toISOString()}
+          <br />
           <strong>Environment:</strong> Builder.io + Fly.dev
         </div>
       </div>
