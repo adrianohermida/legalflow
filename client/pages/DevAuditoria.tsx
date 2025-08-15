@@ -1516,6 +1516,11 @@ const DevAuditoria: React.FC = () => {
         <TabsContent value="sf6">
           <SF6AutomationSetup />
         </TabsContent>
+
+        {/* SF-2 Processos Chat Multi-thread Setup Tab */}
+        <TabsContent value="sf2">
+          <SF2ProcessosSetup />
+        </TabsContent>
       </Tabs>
     </div>
   );
