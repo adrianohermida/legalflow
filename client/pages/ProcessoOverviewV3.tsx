@@ -205,16 +205,8 @@ export default function ProcessoOverviewV3() {
 
   const addPublicacaoMutation = useMutation({
     mutationFn: async (conteudo: string) => {
-      const { data, error } = await supabase
-        .from("publicacoes")
-        .insert([{
-          numero_cnj,
-          data: { resumo: conteudo, tipo: "publicacao_manual" },
-          data_publicacao: new Date().toISOString(),
-        }]);
-
-      if (error) throw error;
-      return data;
+      if (!numero_cnj) throw new Error("CNJ não informado");
+      return createPublicacao(numero_cnj, conteudo);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["timeline-recente", numero_cnj] });
