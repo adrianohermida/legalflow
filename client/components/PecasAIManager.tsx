@@ -447,7 +447,7 @@ export function PecasAIManager({ searchTerm = "", selectedCNJ }: PecasAIManagerP
                       )}
                     </div>
 
-                    <div className="text-sm text-gray-600 mb-3 line-clamp-3">
+                    <div className="text-sm text-gray-600 mb-3 overflow-hidden">
                       {peca.conteudo?.substring(0, 200)}...
                     </div>
 
