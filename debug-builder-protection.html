@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>🛡️ LegalFlow - Debug Builder.io Protection</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00ff41; 
+            padding: 20px; 
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #00ff41;
+            border-radius: 5px;
+        }
+        .error { border-left-color: #ff4444; color: #ff6666; }
+        .warning { border-left-color: #ffaa00; color: #ffbb33; }
+        .success { border-left-color: #00ff41; color: #66ff66; }
+        .info { border-left-color: #4488ff; color: #66aaff; }
+        h1 { 
+            color: #00ff41; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            text-shadow: 0 0 10px #00ff41;
+        }
+        h2 { 
+            color: #66ff66; 
+            margin: 20px 0 10px 0; 
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 5px;
+        }
+        button {
+            background: linear-gradient(135deg, #00ff41, #00cc33);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px 5px;
+            font-weight: 700;
+            font-family: inherit;
+        }
+        button:hover { 
+            box-shadow: 0 0 15px #00ff41; 
+        }
+        .code-block {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .green { background: #00ff41; }
+        .red { background: #ff4444; }
+        .yellow { background: #ffaa00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Builder.io Protection Debugger</h1>
+        
+        <h2>📊 Sistema de Proteção</h2>
+        <div id="protection-status"></div>
+        
+        <h2>🔍 Detecção de Problemas</h2>
+        <div id="detection-results"></div>
+        
+        <h2>📝 Histórico de Reloads</h2>
+        <div id="reload-history"></div>
+        
+        <h2>🌐 Ambiente</h2>
+        <div id="environment-info"></div>
+        
+        <h2>📋 Conteúdo da Página</h2>
+        <div id="page-content"></div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="runFullDiagnostic()">🔧 Executar Diagnóstico Completo</button>
+            <button onclick="clearReloadHistory()">🧹 Limpar Histórico</button>
+            <button onclick="testProtection()">🧪 Testar Proteção</button>
+            <button onclick="window.location.href='/'">🏠 Voltar ao App</button>
+        </div>
+    </div>
+
+    <script>
+        function addSection(containerId, title, content, type = 'info') {
+            const container = document.getElementById(containerId);
+            const section = document.createElement('div');
+            section.className = `section ${type}`;
+            section.innerHTML = `
+                <span class="status-indicator ${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}"></span>
+                <strong>${title}</strong><br>${content}
+            `;
+            container.appendChild(section);
+        }
+        
+        function addCodeBlock(containerId, title, code) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <strong>${title}:</strong>
+                <div class="code-block">${code}</div>
+            `;
+            container.appendChild(div);
+        }
+        
+        function runFullDiagnostic() {
+            // Clear previous results
+            ['protection-status', 'detection-results', 'reload-history', 'environment-info', 'page-content'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+            
+            console.log('🔧 Running full Builder.io protection diagnostic...');
+            
+            // 1. Protection System Status
+            let reloadAttempts = 0;
+            try {
+                const storedAttempts = sessionStorage.getItem('builderReloadAttempts');
+                reloadAttempts = storedAttempts ? parseInt(storedAttempts, 10) : 0;
+            } catch (e) {
+                addSection('protection-status', 'SessionStorage Error', `Cannot read reload attempts: ${e.message}`, 'warning');
+            }
+            
+            addSection('protection-status', 'Reload Attempts', `${reloadAttempts}/2 tentativas utilizadas`, reloadAttempts >= 2 ? 'error' : 'success');
+            addSection('protection-status', 'Protection Status', reloadAttempts >= 2 ? 'DISABLED (Max attempts reached)' : 'ACTIVE', reloadAttempts >= 2 ? 'warning' : 'success');
+            
+            // 2. Problem Detection
+            const bodyText = document.body.textContent || '';
+            const problematicStrings = [
+                'export default function MyComponent(props) { return <></>;',
+                'export default function MyComponent(props) {\\n  return <></>;\\n}',
+                'function MyComponent(props)',
+                'return <></>;'
+            ];
+            
+            let detectedIssues = [];
+            problematicStrings.forEach(str => {
+                if (bodyText.includes(str)) {
+                    detectedIssues.push(str);
+                }
+            });
+            
+            if (detectedIssues.length > 0) {
+                addSection('detection-results', 'PROBLEMAS DETECTADOS', `${detectedIssues.length} problemas encontrados`, 'error');
+                detectedIssues.forEach(issue => {
+                    addCodeBlock('detection-results', 'Código Problemático', issue);
+                });
+            } else {
+                addSection('detection-results', 'Scan de Problemas', 'Nenhum código problemático detectado', 'success');
+            }
+            
+            // 3. Reload History
+            const currentTime = new Date().toLocaleString('pt-BR');
+            addSection('reload-history', 'Timestamp Atual', currentTime, 'info');
+            addSection('reload-history', 'Reload Attempts', `${reloadAttempts} reloads executados`, 'info');
+            
+            if (reloadAttempts > 0) {
+                addSection('reload-history', 'Última Ação', 'Sistema executou reload devido a problema detectado', 'warning');
+            } else {
+                addSection('reload-history', 'Histórico Limpo', 'Nenhum reload forçado executado', 'success');
+            }
+            
+            // 4. Environment
+            const hostname = window.location.hostname;
+            const isBuilder = hostname.includes('builder.codes') || hostname.includes('fly.dev') || hostname.includes('builder.io');
+            
+            addSection('environment-info', 'Hostname', hostname, 'info');
+            addSection('environment-info', 'Environment Type', isBuilder ? 'PRODUCTION (Builder.io/Fly.dev)' : 'DEVELOPMENT', isBuilder ? 'success' : 'warning');
+            addSection('environment-info', 'Protection Required', isBuilder ? 'YES' : 'NO', 'info');
+            
+            // 5. Page Content Analysis
+            const htmlLength = document.documentElement.outerHTML.length;
+            const bodyLength = bodyText.length;
+            
+            addSection('page-content', 'HTML Size', `${htmlLength} characters`, 'info');
+            addSection('page-content', 'Body Text Size', `${bodyLength} characters`, 'info');
+            
+            // Check for React
+            if (typeof React !== 'undefined') {
+                addSection('page-content', 'React Status', `React ${React.version} loaded`, 'success');
+            } else {
+                addSection('page-content', 'React Status', 'React not available', 'error');
+            }
+            
+            // Sample of page content
+            const contentSample = bodyText.slice(0, 500) + (bodyText.length > 500 ? '...' : '');
+            addCodeBlock('page-content', 'Content Sample (first 500 chars)', contentSample);
+            
+            console.log('✅ Diagnostic complete');
+        }
+        
+        function clearReloadHistory() {
+            try {
+                sessionStorage.removeItem('builderReloadAttempts');
+                addSection('reload-history', 'History Cleared', 'Reload attempts counter reset', 'success');
+                
+                // Refresh diagnostic
+                setTimeout(runFullDiagnostic, 500);
+            } catch (e) {
+                addSection('reload-history', 'Clear Failed', `Error: ${e.message}`, 'error');
+            }
+        }
+        
+        function testProtection() {
+            addSection('detection-results', 'Testing Protection', 'Simulating protection check...', 'warning');
+            
+            // Simulate the protection function
+            const bodyText = document.body.textContent || '';
+            const exactProblematicStrings = [
+                'export default function MyComponent(props) { return <></>;',
+                'export default function MyComponent(props) {\\n  return <></>;\\n}'
+            ];
+            
+            let hasExactProblem = false;
+            for (const exactString of exactProblematicStrings) {
+                if (bodyText.includes(exactString)) {
+                    hasExactProblem = true;
+                    break;
+                }
+            }
+            
+            if (hasExactProblem) {
+                addSection('detection-results', 'Protection Test Result', 'WOULD TRIGGER RELOAD - Exact problematic code found', 'error');
+            } else {
+                addSection('detection-results', 'Protection Test Result', 'NO ACTION NEEDED - No exact problematic code found', 'success');
+            }
+        }
+        
+        // Auto-run diagnostic on load
+        window.onload = () => {
+            console.log('🛡️ Builder.io Protection Debugger loaded');
+            setTimeout(runFullDiagnostic, 1000);
+        };
+    </script>
+</body>
+</html>

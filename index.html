@@ -40,16 +40,92 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <script>
+      // FIXED: Improved Builder.io protection without reload loops
+      let protectionActive = false;
+      let reloadAttempts = 0;
+      const MAX_RELOAD_ATTEMPTS = 2;
+      
+      function smartBuilderProtection() {
+        // Prevent multiple simultaneous checks
+        if (protectionActive) return false;
+        
+        // Don't run if we've already reloaded too many times
+        if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
+          console.log('🛡️ Builder.io protection: Max reload attempts reached, stopping');
+          return false;
+        }
+        
+        protectionActive = true;
+        
+        try {
+          const bodyText = document.body.textContent || '';
+          
+          // VERY SPECIFIC detection - only the exact problematic strings
+          const exactProblematicStrings = [
+            'export default function MyComponent(props) { return <></>;',
+            'export default function MyComponent(props) {\n  return <></>;\n}'
+          ];
+          
+          let hasExactProblem = false;
+          for (const exactString of exactProblematicStrings) {
+            if (bodyText.includes(exactString)) {
+              hasExactProblem = true;
+              console.error('🚨 EXACT Builder.io issue detected:', exactString);
+              break;
+            }
+          }
+          
+          if (hasExactProblem) {
+            reloadAttempts++;
+            console.log(`🔄 Builder.io protection: Reloading (attempt ${reloadAttempts}/${MAX_RELOAD_ATTEMPTS})`);
+            
+            // Store reload count in sessionStorage to persist across reloads
+            try {
+              sessionStorage.setItem('builderReloadAttempts', reloadAttempts.toString());
+            } catch (e) {
+              console.warn('Could not store reload attempts in sessionStorage');
+            }
+            
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+            
+            return true;
+          }
+          
+          return false;
+        } finally {
+          protectionActive = false;
+        }
+      }
+      
+      // Initialize reload attempts from sessionStorage
+      try {
+        const storedAttempts = sessionStorage.getItem('builderReloadAttempts');
+        if (storedAttempts) {
+          reloadAttempts = parseInt(storedAttempts, 10) || 0;
+        }
+      } catch (e) {
+        console.warn('Could not read reload attempts from sessionStorage');
+      }
+      
       // IMMEDIATE REACT APP INITIALIZATION
       const { createElement: h, useState, useEffect } = React;
       const { createRoot } = ReactDOM;
       
       function LegalFlowApp() {
         const [isLoading, setIsLoading] = useState(true);
-        const [authMode, setAuthMode] = useState('demo'); // Default to demo mode
+        const [authMode, setAuthMode] = useState('demo');
         
         useEffect(() => {
           console.log('🚀 LegalFlow initializing...');
+          
+          // Clear reload attempts when app loads successfully
+          try {
+            sessionStorage.removeItem('builderReloadAttempts');
+          } catch (e) {
+            // Ignore sessionStorage errors
+          }
           
           // Simple loading simulation
           setTimeout(() => {
@@ -168,7 +244,7 @@
                   fontSize: '1.2rem',
                   fontWeight: '500'
                 }
-              }, 'LegalFlow carregado com sucesso no ambiente de produção!')
+              }, 'LegalFlow carregado com sucesso sem loops de reload!')
             ),
 
             h('div', {
@@ -284,9 +360,10 @@
                 }
               },
                 '✅ React: Funcionando', h('br'),
-                '✅ Ambiente: Produção (Fly.dev)', h('br'),
+                '✅ Proteção: Inteligente (sem loops)', h('br'),
                 '✅ Interface: Carregada com sucesso', h('br'),
                 '✅ Sistema: Operacional', h('br'),
+                `✅ Tentativas de reload: ${reloadAttempts}/${MAX_RELOAD_ATTEMPTS}`, h('br'),
                 '✅ Timestamp: ' + new Date().toLocaleString('pt-BR')
               )
             ),
@@ -297,7 +374,13 @@
               }
             },
               h('button', {
-                onClick: () => window.location.reload(),
+                onClick: () => {
+                  // Clear reload attempts and reload
+                  try {
+                    sessionStorage.removeItem('builderReloadAttempts');
+                  } catch (e) {}
+                  window.location.reload();
+                },
                 style: {
                   background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   color: 'white',
@@ -310,12 +393,12 @@
                   boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)',
                   marginRight: '15px'
                 }
-              }, '🔄 Recarregar Sistema'),
+              }, '🔄 Recarregar (Limpo)'),
               
               h('button', {
                 onClick: () => {
                   const currentUrl = window.location.href;
-                  const testUrl = currentUrl + (currentUrl.endsWith('/') ? '' : '/') + 'test-restoration.html';
+                  const testUrl = currentUrl + (currentUrl.endsWith('/') ? '' : '/') + 'test-final-fix.html';
                   window.open(testUrl, '_blank');
                 },
                 style: {
@@ -358,29 +441,22 @@
         }
       }
 
-      // Builder.io protection - only activate if problematic code appears
-      function builderProtection() {
-        const bodyText = document.body.textContent || '';
-        const hasProblematicCode = bodyText.includes('export default function MyComponent(props) { return <></>;') ||
-                                   bodyText.includes('function MyComponent(props)') ||
-                                   bodyText.includes('return <></>;');
-        
-        if (hasProblematicCode) {
-          console.error('🚨 Builder.io code issue detected - reloading...');
-          setTimeout(() => window.location.reload(), 1000);
-          return true;
-        }
-        return false;
-      }
-      
-      // Monitor for Builder.io issues
+      // IMPROVED: Smart Builder.io protection with limits
       const isBuilderEnv = window.location.hostname.includes('builder.codes') || 
                            window.location.hostname.includes('fly.dev') ||
                            window.location.hostname.includes('builder.io');
       
-      if (isBuilderEnv) {
-        console.log('🏗️ Production environment detected - protection active');
-        setInterval(builderProtection, 2000); // Check every 2 seconds
+      if (isBuilderEnv && reloadAttempts < MAX_RELOAD_ATTEMPTS) {
+        console.log('🏗️ Production environment detected - smart protection active');
+        
+        // Run protection check only once after a delay
+        setTimeout(() => {
+          if (!smartBuilderProtection()) {
+            console.log('✅ Builder.io protection: No issues detected');
+          }
+        }, 3000); // Wait 3 seconds before checking
+      } else if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
+        console.log('🛡️ Builder.io protection: Disabled due to max reload attempts');
       }
     </script>
   </body>
