@@ -26,6 +26,10 @@ import {
   User,
   Building,
 } from "lucide-react";
+import { DocumentoUploaderC6 } from "../components/DocumentoUploaderC6";
+import { DocumentViewerC6 } from "../components/DocumentViewerC6";
+import { PecasAIManager } from "../components/PecasAIManager";
+import { FlipbookViewerC6 } from "../components/FlipbookViewerC6";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
