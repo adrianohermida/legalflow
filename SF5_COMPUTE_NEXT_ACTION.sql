@@ -44,8 +44,10 @@ BEGIN
   INTO v_current_stage, v_next_stage_title, v_next_stage_due_at
   FROM legalflow.stage_instances si
   JOIN legalflow.journey_template_stages jts ON si.template_stage_id = jts.id
+  LEFT JOIN legalflow.stage_types st ON jts.stage_type_id = st.id
   WHERE si.journey_instance_id = journey_id
     AND si.status IN ('pending', 'in_progress')
+    AND st.code IS NOT NULL  -- Garantir que stage_types.code está presente
   ORDER BY jts.order_index ASC
   LIMIT 1;
 
