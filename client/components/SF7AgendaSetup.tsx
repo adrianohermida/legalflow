@@ -352,23 +352,94 @@ export function SF7AgendaSetup() {
 -- Automations: Se evento veio de etapa, persistir stage_instance_id (coluna opcional)
 -- Aceite: criar/editar eventos respeitando TZ; links abrem na hora
 
--- Importe o arquivo SF7_AGENDA_SCHEMA_COMPLETE.sql do projeto ou baixe aqui
+-- IMPORTANTE: Este arquivo contém 599 linhas de código SQL.
+-- Por limitação de tamanho, apenas um preview é mostrado aqui.
+-- Baixe o arquivo completo do projeto para obter todas as funções.
 
--- IMPORTANTE: Este é um preview. Use o botão download para obter o arquivo completo.
--- O arquivo completo contém:
--- - Criação de enums (sf7_event_type, sf7_event_status, sf7_priority)
--- - Tabela eventos_agenda com timezone SP
--- - Tabelas de recorrência e participantes
--- - Indexes para performance
--- - RLS policies
--- - Triggers para auditoria
--- - 4+ funções RPC (sf7_list_eventos_periodo, sf7_create_evento_rapido, etc)
--- - Dados de teste
--- - Função de verificação sf7_verify_installation()
+-- ============================================================================
+-- PREVIEW DO CONTEÚDO (apenas início do arquivo)
+-- ============================================================================
 
--- Para instalar, execute o arquivo completo no Supabase SQL Editor.`,
+-- 1. ENUMS E TIPOS
+DO $$ BEGIN
+    CREATE TYPE legalflow.sf7_event_type AS ENUM (
+        'reuniao',
+        'audiencia',
+        'prazo',
+        'entrega',
+        'compromisso',
+        'videoconferencia',
+        'outros'
+    );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE legalflow.sf7_event_status AS ENUM (
+        'agendado',
+        'confirmado',
+        'em_andamento',
+        'realizado',
+        'cancelado',
+        'reagendado'
+    );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+-- 2. TABELA PRINCIPAL - EVENTOS_AGENDA
+CREATE TABLE IF NOT EXISTS legalflow.eventos_agenda (
+    -- IDs e Referencias
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    stage_instance_id uuid NULL, -- SF-7: Automation - eventos vindos de etapas
+    external_ref text NULL, -- CNJ, número do processo, etc.
+
+    -- Dados do Evento
+    title text NOT NULL,
+    description text NULL,
+    event_type legalflow.sf7_event_type NOT NULL DEFAULT 'reuniao',
+    priority legalflow.sf7_priority NOT NULL DEFAULT 'normal',
+    status legalflow.sf7_event_status NOT NULL DEFAULT 'agendado',
+
+    -- Timing com TZ America/Sao_Paulo
+    starts_at timestamptz NOT NULL,
+    ends_at timestamptz NULL,
+    all_day boolean DEFAULT false,
+
+    -- Localização e Links
+    location text NULL, -- Local físico ou descrição
+    video_link text NULL, -- SF-7: Link de vídeo para videoconferências
+    meeting_platform text NULL, -- Teams, Zoom, Google Meet, etc.
+
+    -- Relacionamentos
+    cliente_cpfcnpj text NULL, -- Vinculação com cliente
+    numero_cnj text NULL, -- Vinculação com processo
+    assigned_to uuid NULL, -- Responsável pelo evento
+    created_by uuid NOT NULL DEFAULT auth.uid(),
+
+    -- Auditoria
+    created_at timestamptz DEFAULT (now() AT TIME ZONE 'America/Sao_Paulo'),
+    updated_at timestamptz DEFAULT (now() AT TIME ZONE 'America/Sao_Paulo')
+);
+
+-- ... [+ 550 linhas adicionais com funções RPC, triggers, indexes, etc.]
+
+-- =====================================================
+-- CONTEÚDO COMPLETO INCLUI:
+-- =====================================================
+-- ✅ Enums completos (sf7_event_type, sf7_event_status, sf7_priority)
+-- ✅ Tabela eventos_agenda com timezone América/São_Paulo
+-- ✅ Tabelas de recorrência e participantes
+-- ✅ Indexes otimizados para performance
+-- ✅ RLS policies de segurança
+-- ✅ Triggers para auditoria e automações
+-- ✅ 4+ funções RPC (sf7_list_eventos_periodo, sf7_create_evento_rapido, etc)
+-- ✅ Dados de teste para validação
+-- ✅ Função de verificação sf7_verify_installation()
+
+-- BAIXE O ARQUIVO COMPLETO SF7_AGENDA_SCHEMA_COMPLETE.sql (599 linhas)
+-- do diretório raiz do projeto para instalação completa.`,
               title: "📅 SF-7: Schema Principal da Agenda",
-              description: "Schema completo com timezone América/São_Paulo, automações e funções RPC",
+              description: "Schema completo com timezone América/São_Paulo, automações e funções RPC (599 linhas)",
               variant: "default"
             }
           ]}
