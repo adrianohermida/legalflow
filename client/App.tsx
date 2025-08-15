@@ -75,6 +75,7 @@ import JourneysD1 from "./pages/JourneysD1";
 import JourneyDesignerD2 from "./pages/JourneyDesignerD2";
 import AuditLog from "./pages/AuditLog";
 import Examples from "./pages/Examples";
+import ApiExample from "./pages/ApiExample";
 import ContatosUnificados from "./pages/crm/ContatosUnificados";
 import LeadsConversao from "./pages/crm/LeadsConversao";
 import DealsKanban from "./pages/crm/DealsKanban";
