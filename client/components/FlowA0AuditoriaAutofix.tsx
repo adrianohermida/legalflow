@@ -93,7 +93,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'stage-types',
       name: 'Stage Types',
       description: 'Verificar stage_types.name preenchido e triggers',
-      icon: <Target className=\"h-5 w-5\" />,
+      icon: <Target className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'STAGE_TYPES_FIX',
@@ -102,7 +102,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'next-action',
       name: 'Next-Action/Trigger',
       description: 'Lógica compute_next_action e triggers funcionais',
-      icon: <Cpu className=\"h-5 w-5\" />,
+      icon: <Cpu className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'NEXT_ACTION_CORE',
@@ -111,7 +111,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'timeline-view',
       name: 'Timeline View',
       description: 'Views vw_timeline_processo e sincronização',
-      icon: <FileText className=\"h-5 w-5\" />,
+      icon: <FileText className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'TIMELINE_VIEWS',
@@ -120,7 +120,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'dedup-indices',
       name: 'Dedup Índices',
       description: 'Índices de deduplicação ux_*_cnj_date_hash',
-      icon: <Database className=\"h-5 w-5\" />,
+      icon: <Database className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'INDEX_DEDUP',
@@ -129,7 +129,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'conversation-core',
       name: 'Conversation Core',
       description: 'Sistema de conversas, threads e properties',
-      icon: <MessageSquare className=\"h-5 w-5\" />,
+      icon: <MessageSquare className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'CONVERSATION_CORE',
@@ -138,7 +138,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'api-library',
       name: 'API Library',
       description: 'Endpoints, tokens e integração externa',
-      icon: <Globe className=\"h-5 w-5\" />,
+      icon: <Globe className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'API_SEED',
@@ -147,7 +147,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'etl-ingest',
       name: 'ETL Ingest',
       description: 'Sistema de ingestão e pipeline ETL',
-      icon: <Activity className=\"h-5 w-5\" />,
+      icon: <Activity className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'ETL_INGEST',
@@ -156,7 +156,7 @@ export function FlowA0AuditoriaAutofix() {
       id: 'contacts-view',
       name: 'Contacts View',
       description: 'vw_contacts_unified e CRM integrado',
-      icon: <Users className=\"h-5 w-5\" />,
+      icon: <Users className="h-5 w-5" />,
       status: 'pending',
       checks: [],
       autofixCode: 'CONTACTS_VIEW_FIX',
@@ -298,13 +298,13 @@ export function FlowA0AuditoriaAutofix() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'ok':
-        return <CheckCircle className=\"h-4 w-4 text-success\" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'error':
-        return <XCircle className=\"h-4 w-4 text-danger\" />;
+        return <XCircle className="h-4 w-4 text-danger" />;
       case 'checking':
-        return <RefreshCw className=\"h-4 w-4 text-brand-700 animate-spin\" />;
+        return <RefreshCw className="h-4 w-4 text-brand-700 animate-spin" />;
       default:
-        return <Clock className=\"h-4 w-4 text-warn\" />;
+        return <Clock className="h-4 w-4 text-warn" />;
     }
   };
 
@@ -330,33 +330,33 @@ export function FlowA0AuditoriaAutofix() {
   };
 
   return (
-    <div className=\"space-y-6\">
+    <div className="space-y-6">
       {/* Header */}
-      <div className=\"flex items-center justify-between\">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className=\"text-2xl font-heading font-semibold text-gray-900\">
+          <h2 className="text-2xl font-heading font-semibold text-gray-900">
             Flow A0: Auditoria & Autofix
           </h2>
-          <p className=\"text-gray-600 mt-1\">
+          <p className="text-gray-600 mt-1">
             Detectar pendências e corrigir em 1 clique
           </p>
         </div>
         
-        <div className=\"flex items-center gap-3\">
+        <div className="flex items-center gap-3">
           {lastAuditTime && (
-            <span className=\"text-sm text-gray-500\">
+            <span className="text-sm text-gray-500">
               Última auditoria: {lastAuditTime.toLocaleTimeString()}
             </span>
           )}
           <Button
             onClick={executeAudit}
             disabled={isRunningAudit}
-            className=\"bg-brand-900 hover:bg-brand-700\"
+            className="bg-brand-900 hover:bg-brand-700"
           >
             {isRunningAudit ? (
-              <RefreshCw className=\"h-4 w-4 mr-2 animate-spin\" />
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <Play className=\"h-4 w-4 mr-2\" />
+              <Play className="h-4 w-4 mr-2" />
             )}
             {isRunningAudit ? 'Auditando...' : 'Executar Auditoria'}
           </Button>
@@ -364,50 +364,50 @@ export function FlowA0AuditoriaAutofix() {
       </div>
 
       {/* Summary Cards */}
-      <div className=\"grid grid-cols-4 gap-4\">
+      <div className="grid grid-cols-4 gap-4">
         <Card>
-          <CardContent className=\"p-4\">
-            <div className=\"flex items-center gap-3\">
-              <Target className=\"h-8 w-8 text-brand-700\" />
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Target className="h-8 w-8 text-brand-700" />
               <div>
-                <div className=\"text-2xl font-bold\">{stats.total}</div>
-                <div className=\"text-sm text-gray-600\">Total</div>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <div className="text-sm text-gray-600">Total</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className=\"border-green-200\">
-          <CardContent className=\"p-4\">
-            <div className=\"flex items-center gap-3\">
-              <CheckCircle className=\"h-8 w-8 text-green-600\" />
+        <Card className="border-green-200">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-8 w-8 text-green-600" />
               <div>
-                <div className=\"text-2xl font-bold text-green-600\">{stats.ok}</div>
-                <div className=\"text-sm text-gray-600\">OK</div>
+                <div className="text-2xl font-bold text-green-600">{stats.ok}</div>
+                <div className="text-sm text-gray-600">OK</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className=\"border-red-200\">
-          <CardContent className=\"p-4\">
-            <div className=\"flex items-center gap-3\">
-              <XCircle className=\"h-8 w-8 text-red-600\" />
+        <Card className="border-red-200">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <XCircle className="h-8 w-8 text-red-600" />
               <div>
-                <div className=\"text-2xl font-bold text-red-600\">{stats.error}</div>
-                <div className=\"text-sm text-gray-600\">Erro</div>
+                <div className="text-2xl font-bold text-red-600">{stats.error}</div>
+                <div className="text-sm text-gray-600">Erro</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className=\"border-yellow-200\">
-          <CardContent className=\"p-4\">
-            <div className=\"flex items-center gap-3\">
-              <AlertCircle className=\"h-8 w-8 text-yellow-600\" />
+        <Card className="border-yellow-200">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-8 w-8 text-yellow-600" />
               <div>
-                <div className=\"text-2xl font-bold text-yellow-600\">{stats.pending}</div>
-                <div className=\"text-sm text-gray-600\">Pendente</div>
+                <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+                <div className="text-sm text-gray-600">Pendente</div>
               </div>
             </div>
           </CardContent>
@@ -417,12 +417,12 @@ export function FlowA0AuditoriaAutofix() {
       {/* Progress Bar */}
       {isRunningAudit && (
         <Card>
-          <CardContent className=\"p-4\">
-            <div className=\"flex items-center justify-between mb-2\">
-              <span className=\"text-sm font-medium\">Progresso da Auditoria</span>
-              <span className=\"text-sm text-gray-600\">{Math.round(auditProgress)}%</span>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Progresso da Auditoria</span>
+              <span className="text-sm text-gray-600">{Math.round(auditProgress)}%</span>
             </div>
-            <Progress value={auditProgress} className=\"h-2\" />
+            <Progress value={auditProgress} className="h-2" />
           </CardContent>
         </Card>
       )}
@@ -430,7 +430,7 @@ export function FlowA0AuditoriaAutofix() {
       {/* Status Summary */}
       {stats.total > 0 && lastAuditTime && (
         <Alert>
-          <AlertCircle className=\"h-4 w-4\" />
+          <AlertCircle className="h-4 w-4" />
           <AlertTitle>Status da Auditoria</AlertTitle>
           <AlertDescription>
             {stats.ok} módulos OK, {stats.error} com problemas, {stats.pending} pendentes.
@@ -440,39 +440,39 @@ export function FlowA0AuditoriaAutofix() {
       )}
 
       {/* Audit Module Cards */}
-      <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4\">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {modules.map((module) => (
           <Card key={module.id} className={`${getStatusColor(module.status)} transition-all duration-200`}>
-            <CardHeader className=\"pb-3\">
-              <div className=\"flex items-center justify-between\">
-                <div className=\"flex items-center gap-2\">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   {module.icon}
-                  <CardTitle className=\"text-sm\">{module.name}</CardTitle>
+                  <CardTitle className="text-sm">{module.name}</CardTitle>
                 </div>
                 {getStatusIcon(module.status)}
               </div>
-              <CardDescription className=\"text-xs\">
+              <CardDescription className="text-xs">
                 {module.description}
               </CardDescription>
             </CardHeader>
             
-            <CardContent className=\"space-y-3\">
+            <CardContent className="space-y-3">
               {/* Status Details */}
               {module.checks.length > 0 && (
-                <div className=\"space-y-1\">
+                <div className="space-y-1">
                   {module.checks.slice(0, 2).map((check) => (
-                    <div key={check.id} className=\"flex items-center justify-between\">
-                      <span className=\"text-xs text-gray-600\">{check.name}</span>
+                    <div key={check.id} className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600">{check.name}</span>
                       <Badge
                         variant={check.status === 'ok' ? 'default' : 'destructive'}
-                        className=\"text-xs py-0 px-1\"
+                        className="text-xs py-0 px-1"
                       >
                         {check.status === 'ok' ? 'OK' : check.status === 'error' ? 'ERR' : 'PEND'}
                       </Badge>
                     </div>
                   ))}
                   {module.checks.length > 2 && (
-                    <span className=\"text-xs text-gray-500\">
+                    <span className="text-xs text-gray-500">
                       +{module.checks.length - 2} mais...
                     </span>
                   )}
@@ -481,25 +481,25 @@ export function FlowA0AuditoriaAutofix() {
 
               {/* Autofix Button */}
               <Button
-                size=\"sm\"
+                size="sm"
                 onClick={() => executeAutofix(module)}
                 disabled={runningAutofix === module.id || module.status === 'checking'}
-                className=\"w-full text-xs\"
+                className="w-full text-xs"
                 variant={module.status === 'error' ? 'default' : 'outline'}
               >
                 {runningAutofix === module.id ? (
-                  <div className=\"flex items-center gap-1\">
-                    <RefreshCw className=\"h-3 w-3 animate-spin\" />
+                  <div className="flex items-center gap-1">
+                    <RefreshCw className="h-3 w-3 animate-spin" />
                     Corrigindo...
                   </div>
                 ) : module.status === 'checking' ? (
-                  <div className=\"flex items-center gap-1\">
-                    <RefreshCw className=\"h-3 w-3 animate-spin\" />
+                  <div className="flex items-center gap-1">
+                    <RefreshCw className="h-3 w-3 animate-spin" />
                     Verificando...
                   </div>
                 ) : (
-                  <div className=\"flex items-center gap-1\">
-                    <Zap className=\"h-3 w-3\" />
+                  <div className="flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
                     {module.status === 'ok' ? 'OK' : 'Autofix'}
                   </div>
                 )}
@@ -507,7 +507,7 @@ export function FlowA0AuditoriaAutofix() {
 
               {/* Last Checked */}
               {module.lastChecked && (
-                <div className=\"text-xs text-gray-500 text-center\">
+                <div className="text-xs text-gray-500 text-center">
                   {new Date(module.lastChecked).toLocaleTimeString()}
                 </div>
               )}
@@ -519,12 +519,12 @@ export function FlowA0AuditoriaAutofix() {
       {/* Usage Instructions */}
       <Card>
         <CardHeader>
-          <CardTitle className=\"text-lg flex items-center gap-2\">
-            <Settings className=\"h-5 w-5\" />
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Settings className="h-5 w-5" />
             Flow A0 - Instruções de Uso
           </CardTitle>
         </CardHeader>
-        <CardContent className=\"space-y-2 text-sm\">
+        <CardContent className="space-y-2 text-sm">
           <p>• <strong>Executar Auditoria:</strong> Chama <code>legalflow.impl_audit()</code> para verificar todos os módulos</p>
           <p>• <strong>Autofix:</strong> Chama <code>legalflow.impl_autofix(patch_code)</code> com códigos específicos</p>
           <p>• <strong>Códigos disponíveis:</strong> STAGE_TYPES_FIX, NEXT_ACTION_CORE, TIMELINE_VIEWS, INDEX_DEDUP, CONVERSATION_CORE, API_SEED, ETL_INGEST</p>
