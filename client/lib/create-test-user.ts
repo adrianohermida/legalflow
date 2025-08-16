@@ -2,7 +2,7 @@ import { supabase, supabaseConfigured } from './supabase';
 
 export async function createConfirmedTestUser() {
   if (!supabaseConfigured) {
-    console.log('���� Skipping test user creation - Supabase not configured (using demo mode)');
+    console.log('🔧 Skipping test user creation - Supabase not configured (using demo mode)');
     return false;
   }
 
@@ -37,7 +37,7 @@ export async function createConfirmedTestUser() {
   }
 }
 
-// Auto-run in development
-if (import.meta.env.DEV) {
+// Auto-run in development only if Supabase is configured
+if (import.meta.env.DEV && supabaseConfigured) {
   createConfirmedTestUser();
 }
