@@ -1180,6 +1180,18 @@ export default function App() {
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
       const currentPath = window.location.pathname;
+
+      // Check if user is on 404 or accessing root without auth mode - force demo mode for quick access
+      if (currentPath === "/" || currentPath.includes("404")) {
+        const savedMode = localStorage.getItem("auth-mode");
+        if (!savedMode) {
+          console.log("🚀 No auth mode set, defaulting to demo for quick access");
+          localStorage.setItem("auth-mode", "demo");
+          return "demo";
+        }
+        return savedMode as "demo" | "supabase";
+      }
+
       // Auto-set demo mode for dev pages to enable debugging
       if (
         currentPath.includes("dev-auditoria") ||
@@ -1188,10 +1200,12 @@ export default function App() {
         localStorage.setItem("auth-mode", "demo");
         return "demo";
       }
+
       return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
     } catch (error) {
       console.warn("Failed to read localStorage:", error);
-      return null;
+      // Fallback to demo mode on error
+      return "demo";
     }
   });
 
