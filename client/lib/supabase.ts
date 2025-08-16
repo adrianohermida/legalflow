@@ -85,7 +85,7 @@ const createMockClient = () => {
 };
 
 // Create main client for PUBLIC schema (AdvogaAI tables) - PRESERVE EXISTING
-export const supabase = isConfigured
+export const supabase = finalIsConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
@@ -100,7 +100,7 @@ export const supabase = isConfigured
 // ===============================
 // Create client for LEGALFLOW schema (F2+ tables: jornadas, stage_types, etc.)
 // F1.0: Apenas instanciado, queries começam na F2
-export const legalflow = isConfigured
+export const legalflow = finalIsConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       db: { schema: "legalflow" },
       auth: {
