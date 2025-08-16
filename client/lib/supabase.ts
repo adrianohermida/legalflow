@@ -26,11 +26,13 @@ const createMockClient = () => {
         data: { user: null, session: null },
         error: { message: "Demo mode - no authentication required" },
       }),
-    signUp: () =>
-      Promise.resolve({
+    signUp: (credentials: any) => {
+      console.log("🔧 Mock signUp called with:", credentials?.email || "no email");
+      return Promise.resolve({
         data: { user: null, session: null },
         error: { message: "Demo mode - no authentication required" },
-      }),
+      });
+    },
     signOut: () => Promise.resolve({ error: null }),
     onAuthStateChange: () => ({
       data: { subscription: { unsubscribe: () => {} } },
