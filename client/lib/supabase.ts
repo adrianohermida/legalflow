@@ -66,6 +66,16 @@ const createMockClient = () => {
       data: { subscription: { unsubscribe: () => {} } },
       error: null,
     }),
+    // Add additional auth methods that might be called
+    refreshSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    setSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    resetPasswordForEmail: () => Promise.resolve({ data: {}, error: null }),
+    updateUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    reauthenticate: () => Promise.resolve({ data: { user: null }, error: null }),
+    // Internal methods that might be called
+    _getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    _useSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    _handleRequest: () => Promise.resolve({ data: null, error: null }),
   };
 
   const mockFrom = () => ({
