@@ -606,22 +606,6 @@ function RegularAppRoutes() {
           }
         />
         <Route
-          path="/inbox-v2"
-          element={
-            <ProtectedRoute userType="advogado">
-              <InboxLegalV2 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/inbox-sf4"
-          element={
-            <ProtectedRoute userType="advogado">
-              <InboxLegalSF4 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/agenda"
           element={
             <ProtectedRoute userType="advogado">
@@ -666,14 +650,6 @@ function RegularAppRoutes() {
           element={
             <ProtectedRoute userType="advogado">
               <Documentos />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/documentos-c6"
-          element={
-            <ProtectedRoute userType="advogado">
-              <DocumentosC6 />
             </ProtectedRoute>
           }
         />
