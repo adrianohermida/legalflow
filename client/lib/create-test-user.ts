@@ -1,6 +1,11 @@
 import { supabase, supabaseConfigured } from './supabase';
 
 export async function createConfirmedTestUser() {
+  if (!supabaseConfigured) {
+    console.log('���� Skipping test user creation - Supabase not configured (using demo mode)');
+    return false;
+  }
+
   try {
     console.log('Creating confirmed test user for development...');
     
