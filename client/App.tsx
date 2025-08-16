@@ -708,6 +708,22 @@ function RegularAppRoutes() {
           }
         />
         <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute userType="advogado">
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard-v2"
+          element={
+            <ProtectedRoute userType="advogado">
+              <DashboardV2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/processos"
           element={
             <ProtectedRoute userType="advogado">
