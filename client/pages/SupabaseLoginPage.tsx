@@ -98,7 +98,10 @@ export function SupabaseLoginPage() {
           <CardHeader>
             <CardTitle className="text-black">Fazer Login</CardTitle>
             <CardDescription>
-              Entre com suas credenciais da conta
+              {supabaseConfigured
+                ? "Entre com suas credenciais da conta"
+                : "Supabase não configurado - considere usar o modo demo"
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
