@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotas Originais - LegalFlow</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .route-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .route-link {
+            display: block;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .route-link:hover {
+            background: #2563eb;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .success { background: #e8f5e8; border-color: #22c55e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #667eea;">⚡ LegalFlow - Rotas Originais</h1>
+            <p style="color: #64748b;">Todas as páginas originais do projeto ativas</p>
+        </div>
+
+        <div class="status success">
+            <h3 style="color: #16a34a; margin: 0 0 10px 0;">✅ Limpeza Concluída</h3>
+            <ul style="color: #22c55e; margin: 0;">
+                <li>✅ Todas as páginas de teste removidas</li>
+                <li>✅ App.tsx original ativo (1.274 linhas)</li>
+                <li>✅ Todas as rotas originais funcionando</li>
+                <li>✅ Sistema pronto para preview</li>
+            </ul>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <h3>🔗 Páginas Originais do Projeto</h3>
+            <div class="routes-grid">
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">📊 Dashboard</h4>
+                    <p style="color: #64748b; font-size: 14px;">Visão geral do escritório</p>
+                    <a href="/dashboard" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">⚖️ Processos</h4>
+                    <p style="color: #64748b; font-size: 14px;">Gestão de processos jurídicos</p>
+                    <a href="/processos" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">👥 Clientes</h4>
+                    <p style="color: #64748b; font-size: 14px;">Sistema CRM completo</p>
+                    <a href="/clientes" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">🎯 Jornadas</h4>
+                    <p style="color: #64748b; font-size: 14px;">Designer de automação</p>
+                    <a href="/jornadas" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">📥 Inbox Legal</h4>
+                    <p style="color: #64748b; font-size: 14px;">Triagem de publicações</p>
+                    <a href="/inbox" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">📅 Agenda</h4>
+                    <p style="color: #64748b; font-size: 14px;">Calendário e eventos</p>
+                    <a href="/agenda" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">📄 Documentos</h4>
+                    <p style="color: #64748b; font-size: 14px;">Gestão documental</p>
+                    <a href="/documentos" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">💰 Financeiro</h4>
+                    <p style="color: #64748b; font-size: 14px;">Controle financeiro</p>
+                    <a href="/financeiro" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">📈 Relatórios</h4>
+                    <p style="color: #64748b; font-size: 14px;">Análises e métricas</p>
+                    <a href="/relatorios" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">🎧 Helpdesk</h4>
+                    <p style="color: #64748b; font-size: 14px;">Central de ajuda</p>
+                    <a href="/helpdesk" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">🛍️ Serviços</h4>
+                    <p style="color: #64748b; font-size: 14px;">Gestão de serviços</p>
+                    <a href="/servicos" class="route-link">Acessar</a>
+                </div>
+                
+                <div class="route-card">
+                    <h4 style="color: #1e293b; margin: 0 0 5px 0;">⚙️ Admin</h4>
+                    <p style="color: #64748b; font-size: 14px;">Configurações</p>
+                    <a href="/admin/integrity" class="route-link">Acessar</a>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 1.1rem;">
+                🏠 Acessar LegalFlow Completo
+            </a>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ Páginas de teste removidas, apenas originais mantidas');
+        console.log('🚀 Sistema LegalFlow pronto para preview');
+    </script>
+</body>
+</html>
