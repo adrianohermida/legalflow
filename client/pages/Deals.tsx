@@ -74,7 +74,7 @@ const stages = [
   { value: "perdido", label: "Perdido", color: "destructive" },
 ];
 
-export function Deals() {
+export default function Deals() {
   const [viewMode, setViewMode] = useState<"kanban" | "grid">("kanban");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
