@@ -78,11 +78,8 @@ function DemoProtectedRoute({
   const { user, isLoading, logout } = useDemoAuth();
   const [showOABModal, setShowOABModal] = useState(false);
 
-  // Allow direct access to dev pages for debugging
-  const currentPath = window.location.pathname;
-  const isDevPage =
-    currentPath.includes("dev-auditoria") ||
-    currentPath.includes("dev/auditoria");
+  // No dev pages available
+  const isDevPage = false;
 
   useEffect(() => {
     if (user && !user.oab && userType === "advogado") {
