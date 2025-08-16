@@ -1,17 +1,8 @@
-// BUILDER.IO EMERGENCY FIX - COMPLETE REMOVAL
+// BUILDER.IO EMERGENCY FIX - DISABLED REDIRECT
 // This file exists only to prevent Builder.io from generating placeholder code
 
-// Immediate redirect in Builder.io environment
-if (typeof window !== 'undefined') {
-  const isBuilderEnv = window.location.hostname.includes('builder.codes') || 
-                       window.location.hostname.includes('fly.dev') ||
-                       window.location.hostname.includes('builder.io');
-  
-  if (isBuilderEnv) {
-    console.log('🚨 Builder.io environment detected - redirecting immediately');
-    window.location.replace(window.location.origin + '/');
-  }
-}
+// Redirect disabled to allow LegalFlow app to load properly
+console.log('ℹ️ MyComponent loaded - redirect disabled for LegalFlow');
 
 // Return absolutely nothing to prevent any text rendering
 const MyComponent = () => null;
