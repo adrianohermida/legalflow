@@ -119,8 +119,27 @@ const createMockClient = () => {
   return {
     auth: mockAuth,
     from: mockFrom,
-    schema: () => ({ from: mockFrom }),
+    schema: () => ({
+      from: mockFrom,
+      rpc: () => Promise.resolve({ data: null, error: null }),
+    }),
     rpc: () => Promise.resolve({ data: null, error: null }),
+    storage: {
+      from: () => ({
+        upload: () => Promise.resolve({ data: null, error: null }),
+        download: () => Promise.resolve({ data: null, error: null }),
+        list: () => Promise.resolve({ data: [], error: null }),
+        remove: () => Promise.resolve({ data: [], error: null }),
+      })
+    },
+    channel: () => ({
+      on: () => ({ subscribe: () => {} }),
+      subscribe: () => {},
+      unsubscribe: () => {},
+    }),
+    removeChannel: () => {},
+    removeAllChannels: () => {},
+    getChannels: () => [],
   };
 };
 
