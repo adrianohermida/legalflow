@@ -68,6 +68,32 @@ export function SupabaseLoginPage() {
           </p>
         </div>
 
+        {!supabaseConfigured && (
+          <Alert className="mb-6 border-amber-200 bg-amber-50">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800">
+              <strong>Supabase não configurado.</strong> As credenciais do banco de dados não estão definidas.
+              <div className="mt-3 flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={switchToDemo}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  🎯 Usar Modo Demo
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open('/auth-diagnosis.html', '_blank')}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  Mais Detalhes
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Card className="border-gray-200">
           <CardHeader>
             <CardTitle className="text-black">Fazer Login</CardTitle>
