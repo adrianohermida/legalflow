@@ -19,7 +19,7 @@ export function BuilderDebugger() {
         `${window.location.protocol}//${window.location.host}/api/health`,
         `${window.location.protocol}//${window.location.host}/api/v1`
       ],
-      reactStatus: !!window.React || !!document.querySelector('#root [data-react-loaded]'),
+      reactStatus: !!window.React || !!document.querySelector('#root[data-react-loaded]') || !!document.querySelector('[data-react-loaded]'),
       builderContext: {
         userAgent: navigator.userAgent.slice(0, 60),
         url: window.location.href,
