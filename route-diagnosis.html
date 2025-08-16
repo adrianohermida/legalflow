@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Diagnosis - LegalFlow</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .success { background: #e8f5e8; border-color: #4caf50; }
+        .error { background: #ffebee; border-color: #f44336; }
+        .warning { background: #fff3e0; border-color: #ff9800; }
+        .info { background: #e3f2fd; border-color: #2196f3; }
+        .route-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .route-card {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .test-link {
+            display: block;
+            padding: 8px 12px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .test-link:hover { background: #2563eb; }
+        .test-link.error { background: #f44336; }
+        .test-link.success { background: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Route Diagnosis - LegalFlow</h1>
+        
+        <div class="status success">
+            <h3>✅ Fix Applied</h3>
+            <p>Added missing route variations for InboxLegal:</p>
+            <ul>
+                <li>✅ <code>/inbox</code> (existing)</li>
+                <li>✅ <code>/InboxLegal</code> (newly added)</li>
+                <li>✅ <code>/inbox-legal</code> (newly added)</li>
+            </ul>
+        </div>
+
+        <div class="status info">
+            <h3>🧪 Test All Route Variations</h3>
+            <div class="route-grid" id="route-grid">
+                <!-- Routes will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="status" id="diagnosis-result">
+            <h3>📋 Diagnosis in Progress...</h3>
+            <p>Testing routes...</p>
+        </div>
+    </div>
+
+    <script>
+        const routes = [
+            { path: '/inbox', name: 'Inbox (original)', expected: true },
+            { path: '/InboxLegal', name: 'InboxLegal (fixed)', expected: true },
+            { path: '/inbox-legal', name: 'inbox-legal (kebab)', expected: true },
+            { path: '/dashboard', name: 'Dashboard', expected: true },
+            { path: '/processos', name: 'Processos', expected: true },
+            { path: '/clientes', name: 'Clientes', expected: true },
+            { path: '/jornadas', name: 'Jornadas', expected: true },
+            { path: '/agenda', name: 'Agenda', expected: true },
+            { path: '/documentos', name: 'Documentos', expected: true },
+            { path: '/financeiro', name: 'Financeiro', expected: true }
+        ];
+
+        const routeGrid = document.getElementById('route-grid');
+        const diagnosisResult = document.getElementById('diagnosis-result');
+
+        // Create route cards
+        routes.forEach(route => {
+            const card = document.createElement('div');
+            card.className = 'route-card';
+            card.innerHTML = `
+                <h4 style="margin: 0 0 8px 0; color: #1e293b;">${route.name}</h4>
+                <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 3px; font-size: 12px;">${route.path}</code>
+                <a href="${route.path}" class="test-link" id="link-${route.path.replace('/', '')}" target="_blank">
+                    Test Route
+                </a>
+                <div style="margin-top: 8px; font-size: 12px;" id="status-${route.path.replace('/', '')}">
+                    Testing...
+                </div>
+            `;
+            routeGrid.appendChild(card);
+        });
+
+        // Test routes
+        async function testRoutes() {
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (const route of routes) {
+                const linkId = `link-${route.path.replace('/', '')}`;
+                const statusId = `status-${route.path.replace('/', '')}`;
+                const linkElement = document.getElementById(linkId);
+                const statusElement = document.getElementById(statusId);
+                
+                try {
+                    const response = await fetch(route.path, { method: 'HEAD' });
+                    
+                    if (response.ok) {
+                        linkElement.className = 'test-link success';
+                        linkElement.textContent = '✅ Working';
+                        statusElement.textContent = '✅ OK';
+                        statusElement.style.color = '#16a34a';
+                        successCount++;
+                    } else {
+                        linkElement.className = 'test-link error';
+                        linkElement.textContent = `❌ ${response.status}`;
+                        statusElement.textContent = `❌ ${response.status}`;
+                        statusElement.style.color = '#dc2626';
+                        errorCount++;
+                    }
+                } catch (error) {
+                    linkElement.className = 'test-link error';
+                    linkElement.textContent = '❌ Error';
+                    statusElement.textContent = '❌ Network Error';
+                    statusElement.style.color = '#dc2626';
+                    errorCount++;
+                }
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            // Update diagnosis result
+            if (errorCount === 0) {
+                diagnosisResult.className = 'status success';
+                diagnosisResult.innerHTML = `
+                    <h3>✅ All Routes Working!</h3>
+                    <p>All ${successCount} routes are responding correctly. The InboxLegal route issue has been fixed.</p>
+                `;
+            } else {
+                diagnosisResult.className = 'status warning';
+                diagnosisResult.innerHTML = `
+                    <h3>⚠️ Some Issues Found</h3>
+                    <p>✅ ${successCount} routes working, ❌ ${errorCount} routes with issues</p>
+                `;
+            }
+        }
+
+        // Start testing
+        testRoutes();
+
+        console.log('🔍 Route diagnosis started');
+    </script>
+</body>
+</html>
