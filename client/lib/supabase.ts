@@ -52,13 +52,18 @@ export const legalflow = isConfigured
         detectSessionInUrl: true,
       },
     })
-  : createClient("https://dummy.supabase.co", "dummy-key", {
+  : createClient("https://placeholder.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NzYwMDAsImV4cCI6MTg0NDM0MjQwMH0.placeholder", {
       db: { schema: "legalflow" },
       auth: {
         autoRefreshToken: false,
         persistSession: false,
         detectSessionInUrl: false,
       },
+      global: {
+        headers: {
+          'X-Client-Info': 'legalflow-demo'
+        }
+      }
     });
 
 // Alternative approach: Use schema() method on main client
