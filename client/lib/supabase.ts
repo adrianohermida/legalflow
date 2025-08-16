@@ -5,26 +5,40 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if environment variables are properly configured
+// More strict detection - all conditions must be true for real Supabase
 const isConfigured =
   supabaseUrl &&
   supabaseAnonKey &&
-  !supabaseUrl.includes("your-project") &&
-  !supabaseUrl.includes("your-supabase") &&
-  !supabaseAnonKey.includes("your-anon") &&
-  !supabaseAnonKey.includes("your-supabase") &&
   supabaseUrl.startsWith("https://") &&
   supabaseUrl.includes(".supabase.co") &&
+  !supabaseUrl.includes("your-project") &&
+  !supabaseUrl.includes("your-supabase") &&
+  !supabaseUrl.includes("example") &&
+  !supabaseAnonKey.includes("your-anon") &&
+  !supabaseAnonKey.includes("your-supabase") &&
+  !supabaseAnonKey.includes("example") &&
   supabaseAnonKey.length > 50;
+
+// Force demo mode if any placeholder values detected
+const hasPlaceholders =
+  !supabaseUrl ||
+  !supabaseAnonKey ||
+  supabaseUrl.includes("your-") ||
+  supabaseUrl.includes("example") ||
+  supabaseAnonKey.includes("your-") ||
+  supabaseAnonKey.includes("example") ||
+  !supabaseUrl.startsWith("https://") ||
+  supabaseAnonKey.length <= 50;
+
+const finalIsConfigured = isConfigured && !hasPlaceholders;
 
 // Debug Supabase configuration
 console.log("🔧 Supabase Configuration Debug:");
 console.log(`   URL: ${supabaseUrl}`);
-console.log(`   Key: ${supabaseAnonKey?.substring(0, 20)}...`);
-console.log(`   isConfigured: ${isConfigured}`);
-console.log(`   URL checks: starts with https: ${supabaseUrl?.startsWith("https://")}, contains .supabase.co: ${supabaseUrl?.includes(".supabase.co")}`);
-console.log(`   URL excludes placeholders: !your-project: ${!supabaseUrl?.includes("your-project")}, !your-supabase: ${!supabaseUrl?.includes("your-supabase")}`);
-console.log(`   Key checks: length > 50: ${supabaseAnonKey?.length > 50}, !your-anon: ${!supabaseAnonKey?.includes("your-anon")}`);
-console.log(`   Using: ${isConfigured ? "Real Supabase Client" : "Mock Client"}`);
+console.log(`   Key length: ${supabaseAnonKey?.length} chars`);
+console.log(`   Has placeholders: ${hasPlaceholders}`);
+console.log(`   Final isConfigured: ${finalIsConfigured}`);
+console.log(`   Using: ${finalIsConfigured ? "Real Supabase Client" : "Mock Client"}`);
 console.log("---");
 
 // Mock Supabase client for demo mode that doesn't make network requests
