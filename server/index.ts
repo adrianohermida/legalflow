@@ -18,8 +18,38 @@ import {
 import { handleDemo } from "./routes/demo";
 import v1Router from "./routes/v1";
 
-export function createServer() {
+// Import vault and security
+import { initializeVault, getSecretOrEnv } from "./lib/vault";
+import {
+  securityLogger,
+  configureSecurityFromVault,
+  initializeDefaultSecrets
+} from "./middleware/security";
+
+export async function createServer() {
   const app = express();
+
+  // Initialize vault system
+  try {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (supabaseUrl && supabaseServiceKey) {
+      initializeVault({
+        supabaseUrl,
+        supabaseServiceKey
+      });
+
+      // Initialize default secrets
+      await initializeDefaultSecrets();
+
+      console.log('✅ Vault inicializado com sucesso');
+    } else {
+      console.warn('⚠️ Vault não inicializado - credenciais Supabase não encontradas');
+    }
+  } catch (error) {
+    console.error('❌ Erro ao inicializar vault:', error);
+  }
 
   // Trust proxy for Fly.dev environment
   app.set("trust proxy", true);
@@ -54,6 +84,10 @@ export function createServer() {
   );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  // Security middleware
+  app.use(securityLogger);
+  app.use(configureSecurityFromVault);
 
   // Custom response middleware
   app.use(standardizeResponse());
