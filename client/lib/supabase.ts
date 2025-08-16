@@ -116,7 +116,7 @@ export const legalflow = finalIsConfigured
 export const lf = supabase.schema("legalflow");
 
 // Export configuration status
-export const supabaseConfigured = isConfigured;
+export const supabaseConfigured = finalIsConfigured;
 
 // Database types - PUBLIC SCHEMA (AdvogaAI) - PRESERVE EXISTING
 export interface PublicDatabase {
