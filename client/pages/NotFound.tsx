@@ -48,6 +48,12 @@ const NotFound = () => {
   }, [location.pathname, navigate]);
 
   const handleImmediateRedirect = () => {
+    // Clear timer and navigate immediately
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setCountdown(0);
     navigate("/", { replace: true });
   };
 
