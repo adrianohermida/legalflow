@@ -657,15 +657,7 @@ function RegularAppRoutes() {
           path="/tickets"
           element={
             <ProtectedRoute userType="advogado">
-              <TicketsC7 />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/activities"
-          element={
-            <ProtectedRoute userType="advogado">
-              <ActivitiesC8 />
+              <Tickets />
             </ProtectedRoute>
           }
         />
@@ -673,7 +665,7 @@ function RegularAppRoutes() {
           path="/deals"
           element={
             <ProtectedRoute userType="advogado">
-              <DealsC9 />
+              <Deals />
             </ProtectedRoute>
           }
         />
