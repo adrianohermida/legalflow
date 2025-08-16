@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Diagnosis - LegalFlow</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid;
+        }
+        .error { background: #fee; border-color: #dc2626; }
+        .warning { background: #fffbeb; border-color: #f59e0b; }
+        .success { background: #e8f5e8; border-color: #22c55e; }
+        .info { background: #e3f2fd; border-color: #2196f3; }
+        .fix-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #22c55e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            margin: 5px;
+        }
+        .fix-btn:hover { background: #16a34a; }
+        .fix-btn.demo { background: #3b82f6; }
+        .fix-btn.demo:hover { background: #2563eb; }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #dc2626; font-size: 2.5rem; margin-bottom: 10px;">🔐 Auth Diagnosis</h1>
+            <p style="color: #64748b; font-size: 1.2rem;">Problemas de autenticação identificados</p>
+        </div>
+
+        <div class="status error">
+            <h3 style="color: #dc2626; margin: 0 0 15px 0;">❌ Problema Identificado</h3>
+            <p style="color: #b91c1c; margin: 0;">
+                <strong>Supabase não configurado:</strong> As variáveis de ambiente <code>VITE_SUPABASE_URL</code> e 
+                <code>VITE_SUPABASE_ANON_KEY</code> estão com valores placeholder no arquivo <code>.env</code>
+            </p>
+        </div>
+
+        <div class="status warning">
+            <h3 style="color: #d97706; margin: 0 0 15px 0;">⚠️ Sintomas Observados</h3>
+            <ul style="color: #92400e; margin: 0;">
+                <li>Login travado em "Entrando..." indefinidamente</li>
+                <li>Botão desabilitado no formulário de login</li>
+                <li>Supabase client criado com URLs dummy</li>
+                <li>AuthContext detecta que Supabase não está configurado</li>
+            </ul>
+        </div>
+
+        <div class="status info">
+            <h3 style="color: #1976d2; margin: 0 0 15px 0;">🔧 Soluções Disponíveis</h3>
+            <div style="color: #1565c0;">
+                <p><strong>Opção 1: Usar Modo Demo (Recomendado)</strong></p>
+                <p>O LegalFlow tem um sistema de autenticação demo que funciona sem Supabase.</p>
+                
+                <p style="margin-top: 20px;"><strong>Opção 2: Configurar Supabase</strong></p>
+                <p>Configure as credenciais reais do Supabase no arquivo .env</p>
+            </div>
+        </div>
+
+        <div class="status success">
+            <h3 style="color: #16a34a; margin: 0 0 15px 0;">✅ Correções Automáticas</h3>
+            <div style="text-align: center;">
+                <a href="#" onclick="switchToDemo()" class="fix-btn demo">
+                    🎯 Ativar Modo Demo
+                </a>
+                <a href="#" onclick="resetAuth()" class="fix-btn">
+                    🔄 Reset Autenticação
+                </a>
+                <a href="/" class="fix-btn">
+                    🏠 Voltar ao App
+                </a>
+            </div>
+        </div>
+
+        <div class="status info">
+            <h3 style="color: #1976d2; margin: 0 0 15px 0;">📋 Detalhes Técnicos</h3>
+            <div style="color: #1565c0; font-size: 14px;">
+                <p><strong>Arquivo:</strong> <code>.env</code></p>
+                <p><strong>Valores atuais:</strong></p>
+                <code>VITE_SUPABASE_URL=your-project-url.supabase.co</code><br>
+                <code>VITE_SUPABASE_ANON_KEY=your-anon-key</code>
+                
+                <p style="margin-top: 15px;"><strong>Status:</strong></p>
+                <ul>
+                    <li><code>supabaseConfigured</code>: false</li>
+                    <li><code>AuthContext</code>: Detecta configuração inválida</li>
+                    <li><code>login()</code>: Falha com erro de configuração</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="background: #e8f5e8; padding: 25px; border-radius: 12px; margin-top: 30px; border: 2px solid #22c55e; text-align: center;">
+            <h3 style="color: #16a34a; margin: 0 0 15px 0;">💡 Recomendação</h3>
+            <p style="color: #22c55e; margin: 0; font-size: 1.1rem;">
+                <strong>Use o Modo Demo</strong> para testar o LegalFlow completamente.<br>
+                O modo demo inclui dados de exemplo e todas as funcionalidades ativas.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function switchToDemo() {
+            console.log('🎯 Switching to Demo mode...');
+            localStorage.setItem('auth-mode', 'demo');
+            alert('Modo Demo ativado! Redirecionando...');
+            window.location.href = '/';
+        }
+        
+        function resetAuth() {
+            console.log('🔄 Resetting auth...');
+            localStorage.removeItem('auth-mode');
+            localStorage.clear();
+            alert('Autenticação resetada! Redirecionando...');
+            window.location.href = '/';
+        }
+        
+        console.log('🔍 Auth diagnosis loaded');
+        console.log('❌ Supabase not configured - placeholder values detected');
+        console.log('💡 Recommend switching to demo mode');
+    </script>
+</body>
+</html>
