@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, supabaseConfigured } from './supabase';
 
 export async function createConfirmedTestUser() {
   try {
