@@ -408,6 +408,94 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
+        <Route
+          path="/audit-log"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <AuditLog />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/dev/tools"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <DevTools />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/dev/auditoria"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <DevAuditoria />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/dev-auditoria"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <DevAuditoria />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/qa"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <QAConsole />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/status"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <StatusDashboard />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/config/flags"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <FeatureFlags />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/integrity"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <AdminIntegrity />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/launch"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <LaunchPlan />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/examples"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <Examples />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/api-example"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <ApiExample />
+            </DemoProtectedRoute>
+          }
+        />
         {/* Financial routes */}
         <Route
           path="/financeiro"
