@@ -206,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     if (!supabaseConfigured) {
       throw new Error(
-        "Supabase não está configurado. Configure as credenciais do banco de dados.",
+        "Supabase não está configurado. Use o modo Demo para acesso imediato.",
       );
     }
 
@@ -224,10 +224,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Handle specific error types
       if (
         error.message?.includes("Failed to fetch") ||
-        error.name?.includes("AuthRetryableFetchError")
+        error.message?.includes("NetworkError") ||
+        error.name?.includes("AuthRetryableFetchError") ||
+        error.name?.includes("TypeError")
       ) {
         throw new Error(
-          "Erro de conexão com o banco de dados. Verifique se as credenciais do Supabase estão configuradas corretamente.",
+          "Erro de conexão. Supabase não configurado ou indisponível. Use o modo Demo.",
         );
       }
 
