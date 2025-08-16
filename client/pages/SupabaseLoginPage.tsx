@@ -148,9 +148,9 @@ export function SupabaseLoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-black hover:bg-gray-800 text-white"
-                disabled={isLoading}
+                disabled={isLoading || !supabaseConfigured}
               >
-                {isLoading ? "Entrando..." : "Fazer Login"}
+                {isLoading ? "Entrando..." : !supabaseConfigured ? "Supabase não configurado" : "Fazer Login"}
               </Button>
 
               <div className="flex items-center justify-between text-sm">
