@@ -217,12 +217,12 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
-        {/* Consolidated process routes */}
+        {/* Process routes - Original */}
         <Route
           path="/processos"
           element={
             <DemoProtectedRoute userType="advogado">
-              <ProcessosV2 />
+              <Processos />
             </DemoProtectedRoute>
           }
         />
@@ -230,7 +230,7 @@ function DemoAppRoutes() {
           path="/processos/:numero_cnj"
           element={
             <DemoProtectedRoute userType="advogado">
-              <ProcessoDetailV2 />
+              <ProcessoDetail />
             </DemoProtectedRoute>
           }
         />
@@ -238,7 +238,7 @@ function DemoAppRoutes() {
           path="/processos/:numero_cnj/overview"
           element={
             <DemoProtectedRoute userType="advogado">
-              <ProcessoOverviewV3 />
+              <ProcessoOverview />
             </DemoProtectedRoute>
           }
         />
@@ -246,7 +246,7 @@ function DemoAppRoutes() {
           path="/processos/new"
           element={
             <DemoProtectedRoute userType="advogado">
-              <ProcessoDetailV2 />
+              <ProcessoDetail />
             </DemoProtectedRoute>
           }
         />
