@@ -79,11 +79,41 @@ const createMockClient = () => {
   };
 
   const mockFrom = () => ({
-    select: () => ({ data: [], error: null }),
-    insert: () => ({ data: [], error: null }),
-    update: () => ({ data: [], error: null }),
-    delete: () => ({ data: [], error: null }),
-    upsert: () => ({ data: [], error: null }),
+    select: () => ({
+      data: [],
+      error: null,
+      count: 0,
+      status: 200,
+      statusText: "OK"
+    }),
+    insert: () => ({
+      data: [],
+      error: null,
+      count: 0,
+      status: 201,
+      statusText: "Created"
+    }),
+    update: () => ({
+      data: [],
+      error: null,
+      count: 0,
+      status: 200,
+      statusText: "OK"
+    }),
+    delete: () => ({
+      data: [],
+      error: null,
+      count: 0,
+      status: 204,
+      statusText: "No Content"
+    }),
+    upsert: () => ({
+      data: [],
+      error: null,
+      count: 0,
+      status: 201,
+      statusText: "Created"
+    }),
   });
 
   return {
