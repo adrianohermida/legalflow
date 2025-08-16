@@ -27,6 +27,53 @@ import {
 // Real data queries will be implemented here
 // TODO: Replace with actual database queries
 
+// Mock data for dashboard stats
+const mockStats = {
+  totalProcessos: 127,
+  processosAtivos: 89,
+  prazosEstaSemanana: 12,
+  altoRisco: 3,
+  novosClientes: 15,
+  jornadasAtivas: 23,
+  tarefasPendentes: 8,
+};
+
+// Mock data for recent activity
+const mockRecentActivity = [
+  {
+    id: 1,
+    title: "Novo processo adicionado",
+    description: "Processo 1234567-89.2024.8.19.0001 cadastrado",
+    time: "há 2 horas",
+    icon: FileText,
+    color: "text-brand-600",
+  },
+  {
+    id: 2,
+    title: "Cliente atualizado",
+    description: "João Silva - dados atualizados",
+    time: "há 4 horas",
+    icon: Users,
+    color: "text-success-600",
+  },
+  {
+    id: 3,
+    title: "Prazo aproximando",
+    description: "Contestação vence em 3 dias",
+    time: "há 6 horas",
+    icon: Clock,
+    color: "text-warning-600",
+  },
+  {
+    id: 4,
+    title: "Jornada concluída",
+    description: "Onboarding cliente finalizado",
+    time: "há 1 dia",
+    icon: CheckCircle,
+    color: "text-success-600",
+  },
+];
+
 const quickActions = [
   {
     title: "Novo Processo",
