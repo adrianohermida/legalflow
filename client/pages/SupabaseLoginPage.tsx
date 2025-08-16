@@ -12,7 +12,8 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { Scale, Mail, Lock, AlertCircle, Database } from "lucide-react";
+import { Scale, Mail, Lock, AlertCircle, Database, ExternalLink } from "lucide-react";
+import { supabaseConfigured } from "../lib/supabase";
 
 export function SupabaseLoginPage() {
   const [email, setEmail] = useState("");
@@ -43,6 +44,11 @@ export function SupabaseLoginPage() {
 
   const resetAuthMode = () => {
     localStorage.removeItem("auth-mode");
+    window.location.reload();
+  };
+
+  const switchToDemo = () => {
+    localStorage.setItem("auth-mode", "demo");
     window.location.reload();
   };
 
