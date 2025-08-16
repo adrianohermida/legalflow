@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Don't try to authenticate if Supabase is not configured
     if (!supabaseConfigured) {
+      console.log("AuthContext: Supabase not configured, skipping authentication");
       setIsLoading(false);
       return;
     }
@@ -74,7 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await loadUserData(session.user);
         }
       } catch (error: any) {
-        console.error("Auth check failed:", error.message || error);
+        console.warn("Auth check failed (expected in demo mode):", error.message || error);
+        // In demo mode, this is expected - just set loading to false
       } finally {
         setIsLoading(false);
       }
@@ -82,19 +84,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkAuth();
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await loadUserData(session.user);
-      } else {
-        setUser(null);
-      }
-      setIsLoading(false);
-    });
+    // Listen for auth changes only if configured
+    let subscription: any = null;
+    try {
+      const result = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          await loadUserData(session.user);
+        } else {
+          setUser(null);
+        }
+        setIsLoading(false);
+      });
+      subscription = result.data?.subscription;
+    } catch (error) {
+      console.warn("Auth state change listener failed (expected in demo mode):", error);
+    }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe();
+      }
+    };
   }, []);
 
   const loadUserData = async (supabaseUser: SupabaseUser) => {
