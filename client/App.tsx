@@ -341,6 +341,22 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
+        <Route
+          path="/InboxLegal"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <InboxLegal />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/inbox-legal"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <InboxLegal />
+            </DemoProtectedRoute>
+          }
+        />
         {/* Consolidated agenda routes */}
         <Route
           path="/agenda"
@@ -741,6 +757,22 @@ function RegularAppRoutes() {
         />
         <Route
           path="/inbox"
+          element={
+            <ProtectedRoute userType="advogado">
+              <InboxLegal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/InboxLegal"
+          element={
+            <ProtectedRoute userType="advogado">
+              <InboxLegal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inbox-legal"
           element={
             <ProtectedRoute userType="advogado">
               <InboxLegal />
