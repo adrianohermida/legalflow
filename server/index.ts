@@ -151,8 +151,8 @@ export async function createServer() {
     }
   });
 
-  // Legacy dashboard HTML page (moved to avoid conflicts with React Router)
-  app.get("/dashboard-legacy", (req, res) => {
+  // Dashboard page
+  app.get("/dashboard", (req, res) => {
     try {
       const dashboardHtml = readFileSync(
         join(process.cwd(), "dashboard.html"),
@@ -161,7 +161,7 @@ export async function createServer() {
       res.set("Content-Type", "text/html");
       res.send(dashboardHtml);
     } catch (error) {
-      res.error("Legacy dashboard page not found", 404);
+      res.error("Dashboard page not found", 404);
     }
   });
 
