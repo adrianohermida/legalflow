@@ -258,6 +258,14 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <DashboardV2 />
+            </DemoProtectedRoute>
+          }
+        />
         {/* Consolidated process routes */}
         <Route
           path="/processos"
