@@ -16,6 +16,17 @@ const isConfigured =
   supabaseUrl.includes(".supabase.co") &&
   supabaseAnonKey.length > 50;
 
+// Debug Supabase configuration
+console.log("🔧 Supabase Configuration Debug:");
+console.log(`   URL: ${supabaseUrl}`);
+console.log(`   Key: ${supabaseAnonKey?.substring(0, 20)}...`);
+console.log(`   isConfigured: ${isConfigured}`);
+console.log(`   URL checks: starts with https: ${supabaseUrl?.startsWith("https://")}, contains .supabase.co: ${supabaseUrl?.includes(".supabase.co")}`);
+console.log(`   URL excludes placeholders: !your-project: ${!supabaseUrl?.includes("your-project")}, !your-supabase: ${!supabaseUrl?.includes("your-supabase")}`);
+console.log(`   Key checks: length > 50: ${supabaseAnonKey?.length > 50}, !your-anon: ${!supabaseAnonKey?.includes("your-anon")}`);
+console.log(`   Using: ${isConfigured ? "Real Supabase Client" : "Mock Client"}`);
+console.log("---");
+
 // Mock Supabase client for demo mode that doesn't make network requests
 const createMockClient = () => {
   const mockAuth = {
