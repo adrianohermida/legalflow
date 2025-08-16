@@ -537,6 +537,42 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
+
+        {/* Versões alternativas do Inbox */}
+        <Route
+          path="/inbox-v2"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <InboxLegalV2 />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/inbox-sf4"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <InboxLegalSF4 />
+            </DemoProtectedRoute>
+          }
+        />
+
+        {/* Stripe Integration */}
+        <Route
+          path="/settings/stripe"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <StripeSettings />
+            </DemoProtectedRoute>
+          }
+        />
+        <Route
+          path="/financeiro/stripe"
+          element={
+            <DemoProtectedRoute userType="advogado">
+              <StripeCenter />
+            </DemoProtectedRoute>
+          }
+        />
         <Route
           path="/tickets"
           element={
