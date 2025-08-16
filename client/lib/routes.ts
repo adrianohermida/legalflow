@@ -109,13 +109,31 @@ export const LEGACY_REDIRECTS = {
   '/documento/:id': '/documentos/:id',
   '/docs': '/documentos',
   '/docs/:id': '/documentos/:id',
+
+  // Inbox variations
   '/inbox-legal': '/inbox',
+  '/InboxLegal': '/inbox',
+  '/inboxlegal': '/inbox',
+  '/inbox_legal': '/inbox',
+
+  // Other common variations
   '/agenda-legal': '/agenda',
   '/financeiro-old': '/financeiro',
   '/admin-panel': '/admin',
   '/crm-dashboard': '/crm',
   '/dashboard-analytics': '/dashboard/analytics',
   '/relatorios': '/dashboard/reports',
+
+  // Process variations
+  '/Processos': '/processos',
+  '/Clientes': '/clientes',
+  '/Dashboard': '/dashboard',
+  '/Agenda': '/agenda',
+  '/Documentos': '/documentos',
+  '/Financeiro': '/financeiro',
+  '/Jornadas': '/jornadas',
+  '/Helpdesk': '/helpdesk',
+  '/Servicos': '/servicos',
 
   // Exact path redirects
   '/': '/dashboard',
