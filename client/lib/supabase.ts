@@ -16,6 +16,33 @@ const isConfigured =
   supabaseUrl.includes(".supabase.co") &&
   supabaseAnonKey.length > 50;
 
+// Mock Supabase client for demo mode that doesn't make network requests
+const createMockClient = () => {
+  const mockAuth = {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: { message: "Demo mode - no authentication required" } }),
+    signUp: () => Promise.resolve({ data: { user: null, session: null }, error: { message: "Demo mode - no authentication required" } }),
+    signOut: () => Promise.resolve({ error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } }, error: null }),
+  };
+
+  const mockFrom = () => ({
+    select: () => ({ data: [], error: null }),
+    insert: () => ({ data: [], error: null }),
+    update: () => ({ data: [], error: null }),
+    delete: () => ({ data: [], error: null }),
+    upsert: () => ({ data: [], error: null }),
+  });
+
+  return {
+    auth: mockAuth,
+    from: mockFrom,
+    schema: () => ({ from: mockFrom }),
+    rpc: () => Promise.resolve({ data: null, error: null }),
+  };
+};
+
 // Create main client for PUBLIC schema (AdvogaAI tables) - PRESERVE EXISTING
 export const supabase = isConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
@@ -25,18 +52,7 @@ export const supabase = isConfigured
         detectSessionInUrl: true,
       },
     })
-  : createClient("https://placeholder.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NzYwMDAsImV4cCI6MTg0NDM0MjQwMH0.placeholder", {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-        detectSessionInUrl: false,
-      },
-      global: {
-        headers: {
-          'X-Client-Info': 'legalflow-demo'
-        }
-      }
-    });
+  : createMockClient() as any;
 
 // ===============================
 // F1.0 - LEGALFLOW SCHEMA CLIENT
