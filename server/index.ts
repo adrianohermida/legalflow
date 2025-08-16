@@ -17,6 +17,7 @@ import {
 // Import route modules
 import { handleDemo } from "./routes/demo";
 import v1Router from "./routes/v1";
+import vaultAdminRouter from "./routes/vault-admin";
 
 // Import vault and security
 import { initializeVault, getSecretOrEnv } from "./lib/vault";
@@ -207,6 +208,9 @@ export async function createServer() {
 
   // API v1 routes with standardized REST structure
   app.use("/api/v1", v1Router);
+
+  // Vault administration routes
+  app.use("/api/vault", vaultAdminRouter);
 
   // Serve fallback page when React app doesn't load
   app.get("/fallback", (req, res) => {
