@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Routing - LegalFlow</title>
+    <style>
+        body { 
+            font-family: system-ui; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .debug-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .status.info { background: #e3f2fd; border-color: #2196f3; }
+        .status.success { background: #e8f5e8; border-color: #4caf50; }
+        .status.warning { background: #fff3e0; border-color: #ff9800; }
+        .status.error { background: #ffebee; border-color: #f44336; }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .test-link {
+            display: block;
+            padding: 12px;
+            background: #2196f3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .test-link:hover { background: #1976d2; }
+        .test-link.error { background: #f44336; }
+        .test-link.success { background: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 Debug Sistema de Rotas LegalFlow</h1>
+        
+        <div class="status info">
+            <h3>📋 Diagnóstico do Problema</h3>
+            <p>Erro 404 reportado na rota <code>/dashboard</code>. Investigando...</p>
+        </div>
+
+        <div id="react-status" class="status info">
+            <h3>⚛️ Status do React</h3>
+            <p>Verificando se React está carregado...</p>
+        </div>
+
+        <div id="router-status" class="status info">
+            <h3>🧭 Status do React Router</h3>
+            <p>Verificando React Router...</p>
+        </div>
+
+        <div id="dom-status" class="status info">
+            <h3>🏗️ Status do DOM</h3>
+            <p>Verificando estrutura DOM...</p>
+        </div>
+
+        <div class="status">
+            <h3>🔗 Teste de Rotas</h3>
+            <div class="test-grid">
+                <a href="/" class="test-link">🏠 Home</a>
+                <a href="/dashboard" class="test-link">📊 Dashboard</a>
+                <a href="/processos" class="test-link">⚖️ Processos</a>
+                <a href="/clientes" class="test-link">👥 Clientes</a>
+                <a href="/jornadas" class="test-link">🎯 Jornadas</a>
+                <a href="/inbox" class="test-link">📥 Inbox</a>
+                <a href="/agenda" class="test-link">📅 Agenda</a>
+                <a href="/financeiro" class="test-link">💰 Financeiro</a>
+            </div>
+        </div>
+
+        <div class="status">
+            <h3>📝 Console Logs</h3>
+            <pre id="console-output">Aguardando logs...</pre>
+        </div>
+
+        <div class="status">
+            <h3>🌐 Network Info</h3>
+            <pre id="network-info">Verificando...</pre>
+        </div>
+    </div>
+
+    <script>
+        const reactStatus = document.getElementById('react-status');
+        const routerStatus = document.getElementById('router-status');
+        const domStatus = document.getElementById('dom-status');
+        const consoleOutput = document.getElementById('console-output');
+        const networkInfo = document.getElementById('network-info');
+        
+        let logs = [];
+        
+        // Capturar console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = `[${timestamp}] [${type.toUpperCase()}] ${args.join(' ')}`;
+            logs.push(message);
+            consoleOutput.textContent = logs.slice(-15).join('\n');
+            
+            if (type === 'log') originalLog(...args);
+            if (type === 'error') originalError(...args);
+            if (type === 'warn') originalWarn(...args);
+        }
+        
+        console.log = (...args) => addLog('log', ...args);
+        console.error = (...args) => addLog('error', ...args);
+        console.warn = (...args) => addLog('warn', ...args);
+        
+        console.log('🚀 Debug routing iniciado');
+        
+        // Verificar React
+        function checkReact() {
+            const isReactLoaded = typeof React !== 'undefined';
+            const isReactDOMLoaded = typeof ReactDOM !== 'undefined';
+            
+            if (isReactLoaded && isReactDOMLoaded) {
+                reactStatus.className = 'status success';
+                reactStatus.innerHTML = `
+                    <h3>✅ React Status - OK</h3>
+                    <p>React e ReactDOM carregados corretamente</p>
+                `;
+                console.log('✅ React está disponível');
+            } else {
+                reactStatus.className = 'status error';
+                reactStatus.innerHTML = `
+                    <h3>❌ React Status - ERRO</h3>
+                    <p>React: ${isReactLoaded ? 'OK' : 'NÃO ENCONTRADO'}</p>
+                    <p>ReactDOM: ${isReactDOMLoaded ? 'OK' : 'NÃO ENCONTRADO'}</p>
+                `;
+                console.error('❌ React não está carregado');
+            }
+        }
+        
+        // Verificar Router
+        function checkRouter() {
+            // Verificar se há um router ativo
+            const hasRouterInDOM = document.body.innerHTML.includes('react-router') || 
+                                   document.body.innerHTML.includes('Router');
+            
+            // Verificar se window.history está sendo usado
+            const hasHistoryAPI = typeof window.history?.pushState === 'function';
+            
+            // Verificar se há elementos React no DOM
+            const rootElement = document.getElementById('root');
+            const hasReactContent = rootElement && rootElement.children.length > 0;
+            
+            if (hasHistoryAPI && hasReactContent) {
+                routerStatus.className = 'status success';
+                routerStatus.innerHTML = `
+                    <h3>✅ Router Status - OK</h3>
+                    <p>History API disponível: ✅</p>
+                    <p>Conteúdo React no DOM: ✅</p>
+                `;
+                console.log('✅ Router parece estar funcionando');
+            } else {
+                routerStatus.className = 'status warning';
+                routerStatus.innerHTML = `
+                    <h3>⚠️ Router Status - PROBLEMAS</h3>
+                    <p>History API: ${hasHistoryAPI ? '✅' : '❌'}</p>
+                    <p>Conteúdo React: ${hasReactContent ? '✅' : '❌'}</p>
+                `;
+                console.warn('⚠️ Problemas detectados no router');
+            }
+        }
+        
+        // Verificar DOM
+        function checkDOM() {
+            const rootElement = document.getElementById('root');
+            const rootHasContent = rootElement && rootElement.children.length > 0;
+            const bodyContent = document.body.innerHTML.length;
+            
+            domStatus.innerHTML = `
+                <h3>🏗️ DOM Status</h3>
+                <p>Elemento #root: ${rootElement ? '✅ Encontrado' : '❌ Não encontrado'}</p>
+                <p>Conteúdo no #root: ${rootHasContent ? '✅ Sim' : '❌ Vazio'}</p>
+                <p>Tamanho do body: ${bodyContent} chars</p>
+                <p>URL atual: ${window.location.href}</p>
+                <p>Pathname: ${window.location.pathname}</p>
+            `;
+            
+            if (rootElement && rootHasContent) {
+                domStatus.className = 'status success';
+                console.log('✅ DOM estrutura OK');
+            } else {
+                domStatus.className = 'status error';
+                console.error('❌ Problemas na estrutura DOM');
+            }
+        }
+        
+        // Network info
+        function updateNetworkInfo() {
+            networkInfo.textContent = `
+URL: ${window.location.href}
+Protocol: ${window.location.protocol}
+Host: ${window.location.host}
+Pathname: ${window.location.pathname}
+Search: ${window.location.search}
+Hash: ${window.location.hash}
+User Agent: ${navigator.userAgent}
+            `;
+        }
+        
+        // Executar verificações
+        checkReact();
+        checkRouter();
+        checkDOM();
+        updateNetworkInfo();
+        
+        // Verificar periodicamente se o app carrega
+        let checkCount = 0;
+        const checker = setInterval(() => {
+            checkCount++;
+            checkRouter();
+            checkDOM();
+            
+            if (checkCount >= 10) {
+                clearInterval(checker);
+                console.log('🏁 Verificação periódica finalizada');
+            }
+        }, 2000);
+        
+        // Testar navegação programática
+        setTimeout(() => {
+            console.log('🧪 Testando navegação programática...');
+            
+            // Tentar navegar usando history API
+            try {
+                window.history.pushState({}, '', '/dashboard');
+                console.log('✅ History.pushState executado para /dashboard');
+                
+                // Voltar para a página atual
+                setTimeout(() => {
+                    window.history.pushState({}, '', window.location.pathname);
+                    console.log('🔄 Voltou para página atual');
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Erro na navegação programática:', error);
+            }
+        }, 3000);
+        
+        console.log('✅ Debug routing configurado');
+    </script>
+</body>
+</html>
