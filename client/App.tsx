@@ -1328,8 +1328,8 @@ export default function App() {
 
       const currentPath = window.location.pathname;
 
-      // Check if user is on 404 or accessing root without auth mode - force demo mode for quick access
-      if (currentPath === "/" || currentPath.includes("404")) {
+      // Force demo mode for dashboard access or any page without auth mode
+      if (currentPath === "/" || currentPath === "/dashboard" || currentPath.includes("404")) {
         const savedMode = localStorage.getItem("auth-mode");
         if (!savedMode) {
           console.log("🚀 No auth mode set, defaulting to demo for quick access");
