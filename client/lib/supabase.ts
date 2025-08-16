@@ -38,7 +38,9 @@ console.log(`   URL: ${supabaseUrl}`);
 console.log(`   Key length: ${supabaseAnonKey?.length} chars`);
 console.log(`   Has placeholders: ${hasPlaceholders}`);
 console.log(`   Final isConfigured: ${finalIsConfigured}`);
-console.log(`   Using: ${finalIsConfigured ? "Real Supabase Client" : "Mock Client"}`);
+console.log(
+  `   Using: ${finalIsConfigured ? "Real Supabase Client" : "Mock Client"}`,
+);
 console.log("---");
 
 // Mock Supabase client for demo mode that doesn't make network requests
@@ -67,14 +69,17 @@ const createMockClient = () => {
       error: null,
     }),
     // Add additional auth methods that might be called
-    refreshSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    refreshSession: () =>
+      Promise.resolve({ data: { session: null }, error: null }),
     setSession: () => Promise.resolve({ data: { session: null }, error: null }),
     resetPasswordForEmail: () => Promise.resolve({ data: {}, error: null }),
     updateUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    reauthenticate: () => Promise.resolve({ data: { user: null }, error: null }),
+    reauthenticate: () =>
+      Promise.resolve({ data: { user: null }, error: null }),
     // Internal methods that might be called
     _getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    _useSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    _useSession: () =>
+      Promise.resolve({ data: { session: null }, error: null }),
     _handleRequest: () => Promise.resolve({ data: null, error: null }),
   };
 
@@ -84,35 +89,35 @@ const createMockClient = () => {
       error: null,
       count: 0,
       status: 200,
-      statusText: "OK"
+      statusText: "OK",
     }),
     insert: () => ({
       data: [],
       error: null,
       count: 0,
       status: 201,
-      statusText: "Created"
+      statusText: "Created",
     }),
     update: () => ({
       data: [],
       error: null,
       count: 0,
       status: 200,
-      statusText: "OK"
+      statusText: "OK",
     }),
     delete: () => ({
       data: [],
       error: null,
       count: 0,
       status: 204,
-      statusText: "No Content"
+      statusText: "No Content",
     }),
     upsert: () => ({
       data: [],
       error: null,
       count: 0,
       status: 201,
-      statusText: "Created"
+      statusText: "Created",
     }),
   });
 
@@ -130,7 +135,7 @@ const createMockClient = () => {
         download: () => Promise.resolve({ data: null, error: null }),
         list: () => Promise.resolve({ data: [], error: null }),
         remove: () => Promise.resolve({ data: [], error: null }),
-      })
+      }),
     },
     channel: () => ({
       on: () => ({ subscribe: () => {} }),
