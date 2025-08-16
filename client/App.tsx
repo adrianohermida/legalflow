@@ -38,75 +38,26 @@ if (supabaseConfigured) {
   });
 }
 
-// Import all page components
+// Import core page components (Sistema Original)
 import { Dashboard } from "./pages/Dashboard";
-import { DashboardV2 } from "./pages/DashboardV2";
 import { Processos } from "./pages/Processos";
-import ProcessosV2 from "./pages/ProcessosV2";
 import { ProcessoOverview } from "./pages/ProcessoOverview";
 import { ProcessoDetail } from "./pages/ProcessoDetail";
-import ProcessoDetailV2 from "./pages/ProcessoDetailV2";
-import ProcessoOverviewV3 from "./pages/ProcessoOverviewV3";
 import { Clientes } from "./pages/Clientes";
 import Jornadas from "./pages/Jornadas";
 import JourneyDesignerPage from "./pages/JourneyDesigner";
 import { NovaJornada } from "./pages/NovaJornada";
 import { IniciarJornada } from "./pages/IniciarJornada";
 import { InboxLegal } from "./pages/InboxLegal";
-import InboxLegalV2 from "./pages/InboxLegalV2";
-import InboxLegalSF4 from "./pages/InboxLegalSF4";
-import InboxLegalC4 from "./pages/InboxLegalC4";
 import { Agenda } from "./pages/Agenda";
-import AgendaC5 from "./pages/AgendaC5";
 import { Financeiro } from "./pages/Financeiro";
 import Relatorios from "./pages/Relatorios";
 import { Helpdesk } from "./pages/Helpdesk";
 import { Servicos } from "./pages/Servicos";
 import { Tickets } from "./pages/Tickets";
 import { PlanosPagamento } from "./pages/PlanosPagamento";
-import QAConsole from "./pages/QAConsole";
-import StatusDashboard from "./pages/StatusDashboard";
-import FeatureFlags from "./pages/FeatureFlags";
-import DevTools from "./pages/DevTools";
-import AdminIntegrity from "./pages/AdminIntegrity";
-import DevAuditoria from "./pages/DevAuditoria";
 import Documentos from "./pages/Documentos";
-import DocumentosC6 from "./pages/DocumentosC6";
-import TicketsC7 from "./pages/TicketsC7";
-import ActivitiesC8 from "./pages/ActivitiesC8";
-import DealsC9 from "./pages/DealsC9";
-import JourneysD1 from "./pages/JourneysD1";
-import JourneyDesignerD2 from "./pages/JourneyDesignerD2";
-import AuditLog from "./pages/AuditLog";
-import Examples from "./pages/Examples";
-import ApiExample from "./pages/ApiExample";
-import ContatosUnificados from "./pages/crm/ContatosUnificados";
-import LeadsConversao from "./pages/crm/LeadsConversao";
-import DealsKanban from "./pages/crm/DealsKanban";
-import ContatoPerfil360 from "./pages/crm/ContatoPerfil360";
-import RelatoriosCRM from "./pages/crm/RelatoriosCRM";
-import LaunchPlan from "./pages/LaunchPlan";
-
-// CRM pages
-import CRMContatos from "./pages/crm/Contatos";
-import CRMLeads from "./pages/crm/Leads";
-import CRMDeals from "./pages/crm/Deals";
-import ContactProfile from "./pages/crm/ContactProfile";
-import CRMReports from "./pages/crm/Reports";
-
-// Stripe integration pages
-import StripeSettings from "./pages/StripeSettings";
-import StripeCenter from "./pages/StripeCenter";
-
-// Portal do Cliente pages
-import { PortalChat } from "./pages/portal/PortalChat";
-import { PortalJornada } from "./pages/portal/PortalJornada";
-import { PortalProcessos } from "./pages/portal/PortalProcessos";
-import { PortalCompromissos } from "./pages/portal/PortalCompromissos";
-import { PortalFinanceiro } from "./pages/portal/PortalFinanceiro";
-import { PortalHelpdesk } from "./pages/portal/PortalHelpdesk";
-import { PortalServicos } from "./pages/portal/PortalServicos";
-import { PortalCliente } from "./pages/portal/PortalCliente";
+import Deals from "./pages/Deals";
 
 import { SupabaseSetup } from "./components/SupabaseSetup";
 import { UnifiedOABSelectionModal } from "./components/UnifiedOABSelectionModal";
