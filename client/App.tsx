@@ -258,22 +258,6 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <DemoProtectedRoute userType="advogado">
-              <Dashboard />
-            </DemoProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard-v2"
-          element={
-            <DemoProtectedRoute userType="advogado">
-              <DashboardV2 />
-            </DemoProtectedRoute>
-          }
-        />
         {/* Consolidated process routes */}
         <Route
           path="/processos"
@@ -704,22 +688,6 @@ function RegularAppRoutes() {
           element={
             <ProtectedRoute userType="advogado">
               <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute userType="advogado">
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard-v2"
-          element={
-            <ProtectedRoute userType="advogado">
-              <DashboardV2 />
             </ProtectedRoute>
           }
         />
