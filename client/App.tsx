@@ -1179,6 +1179,13 @@ export default function App() {
 
   const [authMode, setAuthMode] = useState<"demo" | "supabase" | null>(() => {
     try {
+      // If Supabase is not configured, force demo mode
+      if (!supabaseConfigured) {
+        console.log("🔧 Supabase not configured, forcing demo mode");
+        localStorage.setItem("auth-mode", "demo");
+        return "demo";
+      }
+
       const currentPath = window.location.pathname;
 
       // Check if user is on 404 or accessing root without auth mode - force demo mode for quick access
