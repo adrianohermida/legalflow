@@ -338,15 +338,7 @@ function DemoAppRoutes() {
           path="/tickets"
           element={
             <DemoProtectedRoute userType="advogado">
-              <TicketsC7 />
-            </DemoProtectedRoute>
-          }
-        />
-        <Route
-          path="/activities"
-          element={
-            <DemoProtectedRoute userType="advogado">
-              <ActivitiesC8 />
+              <Tickets />
             </DemoProtectedRoute>
           }
         />
@@ -354,7 +346,7 @@ function DemoAppRoutes() {
           path="/deals"
           element={
             <DemoProtectedRoute userType="advogado">
-              <DealsC9 />
+              <Deals />
             </DemoProtectedRoute>
           }
         />
