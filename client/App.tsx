@@ -205,7 +205,7 @@ function DemoAppRoutes() {
           path="/"
           element={
             <DemoProtectedRoute userType="advogado">
-              <DashboardV2 />
+              <Dashboard />
             </DemoProtectedRoute>
           }
         />
@@ -213,7 +213,7 @@ function DemoAppRoutes() {
           path="/dashboard"
           element={
             <DemoProtectedRoute userType="advogado">
-              <DashboardV2 />
+              <Dashboard />
             </DemoProtectedRoute>
           }
         />
