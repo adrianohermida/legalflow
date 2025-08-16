@@ -98,17 +98,8 @@ function DemoProtectedRoute({
     );
   }
 
-  // For dev pages without user, create a mock user
-  const effectiveUser =
-    user ||
-    (isDevPage
-      ? {
-          id: "debug-user",
-          email: "debug@test.com",
-          name: "Debug User",
-          oab: "123456",
-        }
-      : null);
+  // Use authenticated user
+  const effectiveUser = user;
 
   if (!effectiveUser) {
     return <Navigate to="/login" replace />;
