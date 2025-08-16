@@ -27,7 +27,10 @@ const createMockClient = () => {
         error: { message: "Demo mode - no authentication required" },
       }),
     signUp: (credentials: any) => {
-      console.log("🔧 Mock signUp called with:", credentials?.email || "no email");
+      console.log(
+        "🔧 Mock signUp called with:",
+        credentials?.email || "no email",
+      );
       return Promise.resolve({
         data: { user: null, session: null },
         error: { message: "Demo mode - no authentication required" },
