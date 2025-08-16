@@ -9,7 +9,7 @@ function ProgressiveApp() {
   useEffect(() => {
     const loadNextStep = async () => {
       try {
-        switch(step) {
+        switch (step) {
           case 1:
             // Test basic UI components
             await import("./components/ui/toaster");
@@ -42,7 +42,7 @@ function ProgressiveApp() {
             console.log("✅ All components loaded successfully!");
             console.log("🔄 Redirecting to full app...");
             setTimeout(() => {
-              window.location.href = '/full-app';
+              window.location.href = "/full-app";
             }, 2000);
             break;
         }
@@ -59,45 +59,55 @@ function ProgressiveApp() {
   }, [step, error]);
 
   return (
-    <div style={{ 
-      padding: "40px", 
-      fontFamily: "system-ui",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      minHeight: "100vh",
-      color: "white"
-    }}>
-      <div style={{
-        background: "white",
-        color: "#333",
-        padding: "30px",
-        borderRadius: "15px",
-        maxWidth: "600px",
-        margin: "0 auto",
-        textAlign: "center"
-      }}>
+    <div
+      style={{
+        padding: "40px",
+        fontFamily: "system-ui",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        minHeight: "100vh",
+        color: "white",
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          color: "#333",
+          padding: "30px",
+          borderRadius: "15px",
+          maxWidth: "600px",
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
         <h1 style={{ color: "#667eea", marginBottom: "20px" }}>⚡ LegalFlow</h1>
-        <p style={{ marginBottom: "30px" }}>Diagnóstico Progressivo de Carregamento</p>
-        
+        <p style={{ marginBottom: "30px" }}>
+          Diagnóstico Progressivo de Carregamento
+        </p>
+
         {error ? (
-          <div style={{ 
-            background: "#fee", 
-            color: "#c53030", 
-            padding: "20px", 
-            borderRadius: "8px",
-            marginBottom: "20px"
-          }}>
+          <div
+            style={{
+              background: "#fee",
+              color: "#c53030",
+              padding: "20px",
+              borderRadius: "8px",
+              marginBottom: "20px",
+            }}
+          >
             <h3>❌ Erro Encontrado:</h3>
             <pre style={{ textAlign: "left", fontSize: "14px" }}>{error}</pre>
           </div>
         ) : (
           <div>
             <div style={{ marginBottom: "20px" }}>
-              <div style={{ 
-                background: "#e3f2fd", 
-                padding: "15px", 
-                borderRadius: "8px",
-                marginBottom: "15px"
-              }}>
+              <div
+                style={{
+                  background: "#e3f2fd",
+                  padding: "15px",
+                  borderRadius: "8px",
+                  marginBottom: "15px",
+                }}
+              >
                 <h3 style={{ color: "#1976d2" }}>Etapa {step} de 5</h3>
                 <div style={{ color: "#555" }}>
                   {step === 1 && "🔧 Carregando componentes UI..."}
@@ -107,30 +117,49 @@ function ProgressiveApp() {
                   {step === 5 && "🎉 Tudo carregado! Redirecionando..."}
                 </div>
               </div>
-              
-              <div style={{ 
-                background: "#f5f5f5", 
-                height: "8px", 
-                borderRadius: "4px",
-                overflow: "hidden"
-              }}>
-                <div style={{
-                  width: `${(step / 5) * 100}%`,
-                  height: "100%",
-                  background: "linear-gradient(90deg, #22c55e, #16a34a)",
-                  transition: "width 0.5s ease"
-                }}></div>
+
+              <div
+                style={{
+                  background: "#f5f5f5",
+                  height: "8px",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${(step / 5) * 100}%`,
+                    height: "100%",
+                    background: "linear-gradient(90deg, #22c55e, #16a34a)",
+                    transition: "width 0.5s ease",
+                  }}
+                ></div>
               </div>
             </div>
-            
+
             <div style={{ fontSize: "14px", color: "#666" }}>
-              ✅ Componentes React funcionando<br/>
-              ✅ TypeScript compilando<br/>
-              ✅ Vite carregando modules<br/>
+              ✅ Componentes React funcionando
+              <br />
+              ✅ TypeScript compilando
+              <br />
+              ✅ Vite carregando modules
+              <br />
               {step >= 2 && "✅ UI components OK"}
-              {step >= 3 && <><br/>✅ Auth system OK</>}
-              {step >= 4 && <><br/>✅ Main components OK</>}
-              {step >= 5 && <><br/>✅ Core pages OK</>}
+              {step >= 3 && (
+                <>
+                  <br />✅ Auth system OK
+                </>
+              )}
+              {step >= 4 && (
+                <>
+                  <br />✅ Main components OK
+                </>
+              )}
+              {step >= 5 && (
+                <>
+                  <br />✅ Core pages OK
+                </>
+              )}
             </div>
           </div>
         )}
@@ -142,8 +171,8 @@ function ProgressiveApp() {
 // Initialize React app
 const container = document.getElementById("root");
 if (container) {
-  console.log('🚀 Initializing Progressive Diagnostic App...');
+  console.log("🚀 Initializing Progressive Diagnostic App...");
   const root = createRoot(container);
   root.render(<ProgressiveApp />);
-  console.log('✅ Progressive Diagnostic App initialized');
+  console.log("✅ Progressive Diagnostic App initialized");
 }

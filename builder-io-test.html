@@ -1,358 +1,373 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🏗️ Builder.io - Teste de Verificação LegalFlow</title>
     <style>
-        body { 
-            font-family: system-ui; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: white; 
-            padding: 20px; 
-            min-height: 100vh;
-            margin: 0;
+      body {
+        font-family: system-ui;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        padding: 20px;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 40px;
+        border-radius: 25px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      }
+      .test-result {
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 12px;
+        font-weight: 500;
+        border-left: 5px solid;
+        backdrop-filter: blur(10px);
+      }
+      .success {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border-left-color: #22c55e;
+      }
+      .error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border-left-color: #ef4444;
+      }
+      .warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border-left-color: #f59e0b;
+      }
+      .info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+        border-left-color: #3b82f6;
+      }
+      h1 {
+        color: #22c55e;
+        margin-bottom: 30px;
+        text-align: center;
+        font-size: 2.8rem;
+        font-weight: 900;
+        text-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+      }
+      h2 {
+        margin: 35px 0 20px 0;
+        color: #e2e8f0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+      }
+      button {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        padding: 18px 35px;
+        border-radius: 12px;
+        cursor: pointer;
+        margin: 12px 10px;
+        font-size: 16px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+      }
+      button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+      }
+      button:disabled {
+        background: #6b7280;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .environment-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        margin: 5px;
+      }
+      .env-builder {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+      }
+      .env-dev {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+      }
+      .critical-test {
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 25px;
+        border-radius: 15px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid #ef4444;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 25px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        50% {
+          opacity: 0.8;
         }
-        .test-result {
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 12px;
-            font-weight: 500;
-            border-left: 5px solid;
-            backdrop-filter: blur(10px);
-        }
-        .success { 
-            background: rgba(34, 197, 94, 0.15); 
-            color: #22c55e; 
-            border-left-color: #22c55e;
-        }
-        .error { 
-            background: rgba(239, 68, 68, 0.15); 
-            color: #ef4444; 
-            border-left-color: #ef4444;
-        }
-        .warning { 
-            background: rgba(245, 158, 11, 0.15); 
-            color: #f59e0b; 
-            border-left-color: #f59e0b;
-        }
-        .info { 
-            background: rgba(59, 130, 246, 0.15); 
-            color: #3b82f6; 
-            border-left-color: #3b82f6;
-        }
-        h1 { 
-            color: #22c55e; 
-            margin-bottom: 30px; 
-            text-align: center;
-            font-size: 2.8rem;
-            font-weight: 900;
-            text-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
-        }
-        h2 { 
-            margin: 35px 0 20px 0; 
-            color: #e2e8f0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
-        }
-        button {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            border: none;
-            padding: 18px 35px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin: 12px 10px;
-            font-size: 16px;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
-        }
-        button:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
-        }
-        button:disabled {
-            background: #6b7280;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .environment-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            margin: 5px;
-        }
-        .env-builder { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
-        .env-dev { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-        .critical-test {
-            font-size: 1.1rem;
-            font-weight: 700;
-            padding: 25px;
-            border-radius: 15px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid #ef4444;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🏗️ Builder.io LegalFlow Verification</h1>
-        
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div id="environment-info"></div>
-        </div>
-        
-        <h2>🚨 Teste Crítico - MyComponent</h2>
-        <div id="critical-test"></div>
-        
-        <h2>🌐 Testes de Ambiente Builder.io</h2>
-        <div id="environment-tests"></div>
-        
-        <h2>⚛️ Testes de Sistema React</h2>
-        <div id="react-tests"></div>
-        
-        <h2>🔧 Verificação de Configuração</h2>
-        <div id="config-tests"></div>
-        
-        <h2>📊 Resultado da Verificação</h2>
-        <div id="final-verification"></div>
-        
-        <div style="text-align: center; margin-top: 40px;">
-            <button onclick="runBuilderIoVerification()" id="verifyBtn">🚀 Verificar Builder.io</button>
-            <button onclick="window.location.href='/'">🏠 Ir para LegalFlow</button>
-            <button onclick="window.location.reload()">🔄 Repetir Verificação</button>
-        </div>
+      <h1>🏗️ Builder.io LegalFlow Verification</h1>
+
+      <div style="text-align: center; margin-bottom: 30px">
+        <div id="environment-info"></div>
+      </div>
+
+      <h2>🚨 Teste Crítico - MyComponent</h2>
+      <div id="critical-test"></div>
+
+      <h2>🌐 Testes de Ambiente Builder.io</h2>
+      <div id="environment-tests"></div>
+
+      <h2>⚛️ Testes de Sistema React</h2>
+      <div id="react-tests"></div>
+
+      <h2>🔧 Verificação de Configuração</h2>
+      <div id="config-tests"></div>
+
+      <h2>📊 Resultado da Verificação</h2>
+      <div id="final-verification"></div>
+
+      <div style="text-align: center; margin-top: 40px">
+        <button onclick="runBuilderIoVerification()" id="verifyBtn">
+          🚀 Verificar Builder.io
+        </button>
+        <button onclick="window.location.href='/'">🏠 Ir para LegalFlow</button>
+        <button onclick="window.location.reload()">
+          🔄 Repetir Verificação
+        </button>
+      </div>
     </div>
 
     <script>
-        function addResult(containerId, message, type, important = false) {
-            const container = document.getElementById(containerId);
-            const div = document.createElement('div');
-            div.className = `test-result ${type} ${important ? 'critical-test' : ''}`;
-            div.innerHTML = message;
-            container.appendChild(div);
-        }
-        
-        function detectEnvironment() {
-            const hostname = window.location.hostname;
-            const isBuilderCodes = hostname.includes('builder.codes');
-            const isFlyDev = hostname.includes('fly.dev');
-            const isBuilderIo = hostname.includes('builder.io');
-            const isLocalhost = hostname.includes('localhost') || hostname === '127.0.0.1';
-            
-            let envType = 'unknown';
-            let envClass = 'env-dev';
-            
-            if (isBuilderCodes) {
-                envType = 'Builder.codes Production';
-                envClass = 'env-builder';
-            } else if (isFlyDev) {
-                envType = 'Fly.dev Production';
-                envClass = 'env-builder';
-            } else if (isBuilderIo) {
-                envType = 'Builder.io Production';
-                envClass = 'env-builder';
-            } else if (isLocalhost) {
-                envType = 'Development (Localhost)';
-                envClass = 'env-dev';
-            } else {
-                envType = 'Unknown Environment';
-                envClass = 'env-dev';
-            }
-            
-            document.getElementById('environment-info').innerHTML = 
-                \`<span class="environment-badge \${envClass}">\${envType}</span>\`;
-            
-            return {
-                isBuilderEnv: isBuilderCodes || isFlyDev || isBuilderIo,
-                type: envType,
-                hostname: hostname
-            };
-        }
-        
-        async function runBuilderIoVerification() {
-            const verifyBtn = document.getElementById('verifyBtn');
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = '🔄 Verificando...';
-            
-            // Clear previous results
-            ['critical-test', 'environment-tests', 'react-tests', 'config-tests', 'final-verification'].forEach(id => {
-                document.getElementById(id).innerHTML = '';
-            });
-            
-            console.log('🚀 Iniciando verificação Builder.io...');
-            
-            // Detect environment
-            const env = detectEnvironment();
-            
-            // CRITICAL TEST: Check for MyComponent code as text
-            const bodyText = document.body.textContent || '';
-            const problematicStrings = [
-                'export default function MyComponent(props) { return <></>;',
-                'export default function MyComponent',
-                'function MyComponent(props)',
-                'return <></>;',
-                'MyComponent(props)'
-            ];
-            
-            let foundProblematic = false;
-            let foundString = '';
-            
-            for (const str of problematicStrings) {
-                if (bodyText.includes(str)) {
-                    foundProblematic = true;
-                    foundString = str;
-                    break;
-                }
-            }
-            
-            if (foundProblematic) {
-                addResult('critical-test', 
-                    \`🚨 <strong>PROBLEMA CRÍTICO DETECTADO!</strong><br>\` +
-                    \`Código React aparece como texto na tela:<br>\` +
-                    \`<code style="background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px; font-family: monospace;">\${foundString}</code><br><br>\` +
-                    \`<strong>❌ O problema NÃO foi resolvido no Builder.io!</strong>\`, 
-                    'error', true);
-            } else {
-                addResult('critical-test', 
-                    \`✅ <strong>PERFEITO!</strong><br>\` +
-                    \`Nenhum código React aparece como texto na tela.<br>\` +
-                    \`<strong>🎉 Problema completamente resolvido no Builder.io!</strong>\`, 
-                    'success', true);
-            }
-            
-            // Environment tests
-            if (env.isBuilderEnv) {
-                addResult('environment-tests', 
-                    \`✅ <strong>Ambiente Builder.io detectado:</strong> \${env.type}\`, 'success');
-                addResult('environment-tests', 
-                    \`✅ <strong>Hostname correto:</strong> \${env.hostname}\`, 'success');
-                addResult('environment-tests', 
-                    \`✅ <strong>Produção:</strong> Sistema rodando em ambiente de produção\`, 'success');
-            } else {
-                addResult('environment-tests', 
-                    \`⚠️ <strong>Ambiente não é Builder.io:</strong> \${env.type}\`, 'warning');
-                addResult('environment-tests', 
-                    \`⚠️ <strong>Hostname:</strong> \${env.hostname}\`, 'warning');
-            }
-            
-            // React tests
-            if (typeof React !== 'undefined') {
-                addResult('react-tests', '✅ React disponível globalmente', 'success');
-                
-                try {
-                    const testElement = React.createElement('div', null, 'Test');
-                    if (testElement && testElement.type === 'div') {
-                        addResult('react-tests', '✅ React.createElement funcionando', 'success');
-                    }
-                } catch (e) {
-                    addResult('react-tests', \`❌ Erro em React.createElement: \${e.message}\`, 'error');
-                }
-                
-                if (React.useState) {
-                    addResult('react-tests', '✅ React Hooks disponíveis', 'success');
-                }
-            } else {
-                addResult('react-tests', '❌ React não detectado', 'error');
-            }
-            
-            // Configuration tests
-            const hasRoot = document.getElementById('root');
-            if (hasRoot) {
-                addResult('config-tests', '✅ Elemento #root presente', 'success');
-            } else {
-                addResult('config-tests', '❌ Elemento #root ausente', 'error');
-            }
-            
-            // Check if Builder.io fix system is active
-            if (bodyText.includes('BUILDER.IO PROTECTION SYSTEM ACTIVE') || 
-                bodyText.includes('BUILDER.IO FIX APPLIED')) {
-                addResult('config-tests', '✅ Sistema de proteção Builder.io ativo', 'success');
-            } else {
-                addResult('config-tests', '⚠️ Sistema de proteção não detectado', 'warning');
-            }
-            
-            // Check for LegalFlow branding
-            if (bodyText.includes('LegalFlow') && bodyText.includes('Software Jurídico')) {
-                addResult('config-tests', '✅ Interface LegalFlow funcionando', 'success');
-            } else {
-                addResult('config-tests', '❌ Interface LegalFlow não detectada', 'error');
-            }
-            
-            // Final verification
-            setTimeout(() => {
-                let statusIcon = '';
-                let statusText = '';
-                let statusType = '';
-                
-                if (!foundProblematic && env.isBuilderEnv && bodyText.includes('LegalFlow')) {
-                    statusIcon = '🎉';
-                    statusText = \`<strong style="font-size: 1.4rem;">VERIFICAÇÃO COMPLETA - SUCESSO TOTAL!</strong><br><br>\` +
-                              \`✅ Ambiente: Builder.io Production<br>\` +
-                              \`✅ Problema MyComponent: Completamente resolvido<br>\` +
-                              \`✅ Interface LegalFlow: Funcionando perfeitamente<br>\` +
-                              \`✅ Sistema: Pronto para uso em produção<br><br>\` +
-                              \`<strong style="color: #22c55e;">🚀 LegalFlow está 100% operacional no Builder.io!</strong>\`;
-                    statusType = 'success';
-                } else if (!foundProblematic && !env.isBuilderEnv) {
-                    statusIcon = '⚠️';
-                    statusText = \`<strong style="font-size: 1.4rem;">VERIFICAÇÃO PARCIAL - AMBIENTE NÃO É BUILDER.IO</strong><br><br>\` +
-                              \`✅ Problema MyComponent: Resolvido<br>\` +
-                              \`⚠️ Ambiente: \${env.type} (não é produção)<br>\` +
-                              \`✅ Interface: Funcionando<br><br>\` +
-                              \`<strong>Teste em ambiente Builder.io necessário para verificação completa.</strong>\`;
-                    statusType = 'warning';
-                } else if (foundProblematic) {
-                    statusIcon = '❌';
-                    statusText = \`<strong style="font-size: 1.4rem;">VERIFICAÇÃO FALHOU - PROBLEMA PERSISTE!</strong><br><br>\` +
-                              \`❌ Problema MyComponent: Ainda existe<br>\` +
-                              \`⚠️ Código React aparece como texto<br>\` +
-                              \`❌ Ambiente: \${env.type}<br><br>\` +
-                              \`<strong style="color: #ef4444;">🚨 Correção adicional necessária!</strong>\`;
-                    statusType = 'error';
-                }
-                
-                addResult('final-verification', \`\${statusIcon} \${statusText}\`, statusType, true);
-                
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = '✅ Verificação Concluída';
-                
-                console.log('🏁 Verificação Builder.io concluída!');
-            }, 1500);
-        }
-        
-        // Auto-detect environment on load
-        window.onload = () => {
-            detectEnvironment();
-            console.log('🏗️ Sistema de verificação Builder.io iniciado');
-            
-            // Auto-run after 3 seconds
-            setTimeout(() => {
-                console.log('🔄 Executando verificação automática...');
-                runBuilderIoVerification();
-            }, 3000);
-        };
+      function addResult(containerId, message, type, important = false) {
+          const container = document.getElementById(containerId);
+          const div = document.createElement('div');
+          div.className = `test-result ${type} ${important ? 'critical-test' : ''}`;
+          div.innerHTML = message;
+          container.appendChild(div);
+      }
+
+      function detectEnvironment() {
+          const hostname = window.location.hostname;
+          const isBuilderCodes = hostname.includes('builder.codes');
+          const isFlyDev = hostname.includes('fly.dev');
+          const isBuilderIo = hostname.includes('builder.io');
+          const isLocalhost = hostname.includes('localhost') || hostname === '127.0.0.1';
+
+          let envType = 'unknown';
+          let envClass = 'env-dev';
+
+          if (isBuilderCodes) {
+              envType = 'Builder.codes Production';
+              envClass = 'env-builder';
+          } else if (isFlyDev) {
+              envType = 'Fly.dev Production';
+              envClass = 'env-builder';
+          } else if (isBuilderIo) {
+              envType = 'Builder.io Production';
+              envClass = 'env-builder';
+          } else if (isLocalhost) {
+              envType = 'Development (Localhost)';
+              envClass = 'env-dev';
+          } else {
+              envType = 'Unknown Environment';
+              envClass = 'env-dev';
+          }
+
+          document.getElementById('environment-info').innerHTML =
+              \`<span class="environment-badge \${envClass}">\${envType}</span>\`;
+
+          return {
+              isBuilderEnv: isBuilderCodes || isFlyDev || isBuilderIo,
+              type: envType,
+              hostname: hostname
+          };
+      }
+
+      async function runBuilderIoVerification() {
+          const verifyBtn = document.getElementById('verifyBtn');
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = '🔄 Verificando...';
+
+          // Clear previous results
+          ['critical-test', 'environment-tests', 'react-tests', 'config-tests', 'final-verification'].forEach(id => {
+              document.getElementById(id).innerHTML = '';
+          });
+
+          console.log('🚀 Iniciando verificação Builder.io...');
+
+          // Detect environment
+          const env = detectEnvironment();
+
+          // CRITICAL TEST: Check for MyComponent code as text
+          const bodyText = document.body.textContent || '';
+          const problematicStrings = [
+              'export default function MyComponent(props) { return <></>;',
+              'export default function MyComponent',
+              'function MyComponent(props)',
+              'return <></>;',
+              'MyComponent(props)'
+          ];
+
+          let foundProblematic = false;
+          let foundString = '';
+
+          for (const str of problematicStrings) {
+              if (bodyText.includes(str)) {
+                  foundProblematic = true;
+                  foundString = str;
+                  break;
+              }
+          }
+
+          if (foundProblematic) {
+              addResult('critical-test',
+                  \`🚨 <strong>PROBLEMA CRÍTICO DETECTADO!</strong><br>\` +
+                  \`Código React aparece como texto na tela:<br>\` +
+                  \`<code style="background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px; font-family: monospace;">\${foundString}</code><br><br>\` +
+                  \`<strong>❌ O problema NÃO foi resolvido no Builder.io!</strong>\`,
+                  'error', true);
+          } else {
+              addResult('critical-test',
+                  \`✅ <strong>PERFEITO!</strong><br>\` +
+                  \`Nenhum código React aparece como texto na tela.<br>\` +
+                  \`<strong>🎉 Problema completamente resolvido no Builder.io!</strong>\`,
+                  'success', true);
+          }
+
+          // Environment tests
+          if (env.isBuilderEnv) {
+              addResult('environment-tests',
+                  \`✅ <strong>Ambiente Builder.io detectado:</strong> \${env.type}\`, 'success');
+              addResult('environment-tests',
+                  \`✅ <strong>Hostname correto:</strong> \${env.hostname}\`, 'success');
+              addResult('environment-tests',
+                  \`✅ <strong>Produção:</strong> Sistema rodando em ambiente de produção\`, 'success');
+          } else {
+              addResult('environment-tests',
+                  \`⚠️ <strong>Ambiente não é Builder.io:</strong> \${env.type}\`, 'warning');
+              addResult('environment-tests',
+                  \`⚠️ <strong>Hostname:</strong> \${env.hostname}\`, 'warning');
+          }
+
+          // React tests
+          if (typeof React !== 'undefined') {
+              addResult('react-tests', '✅ React disponível globalmente', 'success');
+
+              try {
+                  const testElement = React.createElement('div', null, 'Test');
+                  if (testElement && testElement.type === 'div') {
+                      addResult('react-tests', '✅ React.createElement funcionando', 'success');
+                  }
+              } catch (e) {
+                  addResult('react-tests', \`❌ Erro em React.createElement: \${e.message}\`, 'error');
+              }
+
+              if (React.useState) {
+                  addResult('react-tests', '✅ React Hooks disponíveis', 'success');
+              }
+          } else {
+              addResult('react-tests', '❌ React não detectado', 'error');
+          }
+
+          // Configuration tests
+          const hasRoot = document.getElementById('root');
+          if (hasRoot) {
+              addResult('config-tests', '✅ Elemento #root presente', 'success');
+          } else {
+              addResult('config-tests', '❌ Elemento #root ausente', 'error');
+          }
+
+          // Check if Builder.io fix system is active
+          if (bodyText.includes('BUILDER.IO PROTECTION SYSTEM ACTIVE') ||
+              bodyText.includes('BUILDER.IO FIX APPLIED')) {
+              addResult('config-tests', '✅ Sistema de proteção Builder.io ativo', 'success');
+          } else {
+              addResult('config-tests', '⚠️ Sistema de proteção não detectado', 'warning');
+          }
+
+          // Check for LegalFlow branding
+          if (bodyText.includes('LegalFlow') && bodyText.includes('Software Jurídico')) {
+              addResult('config-tests', '✅ Interface LegalFlow funcionando', 'success');
+          } else {
+              addResult('config-tests', '❌ Interface LegalFlow não detectada', 'error');
+          }
+
+          // Final verification
+          setTimeout(() => {
+              let statusIcon = '';
+              let statusText = '';
+              let statusType = '';
+
+              if (!foundProblematic && env.isBuilderEnv && bodyText.includes('LegalFlow')) {
+                  statusIcon = '🎉';
+                  statusText = \`<strong style="font-size: 1.4rem;">VERIFICAÇÃO COMPLETA - SUCESSO TOTAL!</strong><br><br>\` +
+                            \`✅ Ambiente: Builder.io Production<br>\` +
+                            \`✅ Problema MyComponent: Completamente resolvido<br>\` +
+                            \`✅ Interface LegalFlow: Funcionando perfeitamente<br>\` +
+                            \`✅ Sistema: Pronto para uso em produção<br><br>\` +
+                            \`<strong style="color: #22c55e;">🚀 LegalFlow está 100% operacional no Builder.io!</strong>\`;
+                  statusType = 'success';
+              } else if (!foundProblematic && !env.isBuilderEnv) {
+                  statusIcon = '⚠️';
+                  statusText = \`<strong style="font-size: 1.4rem;">VERIFICAÇÃO PARCIAL - AMBIENTE NÃO É BUILDER.IO</strong><br><br>\` +
+                            \`✅ Problema MyComponent: Resolvido<br>\` +
+                            \`⚠️ Ambiente: \${env.type} (não é produção)<br>\` +
+                            \`✅ Interface: Funcionando<br><br>\` +
+                            \`<strong>Teste em ambiente Builder.io necessário para verificação completa.</strong>\`;
+                  statusType = 'warning';
+              } else if (foundProblematic) {
+                  statusIcon = '❌';
+                  statusText = \`<strong style="font-size: 1.4rem;">VERIFICAÇÃO FALHOU - PROBLEMA PERSISTE!</strong><br><br>\` +
+                            \`❌ Problema MyComponent: Ainda existe<br>\` +
+                            \`⚠️ Código React aparece como texto<br>\` +
+                            \`❌ Ambiente: \${env.type}<br><br>\` +
+                            \`<strong style="color: #ef4444;">🚨 Correção adicional necessária!</strong>\`;
+                  statusType = 'error';
+              }
+
+              addResult('final-verification', \`\${statusIcon} \${statusText}\`, statusType, true);
+
+              verifyBtn.disabled = false;
+              verifyBtn.textContent = '✅ Verificação Concluída';
+
+              console.log('🏁 Verificação Builder.io concluída!');
+          }, 1500);
+      }
+
+      // Auto-detect environment on load
+      window.onload = () => {
+          detectEnvironment();
+          console.log('🏗️ Sistema de verificação Builder.io iniciado');
+
+          // Auto-run after 3 seconds
+          setTimeout(() => {
+              console.log('🔄 Executando verificação automática...');
+              runBuilderIoVerification();
+          }, 3000);
+      };
     </script>
-</body>
+  </body>
 </html>

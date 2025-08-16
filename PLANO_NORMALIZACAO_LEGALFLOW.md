@@ -1,6 +1,7 @@
 # 📋 PLANO DE NORMALIZAÇÃO LEGALFLOW
 
 ## 🎯 **OBJETIVO**
+
 Restaurar o sistema LegalFlow ao estado original conforme a imagem de referência, removendo todas as páginas e funcionalidades criadas após o bug.
 
 ---
@@ -10,6 +11,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ### **🧹 FASE 1: LIMPEZA COMPLETA DE ARQUIVOS**
 
 #### **1.1 Remover Versões Desnecessárias (V2, C4, C5, C6, C7, C8, C9)**
+
 ```bash
 # Páginas com versionamento pós-bug
 ❌ DashboardV2.tsx
@@ -29,6 +31,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **1.2 Remover Sistema CRM Completo**
+
 ```bash
 # Pasta crm/ inteira
 ❌ client/pages/crm/ContactProfile.tsx
@@ -44,6 +47,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **1.3 Remover Portal do Cliente**
+
 ```bash
 # Pasta portal/ inteira
 ❌ client/pages/portal/PortalChat.tsx
@@ -57,6 +61,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **1.4 Remover Ferramentas de Desenvolvimento**
+
 ```bash
 # Páginas técnicas/admin
 ❌ AdminIntegrity.tsx
@@ -76,6 +81,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **1.5 Remover Integrações Stripe**
+
 ```bash
 # Integrações pós-bug
 ❌ StripeSettings.tsx
@@ -83,6 +89,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **1.6 Remover Activities (Não Existia no Original)**
+
 ```bash
 ❌ Activities.tsx  # Página base que não existia
 ```
@@ -92,10 +99,11 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ### **🏗️ FASE 2: RESTAURAÇÃO DO CORE**
 
 #### **2.1 Páginas Core a Manter (Sistema Original)**
+
 ```bash
 ✅ Dashboard.tsx              # Dashboard principal original
 ✅ Processos.tsx              # Gestão de processos
-✅ Clientes.tsx               # Gestão de clientes  
+✅ Clientes.tsx               # Gestão de clientes
 ✅ Agenda.tsx                 # Calendário
 ✅ Jornadas.tsx               # Workflows
 ✅ InboxLegal.tsx             # Publicações legais
@@ -109,6 +117,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **2.2 Páginas de Autenticação (Manter)**
+
 ```bash
 ✅ DemoLoginPage.tsx
 ✅ SupabaseLoginPage.tsx
@@ -120,6 +129,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **2.3 Páginas de Gestão (Manter)**
+
 ```bash
 ✅ ProcessoDetail.tsx
 ✅ ProcessoOverview.tsx
@@ -134,6 +144,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ### **🔧 FASE 3: CORREÇÃO DO APP.TSX**
 
 #### **3.1 Limpar Imports Desnecessários**
+
 ```typescript
 // REMOVER IMPORTS DAS PÁGINAS PÓS-BUG
 ❌ import { DashboardV2 } from "./pages/DashboardV2";
@@ -157,6 +168,7 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ```
 
 #### **3.2 Simplificar Roteamento**
+
 ```typescript
 // MANTER APENAS ROTAS ORIGINAIS
 ✅ /                          → Dashboard
@@ -179,12 +191,14 @@ Restaurar o sistema LegalFlow ao estado original conforme a imagem de referênci
 ### **🎨 FASE 4: RESTAURAÇÃO DO DESIGN ORIGINAL**
 
 #### **4.1 Dashboard.tsx - Restaurar Layout Original**
+
 - **Métricas**: Total Processos, Clientes, Publicações, Tarefas
 - **Seções**: "Atividades Recentes" e "Ações Rápidas"
 - **Banner**: "Novas funcionalidades implementadas!"
 - **Design**: Verde/branco profissional (não roxo)
 
 #### **4.2 Sidebar - Configuração Original**
+
 ```typescript
 // SIDEBAR ORIGINAL (13 itens)
 const originalSidebarItems = [
@@ -199,7 +213,7 @@ const originalSidebarItems = [
   { title: "Deals", href: "/deals" },
   { title: "Relatórios", href: "/relatorios" },
   { title: "Helpdesk", href: "/helpdesk" },
-  { title: "Serviços", href: "/servicos" }
+  { title: "Serviços", href: "/servicos" },
 ];
 ```
 
@@ -208,6 +222,7 @@ const originalSidebarItems = [
 ### **🧪 FASE 5: TESTES E VALIDAÇÃO**
 
 #### **5.1 Checklist de Funcionamento**
+
 - [ ] Dashboard carrega com layout original
 - [ ] Todas as 13 páginas core acessíveis
 - [ ] Navegação entre páginas funcionando
@@ -218,6 +233,7 @@ const originalSidebarItems = [
 - [ ] Banner de funcionalidades presente
 
 #### **5.2 Verificação de Performance**
+
 - [ ] App carrega rapidamente
 - [ ] Sem imports desnecessários
 - [ ] Bundle size reduzido
@@ -229,14 +245,16 @@ const originalSidebarItems = [
 ## 📊 **RESUMO DE ARQUIVOS A PROCESSAR**
 
 ### **🗑️ ARQUIVOS A EXCLUIR (50+ arquivos)**
+
 - **17 Versões V2/C4-C9**: Todas as versões evolutivas
-- **10 Páginas CRM**: Sistema CRM completo  
+- **10 Páginas CRM**: Sistema CRM completo
 - **8 Páginas Portal**: Portal do cliente
 - **13 Ferramentas Dev**: Páginas técnicas/admin
 - **2 Integrações Stripe**: StripeSettings, StripeCenter
 - **1 Activities**: Página que não existia
 
 ### **✅ ARQUIVOS A MANTER (15 arquivos)**
+
 - **13 Páginas Core**: Sistema original funcional
 - **7 Páginas Auth**: Sistema de autenticação
 - **6 Páginas Gestão**: Funcionalidades de apoio
@@ -246,18 +264,21 @@ const originalSidebarItems = [
 ## ⚡ **BENEFÍCIOS ESPERADOS**
 
 ### **🎯 Funcionalidade**
+
 - ✅ Sistema idêntico à imagem de referência
 - ✅ Todas as funcionalidades core preservadas
 - ✅ Navegação simplificada e intuitiva
 - ✅ Sem complexidade desnecessária
 
 ### **⚡ Performance**
+
 - ✅ **76% redução** no número de arquivos
 - ✅ Bundle size drasticamente menor
 - ✅ Carregamento mais rápido
 - ✅ Menos dependências
 
 ### **🛠️ Manutenção**
+
 - ✅ Código mais limpo e organizados
 - ✅ Estrutura simples de entender
 - ✅ Menos pontos de falha
@@ -268,7 +289,7 @@ const originalSidebarItems = [
 ## 🚨 **CUIDADOS NA EXECUÇÃO**
 
 1. **Backup**: Manter checkpoint antes da execução
-2. **Ordem**: Seguir fases sequencialmente  
+2. **Ordem**: Seguir fases sequencialmente
 3. **Validação**: Testar cada fase antes da próxima
 4. **Rollback**: Ter plano de reversão se necessário
 5. **Documentação**: Registrar todas as mudanças

@@ -3,9 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import {
-  useAsyncOperation
-} from "@/hooks/useAsyncOperation";
+import { useAsyncOperation } from "@/hooks/useAsyncOperation";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 
 // Mock data types
@@ -113,7 +111,9 @@ function ProcessListExample() {
   }
 
   if (processState.error) {
-    return <ErrorState error={processState.error} onRetry={processState.execute} />;
+    return (
+      <ErrorState error={processState.error} onRetry={processState.execute} />
+    );
   }
 
   if (!processState.data || processState.data.length === 0) {
@@ -182,7 +182,9 @@ function ClientTableExample() {
   }
 
   if (clientState.error) {
-    return <ErrorState error={clientState.error} onRetry={clientState.execute} />;
+    return (
+      <ErrorState error={clientState.error} onRetry={clientState.execute} />
+    );
   }
 
   if (!clientState.data || clientState.data.length === 0) {
@@ -293,7 +295,11 @@ function FormExample() {
             </div>
           )}
 
-          <Button type="submit" disabled={submitState.isLoading} className="w-full">
+          <Button
+            type="submit"
+            disabled={submitState.isLoading}
+            className="w-full"
+          >
             {submitState.isLoading ? "Salvando..." : "Salvar"}
           </Button>
         </form>
@@ -304,10 +310,11 @@ function FormExample() {
 
 // Example 5: Manual State Control
 function ManualControlExample() {
-  const state = useAsyncOperation<string>(() => 
-    new Promise((resolve) =>
-      setTimeout(() => resolve("Dados carregados!"), 2000)
-    )
+  const state = useAsyncOperation<string>(
+    () =>
+      new Promise((resolve) =>
+        setTimeout(() => resolve("Dados carregados!"), 2000),
+      ),
   );
 
   return (
@@ -317,7 +324,8 @@ function ManualControlExample() {
           <h4 className="font-medium">Controle Manual de Estado</h4>
 
           <div className="p-3 bg-gray-50 rounded">
-            <strong>Estado atual:</strong> {state.isLoading ? "Carregando..." : state.data || "Nenhum dado"}
+            <strong>Estado atual:</strong>{" "}
+            {state.isLoading ? "Carregando..." : state.data || "Nenhum dado"}
           </div>
 
           {state.error && (
@@ -327,10 +335,7 @@ function ManualControlExample() {
           )}
 
           <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              onClick={() => state.execute()}
-            >
+            <Button size="sm" onClick={() => state.execute()}>
               Carregar Async
             </Button>
 

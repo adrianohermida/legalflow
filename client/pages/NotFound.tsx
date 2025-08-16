@@ -22,7 +22,7 @@ const NotFound = () => {
     const authMode = localStorage.getItem("auth-mode");
 
     timerRef.current = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         const newValue = prev - 1;
         if (newValue <= 0) {
           if (timerRef.current) {

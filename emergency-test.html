@@ -1,56 +1,71 @@
 <!doctype html>
 <html>
-<head>
+  <head>
     <title>Emergency Test - LegalFlow</title>
     <style>
-        body { font-family: system-ui; background: #1a1a1a; color: white; padding: 20px; }
-        .test { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .success { background: #22c55e; }
-        .error { background: #ef4444; }
-        .warning { background: #f59e0b; }
+      body {
+        font-family: system-ui;
+        background: #1a1a1a;
+        color: white;
+        padding: 20px;
+      }
+      .test {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .success {
+        background: #22c55e;
+      }
+      .error {
+        background: #ef4444;
+      }
+      .warning {
+        background: #f59e0b;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>🚨 LegalFlow Emergency Test</h1>
     <div id="results"></div>
-    
+
     <script>
-        function addResult(message, type) {
-            const div = document.createElement('div');
-            div.className = `test ${type}`;
-            div.textContent = message;
-            document.getElementById('results').appendChild(div);
-        }
-        
-        // Test 1: Check for problematic text
-        const bodyText = document.body.textContent;
-        if (bodyText.includes('export default function MyComponent')) {
-            addResult('❌ CRITICAL: MyComponent code detected as text!', 'error');
-        } else {
-            addResult('✅ No MyComponent code detected as text', 'success');
-        }
-        
-        // Test 2: Check for LegalFlow presence
-        if (bodyText.includes('LegalFlow')) {
-            addResult('✅ LegalFlow branding present', 'success');
-        } else {
-            addResult('⚠️ LegalFlow branding missing', 'warning');
-        }
-        
-        // Test 3: Check server connectivity
-        fetch('/')
-            .then(response => {
-                if (response.ok) {
-                    addResult('✅ Server responding correctly', 'success');
-                } else {
-                    addResult('⚠️ Server response: ' + response.status, 'warning');
-                }
-            })
-            .catch(err => {
-                addResult('❌ Server error: ' + err.message, 'error');
-            });
-            
-        console.log('🧪 Emergency test completed');
+      function addResult(message, type) {
+        const div = document.createElement("div");
+        div.className = `test ${type}`;
+        div.textContent = message;
+        document.getElementById("results").appendChild(div);
+      }
+
+      // Test 1: Check for problematic text
+      const bodyText = document.body.textContent;
+      if (bodyText.includes("export default function MyComponent")) {
+        addResult("❌ CRITICAL: MyComponent code detected as text!", "error");
+      } else {
+        addResult("✅ No MyComponent code detected as text", "success");
+      }
+
+      // Test 2: Check for LegalFlow presence
+      if (bodyText.includes("LegalFlow")) {
+        addResult("✅ LegalFlow branding present", "success");
+      } else {
+        addResult("⚠️ LegalFlow branding missing", "warning");
+      }
+
+      // Test 3: Check server connectivity
+      fetch("/")
+        .then((response) => {
+          if (response.ok) {
+            addResult("✅ Server responding correctly", "success");
+          } else {
+            addResult("⚠️ Server response: " + response.status, "warning");
+          }
+        })
+        .catch((err) => {
+          addResult("❌ Server error: " + err.message, "error");
+        });
+
+      console.log("🧪 Emergency test completed");
     </script>
-</body>
+  </body>
 </html>

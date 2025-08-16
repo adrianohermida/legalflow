@@ -1,272 +1,358 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LegalFlow - Test de Carregamento Completo</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: system-ui; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .test-container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 90%;
-        }
-        .test-status {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-        h1 { color: #327a5b; margin-bottom: 30px; text-align: center; }
-        h2 { color: #495057; margin: 20px 0 10px 0; }
-        button {
-            background: #327a5b;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 10px 5px;
-            font-size: 14px;
-        }
-        button:hover { background: #285e4a; }
-        .log { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 6px; 
-            font-family: monospace; 
-            white-space: pre-wrap; 
-            margin: 10px 0;
-            max-height: 200px;
-            overflow-y: auto;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .test-container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 90%;
+      }
+      .test-status {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      h1 {
+        color: #327a5b;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      h2 {
+        color: #495057;
+        margin: 20px 0 10px 0;
+      }
+      button {
+        background: #327a5b;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #285e4a;
+      }
+      .log {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin: 10px 0;
+        max-height: 200px;
+        overflow-y: auto;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="test-container">
-        <h1>🧪 LegalFlow - Teste de Carregamento</h1>
-        
-        <h2>1. Testes de Ambiente</h2>
-        <div id="env-tests"></div>
-        
-        <h2>2. Testes de React</h2>
-        <div id="react-tests"></div>
-        
-        <h2>3. Testes de API</h2>
-        <div id="api-tests"></div>
-        
-        <h2>4. Testes de Builder.io</h2>
-        <div id="builder-tests"></div>
-        
-        <h2>5. Logs do Sistema</h2>
-        <div id="system-logs" class="log"></div>
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <button onclick="runAllTests()">🚀 Executar Todos os Testes</button>
-            <button onclick="loadMainApp()">🏠 Carregar App Principal</button>
-            <button onclick="window.location.reload()">🔄 Recarregar</button>
-        </div>
+      <h1>🧪 LegalFlow - Teste de Carregamento</h1>
+
+      <h2>1. Testes de Ambiente</h2>
+      <div id="env-tests"></div>
+
+      <h2>2. Testes de React</h2>
+      <div id="react-tests"></div>
+
+      <h2>3. Testes de API</h2>
+      <div id="api-tests"></div>
+
+      <h2>4. Testes de Builder.io</h2>
+      <div id="builder-tests"></div>
+
+      <h2>5. Logs do Sistema</h2>
+      <div id="system-logs" class="log"></div>
+
+      <div style="text-align: center; margin-top: 30px">
+        <button onclick="runAllTests()">🚀 Executar Todos os Testes</button>
+        <button onclick="loadMainApp()">🏠 Carregar App Principal</button>
+        <button onclick="window.location.reload()">🔄 Recarregar</button>
+      </div>
     </div>
 
     <script>
-        let logs = [];
-        
-        function log(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            logs.push(`[${timestamp}] ${message}`);
-            updateLogs();
-            console.log(message);
+      let logs = [];
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        logs.push(`[${timestamp}] ${message}`);
+        updateLogs();
+        console.log(message);
+      }
+
+      function updateLogs() {
+        document.getElementById("system-logs").textContent = logs.join("\n");
+      }
+
+      function addStatus(containerId, message, type) {
+        const container = document.getElementById(containerId);
+        const div = document.createElement("div");
+        div.className = `test-status ${type}`;
+        div.textContent = message;
+        container.appendChild(div);
+      }
+
+      // 1. Teste de Ambiente
+      function testEnvironment() {
+        log("🔍 Iniciando testes de ambiente...");
+
+        // Verificar se está no Builder.io
+        const isBuilder =
+          window.location.hostname.includes("builder.io") ||
+          window.location.hostname.includes("fly.dev");
+
+        if (isBuilder) {
+          addStatus("env-tests", "✅ Ambiente Builder.io detectado", "success");
+          log("✅ Executando no Builder.io");
+        } else {
+          addStatus("env-tests", "⚠️ Ambiente local detectado", "warning");
+          log("⚠️ Executando localmente");
         }
-        
-        function updateLogs() {
-            document.getElementById('system-logs').textContent = logs.join('\n');
+
+        // Verificar console
+        if (typeof console !== "undefined") {
+          addStatus("env-tests", "✅ Console disponível", "success");
+        } else {
+          addStatus("env-tests", "❌ Console não disponível", "error");
         }
-        
-        function addStatus(containerId, message, type) {
-            const container = document.getElementById(containerId);
-            const div = document.createElement('div');
-            div.className = `test-status ${type}`;
-            div.textContent = message;
-            container.appendChild(div);
+
+        // Verificar DOM
+        if (document.getElementById("root")) {
+          addStatus("env-tests", "✅ Elemento #root encontrado", "success");
+        } else {
+          addStatus("env-tests", "❌ Elemento #root não encontrado", "error");
         }
-        
-        // 1. Teste de Ambiente
-        function testEnvironment() {
-            log('🔍 Iniciando testes de ambiente...');
-            
-            // Verificar se está no Builder.io
-            const isBuilder = window.location.hostname.includes('builder.io') || 
-                             window.location.hostname.includes('fly.dev');
-            
-            if (isBuilder) {
-                addStatus('env-tests', '✅ Ambiente Builder.io detectado', 'success');
-                log('✅ Executando no Builder.io');
+      }
+
+      // 2. Teste de React
+      function testReact() {
+        log("⚛️ Iniciando testes de React...");
+
+        // Tentar carregar React
+        return new Promise((resolve) => {
+          const script = document.createElement("script");
+          script.src = "https://unpkg.com/react@18/umd/react.development.js";
+          script.onload = () => {
+            if (typeof React !== "undefined") {
+              addStatus(
+                "react-tests",
+                "✅ React carregado com sucesso",
+                "success",
+              );
+              log("✅ React disponível");
+
+              // Testar createElement
+              try {
+                const element = React.createElement("div", null, "Teste");
+                addStatus(
+                  "react-tests",
+                  "✅ React.createElement funcionando",
+                  "success",
+                );
+                log("✅ React.createElement OK");
+              } catch (e) {
+                addStatus(
+                  "react-tests",
+                  "❌ Erro em React.createElement: " + e.message,
+                  "error",
+                );
+                log("❌ Erro React.createElement: " + e.message);
+              }
             } else {
-                addStatus('env-tests', '⚠️ Ambiente local detectado', 'warning');
-                log('⚠️ Executando localmente');
+              addStatus(
+                "react-tests",
+                "❌ React não pôde ser carregado",
+                "error",
+              );
+              log("❌ React não disponível");
             }
-            
-            // Verificar console
-            if (typeof console !== 'undefined') {
-                addStatus('env-tests', '✅ Console disponível', 'success');
-            } else {
-                addStatus('env-tests', '❌ Console não disponível', 'error');
-            }
-            
-            // Verificar DOM
-            if (document.getElementById('root')) {
-                addStatus('env-tests', '✅ Elemento #root encontrado', 'success');
-            } else {
-                addStatus('env-tests', '❌ Elemento #root não encontrado', 'error');
-            }
+            resolve();
+          };
+          script.onerror = () => {
+            addStatus("react-tests", "❌ Falha ao carregar React", "error");
+            log("❌ Falha ao carregar React");
+            resolve();
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      // 3. Teste de API
+      async function testAPI() {
+        log("🌐 Iniciando testes de API...");
+
+        try {
+          const response = await fetch("/api/health");
+          if (response.ok) {
+            addStatus("api-tests", "✅ API de saúde respondendo", "success");
+            log("✅ API health OK");
+          } else {
+            addStatus(
+              "api-tests",
+              "⚠️ API de saúde com problemas: " + response.status,
+              "warning",
+            );
+            log("⚠️ API health: " + response.status);
+          }
+        } catch (e) {
+          addStatus(
+            "api-tests",
+            "❌ API não disponível: " + e.message,
+            "error",
+          );
+          log("❌ API erro: " + e.message);
         }
-        
-        // 2. Teste de React
-        function testReact() {
-            log('⚛️ Iniciando testes de React...');
-            
-            // Tentar carregar React
-            return new Promise((resolve) => {
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/react@18/umd/react.development.js';
-                script.onload = () => {
-                    if (typeof React !== 'undefined') {
-                        addStatus('react-tests', '✅ React carregado com sucesso', 'success');
-                        log('✅ React disponível');
-                        
-                        // Testar createElement
-                        try {
-                            const element = React.createElement('div', null, 'Teste');
-                            addStatus('react-tests', '✅ React.createElement funcionando', 'success');
-                            log('✅ React.createElement OK');
-                        } catch (e) {
-                            addStatus('react-tests', '❌ Erro em React.createElement: ' + e.message, 'error');
-                            log('❌ Erro React.createElement: ' + e.message);
-                        }
-                    } else {
-                        addStatus('react-tests', '❌ React não pôde ser carregado', 'error');
-                        log('❌ React não disponível');
-                    }
-                    resolve();
-                };
-                script.onerror = () => {
-                    addStatus('react-tests', '❌ Falha ao carregar React', 'error');
-                    log('❌ Falha ao carregar React');
-                    resolve();
-                };
-                document.head.appendChild(script);
-            });
+
+        // Testar rota básica
+        try {
+          const response = await fetch("/");
+          if (response.ok) {
+            addStatus("api-tests", "✅ Rota raiz acessível", "success");
+            log("✅ Rota / OK");
+          } else {
+            addStatus(
+              "api-tests",
+              "⚠️ Rota raiz com problemas: " + response.status,
+              "warning",
+            );
+            log("⚠️ Rota /: " + response.status);
+          }
+        } catch (e) {
+          addStatus(
+            "api-tests",
+            "❌ Rota raiz inacessível: " + e.message,
+            "error",
+          );
+          log("❌ Rota / erro: " + e.message);
         }
-        
-        // 3. Teste de API
-        async function testAPI() {
-            log('🌐 Iniciando testes de API...');
-            
-            try {
-                const response = await fetch('/api/health');
-                if (response.ok) {
-                    addStatus('api-tests', '✅ API de saúde respondendo', 'success');
-                    log('✅ API health OK');
-                } else {
-                    addStatus('api-tests', '⚠️ API de saúde com problemas: ' + response.status, 'warning');
-                    log('⚠️ API health: ' + response.status);
-                }
-            } catch (e) {
-                addStatus('api-tests', '❌ API não disponível: ' + e.message, 'error');
-                log('❌ API erro: ' + e.message);
-            }
-            
-            // Testar rota básica
-            try {
-                const response = await fetch('/');
-                if (response.ok) {
-                    addStatus('api-tests', '✅ Rota raiz acessível', 'success');
-                    log('✅ Rota / OK');
-                } else {
-                    addStatus('api-tests', '⚠️ Rota raiz com problemas: ' + response.status, 'warning');
-                    log('⚠️ Rota /: ' + response.status);
-                }
-            } catch (e) {
-                addStatus('api-tests', '❌ Rota raiz inacessível: ' + e.message, 'error');
-                log('❌ Rota / erro: ' + e.message);
-            }
+      }
+
+      // 4. Teste de Builder.io
+      function testBuilder() {
+        log("🏗️ Iniciando testes específicos do Builder.io...");
+
+        // Verificar por problemas conhecidos
+        const bodyText = document.body.textContent || "";
+        if (bodyText.includes("export default function")) {
+          addStatus(
+            "builder-tests",
+            "🚨 PROBLEMA CRÍTICO: Código React sendo exibido como texto!",
+            "error",
+          );
+          log("🚨 CRÍTICO: Código React como texto detectado");
+        } else {
+          addStatus(
+            "builder-tests",
+            "✅ Nenhum código React sendo exibido como texto",
+            "success",
+          );
+          log("✅ Sem código React como texto");
         }
-        
-        // 4. Teste de Builder.io
-        function testBuilder() {
-            log('🏗️ Iniciando testes específicos do Builder.io...');
-            
-            // Verificar por problemas conhecidos
-            const bodyText = document.body.textContent || '';
-            if (bodyText.includes('export default function')) {
-                addStatus('builder-tests', '🚨 PROBLEMA CRÍTICO: Código React sendo exibido como texto!', 'error');
-                log('🚨 CRÍTICO: Código React como texto detectado');
-            } else {
-                addStatus('builder-tests', '✅ Nenhum código React sendo exibido como texto', 'success');
-                log('✅ Sem código React como texto');
-            }
-            
-            // Verificar MyComponent
-            if (bodyText.includes('MyComponent')) {
-                addStatus('builder-tests', '⚠️ Referência a MyComponent detectada', 'warning');
-                log('⚠️ MyComponent detectado');
-            } else {
-                addStatus('builder-tests', '✅ MyComponent não detectado na tela', 'success');
-                log('✅ MyComponent não visível');
-            }
-            
-            // Verificar se app principal está carregando
-            const hasLegalFlow = bodyText.includes('LegalFlow') || bodyText.includes('Software Jurídico');
-            if (hasLegalFlow) {
-                addStatus('builder-tests', '✅ Marca LegalFlow detectada', 'success');
-                log('✅ LegalFlow branding OK');
-            } else {
-                addStatus('builder-tests', '⚠️ Marca LegalFlow não detectada', 'warning');
-                log('⚠️ LegalFlow branding ausente');
-            }
+
+        // Verificar MyComponent
+        if (bodyText.includes("MyComponent")) {
+          addStatus(
+            "builder-tests",
+            "⚠️ Referência a MyComponent detectada",
+            "warning",
+          );
+          log("⚠️ MyComponent detectado");
+        } else {
+          addStatus(
+            "builder-tests",
+            "✅ MyComponent não detectado na tela",
+            "success",
+          );
+          log("✅ MyComponent não visível");
         }
-        
-        async function runAllTests() {
-            log('🚀 Iniciando bateria completa de testes...');
-            
-            // Limpar resultados anteriores
-            ['env-tests', 'react-tests', 'api-tests', 'builder-tests'].forEach(id => {
-                document.getElementById(id).innerHTML = '';
-            });
-            
-            testEnvironment();
-            await testReact();
-            await testAPI();
-            testBuilder();
-            
-            log('✅ Todos os testes concluídos!');
+
+        // Verificar se app principal está carregando
+        const hasLegalFlow =
+          bodyText.includes("LegalFlow") ||
+          bodyText.includes("Software Jurídico");
+        if (hasLegalFlow) {
+          addStatus("builder-tests", "✅ Marca LegalFlow detectada", "success");
+          log("✅ LegalFlow branding OK");
+        } else {
+          addStatus(
+            "builder-tests",
+            "⚠️ Marca LegalFlow não detectada",
+            "warning",
+          );
+          log("⚠️ LegalFlow branding ausente");
         }
-        
-        function loadMainApp() {
-            log('🏠 Redirecionando para aplicação principal...');
-            window.location.href = '/';
-        }
-        
-        // Executar testes automaticamente
-        window.onload = () => {
-            log('🧪 Sistema de testes iniciado');
-            setTimeout(runAllTests, 1000);
-        };
+      }
+
+      async function runAllTests() {
+        log("🚀 Iniciando bateria completa de testes...");
+
+        // Limpar resultados anteriores
+        ["env-tests", "react-tests", "api-tests", "builder-tests"].forEach(
+          (id) => {
+            document.getElementById(id).innerHTML = "";
+          },
+        );
+
+        testEnvironment();
+        await testReact();
+        await testAPI();
+        testBuilder();
+
+        log("✅ Todos os testes concluídos!");
+      }
+
+      function loadMainApp() {
+        log("🏠 Redirecionando para aplicação principal...");
+        window.location.href = "/";
+      }
+
+      // Executar testes automaticamente
+      window.onload = () => {
+        log("🧪 Sistema de testes iniciado");
+        setTimeout(runAllTests, 1000);
+      };
     </script>
-</body>
+  </body>
 </html>

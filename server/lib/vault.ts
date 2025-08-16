@@ -11,7 +11,7 @@ interface VaultSecret {
   name: string;
   value: string;
   description?: string;
-  environment: 'development' | 'staging' | 'production';
+  environment: "development" | "staging" | "production";
   created_at: string;
   updated_at: string;
 }
@@ -28,12 +28,16 @@ class VaultManager {
   private lastFetch: number = 0;
 
   constructor(config: VaultConfig) {
-    this.supabase = createClient(config.supabaseUrl, config.supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+    this.supabase = createClient(
+      config.supabaseUrl,
+      config.supabaseServiceKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
+    );
   }
 
   /**
@@ -48,7 +52,7 @@ class VaultManager {
 
       // Buscar do banco se não estiver em cache
       await this.refreshCache();
-      
+
       const secret = this.cache.get(name);
       return secret ? secret.value : null;
     } catch (error) {
@@ -63,15 +67,15 @@ class VaultManager {
   async getAllSecrets(): Promise<Record<string, string>> {
     try {
       await this.refreshCache();
-      
+
       const secrets: Record<string, string> = {};
       this.cache.forEach((secret, name) => {
         secrets[name] = secret.value;
       });
-      
+
       return secrets;
     } catch (error) {
-      console.error('Erro ao buscar todos os secrets:', error);
+      console.error("Erro ao buscar todos os secrets:", error);
       return {};
     }
   }
@@ -79,21 +83,28 @@ class VaultManager {
   /**
    * Armazena secret no vault
    */
-  async setSecret(name: string, value: string, description?: string): Promise<boolean> {
+  async setSecret(
+    name: string,
+    value: string,
+    description?: string,
+  ): Promise<boolean> {
     try {
-      const environment = process.env.NODE_ENV as 'development' | 'staging' | 'production' || 'development';
-      
-      const { error } = await this.supabase
-        .from('legalflow.secrets')
-        .upsert({
+      const environment =
+        (process.env.NODE_ENV as "development" | "staging" | "production") ||
+        "development";
+
+      const { error } = await this.supabase.from("legalflow.secrets").upsert(
+        {
           name,
           value,
           description,
           environment,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'name,environment'
-        });
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "name,environment",
+        },
+      );
 
       if (error) {
         console.error(`Erro ao armazenar secret '${name}':`, error);
@@ -102,13 +113,13 @@ class VaultManager {
 
       // Atualizar cache
       this.cache.set(name, {
-        id: '',
+        id: "",
         name,
         value,
         description,
         environment,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       });
 
       return true;
@@ -123,13 +134,15 @@ class VaultManager {
    */
   async deleteSecret(name: string): Promise<boolean> {
     try {
-      const environment = process.env.NODE_ENV as 'development' | 'staging' | 'production' || 'development';
-      
+      const environment =
+        (process.env.NODE_ENV as "development" | "staging" | "production") ||
+        "development";
+
       const { error } = await this.supabase
-        .from('legalflow.secrets')
+        .from("legalflow.secrets")
         .delete()
-        .eq('name', name)
-        .eq('environment', environment);
+        .eq("name", name)
+        .eq("environment", environment);
 
       if (error) {
         console.error(`Erro ao deletar secret '${name}':`, error);
@@ -154,15 +167,17 @@ class VaultManager {
     }
 
     try {
-      const environment = process.env.NODE_ENV as 'development' | 'staging' | 'production' || 'development';
-      
+      const environment =
+        (process.env.NODE_ENV as "development" | "staging" | "production") ||
+        "development";
+
       const { data, error } = await this.supabase
-        .from('legalflow.secrets')
-        .select('*')
-        .eq('environment', environment);
+        .from("legalflow.secrets")
+        .select("*")
+        .eq("environment", environment);
 
       if (error) {
-        console.error('Erro ao atualizar cache de secrets:', error);
+        console.error("Erro ao atualizar cache de secrets:", error);
         return;
       }
 
@@ -178,7 +193,7 @@ class VaultManager {
 
       this.lastFetch = Date.now();
     } catch (error) {
-      console.error('Erro ao atualizar cache de secrets:', error);
+      console.error("Erro ao atualizar cache de secrets:", error);
     }
   }
 
@@ -186,7 +201,7 @@ class VaultManager {
    * Verifica se cache ainda é válido
    */
   private isCacheValid(): boolean {
-    return (Date.now() - this.lastFetch) < this.cacheExpiry;
+    return Date.now() - this.lastFetch < this.cacheExpiry;
   }
 
   /**
@@ -214,7 +229,9 @@ export function initializeVault(config: VaultConfig): VaultManager {
  */
 export function getVault(): VaultManager {
   if (!vaultInstance) {
-    throw new Error('Vault não foi inicializado. Chame initializeVault() primeiro.');
+    throw new Error(
+      "Vault não foi inicializado. Chame initializeVault() primeiro.",
+    );
   }
   return vaultInstance;
 }
@@ -240,7 +257,7 @@ export async function getAllSecrets(): Promise<Record<string, string>> {
     const vault = getVault();
     return await vault.getAllSecrets();
   } catch (error) {
-    console.error('Erro ao buscar todos os secrets:', error);
+    console.error("Erro ao buscar todos os secrets:", error);
     return {};
   }
 }
@@ -248,7 +265,10 @@ export async function getAllSecrets(): Promise<Record<string, string>> {
 /**
  * Helper para configuração com fallback para environment variables
  */
-export async function getSecretOrEnv(name: string, envName?: string): Promise<string | null> {
+export async function getSecretOrEnv(
+  name: string,
+  envName?: string,
+): Promise<string | null> {
   try {
     // Tentar buscar do vault primeiro
     const secret = await getSecret(name);

@@ -12,7 +12,14 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { Scale, Mail, Lock, AlertCircle, Database, ExternalLink } from "lucide-react";
+import {
+  Scale,
+  Mail,
+  Lock,
+  AlertCircle,
+  Database,
+  ExternalLink,
+} from "lucide-react";
 import { supabaseConfigured } from "../lib/supabase";
 
 export function SupabaseLoginPage() {
@@ -72,7 +79,8 @@ export function SupabaseLoginPage() {
           <Alert className="mb-6 border-amber-200 bg-amber-50">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800">
-              <strong>Supabase não configurado.</strong> As credenciais do banco de dados não estão definidas.
+              <strong>Supabase não configurado.</strong> As credenciais do banco
+              de dados não estão definidas.
               <div className="mt-3 flex gap-2">
                 <Button
                   size="sm"
@@ -84,7 +92,7 @@ export function SupabaseLoginPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => window.open('/auth-diagnosis.html', '_blank')}
+                  onClick={() => window.open("/auth-diagnosis.html", "_blank")}
                 >
                   <ExternalLink className="h-3 w-3 mr-1" />
                   Mais Detalhes
@@ -100,8 +108,7 @@ export function SupabaseLoginPage() {
             <CardDescription>
               {supabaseConfigured
                 ? "Entre com suas credenciais da conta"
-                : "Supabase não configurado - considere usar o modo demo"
-              }
+                : "Supabase não configurado - considere usar o modo demo"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -150,7 +157,11 @@ export function SupabaseLoginPage() {
                 className="w-full bg-black hover:bg-gray-800 text-white"
                 disabled={isLoading || !supabaseConfigured}
               >
-                {isLoading ? "Entrando..." : !supabaseConfigured ? "Supabase não configurado" : "Fazer Login"}
+                {isLoading
+                  ? "Entrando..."
+                  : !supabaseConfigured
+                    ? "Supabase não configurado"
+                    : "Fazer Login"}
               </Button>
 
               <div className="flex items-center justify-between text-sm">

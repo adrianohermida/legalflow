@@ -24,7 +24,7 @@ import { initializeVault, getSecretOrEnv } from "./lib/vault";
 import {
   securityLogger,
   configureSecurityFromVault,
-  initializeDefaultSecrets
+  initializeDefaultSecrets,
 } from "./middleware/security";
 
 export async function createServer() {
@@ -32,24 +32,27 @@ export async function createServer() {
 
   // Initialize vault system
   try {
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseUrl =
+      process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (supabaseUrl && supabaseServiceKey) {
       initializeVault({
         supabaseUrl,
-        supabaseServiceKey
+        supabaseServiceKey,
       });
 
       // Initialize default secrets
       await initializeDefaultSecrets();
 
-      console.log('✅ Vault inicializado com sucesso');
+      console.log("✅ Vault inicializado com sucesso");
     } else {
-      console.warn('⚠️ Vault não inicializado - credenciais Supabase não encontradas');
+      console.warn(
+        "⚠️ Vault não inicializado - credenciais Supabase não encontradas",
+      );
     }
   } catch (error) {
-    console.error('❌ Erro ao inicializar vault:', error);
+    console.error("❌ Erro ao inicializar vault:", error);
   }
 
   // Trust proxy for Fly.dev environment

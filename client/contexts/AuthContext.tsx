@@ -59,7 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Don't try to authenticate if Supabase is not configured
     if (!supabaseConfigured) {
-      console.log("AuthContext: Supabase not configured, skipping authentication");
+      console.log(
+        "AuthContext: Supabase not configured, skipping authentication",
+      );
       setIsLoading(false);
       return;
     }
@@ -75,7 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await loadUserData(session.user);
         }
       } catch (error: any) {
-        console.warn("Auth check failed (expected in demo mode):", error.message || error);
+        console.warn(
+          "Auth check failed (expected in demo mode):",
+          error.message || error,
+        );
         // In demo mode, this is expected - just set loading to false
       } finally {
         setIsLoading(false);
@@ -97,7 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       subscription = result.data?.subscription;
     } catch (error) {
-      console.warn("Auth state change listener failed (expected in demo mode):", error);
+      console.warn(
+        "Auth state change listener failed (expected in demo mode):",
+        error,
+      );
     }
 
     return () => {

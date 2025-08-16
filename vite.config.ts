@@ -22,26 +22,26 @@ export default defineConfig({
       input: path.resolve(__dirname, "index.html"),
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"],
         },
       },
     },
-    target: 'es2015',
-    minify: 'esbuild',
+    target: "es2015",
+    minify: "esbuild",
     sourcemap: false,
   },
   optimizeDeps: {
     include: [
-      'react', 
-      'react-dom', 
-      'react-router-dom',
-      '@tanstack/react-query',
-      'lucide-react'
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "@tanstack/react-query",
+      "lucide-react",
     ],
   },
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || "1.0.0"),
   },
 });

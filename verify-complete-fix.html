@@ -1,376 +1,568 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LegalFlow - Verificação Completa</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: system-ui; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 800px;
-            width: 95%;
-        }
-        .test-result {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-weight: 500;
-            border-left: 4px solid;
-        }
-        .success { 
-            background: rgba(34, 197, 94, 0.1); 
-            color: #22c55e; 
-            border-left-color: #22c55e;
-        }
-        .error { 
-            background: rgba(239, 68, 68, 0.1); 
-            color: #ef4444; 
-            border-left-color: #ef4444;
-        }
-        .warning { 
-            background: rgba(245, 158, 11, 0.1); 
-            color: #f59e0b; 
-            border-left-color: #f59e0b;
-        }
-        .info { 
-            background: rgba(59, 130, 246, 0.1); 
-            color: #3b82f6; 
-            border-left-color: #3b82f6;
-        }
-        h1 { color: #22c55e; margin-bottom: 30px; text-align: center; }
-        h2 { margin: 25px 0 15px 0; color: #e2e8f0; }
-        button {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 10px 5px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        button:hover { transform: translateY(-1px); }
-        .log { 
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px; 
-            border-radius: 8px; 
-            font-family: 'Courier New', monospace; 
-            white-space: pre-wrap; 
-            margin: 15px 0;
-            max-height: 300px;
-            overflow-y: auto;
-            color: #e2e8f0;
-            font-size: 12px;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #22c55e, #16a34a);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        min-height: 100vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        max-width: 800px;
+        width: 95%;
+      }
+      .test-result {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-weight: 500;
+        border-left: 4px solid;
+      }
+      .success {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border-left-color: #22c55e;
+      }
+      .error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border-left-color: #ef4444;
+      }
+      .warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border-left-color: #f59e0b;
+      }
+      .info {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border-left-color: #3b82f6;
+      }
+      h1 {
+        color: #22c55e;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      h2 {
+        margin: 25px 0 15px 0;
+        color: #e2e8f0;
+      }
+      button {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      button:hover {
+        transform: translateY(-1px);
+      }
+      .log {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+        margin: 15px 0;
+        max-height: 300px;
+        overflow-y: auto;
+        color: #e2e8f0;
+        font-size: 12px;
+      }
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 20px 0;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        width: 0%;
+        transition: width 0.3s ease;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🧪 LegalFlow - Verificação Completa de Carregamento</h1>
-        
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress"></div>
-        </div>
-        
-        <h2>🔍 Testes de Sistema</h2>
-        <div id="system-tests"></div>
-        
-        <h2>⚛️ Testes de React</h2>
-        <div id="react-tests"></div>
-        
-        <h2>🌐 Testes de Conectividade</h2>
-        <div id="connectivity-tests"></div>
-        
-        <h2>🏗️ Testes de Builder.io</h2>
-        <div id="builder-tests"></div>
-        
-        <h2>📊 Relatório Final</h2>
-        <div id="final-report"></div>
-        
-        <h2>📝 Logs Detalhados</h2>
-        <div id="detailed-logs" class="log"></div>
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <button onclick="runCompleteVerification()" id="runBtn">🚀 Executar Verificação Completa</button>
-            <button onclick="loadMainApp()">🏠 Carregar App Principal</button>
-            <button onclick="window.location.reload()">🔄 Recarregar Testes</button>
-            <button onclick="openTestPage()">🧪 Abrir Página de Teste</button>
-        </div>
+      <h1>🧪 LegalFlow - Verificação Completa de Carregamento</h1>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+
+      <h2>🔍 Testes de Sistema</h2>
+      <div id="system-tests"></div>
+
+      <h2>⚛️ Testes de React</h2>
+      <div id="react-tests"></div>
+
+      <h2>🌐 Testes de Conectividade</h2>
+      <div id="connectivity-tests"></div>
+
+      <h2>🏗️ Testes de Builder.io</h2>
+      <div id="builder-tests"></div>
+
+      <h2>📊 Relatório Final</h2>
+      <div id="final-report"></div>
+
+      <h2>📝 Logs Detalhados</h2>
+      <div id="detailed-logs" class="log"></div>
+
+      <div style="text-align: center; margin-top: 30px">
+        <button onclick="runCompleteVerification()" id="runBtn">
+          🚀 Executar Verificação Completa
+        </button>
+        <button onclick="loadMainApp()">🏠 Carregar App Principal</button>
+        <button onclick="window.location.reload()">🔄 Recarregar Testes</button>
+        <button onclick="openTestPage()">🧪 Abrir Página de Teste</button>
+      </div>
     </div>
 
     <script>
-        let logs = [];
-        let testsCompleted = 0;
-        let totalTests = 12;
-        let testResults = {
-            system: { passed: 0, failed: 0 },
-            react: { passed: 0, failed: 0 },
-            connectivity: { passed: 0, failed: 0 },
-            builder: { passed: 0, failed: 0 }
-        };
-        
-        function log(message, level = 'info') {
-            const timestamp = new Date().toLocaleTimeString('pt-BR');
-            const logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
-            logs.push(logEntry);
-            updateLogs();
-            console.log(logEntry);
+      let logs = [];
+      let testsCompleted = 0;
+      let totalTests = 12;
+      let testResults = {
+        system: { passed: 0, failed: 0 },
+        react: { passed: 0, failed: 0 },
+        connectivity: { passed: 0, failed: 0 },
+        builder: { passed: 0, failed: 0 },
+      };
+
+      function log(message, level = "info") {
+        const timestamp = new Date().toLocaleTimeString("pt-BR");
+        const logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+        logs.push(logEntry);
+        updateLogs();
+        console.log(logEntry);
+      }
+
+      function updateLogs() {
+        document.getElementById("detailed-logs").textContent = logs
+          .slice(-50)
+          .join("\n");
+      }
+
+      function updateProgress() {
+        const progress = (testsCompleted / totalTests) * 100;
+        document.getElementById("progress").style.width = progress + "%";
+      }
+
+      function addResult(containerId, message, type, category) {
+        const container = document.getElementById(containerId);
+        const div = document.createElement("div");
+        div.className = `test-result ${type}`;
+        div.textContent = message;
+        container.appendChild(div);
+
+        testsCompleted++;
+        if (type === "success") {
+          testResults[category].passed++;
+        } else if (type === "error") {
+          testResults[category].failed++;
         }
-        
-        function updateLogs() {
-            document.getElementById('detailed-logs').textContent = logs.slice(-50).join('\n');
+        updateProgress();
+      }
+
+      // 1. Testes de Sistema
+      function testSystem() {
+        log("🔍 Iniciando testes de sistema...");
+
+        // Verificar environment
+        const isBuilder =
+          window.location.hostname.includes("builder.codes") ||
+          window.location.hostname.includes("fly.dev");
+
+        if (isBuilder) {
+          addResult(
+            "system-tests",
+            "✅ Ambiente Builder.io/Fly.dev detectado",
+            "success",
+            "system",
+          );
+          log("✅ Executando em ambiente de produção");
+        } else {
+          addResult(
+            "system-tests",
+            "⚠️ Ambiente local detectado",
+            "warning",
+            "system",
+          );
+          log("⚠️ Executando em ambiente local");
         }
-        
-        function updateProgress() {
-            const progress = (testsCompleted / totalTests) * 100;
-            document.getElementById('progress').style.width = progress + '%';
+
+        // Verificar DOM
+        if (document.getElementById("root")) {
+          addResult(
+            "system-tests",
+            "✅ Elemento #root encontrado",
+            "success",
+            "system",
+          );
+          log("✅ DOM structure OK");
+        } else {
+          addResult(
+            "system-tests",
+            "❌ Elemento #root ausente",
+            "error",
+            "system",
+          );
+          log("❌ DOM structure problem");
         }
-        
-        function addResult(containerId, message, type, category) {
-            const container = document.getElementById(containerId);
-            const div = document.createElement('div');
-            div.className = `test-result ${type}`;
-            div.textContent = message;
-            container.appendChild(div);
-            
-            testsCompleted++;
-            if (type === 'success') {
-                testResults[category].passed++;
-            } else if (type === 'error') {
-                testResults[category].failed++;
-            }
-            updateProgress();
+
+        // Verificar console
+        if (typeof console !== "undefined" && console.log) {
+          addResult(
+            "system-tests",
+            "✅ Console funcional",
+            "success",
+            "system",
+          );
+          log("✅ Console available");
+        } else {
+          addResult(
+            "system-tests",
+            "❌ Console não disponível",
+            "error",
+            "system",
+          );
+          log("❌ Console unavailable");
         }
-        
-        // 1. Testes de Sistema
-        function testSystem() {
-            log('🔍 Iniciando testes de sistema...');
-            
-            // Verificar environment
-            const isBuilder = window.location.hostname.includes('builder.codes') || 
-                             window.location.hostname.includes('fly.dev');
-            
-            if (isBuilder) {
-                addResult('system-tests', '✅ Ambiente Builder.io/Fly.dev detectado', 'success', 'system');
-                log('✅ Executando em ambiente de produção');
-            } else {
-                addResult('system-tests', '⚠️ Ambiente local detectado', 'warning', 'system');
-                log('⚠️ Executando em ambiente local');
-            }
-            
-            // Verificar DOM
-            if (document.getElementById('root')) {
-                addResult('system-tests', '✅ Elemento #root encontrado', 'success', 'system');
-                log('✅ DOM structure OK');
-            } else {
-                addResult('system-tests', '❌ Elemento #root ausente', 'error', 'system');
-                log('❌ DOM structure problem');
-            }
-            
-            // Verificar console
-            if (typeof console !== 'undefined' && console.log) {
-                addResult('system-tests', '✅ Console funcional', 'success', 'system');
-                log('✅ Console available');
-            } else {
-                addResult('system-tests', '❌ Console não disponível', 'error', 'system');
-                log('❌ Console unavailable');
-            }
+      }
+
+      // 2. Testes de React
+      async function testReact() {
+        log("⚛️ Iniciando testes de React...");
+
+        return new Promise((resolve) => {
+          // Verificar se React já está disponível
+          if (typeof React !== "undefined") {
+            addResult(
+              "react-tests",
+              "✅ React já carregado",
+              "success",
+              "react",
+            );
+            log("✅ React pre-loaded");
+            testReactFunctionality();
+            resolve();
+          } else {
+            // Carregar React via CDN
+            const script = document.createElement("script");
+            script.src =
+              "https://unpkg.com/react@18/umd/react.production.min.js";
+            script.onload = () => {
+              if (typeof React !== "undefined") {
+                addResult(
+                  "react-tests",
+                  "✅ React carregado via CDN",
+                  "success",
+                  "react",
+                );
+                log("✅ React loaded from CDN");
+                testReactFunctionality();
+              } else {
+                addResult(
+                  "react-tests",
+                  "❌ Falha ao carregar React",
+                  "error",
+                  "react",
+                );
+                log("❌ React load failed");
+              }
+              resolve();
+            };
+            script.onerror = () => {
+              addResult(
+                "react-tests",
+                "❌ Erro ao carregar React via CDN",
+                "error",
+                "react",
+              );
+              log("❌ React CDN error");
+              resolve();
+            };
+            document.head.appendChild(script);
+          }
+        });
+      }
+
+      function testReactFunctionality() {
+        try {
+          // Testar createElement
+          const element = React.createElement(
+            "div",
+            { className: "test" },
+            "Test Element",
+          );
+          if (element && element.type === "div") {
+            addResult(
+              "react-tests",
+              "✅ React.createElement funcionando",
+              "success",
+              "react",
+            );
+            log("✅ React.createElement OK");
+          } else {
+            addResult(
+              "react-tests",
+              "❌ React.createElement com problemas",
+              "error",
+              "react",
+            );
+            log("❌ React.createElement failed");
+          }
+        } catch (e) {
+          addResult(
+            "react-tests",
+            "❌ Erro em React.createElement: " + e.message,
+            "error",
+            "react",
+          );
+          log("❌ React.createElement error: " + e.message);
         }
-        
-        // 2. Testes de React
-        async function testReact() {
-            log('⚛️ Iniciando testes de React...');
-            
-            return new Promise((resolve) => {
-                // Verificar se React já está disponível
-                if (typeof React !== 'undefined') {
-                    addResult('react-tests', '✅ React já carregado', 'success', 'react');
-                    log('✅ React pre-loaded');
-                    testReactFunctionality();
-                    resolve();
-                } else {
-                    // Carregar React via CDN
-                    const script = document.createElement('script');
-                    script.src = 'https://unpkg.com/react@18/umd/react.production.min.js';
-                    script.onload = () => {
-                        if (typeof React !== 'undefined') {
-                            addResult('react-tests', '✅ React carregado via CDN', 'success', 'react');
-                            log('✅ React loaded from CDN');
-                            testReactFunctionality();
-                        } else {
-                            addResult('react-tests', '❌ Falha ao carregar React', 'error', 'react');
-                            log('❌ React load failed');
-                        }
-                        resolve();
-                    };
-                    script.onerror = () => {
-                        addResult('react-tests', '❌ Erro ao carregar React via CDN', 'error', 'react');
-                        log('❌ React CDN error');
-                        resolve();
-                    };
-                    document.head.appendChild(script);
-                }
-            });
+
+        // Testar hooks (se disponível)
+        try {
+          if (React.useState) {
+            addResult(
+              "react-tests",
+              "✅ React Hooks disponíveis",
+              "success",
+              "react",
+            );
+            log("✅ React Hooks available");
+          } else {
+            addResult(
+              "react-tests",
+              "⚠️ React Hooks não detectados",
+              "warning",
+              "react",
+            );
+            log("⚠️ React Hooks not detected");
+          }
+        } catch (e) {
+          addResult(
+            "react-tests",
+            "❌ Erro ao verificar hooks: " + e.message,
+            "error",
+            "react",
+          );
+          log("❌ React Hooks error: " + e.message);
         }
-        
-        function testReactFunctionality() {
-            try {
-                // Testar createElement
-                const element = React.createElement('div', { className: 'test' }, 'Test Element');
-                if (element && element.type === 'div') {
-                    addResult('react-tests', '✅ React.createElement funcionando', 'success', 'react');
-                    log('✅ React.createElement OK');
-                } else {
-                    addResult('react-tests', '❌ React.createElement com problemas', 'error', 'react');
-                    log('❌ React.createElement failed');
-                }
-            } catch (e) {
-                addResult('react-tests', '❌ Erro em React.createElement: ' + e.message, 'error', 'react');
-                log('❌ React.createElement error: ' + e.message);
-            }
-            
-            // Testar hooks (se disponível)
-            try {
-                if (React.useState) {
-                    addResult('react-tests', '✅ React Hooks disponíveis', 'success', 'react');
-                    log('✅ React Hooks available');
-                } else {
-                    addResult('react-tests', '⚠️ React Hooks não detectados', 'warning', 'react');
-                    log('⚠️ React Hooks not detected');
-                }
-            } catch (e) {
-                addResult('react-tests', '❌ Erro ao verificar hooks: ' + e.message, 'error', 'react');
-                log('❌ React Hooks error: ' + e.message);
-            }
+      }
+
+      // 3. Testes de Conectividade
+      async function testConnectivity() {
+        log("🌐 Iniciando testes de conectividade...");
+
+        // Testar rota raiz
+        try {
+          const response = await fetch("/", { method: "HEAD" });
+          if (response.ok) {
+            addResult(
+              "connectivity-tests",
+              "✅ Rota raiz (/) acessível",
+              "success",
+              "connectivity",
+            );
+            log("✅ Root route accessible");
+          } else {
+            addResult(
+              "connectivity-tests",
+              "⚠️ Rota raiz com status: " + response.status,
+              "warning",
+              "connectivity",
+            );
+            log("⚠️ Root route status: " + response.status);
+          }
+        } catch (e) {
+          addResult(
+            "connectivity-tests",
+            "❌ Erro ao acessar rota raiz: " + e.message,
+            "error",
+            "connectivity",
+          );
+          log("❌ Root route error: " + e.message);
         }
-        
-        // 3. Testes de Conectividade
-        async function testConnectivity() {
-            log('🌐 Iniciando testes de conectividade...');
-            
-            // Testar rota raiz
-            try {
-                const response = await fetch('/', { method: 'HEAD' });
-                if (response.ok) {
-                    addResult('connectivity-tests', '✅ Rota raiz (/) acessível', 'success', 'connectivity');
-                    log('✅ Root route accessible');
-                } else {
-                    addResult('connectivity-tests', '⚠️ Rota raiz com status: ' + response.status, 'warning', 'connectivity');
-                    log('⚠️ Root route status: ' + response.status);
-                }
-            } catch (e) {
-                addResult('connectivity-tests', '❌ Erro ao acessar rota raiz: ' + e.message, 'error', 'connectivity');
-                log('❌ Root route error: ' + e.message);
-            }
-            
-            // Testar CDN do React
-            try {
-                const response = await fetch('https://unpkg.com/react@18/umd/react.production.min.js', { method: 'HEAD' });
-                if (response.ok) {
-                    addResult('connectivity-tests', '✅ CDN React acessível', 'success', 'connectivity');
-                    log('✅ React CDN accessible');
-                } else {
-                    addResult('connectivity-tests', '⚠️ CDN React com problemas: ' + response.status, 'warning', 'connectivity');
-                    log('⚠️ React CDN issues: ' + response.status);
-                }
-            } catch (e) {
-                addResult('connectivity-tests', '❌ CDN React inacessível: ' + e.message, 'error', 'connectivity');
-                log('❌ React CDN error: ' + e.message);
-            }
-            
-            // Testar conectividade geral
-            try {
-                const start = performance.now();
-                await fetch('https://httpbin.org/delay/1');
-                const duration = performance.now() - start;
-                
-                if (duration < 3000) {
-                    addResult('connectivity-tests', `✅ Conectividade externa OK (${Math.round(duration)}ms)`, 'success', 'connectivity');
-                    log(`✅ External connectivity: ${Math.round(duration)}ms`);
-                } else {
-                    addResult('connectivity-tests', `⚠️ Conectividade lenta (${Math.round(duration)}ms)`, 'warning', 'connectivity');
-                    log(`⚠️ Slow connectivity: ${Math.round(duration)}ms`);
-                }
-            } catch (e) {
-                addResult('connectivity-tests', '❌ Problemas de conectividade externa', 'error', 'connectivity');
-                log('❌ External connectivity failed');
-            }
+
+        // Testar CDN do React
+        try {
+          const response = await fetch(
+            "https://unpkg.com/react@18/umd/react.production.min.js",
+            { method: "HEAD" },
+          );
+          if (response.ok) {
+            addResult(
+              "connectivity-tests",
+              "✅ CDN React acessível",
+              "success",
+              "connectivity",
+            );
+            log("✅ React CDN accessible");
+          } else {
+            addResult(
+              "connectivity-tests",
+              "⚠️ CDN React com problemas: " + response.status,
+              "warning",
+              "connectivity",
+            );
+            log("⚠️ React CDN issues: " + response.status);
+          }
+        } catch (e) {
+          addResult(
+            "connectivity-tests",
+            "❌ CDN React inacessível: " + e.message,
+            "error",
+            "connectivity",
+          );
+          log("❌ React CDN error: " + e.message);
         }
-        
-        // 4. Testes de Builder.io
-        function testBuilder() {
-            log('🏗️ Iniciando testes específicos do Builder.io...');
-            
-            // Verificar se há código React sendo exibido como texto
-            const bodyText = document.body.textContent || '';
-            if (bodyText.includes('export default function MyComponent') || 
-                bodyText.includes('return <></>')) {
-                addResult('builder-tests', '🚨 CRÍTICO: Código React como texto detectado!', 'error', 'builder');
-                log('🚨 CRITICAL: React code as text detected');
-            } else {
-                addResult('builder-tests', '✅ Nenhum código React como texto', 'success', 'builder');
-                log('✅ No React code as text');
-            }
-            
-            // Verificar referências problemáticas
-            if (bodyText.includes('MyComponent')) {
-                addResult('builder-tests', '⚠️ Referência a MyComponent detectada', 'warning', 'builder');
-                log('⚠️ MyComponent reference found');
-            } else {
-                addResult('builder-tests', '✅ Sem referências problemáticas', 'success', 'builder');
-                log('✅ No problematic references');
-            }
-            
-            // Verificar marca LegalFlow
-            if (bodyText.includes('LegalFlow') || bodyText.includes('Software Jurídico')) {
-                addResult('builder-tests', '✅ Marca LegalFlow presente', 'success', 'builder');
-                log('✅ LegalFlow branding present');
-            } else {
-                addResult('builder-tests', '⚠️ Marca LegalFlow não detectada', 'warning', 'builder');
-                log('⚠️ LegalFlow branding missing');
-            }
+
+        // Testar conectividade geral
+        try {
+          const start = performance.now();
+          await fetch("https://httpbin.org/delay/1");
+          const duration = performance.now() - start;
+
+          if (duration < 3000) {
+            addResult(
+              "connectivity-tests",
+              `✅ Conectividade externa OK (${Math.round(duration)}ms)`,
+              "success",
+              "connectivity",
+            );
+            log(`✅ External connectivity: ${Math.round(duration)}ms`);
+          } else {
+            addResult(
+              "connectivity-tests",
+              `⚠️ Conectividade lenta (${Math.round(duration)}ms)`,
+              "warning",
+              "connectivity",
+            );
+            log(`⚠️ Slow connectivity: ${Math.round(duration)}ms`);
+          }
+        } catch (e) {
+          addResult(
+            "connectivity-tests",
+            "❌ Problemas de conectividade externa",
+            "error",
+            "connectivity",
+          );
+          log("❌ External connectivity failed");
         }
-        
-        // Relatório Final
-        function generateFinalReport() {
-            log('📊 Gerando relatório final...');
-            
-            const total = testsCompleted;
-            const totalPassed = Object.values(testResults).reduce((sum, cat) => sum + cat.passed, 0);
-            const totalFailed = Object.values(testResults).reduce((sum, cat) => sum + cat.failed, 0);
-            
-            const reportContainer = document.getElementById('final-report');
-            
-            let reportHTML = `
+      }
+
+      // 4. Testes de Builder.io
+      function testBuilder() {
+        log("🏗️ Iniciando testes específicos do Builder.io...");
+
+        // Verificar se há código React sendo exibido como texto
+        const bodyText = document.body.textContent || "";
+        if (
+          bodyText.includes("export default function MyComponent") ||
+          bodyText.includes("return <></>")
+        ) {
+          addResult(
+            "builder-tests",
+            "🚨 CRÍTICO: Código React como texto detectado!",
+            "error",
+            "builder",
+          );
+          log("🚨 CRITICAL: React code as text detected");
+        } else {
+          addResult(
+            "builder-tests",
+            "✅ Nenhum código React como texto",
+            "success",
+            "builder",
+          );
+          log("✅ No React code as text");
+        }
+
+        // Verificar referências problemáticas
+        if (bodyText.includes("MyComponent")) {
+          addResult(
+            "builder-tests",
+            "⚠️ Referência a MyComponent detectada",
+            "warning",
+            "builder",
+          );
+          log("⚠️ MyComponent reference found");
+        } else {
+          addResult(
+            "builder-tests",
+            "✅ Sem referências problemáticas",
+            "success",
+            "builder",
+          );
+          log("✅ No problematic references");
+        }
+
+        // Verificar marca LegalFlow
+        if (
+          bodyText.includes("LegalFlow") ||
+          bodyText.includes("Software Jurídico")
+        ) {
+          addResult(
+            "builder-tests",
+            "✅ Marca LegalFlow presente",
+            "success",
+            "builder",
+          );
+          log("✅ LegalFlow branding present");
+        } else {
+          addResult(
+            "builder-tests",
+            "⚠️ Marca LegalFlow não detectada",
+            "warning",
+            "builder",
+          );
+          log("⚠️ LegalFlow branding missing");
+        }
+      }
+
+      // Relatório Final
+      function generateFinalReport() {
+        log("📊 Gerando relatório final...");
+
+        const total = testsCompleted;
+        const totalPassed = Object.values(testResults).reduce(
+          (sum, cat) => sum + cat.passed,
+          0,
+        );
+        const totalFailed = Object.values(testResults).reduce(
+          (sum, cat) => sum + cat.failed,
+          0,
+        );
+
+        const reportContainer = document.getElementById("final-report");
+
+        let reportHTML = `
                 <div class="test-result info">
                     <strong>📈 Resumo Geral:</strong><br>
                     ✅ Testes Passaram: ${totalPassed}<br>
@@ -378,104 +570,117 @@
                     📊 Taxa de Sucesso: ${Math.round((totalPassed / total) * 100)}%
                 </div>
             `;
-            
-            Object.entries(testResults).forEach(([category, results]) => {
-                const categoryTotal = results.passed + results.failed;
-                const successRate = categoryTotal > 0 ? Math.round((results.passed / categoryTotal) * 100) : 0;
-                const status = successRate >= 80 ? 'success' : successRate >= 60 ? 'warning' : 'error';
-                
-                reportHTML += `
+
+        Object.entries(testResults).forEach(([category, results]) => {
+          const categoryTotal = results.passed + results.failed;
+          const successRate =
+            categoryTotal > 0
+              ? Math.round((results.passed / categoryTotal) * 100)
+              : 0;
+          const status =
+            successRate >= 80
+              ? "success"
+              : successRate >= 60
+                ? "warning"
+                : "error";
+
+          reportHTML += `
                     <div class="test-result ${status}">
                         <strong>${category.toUpperCase()}:</strong> 
                         ${results.passed}/${categoryTotal} passou (${successRate}%)
                     </div>
                 `;
-            });
-            
-            // Recomendações
-            if (totalFailed === 0) {
-                reportHTML += `
+        });
+
+        // Recomendações
+        if (totalFailed === 0) {
+          reportHTML += `
                     <div class="test-result success">
                         <strong>🎉 TODOS OS TESTES PASSARAM!</strong><br>
                         Sistema LegalFlow está funcionando perfeitamente.
                     </div>
                 `;
-            } else if (totalPassed >= totalFailed) {
-                reportHTML += `
+        } else if (totalPassed >= totalFailed) {
+          reportHTML += `
                     <div class="test-result warning">
                         <strong>⚠️ SISTEMA FUNCIONAL COM ALERTAS</strong><br>
                         Maioria dos testes passou, mas há pontos de atenção.
                     </div>
                 `;
-            } else {
-                reportHTML += `
+        } else {
+          reportHTML += `
                     <div class="test-result error">
                         <strong>❌ PROBLEMAS CRÍTICOS DETECTADOS</strong><br>
                         Necessária correção antes do uso em produção.
                     </div>
                 `;
-            }
-            
-            reportContainer.innerHTML = reportHTML;
-            log('✅ Relatório final gerado');
         }
-        
-        // Função principal
-        async function runCompleteVerification() {
-            const runBtn = document.getElementById('runBtn');
-            runBtn.disabled = true;
-            runBtn.textContent = '🔄 Executando...';
-            
-            // Limpar resultados anteriores
-            ['system-tests', 'react-tests', 'connectivity-tests', 'builder-tests', 'final-report'].forEach(id => {
-                document.getElementById(id).innerHTML = '';
-            });
-            
-            logs = [];
-            testsCompleted = 0;
-            testResults = {
-                system: { passed: 0, failed: 0 },
-                react: { passed: 0, failed: 0 },
-                connectivity: { passed: 0, failed: 0 },
-                builder: { passed: 0, failed: 0 }
-            };
-            
-            log('🚀 Iniciando verificação completa do sistema LegalFlow...');
-            
-            try {
-                testSystem();
-                await testReact();
-                await testConnectivity();
-                testBuilder();
-                
-                setTimeout(() => {
-                    generateFinalReport();
-                    runBtn.disabled = false;
-                    runBtn.textContent = '✅ Verificação Concluída';
-                    log('🎯 Verificação completa finalizada!');
-                }, 1000);
-                
-            } catch (error) {
-                log('❌ Erro durante verificação: ' + error.message, 'error');
-                runBtn.disabled = false;
-                runBtn.textContent = '❌ Erro na Verificação';
-            }
-        }
-        
-        function loadMainApp() {
-            log('🏠 Redirecionando para aplicação principal...');
-            window.location.href = '/';
-        }
-        
-        function openTestPage() {
-            window.open('/test-loading-complete.html', '_blank');
-        }
-        
-        // Inicialização
-        window.onload = () => {
-            log('🧪 Sistema de verificação iniciado');
-            log('📌 Use "Executar Verificação Completa" para começar os testes');
+
+        reportContainer.innerHTML = reportHTML;
+        log("✅ Relatório final gerado");
+      }
+
+      // Função principal
+      async function runCompleteVerification() {
+        const runBtn = document.getElementById("runBtn");
+        runBtn.disabled = true;
+        runBtn.textContent = "🔄 Executando...";
+
+        // Limpar resultados anteriores
+        [
+          "system-tests",
+          "react-tests",
+          "connectivity-tests",
+          "builder-tests",
+          "final-report",
+        ].forEach((id) => {
+          document.getElementById(id).innerHTML = "";
+        });
+
+        logs = [];
+        testsCompleted = 0;
+        testResults = {
+          system: { passed: 0, failed: 0 },
+          react: { passed: 0, failed: 0 },
+          connectivity: { passed: 0, failed: 0 },
+          builder: { passed: 0, failed: 0 },
         };
+
+        log("🚀 Iniciando verificação completa do sistema LegalFlow...");
+
+        try {
+          testSystem();
+          await testReact();
+          await testConnectivity();
+          testBuilder();
+
+          setTimeout(() => {
+            generateFinalReport();
+            runBtn.disabled = false;
+            runBtn.textContent = "✅ Verificação Concluída";
+            log("🎯 Verificação completa finalizada!");
+          }, 1000);
+        } catch (error) {
+          log("❌ Erro durante verificação: " + error.message, "error");
+          runBtn.disabled = false;
+          runBtn.textContent = "❌ Erro na Verificação";
+        }
+      }
+
+      function loadMainApp() {
+        log("🏠 Redirecionando para aplicação principal...");
+        window.location.href = "/";
+      }
+
+      function openTestPage() {
+        window.open("/test-loading-complete.html", "_blank");
+      }
+
+      // Inicialização
+      window.onload = () => {
+        log("🧪 Sistema de verificação iniciado");
+        log('📌 Use "Executar Verificação Completa" para começar os testes');
+      };
     </script>
-</body>
+  </body>
 </html>

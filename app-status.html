@@ -1,151 +1,174 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>🚀 LegalFlow - Status da Aplicação</title>
     <style>
-        body { 
-            font-family: system-ui; 
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white; 
-            padding: 20px; 
-            min-height: 100vh;
-            margin: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-        .status {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-        .success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        h1 { color: #22c55e; text-align: center; margin-bottom: 30px; }
-        button {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 10px 5px;
-            font-weight: 600;
-        }
+      body {
+        font-family: system-ui;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: white;
+        padding: 20px;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 40px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+      }
+      .status {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+      .success {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+      }
+      .error {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+      }
+      .warning {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+      }
+      h1 {
+        color: #22c55e;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      button {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-weight: 600;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🚀 LegalFlow - Status da Aplicação</h1>
-        
-        <div id="status-container"></div>
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <button onclick="checkStatus()">🔄 Verificar Status</button>
-            <button onclick="window.location.href='/'">🏠 Ir para App</button>
-            <button onclick="window.location.reload()">⚡ Recarregar</button>
-        </div>
+      <h1>🚀 LegalFlow - Status da Aplicação</h1>
+
+      <div id="status-container"></div>
+
+      <div style="text-align: center; margin-top: 30px">
+        <button onclick="checkStatus()">🔄 Verificar Status</button>
+        <button onclick="window.location.href='/'">🏠 Ir para App</button>
+        <button onclick="window.location.reload()">⚡ Recarregar</button>
+      </div>
     </div>
 
     <script>
-        function addStatus(message, type) {
-            const container = document.getElementById('status-container');
-            const div = document.createElement('div');
-            div.className = `status ${type}`;
-            div.innerHTML = message;
-            container.appendChild(div);
+      function addStatus(message, type) {
+        const container = document.getElementById("status-container");
+        const div = document.createElement("div");
+        div.className = `status ${type}`;
+        div.innerHTML = message;
+        container.appendChild(div);
+      }
+
+      function checkStatus() {
+        const container = document.getElementById("status-container");
+        container.innerHTML = "";
+
+        addStatus("🔍 Verificando status da aplicação...", "warning");
+
+        // Check current page
+        const currentUrl = window.location.href;
+        addStatus(`📍 URL atual: ${currentUrl}`, "success");
+
+        // Check if we're in production
+        const isProduction =
+          currentUrl.includes("fly.dev") ||
+          currentUrl.includes("builder.codes") ||
+          currentUrl.includes("builder.io");
+
+        if (isProduction) {
+          addStatus("🌐 Ambiente: PRODUÇÃO (Fly.dev)", "success");
+        } else {
+          addStatus("💻 Ambiente: Desenvolvimento", "warning");
         }
-        
-        function checkStatus() {
-            const container = document.getElementById('status-container');
-            container.innerHTML = '';
-            
-            addStatus('🔍 Verificando status da aplicação...', 'warning');
-            
-            // Check current page
-            const currentUrl = window.location.href;
-            addStatus(`📍 URL atual: ${currentUrl}`, 'success');
-            
-            // Check if we're in production
-            const isProduction = currentUrl.includes('fly.dev') || 
-                                currentUrl.includes('builder.codes') || 
-                                currentUrl.includes('builder.io');
-            
-            if (isProduction) {
-                addStatus('🌐 Ambiente: PRODUÇÃO (Fly.dev)', 'success');
+
+        // Test main page
+        fetch("/")
+          .then((response) => {
+            if (response.ok) {
+              addStatus("✅ Página principal: Acessível", "success");
+              return response.text();
             } else {
-                addStatus('💻 Ambiente: Desenvolvimento', 'warning');
+              addStatus(
+                `❌ Página principal: Erro ${response.status}`,
+                "error",
+              );
+              throw new Error(`HTTP ${response.status}`);
             }
-            
-            // Test main page
-            fetch('/')
-                .then(response => {
-                    if (response.ok) {
-                        addStatus('✅ Página principal: Acessível', 'success');
-                        return response.text();
-                    } else {
-                        addStatus(`❌ Página principal: Erro ${response.status}`, 'error');
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                })
-                .then(html => {
-                    // Check if React CDN is present
-                    if (html.includes('react@18')) {
-                        addStatus('✅ React CDN: Detectado no HTML', 'success');
-                    } else {
-                        addStatus('⚠️ React CDN: Não detectado', 'warning');
-                    }
-                    
-                    // Check if loading fallback is present
-                    if (html.includes('Inicializando sistema')) {
-                        addStatus('✅ Fallback de carregamento: Presente', 'success');
-                    } else {
-                        addStatus('⚠️ Fallback de carregamento: Ausente', 'warning');
-                    }
-                    
-                    // Check for problematic code
-                    if (html.includes('export default function MyComponent')) {
-                        addStatus('🚨 PROBLEMA: Código MyComponent detectado no HTML!', 'error');
-                    } else {
-                        addStatus('✅ Código MyComponent: Não detectado (bom)', 'success');
-                    }
-                    
-                    addStatus('✅ Verificação de HTML concluída', 'success');
-                })
-                .catch(error => {
-                    addStatus(`❌ Erro ao verificar página: ${error.message}`, 'error');
-                });
-            
-            // Check React availability
-            setTimeout(() => {
-                if (typeof React !== 'undefined') {
-                    addStatus('✅ React: Disponível globalmente', 'success');
-                } else {
-                    addStatus('❌ React: Não disponível', 'error');
-                }
-                
-                if (typeof ReactDOM !== 'undefined') {
-                    addStatus('✅ ReactDOM: Disponível globalmente', 'success');
-                } else {
-                    addStatus('❌ ReactDOM: Não disponível', 'error');
-                }
-                
-                addStatus('✅ Verificação de status concluída', 'success');
-            }, 1000);
-        }
-        
-        // Auto-check on load
-        window.onload = () => {
-            setTimeout(checkStatus, 500);
-        };
+          })
+          .then((html) => {
+            // Check if React CDN is present
+            if (html.includes("react@18")) {
+              addStatus("✅ React CDN: Detectado no HTML", "success");
+            } else {
+              addStatus("⚠️ React CDN: Não detectado", "warning");
+            }
+
+            // Check if loading fallback is present
+            if (html.includes("Inicializando sistema")) {
+              addStatus("✅ Fallback de carregamento: Presente", "success");
+            } else {
+              addStatus("⚠️ Fallback de carregamento: Ausente", "warning");
+            }
+
+            // Check for problematic code
+            if (html.includes("export default function MyComponent")) {
+              addStatus(
+                "🚨 PROBLEMA: Código MyComponent detectado no HTML!",
+                "error",
+              );
+            } else {
+              addStatus(
+                "✅ Código MyComponent: Não detectado (bom)",
+                "success",
+              );
+            }
+
+            addStatus("✅ Verificação de HTML concluída", "success");
+          })
+          .catch((error) => {
+            addStatus(`❌ Erro ao verificar página: ${error.message}`, "error");
+          });
+
+        // Check React availability
+        setTimeout(() => {
+          if (typeof React !== "undefined") {
+            addStatus("✅ React: Disponível globalmente", "success");
+          } else {
+            addStatus("❌ React: Não disponível", "error");
+          }
+
+          if (typeof ReactDOM !== "undefined") {
+            addStatus("✅ ReactDOM: Disponível globalmente", "success");
+          } else {
+            addStatus("❌ ReactDOM: Não disponível", "error");
+          }
+
+          addStatus("✅ Verificação de status concluída", "success");
+        }, 1000);
+      }
+
+      // Auto-check on load
+      window.onload = () => {
+        setTimeout(checkStatus, 500);
+      };
     </script>
-</body>
+  </body>
 </html>

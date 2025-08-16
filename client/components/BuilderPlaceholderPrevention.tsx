@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 
 /**
  * BUILDER.IO PLACEHOLDER PREVENTION SYSTEM
- * 
+ *
  * This component prevents Builder.io from showing code as text
  * by intercepting and redirecting any placeholder attempts.
  */
@@ -11,30 +11,34 @@ export function BuilderPlaceholderPrevention() {
   useEffect(() => {
     // Immediate check on mount
     const checkAndPrevent = () => {
-      const bodyText = document.body.textContent || '';
-      const hasPlaceholder = bodyText.includes('export default function MyComponent') ||
-                            bodyText.includes('return <></>') ||
-                            bodyText.includes('function MyComponent');
-      
+      const bodyText = document.body.textContent || "";
+      const hasPlaceholder =
+        bodyText.includes("export default function MyComponent") ||
+        bodyText.includes("return <></>") ||
+        bodyText.includes("function MyComponent");
+
       if (hasPlaceholder) {
-        console.error('🚨 Builder.io placeholder detected - preventing display');
-        
+        console.error(
+          "🚨 Builder.io placeholder detected - preventing display",
+        );
+
         // Find and replace any text nodes containing the placeholder
         const walker = document.createTreeWalker(
           document.body,
           NodeFilter.SHOW_TEXT,
           null,
-          false
+          false,
         );
-        
+
         let node;
-        while (node = walker.nextNode()) {
-          const text = node.textContent || '';
-          if (text.includes('export default function MyComponent') || 
-              text.includes('return <></>')) {
-            
+        while ((node = walker.nextNode())) {
+          const text = node.textContent || "";
+          if (
+            text.includes("export default function MyComponent") ||
+            text.includes("return <></>")
+          ) {
             // Replace with proper loading message
-            const replacement = document.createElement('div');
+            const replacement = document.createElement("div");
             replacement.style.cssText = `
               padding: 40px; 
               text-align: center; 
@@ -46,7 +50,7 @@ export function BuilderPlaceholderPrevention() {
               align-items: center;
               justify-content: center;
             `;
-            
+
             replacement.innerHTML = `
               <div style="
                 background: white; 
@@ -85,48 +89,48 @@ export function BuilderPlaceholderPrevention() {
                 }
               </style>
             `;
-            
+
             // Replace the problematic node
             if (node.parentNode) {
               node.parentNode.replaceChild(replacement, node);
             }
-            
+
             // Force reload after 3 seconds
             setTimeout(() => {
               window.location.reload();
             }, 3000);
-            
+
             break;
           }
         }
       }
     };
-    
+
     // Check immediately
     checkAndPrevent();
-    
+
     // Check periodically for first 10 seconds
     const interval = setInterval(checkAndPrevent, 1000);
     setTimeout(() => clearInterval(interval), 10000);
-    
+
     // Also observe for dynamic content changes
     const observer = new MutationObserver(() => {
       checkAndPrevent();
     });
-    
+
     observer.observe(document.body, {
       childList: true,
       subtree: true,
-      characterData: true
+      characterData: true,
     });
-    
+
     // Cleanup
     return () => {
       clearInterval(interval);
       observer.disconnect();
     };
   }, []);
-  
+
   return null; // This component doesn't render anything itself
 }
 

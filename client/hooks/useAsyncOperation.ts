@@ -3,10 +3,10 @@
  * Implementing standardized state management as suggested
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { LoadingState } from '../components/states/LoadingState';
-import { ErrorState } from '../components/states/ErrorState';
-import { EmptyState } from '../components/states/EmptyState';
+import { useState, useCallback, useEffect } from "react";
+import { LoadingState } from "../components/states/LoadingState";
+import { ErrorState } from "../components/states/ErrorState";
+import { EmptyState } from "../components/states/EmptyState";
 
 interface AsyncOperationState<T> {
   data: T | null;
@@ -40,9 +40,8 @@ interface UseAsyncOperationOptions<T> {
 
 export function useAsyncOperation<T>(
   asyncFunction: () => Promise<T>,
-  options: UseAsyncOperationOptions<T> = {}
+  options: UseAsyncOperationOptions<T> = {},
 ): AsyncOperationState<T> & AsyncOperationActions & AsyncOperationComponents {
-  
   const {
     initialData = null,
     executeOnMount = false,
@@ -50,7 +49,7 @@ export function useAsyncOperation<T>(
     retryDelay = 1000,
     onSuccess,
     onError,
-    emptyCheck = (data) => !data || (Array.isArray(data) && data.length === 0)
+    emptyCheck = (data) => !data || (Array.isArray(data) && data.length === 0),
   } = options;
 
   const [data, setData] = useState<T | null>(initialData);
@@ -61,7 +60,7 @@ export function useAsyncOperation<T>(
   const execute = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const result = await asyncFunction();
       setData(result);
@@ -69,10 +68,10 @@ export function useAsyncOperation<T>(
       onSuccess?.(result);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      
+
       if (currentRetry < retryCount) {
         setTimeout(() => {
-          setCurrentRetry(prev => prev + 1);
+          setCurrentRetry((prev) => prev + 1);
           execute();
         }, retryDelay);
       } else {
@@ -110,26 +109,26 @@ export function useAsyncOperation<T>(
   // Component factories
   const LoadingComponent = useCallback(() => {
     return LoadingState({
-      title: 'Carregando...',
-      description: 'Aguarde enquanto processamos sua solicitação.'
+      title: "Carregando...",
+      description: "Aguarde enquanto processamos sua solicitação.",
     });
   }, []);
 
   const ErrorComponent = useCallback(() => {
     return ErrorState({
-      title: 'Erro ao carregar dados',
-      description: error?.message || 'Ocorreu um erro inesperado.',
+      title: "Erro ao carregar dados",
+      description: error?.message || "Ocorreu um erro inesperado.",
       onRetry: refetch,
-      showRetry: true
+      showRetry: true,
     });
   }, [error, refetch]);
 
   const EmptyComponent = useCallback(() => {
     return EmptyState({
-      title: 'Nenhum dado encontrado',
-      description: 'Não há informações disponíveis no momento.',
+      title: "Nenhum dado encontrado",
+      description: "Não há informações disponíveis no momento.",
       onAction: refetch,
-      actionLabel: 'Tentar novamente'
+      actionLabel: "Tentar novamente",
     });
   }, [refetch]);
 
@@ -140,63 +139,63 @@ export function useAsyncOperation<T>(
     error,
     isSuccess,
     isEmpty,
-    
+
     // Actions
     execute,
     reset,
     refetch,
-    
+
     // Components
     LoadingComponent,
     ErrorComponent,
-    EmptyComponent
+    EmptyComponent,
   };
 }
 
 // Specialized hooks for common patterns
 export function useApiCall<T>(
   apiFunction: () => Promise<T>,
-  options?: UseAsyncOperationOptions<T>
+  options?: UseAsyncOperationOptions<T>,
 ) {
   return useAsyncOperation(apiFunction, {
     executeOnMount: true,
     retryCount: 2,
     retryDelay: 1000,
-    ...options
+    ...options,
   });
 }
 
 export function useLazyApiCall<T>(
   apiFunction: () => Promise<T>,
-  options?: UseAsyncOperationOptions<T>
+  options?: UseAsyncOperationOptions<T>,
 ) {
   return useAsyncOperation(apiFunction, {
     executeOnMount: false,
-    ...options
+    ...options,
   });
 }
 
 // Helper for rendering based on state
 export function renderAsyncState<T>(
   state: AsyncOperationState<T> & AsyncOperationComponents,
-  renderData: (data: T) => JSX.Element
+  renderData: (data: T) => JSX.Element,
 ): JSX.Element {
   if (state.isLoading) {
     return state.LoadingComponent();
   }
-  
+
   if (state.error) {
     return state.ErrorComponent();
   }
-  
+
   if (state.isEmpty) {
     return state.EmptyComponent();
   }
-  
+
   if (state.data) {
     return renderData(state.data);
   }
-  
+
   return state.EmptyComponent();
 }
 

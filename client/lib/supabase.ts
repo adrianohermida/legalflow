@@ -21,10 +21,21 @@ const createMockClient = () => {
   const mockAuth = {
     getSession: () => Promise.resolve({ data: { session: null }, error: null }),
     getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: { message: "Demo mode - no authentication required" } }),
-    signUp: () => Promise.resolve({ data: { user: null, session: null }, error: { message: "Demo mode - no authentication required" } }),
+    signInWithPassword: () =>
+      Promise.resolve({
+        data: { user: null, session: null },
+        error: { message: "Demo mode - no authentication required" },
+      }),
+    signUp: () =>
+      Promise.resolve({
+        data: { user: null, session: null },
+        error: { message: "Demo mode - no authentication required" },
+      }),
     signOut: () => Promise.resolve({ error: null }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } }, error: null }),
+    onAuthStateChange: () => ({
+      data: { subscription: { unsubscribe: () => {} } },
+      error: null,
+    }),
   };
 
   const mockFrom = () => ({
@@ -52,7 +63,7 @@ export const supabase = isConfigured
         detectSessionInUrl: true,
       },
     })
-  : createMockClient() as any;
+  : (createMockClient() as any);
 
 // ===============================
 // F1.0 - LEGALFLOW SCHEMA CLIENT
@@ -68,7 +79,7 @@ export const legalflow = isConfigured
         detectSessionInUrl: true,
       },
     })
-  : createMockClient() as any;
+  : (createMockClient() as any);
 
 // Alternative approach: Use schema() method on main client
 // F1.0: Pronto para uso nas próximas fases

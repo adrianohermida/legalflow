@@ -397,7 +397,6 @@ function DemoAppRoutes() {
           }
         />
 
-
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
@@ -602,7 +601,6 @@ function RegularAppRoutes() {
           }
         />
 
-
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
@@ -616,15 +614,20 @@ export default function App() {
   // Run schema validation on app startup
   useEffect(() => {
     // Mark React as loaded for Builder.io
-    const rootElement = document.getElementById('root');
+    const rootElement = document.getElementById("root");
     if (rootElement) {
-      rootElement.setAttribute('data-react-loaded', 'true');
-      rootElement.setAttribute('data-app-status', 'loaded');
+      rootElement.setAttribute("data-react-loaded", "true");
+      rootElement.setAttribute("data-app-status", "loaded");
     }
 
     // Builder.io debug logging
-    console.log('✅ LegalFlow React App loaded successfully');
-    console.log('🌐 Environment:', window.location.hostname.includes('builder.codes') ? 'Builder.io' : 'Development');
+    console.log("✅ LegalFlow React App loaded successfully");
+    console.log(
+      "🌐 Environment:",
+      window.location.hostname.includes("builder.codes")
+        ? "Builder.io"
+        : "Development",
+    );
 
     validateSchemaOnStartup().catch((error) => {
       console.error("Schema validation failed on startup:", error);
@@ -646,16 +649,21 @@ export default function App() {
       const currentPath = window.location.pathname;
 
       // Force demo mode for dashboard access or any page without auth mode
-      if (currentPath === "/" || currentPath === "/dashboard" || currentPath.includes("404")) {
+      if (
+        currentPath === "/" ||
+        currentPath === "/dashboard" ||
+        currentPath.includes("404")
+      ) {
         const savedMode = localStorage.getItem("auth-mode");
         if (!savedMode) {
-          console.log("🚀 No auth mode set, defaulting to demo for quick access");
+          console.log(
+            "🚀 No auth mode set, defaulting to demo for quick access",
+          );
           localStorage.setItem("auth-mode", "demo");
           return "demo";
         }
         return savedMode as "demo" | "supabase";
       }
-
 
       return localStorage.getItem("auth-mode") as "demo" | "supabase" | null;
     } catch (error) {
@@ -716,8 +724,8 @@ export default function App() {
 // Initialize React app properly
 const container = document.getElementById("root");
 if (container) {
-  console.log('🚀 Initializing LegalFlow React App...');
-  
+  console.log("🚀 Initializing LegalFlow React App...");
+
   if (!(container as any)._reactRoot) {
     const root = createRoot(container);
     (container as any)._reactRoot = root;
@@ -726,9 +734,9 @@ if (container) {
     root.render(
       <AppErrorBoundary>
         <App />
-      </AppErrorBoundary>
+      </AppErrorBoundary>,
     );
-    
-    console.log('✅ LegalFlow React App initialized successfully');
+
+    console.log("✅ LegalFlow React App initialized successfully");
   }
 }
