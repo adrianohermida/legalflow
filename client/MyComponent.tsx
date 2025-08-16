@@ -1,19 +1,9 @@
-// BUILDER.IO EMERGENCY FIX - COMPLETE REMOVAL
-// This file exists only to prevent Builder.io from generating placeholder code
+// LEGALFLOW COMPONENT - DESABILITADO PARA PERMITIR CARREGAMENTO
+// Este componente existe apenas para compatibilidade
 
-// Immediate redirect in Builder.io environment
-if (typeof window !== 'undefined') {
-  const isBuilderEnv = window.location.hostname.includes('builder.codes') || 
-                       window.location.hostname.includes('fly.dev') ||
-                       window.location.hostname.includes('builder.io');
-  
-  if (isBuilderEnv) {
-    console.log('🚨 Builder.io environment detected - redirecting immediately');
-    window.location.replace(window.location.origin + '/');
-  }
-}
+console.log('ℹ️ MyComponent carregado - sem redirects');
 
-// Return absolutely nothing to prevent any text rendering
+// Componente vazio que não interfere
 const MyComponent = () => null;
 
 export default MyComponent;
