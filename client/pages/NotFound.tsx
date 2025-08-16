@@ -1,10 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(3);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     console.error(
@@ -12,22 +13,38 @@ const NotFound = () => {
       location.pathname,
     );
 
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
     // Check auth mode and redirect accordingly
     const authMode = localStorage.getItem("auth-mode");
 
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          // Redirect to dashboard after countdown
-          navigate("/", { replace: true });
+        const newValue = prev - 1;
+        if (newValue <= 0) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          // Use setTimeout to avoid setState during render
+          setTimeout(() => {
+            navigate("/", { replace: true });
+          }, 0);
           return 0;
         }
-        return prev - 1;
+        return newValue;
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [location.pathname, navigate]);
 
   const handleImmediateRedirect = () => {
