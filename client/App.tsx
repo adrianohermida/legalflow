@@ -258,12 +258,12 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
-        {/* Consolidated journey routes */}
+        {/* Journey routes - Original */}
         <Route
           path="/jornadas"
           element={
             <DemoProtectedRoute userType="advogado">
-              <JourneysD1 />
+              <Jornadas />
             </DemoProtectedRoute>
           }
         />
@@ -271,7 +271,7 @@ function DemoAppRoutes() {
           path="/jornadas/designer/:templateId?"
           element={
             <DemoProtectedRoute userType="advogado">
-              <JourneyDesignerD2 />
+              <JourneyDesignerPage />
             </DemoProtectedRoute>
           }
         />
@@ -291,12 +291,12 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
-        {/* Consolidated inbox routes */}
+        {/* Inbox routes - Original */}
         <Route
           path="/inbox"
           element={
             <DemoProtectedRoute userType="advogado">
-              <InboxLegalC4 />
+              <InboxLegal />
             </DemoProtectedRoute>
           }
         />
@@ -316,21 +316,21 @@ function DemoAppRoutes() {
             </DemoProtectedRoute>
           }
         />
-        {/* Consolidated agenda routes */}
+        {/* Agenda routes - Original */}
         <Route
           path="/agenda"
           element={
             <DemoProtectedRoute userType="advogado">
-              <AgendaC5 />
+              <Agenda />
             </DemoProtectedRoute>
           }
         />
-        {/* Consolidated document routes */}
+        {/* Document routes - Original */}
         <Route
           path="/documentos"
           element={
             <DemoProtectedRoute userType="advogado">
-              <DocumentosC6 />
+              <Documentos />
             </DemoProtectedRoute>
           }
         />
